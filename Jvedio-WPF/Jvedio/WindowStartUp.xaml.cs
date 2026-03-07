@@ -212,6 +212,8 @@ namespace Jvedio
         private Task<bool> MovePlugins()
         {
             string path = Path.Combine(PathManager.BasePluginsPath, "temp");
+            if (!Directory.Exists(path))
+                return Task.FromResult(true);
             bool success = DirHelper.TryCopy(path, PathManager.BasePluginsPath);
             if (success)
                 DirHelper.TryDelete(path);
