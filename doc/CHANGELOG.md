@@ -27,6 +27,10 @@ Future code changes should continue adding dated entries here before commit and 
 - Improved crawler plugin discovery in `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` by preferring DLLs that match the plugin directory or have matching metadata JSON, reducing the chance of loading dependency DLLs as crawler entry assemblies.
 - Hardened crawler initialization against a missing plugin directory by handling empty directory scans safely.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `05-sync-plugin` module changes.
+- Removed the forced `GC.Collect()` from `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` so cache clearing no longer adds extra UI-side GC pressure.
+- Simplified `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` cleanup tasks by removing fixed post-delete waits and handling empty paths as missing files directly.
+- Fixed `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` so a missing video record finalizes the task instead of leaving the screenshot task hanging.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `06-media-maintenance` module changes.
 
 ## [2026-03-07]
 

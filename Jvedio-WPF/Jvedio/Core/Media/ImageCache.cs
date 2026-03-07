@@ -65,7 +65,6 @@ namespace Jvedio.Core.Media
             foreach (var item in _Cache) {
                 _Cache.Remove(item.Key);
             }
-            GC.Collect();
         }
     }
 }

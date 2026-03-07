@@ -108,7 +108,7 @@ namespace Jvedio
                 int totalCount = metaDatas.Count;
                 for (int i = 0; i < totalCount; i++) {
                     MetaData data = metaDatas[i];
-                    if (!File.Exists(data.Path))
+                    if (string.IsNullOrEmpty(data.Path) || !File.Exists(data.Path))
                         toDelete.Add(data.DataID.ToString());
 
                     RunProgress = (int)((double)i / (double)totalCount * 100);
@@ -131,7 +131,6 @@ namespace Jvedio
                     try {
                         Log($"开始删除 {toDelete.Count} 个信息");
                         videoMapper.deleteVideoByIds(toDelete);
-                        await Task.Delay(5000); // todo 删除不存在的信息
                         OnDataChanged?.Invoke();
                     } catch (Exception ex) {
                         Log(ex.Message);

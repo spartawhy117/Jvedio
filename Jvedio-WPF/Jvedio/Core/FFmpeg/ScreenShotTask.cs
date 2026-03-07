@@ -56,6 +56,8 @@ namespace Jvedio.Core.FFmpeg
                 Video video = videoMapper.SelectVideoByID(DataID);
                 if (video == null || video.DataID <= 0) {
                     Logger.Error($"can not find video by id[{DataID}]");
+                    FinalizeWithCancel();
+                    OnCompleted(null);
                     return;
                 }
 

@@ -28,6 +28,7 @@
 
 ## 当前性能 / Bug 问题
 
-- `ImageCache.Clear()` 已修复为逐项清理，但图片缓存策略仍较基础
-- `Window_DataBase.xaml.cs` 的“删除不在扫描路径中数据”逻辑已修复，但该模块仍容易引入误删风险
+- `ImageCache.Clear()` 已移除强制 GC，避免清缓存时额外放大 UI 抖动
+- `Window_DataBase.xaml.cs` 的两类清库逻辑都已去掉固定延迟等待，但该模块仍容易引入误删风险
+- `ScreenShotTask.cs` 已补齐找不到视频时的任务结束路径，避免截图任务悬挂
 - 详情页和截图链路都依赖文件系统扫描，媒体多时仍可能有卡顿
