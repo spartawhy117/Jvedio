@@ -24,6 +24,8 @@
 [![Star](https://img.shields.io/github/stars/hitchao/Jvedio?label=Star%20this%20repo)](https://github.com/hitchao/Jvedio)
 [![Fork](https://img.shields.io/github/forks/hitchao/Jvedio?label=Fork%20this%20repo)](https://github.com/hitchao/Jvedio/fork)
 
+This repository now only maintains the `Jvedio-WPF` Windows WPF application.
+
 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`Jvedio` is a local video management software that supports scanning local videos and importing the software to establish a video library,

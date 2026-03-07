@@ -22,6 +22,8 @@
 [![Star](https://img.shields.io/github/stars/hitchao/Jvedio?label=Star%20this%20repo)](https://github.com/hitchao/Jvedio)
 [![Fork](https://img.shields.io/github/forks/hitchao/Jvedio?label=Fork%20this%20repo)](https://github.com/hitchao/Jvedio/fork)
 
+このリポジトリは現在 `Jvedio-WPF` の Windows WPF 版のみを保守しています。
+
 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`Jvedio`は、ローカルビデオのスキャンとソフトウェアのインポートをサポートして、ビデオライブラリを確立するローカルビデオ管理ソフトウェアです。

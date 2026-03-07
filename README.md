@@ -24,6 +24,8 @@
 [![Star](https://img.shields.io/github/stars/hitchao/Jvedio?label=Star%20this%20repo)](https://github.com/hitchao/Jvedio)
 [![Fork](https://img.shields.io/github/forks/hitchao/Jvedio?label=Fork%20this%20repo)](https://github.com/hitchao/Jvedio/fork)
 
+当前仓库仅维护 `Jvedio-WPF`（Windows WPF）版本。
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`Jvedio` 是本地视频管理软件，支持扫描本地视频并导入软件，建立视频库，
 提取出视频的 **唯一识别码**，自动分类视频，
 添加标签管理视频，使用人工智能识别演员，支持翻译信息，
