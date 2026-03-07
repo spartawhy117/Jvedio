@@ -34,6 +34,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Hardened `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` shutdown handling by skipping startup-state persistence when the startup view model is not ready yet.
 - Removed redundant startup server-config reloading after `CrawlerManager.Init(true)` and simplified short-delay helper flows in plugin move/delete and backup tasks.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `01-bootstrap-startup` module changes.
+- Hardened `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` picture-path initialization so damaged or partially missing `PicPathJson` values now fall back to normalized defaults instead of failing during config hydration.
+- Added default repair for missing absolute, app-relative, and data-relative image path entries during config load.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `02-config-persistence` module changes.
 
 ## [2026-03-07]
 

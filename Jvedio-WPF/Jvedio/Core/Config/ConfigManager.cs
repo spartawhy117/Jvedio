@@ -132,28 +132,64 @@ namespace Jvedio
         {
             if (string.IsNullOrEmpty(Settings.PicPathJson)) {
                 Logger.Info("pic path is empty, init new");
-                Dictionary<string, object> dict = new Dictionary<string, object>();
-                dict.Add(PathType.Absolute.ToString(), PathManager.PicPath);
-                dict.Add(PathType.RelativeToApp.ToString(), "./Pic");
-
-                Dictionary<string, string> d = new Dictionary<string, string>();
-                d.Add("BigImagePath", "./fanart");
-                d.Add("SmallImagePath", "./poster");
-                d.Add("PreviewImagePath", "./.preview");
-                d.Add("ScreenShotPath", "./.screenshot");
-                d.Add("ActorImagePath", "./.actor");
-                dict.Add(PathType.RelativeToData.ToString(), d);
+                Dictionary<string, object> dict = BuildDefaultPicPaths();
                 Settings.PicPathJson = JsonConvert.SerializeObject(dict);
                 Settings.PicPaths = dict;
-            } else {
-                Dictionary<string, object> dictionary =
-                    JsonUtils.TryDeserializeObject<Dictionary<string, object>>(Settings.PicPathJson);
-                if (dictionary == null)
-                    return;
-                string str = dictionary[PathType.RelativeToData.ToString()].ToString();
-                dictionary[PathType.RelativeToData.ToString()] = JsonUtils.TryDeserializeObject<Dictionary<string, string>>(str);
-                Settings.PicPaths = dictionary;
+                return;
             }
+
+            Dictionary<string, object> dictionary =
+                JsonUtils.TryDeserializeObject<Dictionary<string, object>>(Settings.PicPathJson);
+            if (dictionary == null) {
+                dictionary = BuildDefaultPicPaths();
+            }
+
+            if (!dictionary.ContainsKey(PathType.Absolute.ToString()))
+                dictionary[PathType.Absolute.ToString()] = PathManager.PicPath;
+            if (!dictionary.ContainsKey(PathType.RelativeToApp.ToString()))
+                dictionary[PathType.RelativeToApp.ToString()] = "./Pic";
+
+            Dictionary<string, string> relativeToData = null;
+            if (dictionary.TryGetValue(PathType.RelativeToData.ToString(), out object relativeObject) && relativeObject != null) {
+                if (relativeObject is Dictionary<string, string> stringDict)
+                    relativeToData = stringDict;
+                else
+                    relativeToData = JsonUtils.TryDeserializeObject<Dictionary<string, string>>(relativeObject.ToString());
+            }
+
+            if (relativeToData == null)
+                relativeToData = BuildDefaultRelativePicPaths();
+            else {
+                Dictionary<string, string> defaults = BuildDefaultRelativePicPaths();
+                foreach (string key in defaults.Keys) {
+                    if (!relativeToData.ContainsKey(key) || string.IsNullOrEmpty(relativeToData[key]))
+                        relativeToData[key] = defaults[key];
+                }
+            }
+
+            dictionary[PathType.RelativeToData.ToString()] = relativeToData;
+            Settings.PicPaths = dictionary;
+            Settings.PicPathJson = JsonConvert.SerializeObject(dictionary);
+        }
+
+        private static Dictionary<string, object> BuildDefaultPicPaths()
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            dict.Add(PathType.Absolute.ToString(), PathManager.PicPath);
+            dict.Add(PathType.RelativeToApp.ToString(), "./Pic");
+            dict.Add(PathType.RelativeToData.ToString(), BuildDefaultRelativePicPaths());
+            return dict;
+        }
+
+        private static Dictionary<string, string> BuildDefaultRelativePicPaths()
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            dict.Add("BigImagePath", "./fanart");
+            dict.Add("SmallImagePath", "./poster");
+            dict.Add("PreviewImagePath", "./.preview");
+            dict.Add("ScreenShotPath", "./.screenshot");
+            dict.Add("ActorImagePath", "./.actor");
+            return dict;
         }
     }
 }
