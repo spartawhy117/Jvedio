@@ -14,11 +14,14 @@ namespace JvedioLib.Security
     public static class Encrypt
     {
         public static Type type { get; set; }
+        private static Assembly dll { get; set; }
 
         static Encrypt()
         {
             string dllPath = "JvedioLib.dll";
-            Assembly dll = Assembly.LoadFrom(dllPath);
+            if (!System.IO.File.Exists(dllPath))
+                return;
+            dll = Assembly.LoadFrom(dllPath);
             Type[] types = dll.GetTypes();
             type = types.Where(arg => arg.Name.Equals("Encrypt")).FirstOrDefault();
         }
@@ -27,7 +30,11 @@ namespace JvedioLib.Security
         {
             if (string.IsNullOrEmpty(callerName))
                 return null;
+            if (type == null)
+                return null;
             MethodInfo methodInfo = type.GetMethod(callerName);
+            if (methodInfo == null)
+                return null;
             object value = methodInfo.Invoke(null, _params);
             return value;
         }
@@ -75,11 +82,14 @@ namespace JvedioLib.Security
         }
 
         public static Type type { get; set; }
+        private static Assembly dll { get; set; }
 
         static Identify()
         {
             string dllPath = "JvedioLib.dll";
-            Assembly dll = Assembly.LoadFrom(dllPath);
+            if (!System.IO.File.Exists(dllPath))
+                return;
+            dll = Assembly.LoadFrom(dllPath);
             Type[] types = dll.GetTypes();
             type = types.Where(arg => arg.Name.Equals("Identify")).FirstOrDefault();
         }

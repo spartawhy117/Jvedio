@@ -25,6 +25,7 @@
 - 优化 `08-entity-relations`：收紧 `Video.Equals()` 的比较规则，仅在有效 `DataID` / `MVID` 存在时判等，避免未落库实体因默认值相同而被误判相等。
 - 补齐剩余未完全独立的文档模块，新增：`doc/modules/09-dialogs.md`、`doc/modules/10-utils-extern.md`、`doc/modules/11-style-theme.md`、`doc/modules/12-avalonedit.md`。
 - 优化 `09-dialogs`：修复 `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` 在网站列表为空时的空引用风险，并统一站点列表的增删与去空白处理。
+- 优化 `10-utils-extern`：为 `Jvedio-WPF/Jvedio/Utils/Extern/JvedioLib.cs` 补齐 DLL、类型和方法缺失时的空保护，并修正 `Jvedio-WPF/Jvedio/Utils/Common/Converter.cs` 中的布尔空判断写法。
 
 ## [2026-03-07]
 
