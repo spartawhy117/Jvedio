@@ -33,6 +33,7 @@
 - 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
 - 精简初始选择库页面，移除 `WindowStartUp.xaml` 左下角的设置按钮入口。
 - 继续精简初始选择库页面，移除 `WindowStartUp.xaml` 顶部搜索框以及 `WindowStartUp.xaml.cs`、`VieModel_StartUp.cs` 中对应的搜索筛选逻辑。
+- 将程序集版本从 `5.4` 提升为 `6`，当前 `App.GetLocalVersion()` 返回值将显示为 `6`。
 
 ## [2026-03-07]
 

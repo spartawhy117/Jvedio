@@ -31,6 +31,7 @@
 - 首次运行：`InitFirstRun()`
 - 初始页左下角入口：`WindowStartUp.xaml` 中选择库页底部的 `SettingHoverPath`
 - 选择库页顶部工具区：`WindowStartUp.xaml` 与 `VieModel_StartUp.cs`
+- 版本显示来源：`App.GetLocalVersion()` 与 `Properties/AssemblyInfo.cs`
 
 ## 当前性能 / Bug 问题
 
