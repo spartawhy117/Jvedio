@@ -8,6 +8,7 @@ Future code changes should continue adding dated entries here before commit.
 ### Changed
 - Narrowed the repository to WPF-only maintenance by removing `Jvedio-Vue`, `Jvedio-Android`, and `Jvedio-Linux`.
 - Updated `README.md`, `README_EN.md`, and `README_JP.md` to state that only `Jvedio-WPF` is maintained.
+- Replaced the old developer wiki page with `Jvedio-WPF/Document/Wiki/5.0/developer.md`, expanding it into a module-oriented WPF developer guide with onboarding, common change paths, and debugging notes.
 
 ## [2026-03-07]
 
