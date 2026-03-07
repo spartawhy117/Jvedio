@@ -16,10 +16,19 @@ namespace Jvedio
         {
             public static class HighLight
             {
-                public static SolidColorBrush Background =
-                    (SolidColorBrush)Application.Current.Resources["Common.HighLight.Background"];
-                public static SolidColorBrush BorderBrush =
-                    (SolidColorBrush)Application.Current.Resources["Common.HighLight.BorderBrush"];
+                public static SolidColorBrush Background =>
+                    GetBrush("Common.HighLight.Background", Colors.Transparent);
+
+                public static SolidColorBrush BorderBrush =>
+                    GetBrush("Common.HighLight.BorderBrush", Colors.Transparent);
+
+                private static SolidColorBrush GetBrush(string resourceKey, Color fallback)
+                {
+                    object value = Application.Current?.Resources?[resourceKey];
+                    if (value is SolidColorBrush brush)
+                        return brush;
+                    return new SolidColorBrush(fallback);
+                }
             }
         }
     }
