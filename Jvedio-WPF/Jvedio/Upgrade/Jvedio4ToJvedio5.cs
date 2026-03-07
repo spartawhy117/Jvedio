@@ -127,8 +127,8 @@ namespace Jvedio.Upgrade
             bool result = false;
             window_Progress = new Window_Progress("迁移数据", logText: string.Empty);
 
-            // 不等待
-            Task.Run(() => { App.Current.Dispatcher.Invoke(() => { window_Progress.ShowDialog(); }); });
+            // Fire-and-forget dialog startup while migration runs.
+            _ = Task.Run(() => { App.Current.Dispatcher.Invoke(() => { window_Progress.ShowDialog(); }); });
             for (int i = 0; i < files.Length; i++) {
                 string file = files[i];
                 if (!File.Exists(file))
