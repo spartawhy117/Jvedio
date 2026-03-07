@@ -840,12 +840,17 @@ namespace Jvedio.ViewModel
 
         public void LoadNfoParseData()
         {
-            NfoParseRules = NfoParse.LoadData();
+            Dictionary<string, NfoParse> data = NfoParse.LoadData();
+            if (data != null && data.ContainsKey("id"))
+                data.Remove("id");
+            NfoParseRules = data;
         }
 
 
         public void SaveNFOParseData()
         {
+            if (NfoParseRules != null && NfoParseRules.ContainsKey("id"))
+                NfoParseRules.Remove("id");
             NfoParse.SaveData(NfoParseRules);
         }
 

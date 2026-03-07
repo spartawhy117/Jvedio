@@ -556,11 +556,11 @@
                                 Orientation="Vertical">
                                 <CheckBox Content="{DynamicResource DataExistsIndexAfterScan}" IsChecked="{Binding DataExistsIndexAfterScan, Mode=TwoWay}" />
                                 <CheckBox Content="{DynamicResource ImageExistsIndexAfterScan}" IsChecked="{Binding ImageExistsIndexAfterScan, Mode=TwoWay}" />
-                                <CheckBox Content="{DynamicResource ImportNFOWhenScan}" IsChecked="{Binding ScanNfo, Mode=TwoWay, Source={x:Static config:ConfigManager.ScanConfig}}" />
+                                <CheckBox Content="{DynamicResource ImportNFOWhenScan}" IsChecked="{Binding ScanNfo, Mode=TwoWay, Source={x:Static config:ConfigManager.ScanConfig}}" Visibility="Collapsed" />
                                 <StackPanel
                                     Margin="20,0"
                                     Orientation="Vertical"
-                                    Visibility="{Binding ScanNfo, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay, Source={x:Static config:ConfigManager.ScanConfig}}">
+                                    Visibility="Collapsed">
                                     <!--<StackPanel Margin="20,0" Orientation="Vertical">-->
 
                                     <CheckBox Content="{DynamicResource OverwriteImage}" IsChecked="{Binding CopyNFOOverwriteImage}" />
@@ -615,7 +615,7 @@
                         </Grid>
 
 
-                        <Grid Visibility="{Binding ScanNfo, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay, Source={x:Static config:ConfigManager.ScanConfig}}">
+                        <Grid Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="*" />
@@ -978,7 +978,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="{DynamicResource Show}">
+            <TabItem Header="{DynamicResource Show}" Visibility="Collapsed">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
 

@@ -925,6 +925,7 @@ namespace Jvedio
             ConfigManager.Settings.PicPathMode = vieModel.PicPathMode;
             ConfigManager.Settings.SkipExistImage = vieModel.SkipExistImage;
             ConfigManager.Settings.DownloadWhenTitleNull = false;
+            ConfigManager.ScanConfig.ScanNfo = true;
             ConfigManager.Settings.IgnoreCertVal = vieModel.IgnoreCertVal;
             ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
             ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
@@ -961,14 +962,14 @@ namespace Jvedio
             ConfigManager.ScanConfig.DataExistsIndexAfterScan = vieModel.DataExistsIndexAfterScan;
             ConfigManager.ScanConfig.ImageExistsIndexAfterScan = vieModel.ImageExistsIndexAfterScan;
             ConfigManager.ScanConfig.ScanOnStartUp = vieModel.ScanOnStartUp;
-            ConfigManager.ScanConfig.CopyNFOOverwriteImage = vieModel.CopyNFOOverwriteImage;
-            ConfigManager.ScanConfig.CopyNFOPicture = vieModel.CopyNFOPicture;
-            ConfigManager.ScanConfig.CopyNFOActorPicture = vieModel.CopyNFOActorPicture;
-            ConfigManager.ScanConfig.CopyNFOPreview = vieModel.CopyNFOPreview;
-            ConfigManager.ScanConfig.CopyNFOScreenShot = vieModel.CopyNFOScreenShot;
-            ConfigManager.ScanConfig.CopyNFOActorPath = vieModel.CopyNFOActorPath;
-            ConfigManager.ScanConfig.CopyNFOPreviewPath = vieModel.CopyNFOPreviewPath;
-            ConfigManager.ScanConfig.CopyNFOScreenShotPath = vieModel.CopyNFOScreenShotPath;
+            ConfigManager.ScanConfig.CopyNFOOverwriteImage = false;
+            ConfigManager.ScanConfig.CopyNFOPicture = true;
+            ConfigManager.ScanConfig.CopyNFOActorPicture = true;
+            ConfigManager.ScanConfig.CopyNFOPreview = true;
+            ConfigManager.ScanConfig.CopyNFOScreenShot = true;
+            ConfigManager.ScanConfig.CopyNFOActorPath = ".actor";
+            ConfigManager.ScanConfig.CopyNFOPreviewPath = ".preview";
+            ConfigManager.ScanConfig.CopyNFOScreenShotPath = ".screenshot";
 
             // ffmpeg
             ConfigManager.FFmpegConfig.Path = vieModel.FFMPEG_Path;
