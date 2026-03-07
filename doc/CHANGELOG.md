@@ -24,6 +24,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Reduced repeated scan-time duplicate checks in `Jvedio-WPF/Jvedio/Core/Scan/ScanTask.cs` by indexing existing videos by VID, Hash, size-path, and existing file path state instead of repeatedly scanning the full in-memory list.
 - Simplified NFO import duplicate detection to reuse the same VID index during update/remove decisions.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `04-scan-import` module changes.
+- Improved crawler plugin discovery in `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` by preferring DLLs that match the plugin directory or have matching metadata JSON, reducing the chance of loading dependency DLLs as crawler entry assemblies.
+- Hardened crawler initialization against a missing plugin directory by handling empty directory scans safely.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `05-sync-plugin` module changes.
 
 ## [2026-03-07]
 

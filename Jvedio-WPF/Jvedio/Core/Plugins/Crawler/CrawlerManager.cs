@@ -32,7 +32,8 @@ namespace Jvedio.Core.Plugins.Crawler
         public static void Init(bool moveFile)
         {
             // 扫描
-            List<string> list = DirHelper.TryGetDirList(BaseDir).ToList();
+            IEnumerable<string> dirs = DirHelper.TryGetDirList(BaseDir);
+            List<string> list = dirs == null ? new List<string>() : dirs.ToList();
             PluginMetaDatas = new List<PluginMetaData>();
             foreach (string crawler_dir in list) {
                 // 移动并删除 temp
@@ -41,13 +42,11 @@ namespace Jvedio.Core.Plugins.Crawler
                     if (Directory.Exists(tempPath))
                         DirHelper.TryMoveDir(tempPath, crawler_dir, true);
                 }
-                string[] arr = FileHelper.TryGetAllFiles(crawler_dir, "*.dll");
-                if (arr == null || arr.Length <= 0) {
+                string dllPath = GetPluginDllPath(crawler_dir);
+                if (string.IsNullOrEmpty(dllPath)) {
                     Logger.Warn($"dir does not have dll: {crawler_dir}");
                     continue;
                 }
-
-                string dllPath = arr[0];
 
                 // 校验
                 PluginMetaData data = GetPluginData(dllPath);
@@ -69,6 +68,25 @@ namespace Jvedio.Core.Plugins.Crawler
 
             ConfigManager.ServerConfig.Read(); // 必须在加载所有爬虫插件后在初始化
             PluginMetaData.BaseDir = BaseDir;
+        }
+
+        private static string GetPluginDllPath(string crawlerDir)
+        {
+            string[] arr = FileHelper.TryGetAllFiles(crawlerDir, "*.dll");
+            if (arr == null || arr.Length == 0)
+                return null;
+
+            string dirName = Path.GetFileName(crawlerDir);
+            string directMatch = arr.FirstOrDefault(arg =>
+                Path.GetFileNameWithoutExtension(arg).Equals(dirName, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(directMatch))
+                return directMatch;
+
+            string jsonMatched = arr.FirstOrDefault(arg => File.Exists(GetCrawlerJsonPath(arg)));
+            if (!string.IsNullOrEmpty(jsonMatched))
+                return jsonMatched;
+
+            return arr[0];
         }
 
         public static bool NeedToCopy(string dllPath)
