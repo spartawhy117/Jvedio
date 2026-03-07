@@ -144,7 +144,7 @@
 
 ## 阶段 4：同步主链接入
 
-状态：`[ ]`
+状态：`[x]`
 
 目标：
 - 让 MetaTube 成为当前唯一搜刮源
@@ -353,13 +353,39 @@ UI 内容：
 - [x] 阶段 1：配置与路径基建
 - [x] 阶段 2：建立内置搜刮抽象层
 - [x] 阶段 3：MetaTube 客户端、缓存与适配
-- [ ] 阶段 4：同步主链接入
+- [x] 阶段 4：同步主链接入
 - [ ] 阶段 5：sidecar 与演员头像落盘
 - [ ] 阶段 6：设置页 MetaTube UI
 - [ ] 阶段 7：测试搜刮模式
 - [ ] 阶段 8：旧插件搜刮链降级
 - [ ] 阶段 9：手动刷新与覆盖更新
 - [ ] 阶段 10：文档、日志、测试补齐
+
+## 阶段 4 执行记录
+
+- 已将 `VideoDownLoader.GetInfo()` 从旧插件服务器源调度切换为通过 `ScraperProviderManager` 获取当前唯一内置 provider
+- 已将 `ScrapeResult` 转换为现有下载链可消费的 `Dictionary<string, object>`，保持 `DownLoadTask` 主流程暂时不大改
+- 已兼容现有关键字段：
+  - `Title`
+  - `Plot`
+  - `ReleaseDate`
+  - `Studio`
+  - `Director`
+  - `Duration`
+  - `Rating`
+  - `Genre`
+  - `Series`
+  - `Label`
+  - `ActorNames`
+  - `ActressImageUrl`
+  - `BigImageUrl`
+  - `SmallImageUrl`
+  - `ExtraImageUrl`
+  - `WebType`
+  - `DataCode`
+  - `WebUrl`
+- 已保留 `PluginID` 兼容字段，避免下游现有日志与流程立即失效
+- 已验证 `Release` 编译通过
 
 ## 阶段 3 执行记录
 

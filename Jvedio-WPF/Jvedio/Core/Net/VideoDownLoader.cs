@@ -1,7 +1,9 @@
-﻿using Jvedio.Core.Crawler;
+using Jvedio.Core.Crawler;
 using Jvedio.Core.Enums;
 using Jvedio.Core.Exceptions;
 using Jvedio.Core.Plugins.Crawler;
+using Jvedio.Core.Scraper;
+using Jvedio.Core.Scraper.Models;
 using Jvedio.Entity;
 using SuperControls.Style;
 using SuperControls.Style.Plugin;
@@ -61,43 +63,61 @@ namespace Jvedio.Core.Net
         {
             // 下载信息
             State = DownLoadState.DownLoading;
-            Dictionary<string, object> dataInfo = CurrentVideo.ToDictionary();
-            // 获得所有可用服务器源
-            Dictionary<PluginMetaData, List<CrawlerServer>> crawlers = GetCrawlerServer(dataInfo);
+            ScrapeRequest request = new ScrapeRequest() {
+                DataID = CurrentVideo.DataID,
+                VID = CurrentVideo.VID,
+                Path = CurrentVideo.Path,
+                Hash = CurrentVideo.Hash,
+                ForceRefresh = false,
+            };
 
-            foreach (var key in crawlers.Keys) {
-                List<CrawlerServer> crawlerServers = crawlers[key];
-                foreach (CrawlerServer server in crawlerServers) {
-                    if (server.Invoker == null) {
-                        TaskLogger.Warning($"刮削器[{server.PluginID}] invoker 为空");
-                        continue;
-                    }
-                    server.AttachToDict(dataInfo);
-                    // Header 传递代理配置进去
-                    object o = await server.Invoker.SetMethod("GetInfo").InvokeAsync(new object[] { Header, dataInfo });
-                    if (o is Dictionary<string, object> d) {
-                        // 成功一个立即返回，否则使用下一个
-                        if (d.ContainsKey("Header") && d["Header"] is Dictionary<string, string> dict) {
-                            server.Headers = JsonUtils.TrySerializeObject(dict);
-                            Header.Headers = dict;
-                        }
-                        headerCallBack?.Invoke(Header);
-                        d.Add("PluginID", server.PluginID);
+            IScraperProvider provider = ScraperProviderManager.GetActiveProvider();
+            if (provider == null)
+                throw new CrawlerNotFoundException();
 
-                        if (d.ContainsKey("Logs") && d["Logs"] is List<string> logs) {
-                            foreach (var item in logs) {
-                                TaskLogger.Info($"[{server.PluginID}] {item}");
-                            }
-                        }
-
-
-                        return d;
-                    } else {
-                        TaskLogger.Warning($"刮削器[{server.PluginID}] invoker 失败");
-                    }
-                }
+            TaskLogger.Info($"使用内置搜刮器：{provider.DisplayName}");
+            ScrapeResult scrapeResult = await provider.GetInfoAsync(request, cancellationToken);
+            if (scrapeResult == null) {
+                TaskLogger.Warning($"搜刮器[{provider.ProviderId}] 未返回有效数据");
+                return null;
             }
-            return null;
+
+            headerCallBack?.Invoke(Header);
+            return ToDictionary(scrapeResult);
+        }
+
+        private Dictionary<string, object> ToDictionary(ScrapeResult result)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (result == null)
+                return dict;
+
+            dict["PluginID"] = result.ProviderId;
+            dict["ProviderId"] = result.ProviderId;
+            dict["VID"] = result.VID;
+            dict["Title"] = result.Title;
+            dict["Plot"] = result.Plot;
+            dict["ReleaseDate"] = result.ReleaseDate;
+            dict["Studio"] = result.Studio;
+            dict["Director"] = result.Director;
+            dict["Duration"] = result.Duration.ToString();
+            dict["Rating"] = result.Rating.ToString();
+            dict["Genre"] = result.Genres;
+            dict["ActorNames"] = result.Actors?.Select(arg => arg.Name).Where(arg => !string.IsNullOrWhiteSpace(arg)).Distinct().ToList() ?? new List<string>();
+            dict["ActressImageUrl"] = result.Actors?.Select(arg => arg.AvatarUrl).Where(arg => !string.IsNullOrWhiteSpace(arg)).ToList() ?? new List<string>();
+            dict["BigImageUrl"] = result.Images?.PosterUrl ?? string.Empty;
+            dict["SmallImageUrl"] = result.Images?.ThumbUrl ?? string.Empty;
+            dict["ExtraImageUrl"] = result.Images?.PreviewImages ?? new List<string>();
+            dict["WebType"] = result.ExtraFields.ContainsKey("Provider") ? result.ExtraFields["Provider"] : result.ProviderId;
+            dict["DataCode"] = result.ExtraFields.ContainsKey("ProviderId") ? result.ExtraFields["ProviderId"] : string.Empty;
+            dict["WebUrl"] = result.ExtraFields.ContainsKey("Homepage") ? result.ExtraFields["Homepage"] : string.Empty;
+
+            if (result.ExtraFields.ContainsKey("Series") && result.ExtraFields["Series"] != null)
+                dict["Series"] = result.ExtraFields["Series"].ToString();
+            if (result.ExtraFields.ContainsKey("Label") && result.ExtraFields["Label"] != null)
+                dict["Label"] = result.ExtraFields["Label"].ToString();
+
+            return dict;
         }
 
         public Dictionary<PluginMetaData, List<CrawlerServer>> GetCrawlerServer(Dictionary<string, object> dataInfo)
