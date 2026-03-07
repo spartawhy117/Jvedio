@@ -115,7 +115,6 @@ namespace Jvedio.ViewModel
 
         public bool Sort { get; set; } = ConfigManager.StartUp.Sort;
         public string SortType { get; set; } = ConfigManager.StartUp.SortType;
-        public string CurrentSearch { get; set; } = string.Empty;
         public long CurrentSideIdx { get; set; } = ConfigManager.StartUp.SideIdx;
 
         #endregion
@@ -161,19 +160,12 @@ namespace Jvedio.ViewModel
                 return;
             }
 
-            if (string.IsNullOrEmpty(CurrentSearch)) {
-                CurrentSearch = string.Empty;
-                CurrentDatabases = Databases;
-            }
-
             ObservableCollection<AppDatabase> temp = new ObservableCollection<AppDatabase>();
             if (!ShowHideItem) {
-                Databases.ToList().Where(item => item.Hide == 0).Where(item => !string.IsNullOrEmpty(item.Name) &&
-                    item.Name.IndexOf(CurrentSearch) >= 0).ToList().ForEach
+                Databases.ToList().Where(item => item.Hide == 0).Where(item => !string.IsNullOrEmpty(item.Name)).ToList().ForEach
                 (item => temp.Add(item));
             } else {
-                Databases.ToList().Where(item => item.Hide >= 0).Where(item => !string.IsNullOrEmpty(item.Name) &&
-                    item.Name.IndexOf(CurrentSearch) >= 0).ToList().ForEach
+                Databases.ToList().Where(item => item.Hide >= 0).Where(item => !string.IsNullOrEmpty(item.Name)).ToList().ForEach
                 (item => temp.Add(item));
             }
 

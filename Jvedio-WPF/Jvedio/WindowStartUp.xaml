@@ -347,22 +347,9 @@
                             </Grid.RowDefinitions>
 
                             <Grid Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="auto" />
-                                </Grid.ColumnDefinitions>
-                                <super:SearchBox
-                                    Background="Transparent"
-                                    Clear="SearchText_Changed"
-                                    FontSize="12"
-                                    PlaceHolder="{DynamicResource Search}"
-                                    Search="SearchText_Changed"
-                                    SearchOnTextChanged="True"
-                                    ShowSearchButton="True" />
-
                                 <StackPanel
-                                    Grid.Column="1"
                                     Margin="10,0"
+                                    HorizontalAlignment="Right"
                                     Orientation="Horizontal">
                                     <Button
                                         Width="auto"

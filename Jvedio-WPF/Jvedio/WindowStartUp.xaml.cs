@@ -494,18 +494,8 @@ namespace Jvedio
             }
         }
 
-        private void SearchText_Changed(object sender, RoutedEventArgs e)
-        {
-            SuperControls.Style.SearchBox textBox = sender as SuperControls.Style.SearchBox;
-            if (textBox == null)
-                return;
-            vieModel.CurrentSearch = textBox.Text;
-            vieModel.Search();
-        }
-
         private void NewDatabase(object sender, RoutedEventArgs e)
         {
-            vieModel.CurrentSearch = string.Empty;
             vieModel.Sort = true;
             vieModel.SortType = LangManager.GetValueByKey("CreatedDate");
             DialogInput input = new DialogInput(SuperControls.Style.LangManager.GetValueByKey("NewLibrary"));

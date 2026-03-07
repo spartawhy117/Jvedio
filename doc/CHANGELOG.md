@@ -32,6 +32,7 @@
 - 优化启动插件迁移流程：当 `plugins/temp` 不存在时直接跳过，不再把正常的“无待迁移插件”场景记录为错误。
 - 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
 - 精简初始选择库页面，移除 `WindowStartUp.xaml` 左下角的设置按钮入口。
+- 继续精简初始选择库页面，移除 `WindowStartUp.xaml` 顶部搜索框以及 `WindowStartUp.xaml.cs`、`VieModel_StartUp.cs` 中对应的搜索筛选逻辑。
 
 ## [2026-03-07]
 
