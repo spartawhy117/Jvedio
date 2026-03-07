@@ -1,10 +1,10 @@
 # Developer
 
-本文档面向当前仓库中仍在维护的 `Jvedio-WPF` 项目，结合原有开发者 Wiki 和当前代码结构，帮助维护者快速理解系统模块、启动链路、常见改动点和调试方式。
+本文档位于根目录 `doc/`，面向当前仓库中仍在维护的 `Jvedio-WPF` 项目，结合原有开发者 Wiki 和当前代码结构，帮助维护者快速理解系统模块、启动链路、常见改动点和调试方式。
 
 架构图
 
-[<img src="https://s1.ax1x.com/2022/06/11/XcZjdH.png" alt="XcZjdH.png" style="zoom:80%;" />](https://imgtu.com/i/XcZjdH)
+![Jvedio architecture](assets/Jvedio架构.jpg)
 
 # 项目范围
 
