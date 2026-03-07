@@ -22,7 +22,8 @@ namespace Jvedio
         public Dialog_LoadPage(bool showbutton) : base(showbutton)
         {
             InitializeComponent();
-            cb.ItemsSource = WebSiteList.Split(';');
+            WebSiteList = string.Empty;
+            cb.ItemsSource = StringToList(WebSiteList);
             if (cb.Items.Count > 0)
                 cb.SelectedIndex = 0;
 
@@ -56,27 +57,32 @@ namespace Jvedio
         {
             List<string> l1 = StringToList(WebSiteList);
             WebSiteList = string.Join(";", l1.Union(StringToList(tb.Text)));
-            cb.ItemsSource = WebSiteList.Split(';');
+            cb.ItemsSource = StringToList(WebSiteList);
+            if (cb.Items.Count > 0)
+                cb.SelectedIndex = 0;
         }
 
         private void DeleteWebSite(object sender, RoutedEventArgs e)
         {
             List<string> l1 = StringToList(WebSiteList);
             WebSiteList = string.Join(";", l1.Except(StringToList(url)));
-            cb.ItemsSource = WebSiteList.Split(';');
+            cb.ItemsSource = StringToList(WebSiteList);
+            if (cb.Items.Count > 0)
+                cb.SelectedIndex = 0;
         }
 
         private List<string> StringToList(string str)
         {
-            if (str.Length == 0)
+            if (string.IsNullOrWhiteSpace(str))
                 return new List<string>();
-            if (str.IndexOf(";") < 0 && str.Length > 0)
-                return new List<string>() { str };
+            if (str.IndexOf(";") < 0)
+                return new List<string>() { str.Trim() };
 
             List<string> result = new List<string>();
             foreach (var item in str.Split(';')) {
-                if (item.Length > 0) {
-                    result.Add(item.Replace(" ", string.Empty));
+                string normalized = item.Trim();
+                if (normalized.Length > 0) {
+                    result.Add(normalized);
                 }
             }
 
