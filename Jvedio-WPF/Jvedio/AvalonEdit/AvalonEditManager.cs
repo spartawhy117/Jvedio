@@ -17,6 +17,10 @@ namespace Jvedio.AvalonEdit
             Logger.Info("init high light");
             HighlightingManager.Instance.Clear();
             string[] xshd_list = FileHelper.TryGetAllFiles(HighLightPath, "*.xshd");
+            if (xshd_list == null || xshd_list.Length == 0) {
+                Logger.Warn($"can not find xshd files in [{HighLightPath}]");
+                return;
+            }
             foreach (var xshdPath in xshd_list) {
                 try {
                     Logger.Info($"load xshd file: {xshdPath}");

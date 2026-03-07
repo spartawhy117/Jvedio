@@ -15,8 +15,8 @@ namespace Jvedio.AvalonEdit
         public static void GotFocus(object sender)
         {
             if (sender is FrameworkElement ele && ele.Parent is Border border) {
-                border.BorderBrush =
-                    (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
+                object value = Application.Current?.Resources?["Button.Selected.BorderBrush"];
+                border.BorderBrush = value as SolidColorBrush ?? Brushes.Transparent;
             }
         }
 

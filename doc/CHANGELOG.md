@@ -27,6 +27,7 @@
 - 优化 `09-dialogs`：修复 `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` 在网站列表为空时的空引用风险，并统一站点列表的增删与去空白处理。
 - 优化 `10-utils-extern`：为 `Jvedio-WPF/Jvedio/Utils/Extern/JvedioLib.cs` 补齐 DLL、类型和方法缺失时的空保护，并修正 `Jvedio-WPF/Jvedio/Utils/Common/Converter.cs` 中的布尔空判断写法。
 - 优化 `11-style-theme`：将 `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs` 中的高亮资源访问改为延迟读取，避免静态初始化阶段在资源未就绪时直接取主题资源导致异常。
+- 优化 `12-avalonedit`：为 `Jvedio-WPF/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `Jvedio-WPF/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
 
 ## [2026-03-07]
 
