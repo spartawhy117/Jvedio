@@ -1,34 +1,34 @@
-# Main UI + Tabs
+# 主界面与标签页
 
-![Main UI flow](../assets/diagrams/main-ui.svg)
+![主界面流转](../assets/diagrams/main-ui.svg)
 
-## Scope
+## 范围
 
-| Area | Files |
+| 区域 | 文件 |
 |--|--|
-| main shell | `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs` |
-| main VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs` |
-| tab manager | `Jvedio-WPF/Jvedio/ViewModels/TabItemManager.cs` |
-| video list | `Jvedio-WPF/Jvedio/Core/UserControls/VideoList.xaml.cs` |
-| video list VM | `Jvedio-WPF/Jvedio/Core/UserControls/ViewModels/VieModel_VideoList.cs` |
-| details/edit | `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`, `Jvedio-WPF/Jvedio/Windows/Window_Edit.xaml.cs` |
+| 主窗口 | `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs` |
+| 主 VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs` |
+| 标签页管理 | `Jvedio-WPF/Jvedio/ViewModels/TabItemManager.cs` |
+| 视频列表 | `Jvedio-WPF/Jvedio/Core/UserControls/VideoList.xaml.cs` |
+| 列表 VM | `Jvedio-WPF/Jvedio/Core/UserControls/ViewModels/VieModel_VideoList.cs` |
+| 详情 / 编辑 | `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`、`Jvedio-WPF/Jvedio/Windows/Window_Edit.xaml.cs` |
 
-## Owns
+## 负责内容
 
-- shell layout, menus, hotkeys, tabs
-- list render, pagination, filter, search, selection
-- detail/edit window opening and refresh callbacks
-- task panel and per-tab content lifecycle
+- 主界面布局、菜单、快捷键、标签页
+- 列表查询、分页、筛选、搜索、选中
+- 详情页、编辑页打开与刷新
+- 任务面板和标签页生命周期
 
-## Change Checklist
+## 改动入口
 
-- shell menu or tab behavior: review `Window_Main` + `TabItemManager`
-- list query or sort behavior: review `VieModel_VideoList`
-- detail navigation behavior: review `Window_Details` + captured SQL in `TabItemManager`
+- 主菜单 / 标签页：`Window_Main` + `TabItemManager`
+- 列表排序 / 搜索 / 分页：`VieModel_VideoList`
+- 详情切换：`Window_Details`
 
-## Current Performance / Bug Issues
+## 当前性能 / Bug 问题
 
-- `VieModel_VideoList.cs` does expensive count/select work in UI-facing flow; large libraries can stall paging/search
-- `Video.SetAsso()` is called per item during render and triggers N+1 association queries
-- `Window_Details.xaml.cs` contains `if (DataID == DataID)`, an always-true comparison that can cause unnecessary refresh work
-- global event subscriptions across windows/user controls increase duplicate-callback and retention risk in long sessions
+- `VieModel_VideoList.cs` 仍有较重的查询与渲染链路，大库下容易卡 UI
+- 列表渲染阶段仍存在关联数据逐条查询风险
+- `Window_Details.Refresh(long dataID)` 的恒真判断已修复，但详情页整体刷新仍偏重
+- 全局事件订阅较多，长会话下仍有重复回调风险

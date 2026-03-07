@@ -182,14 +182,17 @@ namespace Jvedio
                         continue;
                     }
 
+                    bool inScanPath = false;
                     foreach (string dir in scanPaths) {
-                        if (string.IsNullOrEmpty(dir) || string.IsNullOrEmpty(dir))
+                        if (string.IsNullOrEmpty(dir))
                             continue;
-                        if (path.IndexOf(dir) < 0) {
-                            toDelete.Add(data.DataID.ToString());
+                        if (path.IndexOf(dir, StringComparison.OrdinalIgnoreCase) >= 0) {
+                            inScanPath = true;
                             break;
                         }
                     }
+                    if (!inScanPath)
+                        toDelete.Add(data.DataID.ToString());
                     RunProgress = (int)((double)i / (double)totalCount * 100);
                 }
                 Log($"需要删除的数目：{toDelete.Count}");
@@ -210,7 +213,6 @@ namespace Jvedio
                     try {
                         Log($"开始删除 {toDelete.Count} 个信息");
                         videoMapper.deleteVideoByIds(toDelete);
-                        await Task.Delay(5000); // todo 删除不位于库关联目录
                         OnDataChanged?.Invoke();
                     } catch (Exception ex) {
                         Log(ex.Message);

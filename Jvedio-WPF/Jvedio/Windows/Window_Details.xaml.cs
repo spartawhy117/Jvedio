@@ -349,7 +349,7 @@ namespace Jvedio
 
         public void Refresh(long dataID)
         {
-            if (DataID == DataID)
+            if (dataID == DataID)
                 Refresh();
         }
 

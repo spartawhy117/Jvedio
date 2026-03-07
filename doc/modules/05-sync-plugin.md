@@ -1,39 +1,34 @@
-# Metadata Sync + Plugins
+# 信息同步与插件
 
-![Sync and plugin flow](../assets/diagrams/sync-flow.svg)
+![同步与插件流程](../assets/diagrams/sync-flow.svg)
 
-## Scope
+## 范围
 
-| Area | Files |
+| 区域 | 文件 |
 |--|--|
-| download task | `Jvedio-WPF/Jvedio/Core/Net/DownLoadTask.cs` |
-| downloader | `Jvedio-WPF/Jvedio/Core/Net/VideoDownLoader.cs` |
-| crawler plugin loader | `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` |
-| server model | `Jvedio-WPF/Jvedio/Core/Crawler/CrawlerServer.cs` |
-| settings UI | `Jvedio-WPF/Jvedio/Windows/Window_Settings.xaml.cs` |
+| 下载任务 | `Jvedio-WPF/Jvedio/Core/Net/DownLoadTask.cs` |
+| 下载调度 | `Jvedio-WPF/Jvedio/Core/Net/VideoDownLoader.cs` |
+| 插件加载 | `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` |
+| 站点模型 | `Jvedio-WPF/Jvedio/Core/Crawler/CrawlerServer.cs` |
+| 设置入口 | `Jvedio-WPF/Jvedio/Windows/Window_Settings.xaml.cs` |
 
-## Owns
+## 负责内容
 
-- crawler plugin discovery and load
-- site/server selection
-- metadata fetch by VID
-- poster/thumb/actor/preview download
-- proxy/header/server configuration
+- 爬虫插件发现与加载
+- 站点 / 服务器选择
+- 按 VID 抓取元数据
+- 海报、缩略图、演员头像、预览图下载
+- 代理、Headers、站点配置管理
 
-## Dependency Rules
+## 改动入口
 
-- crawler plugin load must happen before server config read
-- download tasks expect `Video` and active DB context to be valid
-- image write paths depend on `Settings.PicPaths` and `PathManager`
+- 站点兼容：`VideoDownLoader`
+- 插件加载：`CrawlerManager`
+- 图片保存：`DownLoadTask`
+- 站点配置：`ServerConfig` + 设置窗口
 
-## Change Checklist
+## 当前性能 / Bug 问题
 
-- site compatibility issue: inspect `VideoDownLoader` + plugin output shape
-- plugin load issue: inspect `CrawlerManager` folder layout and metadata files
-- actor/poster issue: inspect `DownLoadTask` image save branches
-
-## Current Performance / Bug Issues
-
-- plugin load is reflection-heavy and trusts the first DLL in each folder
-- download flow mixes remote fetch, image save, DB write, and UI status updates in one task object
-- server and plugin state are loosely validated, so misconfigured plugins can fail late at runtime
+- 插件加载仍然依赖反射与目录约定，校验偏弱
+- 下载任务将远程请求、文件写入、数据库更新混在一个对象里，维护复杂
+- 插件和站点配置的错误仍可能在运行期才暴露

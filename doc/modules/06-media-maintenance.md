@@ -1,33 +1,33 @@
-# Media + Maintenance
+# 媒体处理与维护工具
 
-![Media and maintenance flow](../assets/diagrams/media-maintenance.svg)
+![媒体与维护流程](../assets/diagrams/media-maintenance.svg)
 
-## Scope
+## 范围
 
-| Area | Files |
+| 区域 | 文件 |
 |--|--|
-| screenshot tasks | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` |
-| ffmpeg wrapper | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShot.cs` |
-| image cache | `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` |
-| DB tools | `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` |
-| upgrade helper | `Jvedio-WPF/Jvedio/Upgrade/UpgradeHelper.cs` |
+| 截图任务 | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` |
+| FFmpeg 包装 | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShot.cs` |
+| 图片缓存 | `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` |
+| 数据库工具 | `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` |
+| 升级辅助 | `Jvedio-WPF/Jvedio/Upgrade/UpgradeHelper.cs` |
 
-## Owns
+## 负责内容
 
-- screenshot and GIF generation
-- cached image access
-- database cleanup/index tasks
-- upgrade UI handoff and migration tooling
+- 截图与 GIF 生成
+- 图片缓存读取
+- 数据库清理与索引维护
+- 升级入口与迁移辅助
 
-## Change Checklist
+## 改动入口
 
-- screenshot output change: inspect `ScreenShotTask`, `ScreenShot`, `FFmpegConfig`
-- cache issue: inspect `ImageCache`
-- DB cleanup task change: inspect `Window_DataBase`
-- migration/upgrade change: inspect `UpgradeHelper` + `Jvedio4ToJvedio5`
+- 截图路径：`FFmpegConfig` + `ScreenShotTask`
+- 缓存策略：`ImageCache`
+- 清库逻辑：`Window_DataBase`
+- 升级逻辑：`UpgradeHelper`
 
-## Current Performance / Bug Issues
+## 当前性能 / Bug 问题
 
-- `ImageCache.Clear()` disposes `MemoryCache.Default` and does not recreate it, which is fragile for later cache access
-- `Window_DataBase.xaml.cs` cleanup jobs rely on fixed delays and contain deletion logic that is easy to mis-handle across multiple scan roots
-- detail/media refresh path still forces GC and rescans folders, which can cause visible UI jank
+- `ImageCache.Clear()` 已修复为逐项清理，但图片缓存策略仍较基础
+- `Window_DataBase.xaml.cs` 的“删除不在扫描路径中数据”逻辑已修复，但该模块仍容易引入误删风险
+- 详情页和截图链路都依赖文件系统扫描，媒体多时仍可能有卡顿

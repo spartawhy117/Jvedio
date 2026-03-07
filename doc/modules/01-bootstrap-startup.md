@@ -1,45 +1,37 @@
-# Bootstrap + Startup
+# 启动与引导
 
-![Bootstrap flow](../assets/diagrams/startup-flow.svg)
+![启动流程](../assets/diagrams/startup-flow.svg)
 
-## Scope
+## 范围
 
-| Area | Files |
+| 区域 | 文件 |
 |--|--|
-| App bootstrap | `Jvedio-WPF/Jvedio/App.xaml.cs` |
-| Startup window | `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` |
-| Startup VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_StartUp.cs` |
-| Upgrade bridge | `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs` |
+| 应用入口 | `Jvedio-WPF/Jvedio/App.xaml.cs` |
+| 启动窗口 | `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` |
+| 启动 VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_StartUp.cs` |
+| 升级迁移 | `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs` |
 
-## Owns
+## 负责内容
 
-- global logger and task managers
-- single-instance check
-- startup migration, backup, plugin move/delete
-- database open / default library selection
-- first window handoff into `Window_Main`
+- 全局日志与任务管理器初始化
+- 单实例控制
+- 启动迁移、备份、插件移动/删除
+- 默认库打开与主窗口切换
 
-## Read Order
+## 关键依赖
 
-1. `App.xaml.cs`
-2. `WindowStartUp.xaml.cs`
-3. `VieModel_StartUp.cs`
-4. `Upgrade/Jvedio4ToJvedio5.cs`
+- `InitMapper()` 先于 `ConfigManager.Init()`
+- `CrawlerManager.Init(true)` 先于 `ConfigManager.ServerConfig.Read()`
+- 退出路径依赖 `ConfigManager.SaveAll()`
 
-## Dependency Rules
+## 改动入口
 
-- `InitMapper()` must run before `ConfigManager.Init()`
-- `CrawlerManager.Init(true)` must run before `ConfigManager.ServerConfig.Read()`
-- exit path always expects `ConfigManager.SaveAll()` to succeed
+- 启动顺序：`WindowStartUp.Window_Loaded()`
+- 默认库打开：`WindowStartUp.LoadDataBase()`
+- 首次运行：`InitFirstRun()`
 
-## Change Checklist
+## 当前性能 / Bug 问题
 
-- changing startup order: review `WindowStartUp.Window_Loaded`
-- changing default DB open: review startup DB selection + `ConfigManager.Main.CurrentDBId`
-- changing first-run logic: review theme/language dialog in `InitFirstRun()`
-
-## Current Performance / Bug Issues
-
-- bug risk: `WindowStartUp.xaml.cs` default DB reopen check uses `appDatabases != null || appDatabases.Count > 0`, which should be `&&`
-- startup is highly serialized; backup, plugin cleanup, migration, and config load all sit on one path
-- startup window is the most order-sensitive code in the project
+- `WindowStartUp.xaml.cs` 启动链路强串行，迁移、备份、插件处理都在同一路径
+- 启动模块对顺序非常敏感，回归风险高
+- 默认库打开逻辑已修复空判断，但该区域仍是高风险入口

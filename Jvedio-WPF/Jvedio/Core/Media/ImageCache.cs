@@ -62,7 +62,9 @@ namespace Jvedio.Core.Media
 
         public static void Clear()
         {
-            _Cache?.Dispose();
+            foreach (var item in _Cache) {
+                _Cache.Remove(item.Key);
+            }
             GC.Collect();
         }
     }

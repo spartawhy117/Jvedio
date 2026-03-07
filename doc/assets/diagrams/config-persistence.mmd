@@ -1,11 +1,11 @@
 flowchart LR
-    A[ConfigManager] --> B[Window configs]
-    A --> C[Task configs]
-    A --> D[Network and plugin configs]
-    A --> E[FFmpeg and path configs]
-    E --> F[PathManager]
-    F --> G[SqlManager]
-    G --> H[(Config sqlite)]
-    G --> I[(Data sqlite)]
-    J[MapperManager] --> I
+    A[配置管理] --> B[窗口配置]
+    A --> C[任务配置]
+    A --> D[网络与插件配置]
+    A --> E[FFmpeg 与路径配置]
+    E --> F[路径管理]
+    F --> G[数据库路径]
+    G --> H[(配置库)]
+    G --> I[(业务库)]
+    J[Mapper 管理] --> I
     J --> H

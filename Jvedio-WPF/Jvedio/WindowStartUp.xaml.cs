@@ -568,7 +568,7 @@ namespace Jvedio
                 // 默认打开上一次的库
                 id = ConfigManager.Settings.DefaultDBID;
 
-                if (appDatabases != null || appDatabases.Count > 0)
+                if (appDatabases != null && appDatabases.Count > 0)
                     database = appDatabases.Where(arg => arg.DBId == id).FirstOrDefault();
             }
 

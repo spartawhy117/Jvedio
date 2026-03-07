@@ -1,26 +1,25 @@
-# Config + Persistence
+# 配置与持久化
 
-![Config and persistence](../assets/diagrams/config-persistence.svg)
+![配置与持久化](../assets/diagrams/config-persistence.svg)
 
-## Scope
+## 范围
 
-| Area | Files |
+| 区域 | 文件 |
 |--|--|
-| config registry | `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` |
-| path layout | `Jvedio-WPF/Jvedio/Core/Config/PathManager.cs` |
-| DB path state | `Jvedio-WPF/Jvedio/Core/DataBase/SqlManager.cs` |
-| mapper bootstrap | `Jvedio-WPF/Jvedio/Mapper/MapperManager.cs` |
-| schema | `Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs` |
+| 配置总入口 | `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` |
+| 路径管理 | `Jvedio-WPF/Jvedio/Core/Config/PathManager.cs` |
+| 数据库路径 | `Jvedio-WPF/Jvedio/Core/DataBase/SqlManager.cs` |
+| Mapper 初始化 | `Jvedio-WPF/Jvedio/Mapper/MapperManager.cs` |
+| 表结构 | `Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs` |
 
-## Owns
+## 负责内容
 
-- app/window/task/network config hydration
-- user data directories, backup dirs, log dirs, plugin dirs
-- sqlite file path computation
-- mapper initialization and table creation
-- shared CRUD infrastructure through `BaseMapper`
+- 应用配置、窗口配置、任务配置读取与保存
+- 数据目录、日志目录、备份目录、插件目录计算
+- SQLite 路径生成
+- Mapper 初始化与建表
 
-## Key Objects
+## 关键对象
 
 - `ConfigManager.Settings`
 - `ConfigManager.ScanConfig`
@@ -29,14 +28,14 @@
 - `PathManager`
 - `MapperManager`
 
-## Change Checklist
+## 改动入口
 
-- new setting: add config class field + read/save path + UI binding
-- new DB field: update `Sqlite.cs`, entity, mapper, UI load/save path
-- new filesystem output: check `PathManager` and `EnsurePicPaths()`
+- 新配置项：对应 `Config` 类 + `ConfigManager`
+- 新字段：`Sqlite.cs` + `Entity` + `Mapper`
+- 新目录规则：`PathManager` + `EnsurePicPaths()`
 
-## Current Performance / Bug Issues
+## 当前性能 / Bug 问题
 
-- mapper and config state are global singletons, so hidden coupling is high
-- schema and runtime logic are tightly mixed; DB changes often require touching UI and task code together
-- search/filter queries frequently build dynamic SQL in upper layers instead of centralizing in one repository layer
+- 配置和 Mapper 都是全局单例，模块耦合高
+- 表结构、任务逻辑、UI 读写路径耦合紧密
+- 复杂筛选和查询仍有不少 SQL 在上层动态拼接

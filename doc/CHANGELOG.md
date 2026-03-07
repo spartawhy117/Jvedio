@@ -15,6 +15,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Installed Mermaid CLI (`mmdc`) after online research so the maintained docs can include generated flowcharts and structure diagrams.
 - Simplified `doc/developer.md` into an index-style maintainer guide and added module docs under `doc/modules/`.
 - Added generated diagrams under `doc/assets/diagrams/` and ended each module article with current performance or bug-prone areas.
+- Converted the maintained developer docs to Chinese, added `doc/modules/07-database-schema.md` and `doc/modules/08-entity-relations.md`, and regenerated the module diagrams.
+- Fixed a null-check bug in `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs`, a refresh comparison bug in `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`, scan-path deletion logic in `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs`, and cache-clear behavior in `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs`.
+- Verified `Jvedio-WPF/Jvedio.sln` builds successfully in `Debug` after the fixes.
 
 ## [2026-03-07]
 
