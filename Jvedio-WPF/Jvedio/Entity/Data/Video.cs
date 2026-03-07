@@ -570,7 +570,9 @@ namespace Jvedio.Entity
             if (obj == null)
                 return false;
             Video video = obj as Video;
-            return video != null && (video.DataID == this.DataID || video.MVID == this.MVID);
+            return video != null &&
+                ((video.DataID > 0 && this.DataID > 0 && video.DataID == this.DataID)
+                || (video.MVID > 0 && this.MVID > 0 && video.MVID == this.MVID));
         }
 
         private static string ParseRelativeImageFileName(string path)
