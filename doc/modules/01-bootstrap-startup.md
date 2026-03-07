@@ -29,6 +29,7 @@
 - 启动顺序：`WindowStartUp.Window_Loaded()`
 - 默认库打开：`WindowStartUp.LoadDataBase()`
 - 首次运行：`InitFirstRun()`
+- 初始页左下角入口：`WindowStartUp.xaml` 中选择库页底部的 `SettingHoverPath`
 
 ## 当前性能 / Bug 问题
 
@@ -37,3 +38,4 @@
 - 默认库打开逻辑已修复空判断，但该区域仍是高风险入口
 - 启动阶段的插件移动、插件删除和备份流程已去掉无意义的短延迟，`CrawlerManager.Init(true)` 后也不再重复读取一次服务器配置
 - `plugins/temp` 缺失时已改为直接跳过，不再把正常的“无待迁移插件”场景记录成错误日志
+- 初始页左下角设置按钮已移除，避免在“选择/新建库”阶段暴露额外入口并分散启动流程
