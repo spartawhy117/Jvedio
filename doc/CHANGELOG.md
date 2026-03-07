@@ -34,6 +34,7 @@
 - 精简初始选择库页面，移除 `WindowStartUp.xaml` 左下角的设置按钮入口。
 - 继续精简初始选择库页面，移除 `WindowStartUp.xaml` 顶部搜索框以及 `WindowStartUp.xaml.cs`、`VieModel_StartUp.cs` 中对应的搜索筛选逻辑。
 - 将程序集版本从 `5.4` 提升为 `6`，当前 `App.GetLocalVersion()` 返回值将显示为 `6`。
+- 开始收敛设置页 UI：移除插件 Tab 的页面显示，仅保留现有插件功能代码与接口；同时删除若干废弃或低价值的隐藏设置项，并精简部分显示类开关。
 
 ## [2026-03-07]
 

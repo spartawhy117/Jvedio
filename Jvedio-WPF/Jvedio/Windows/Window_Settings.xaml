@@ -191,10 +191,6 @@
                                 <CheckBox Content="{DynamicResource TeenMode}" IsChecked="{Binding TeenMode, Mode=TwoWay, Source={x:Static config:ConfigManager.Settings}}" />
 
 
-                                <CheckBox Content="{DynamicResource DetailViewAll}" IsChecked="{Binding DetailWindowShowAllMovie, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-
-                                <CheckBox Content="{DynamicResource DeleteFileWhenDeleteInfo}" IsChecked="{Binding DelInfoAfterDelFile, Mode=TwoWay, Source={x:Static config:ConfigManager.Settings}}" />
-
                                 <WrapPanel
                                     IsEnabled="False"
                                     Orientation="Horizontal"
@@ -1003,14 +999,8 @@
                                 Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
                                     <CheckBox Content="{DynamicResource SearchBar}" IsChecked="{Binding DisplaySearchBox, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-                                    <CheckBox Content="{DynamicResource PageAdjustBar}" IsChecked="{Binding DisplayPage, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-                                    <CheckBox Content="{DynamicResource PageDropMenu}" IsChecked="{Binding PaginationCombobox, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
                                     <CheckBox Content="{DynamicResource StatusBar}" IsChecked="{Binding DisplayStatusBar, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
                                     <CheckBox Content="{DynamicResource FunctionBar}" IsChecked="{Binding DisplayFunBar, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-                                    <CheckBox
-                                        Content="{DynamicResource Navigation}"
-                                        IsChecked="{Binding DisplayNavigation, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}"
-                                        Visibility="Collapsed" />
                                 </WrapPanel>
                                 <CheckBox Content="{DynamicResource ApplyBgToDetail}" IsChecked="{Binding DetailShowBg, Mode=TwoWay, Source={x:Static config:ConfigManager.Settings}}" />
                                 <CheckBox Content="{DynamicResource BlurBackground}" IsChecked="{Binding BlurBackground, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
@@ -1963,7 +1953,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="{DynamicResource Plugin}">
+            <TabItem Header="{DynamicResource Plugin}" Visibility="Collapsed">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" MinWidth="150" />
