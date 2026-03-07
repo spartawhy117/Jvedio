@@ -38,6 +38,10 @@
 | 媒体处理与维护工具 | `doc/modules/06-media-maintenance.md` |
 | 数据库结构 | `doc/modules/07-database-schema.md` |
 | 实体与关系 | `doc/modules/08-entity-relations.md` |
+| 对话框与提示窗口 | `doc/modules/09-dialogs.md` |
+| 工具与外部依赖 | `doc/modules/10-utils-extern.md` |
+| 样式与主题 | `doc/modules/11-style-theme.md` |
+| 日志编辑器支持 | `doc/modules/12-avalonedit.md` |
 
 ## 核心规则
 

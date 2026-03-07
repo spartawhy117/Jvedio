@@ -1,52 +1,35 @@
-# Changelog
+# 变更日志
 
-This file tracks repository changes maintained in the local `D:\study\Proj\Jvedio` clone.
-Future code changes should continue adding dated entries here before commit and push.
+本文档记录 `D:\study\Proj\Jvedio` 这份本地仓库的维护变更。
+后续每次代码或文档改动，继续在提交和推送前补充这里。
 
-## [Unreleased]
+## [未发布]
 
-### Changed
-- Narrowed the repository to WPF-only maintenance by removing `Jvedio-Vue`, `Jvedio-Android`, and `Jvedio-Linux`.
-- Updated `README.md`, `README_EN.md`, and `README_JP.md` to state that only `Jvedio-WPF` is maintained.
-- Replaced the old developer wiki page with `Jvedio-WPF/Document/Wiki/5.0/developer.md`, expanding it into a module-oriented WPF developer guide with onboarding, common change paths, and debugging notes.
-- Removed the legacy `Jvedio-WPF/Document/Wiki/4.6` documentation set and the obsolete skin plugin sample documents under `Jvedio-WPF/Document/皮肤插件示例`.
-- Removed the leftover `Jvedio-WPF/Document/Document.md` skin plugin note so the remaining document set stays aligned with the current WPF-only maintenance scope.
-- Centralized maintained documentation under `doc/`, moved the developer guide to `doc/developer.md`, moved the changelog to `doc/CHANGELOG.md`, and removed remaining user-facing and legacy document sets.
-- Installed Mermaid CLI (`mmdc`) after online research so the maintained docs can include generated flowcharts and structure diagrams.
-- Simplified `doc/developer.md` into an index-style maintainer guide and added module docs under `doc/modules/`.
-- Added generated diagrams under `doc/assets/diagrams/` and ended each module article with current performance or bug-prone areas.
-- Converted the maintained developer docs to Chinese, added `doc/modules/07-database-schema.md` and `doc/modules/08-entity-relations.md`, and regenerated the module diagrams.
-- Fixed a null-check bug in `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs`, a refresh comparison bug in `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`, scan-path deletion logic in `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs`, and cache-clear behavior in `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs`.
-- Verified `Jvedio-WPF/Jvedio.sln` builds successfully in `Debug` after the fixes.
-- Reduced `03-main-ui` page render overhead by preloading page association data in `VieModel_VideoList` instead of querying associations item-by-item during list rendering.
-- Fixed `VieModel_VideoList.GetSearchCandidate()` so `Genre` candidate queries honor the current DB/filter conditions.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `03-main-ui` module changes.
-- Reduced repeated scan-time duplicate checks in `Jvedio-WPF/Jvedio/Core/Scan/ScanTask.cs` by indexing existing videos by VID, Hash, size-path, and existing file path state instead of repeatedly scanning the full in-memory list.
-- Simplified NFO import duplicate detection to reuse the same VID index during update/remove decisions.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `04-scan-import` module changes.
-- Improved crawler plugin discovery in `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` by preferring DLLs that match the plugin directory or have matching metadata JSON, reducing the chance of loading dependency DLLs as crawler entry assemblies.
-- Hardened crawler initialization against a missing plugin directory by handling empty directory scans safely.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `05-sync-plugin` module changes.
-- Removed the forced `GC.Collect()` from `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` so cache clearing no longer adds extra UI-side GC pressure.
-- Simplified `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` cleanup tasks by removing fixed post-delete waits and handling empty paths as missing files directly.
-- Fixed `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` so a missing video record finalizes the task instead of leaving the screenshot task hanging.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `06-media-maintenance` module changes.
-- Hardened `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` shutdown handling by skipping startup-state persistence when the startup view model is not ready yet.
-- Removed redundant startup server-config reloading after `CrawlerManager.Init(true)` and simplified short-delay helper flows in plugin move/delete and backup tasks.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `01-bootstrap-startup` module changes.
-- Hardened `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` picture-path initialization so damaged or partially missing `PicPathJson` values now fall back to normalized defaults instead of failing during config hydration.
-- Added default repair for missing absolute, app-relative, and data-relative image path entries during config load.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `02-config-persistence` module changes.
-- Added a `metadata (DBId,DataType,ViewCount)` index in `Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs` for both schema creation and incremental SQL upgrade commands, improving database support for list sorting by view count.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `07-database-schema` module changes.
-- Hardened `Jvedio-WPF/Jvedio/Entity/Data/Video.cs` equality semantics so unsaved videos with default `DataID` / `MVID` values are no longer considered equal by mistake.
-- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `08-entity-relations` module changes.
+### 已变更
+- 将仓库收敛为仅维护 `Jvedio-WPF`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。
+- 更新 `README.md`、`README_EN.md`、`README_JP.md`，明确仓库当前只维护 `Jvedio-WPF`。
+- 将原开发者 Wiki 重写为 `Jvedio-WPF/Document/Wiki/5.0/developer.md`，补充面向当前 WPF 架构的模块说明、维护路径与调试建议。
+- 删除 `Jvedio-WPF/Document/Wiki/4.6`、`Jvedio-WPF/Document/皮肤插件示例` 和遗留 `Jvedio-WPF/Document/Document.md` 等过时文档。
+- 将维护中的文档统一收敛到 `doc/`，把开发文档迁移到 `doc/developer.md`，把变更日志迁移到 `doc/CHANGELOG.md`，并删除其余旧用户文档和历史 Wiki。
+- 联机调研后安装 `Mermaid CLI (mmdc)`，用于在开发文档中生成结构图和流程图。
+- 将 `doc/developer.md` 精简为总览索引，并新增 `doc/modules/` 模块文档与 `doc/assets/diagrams/` 图示资源。
+- 将维护中的开发文档统一改为中文，新增 `doc/modules/07-database-schema.md` 与 `doc/modules/08-entity-relations.md`。
+- 修复 `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` 的空判断问题、`Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs` 的刷新比较问题、`Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` 的扫描路径清理逻辑，以及 `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` 的缓存清理行为。
+- 优化 `03-main-ui`：为 `VieModel_VideoList` 增加页级关联数据预加载，减少列表渲染阶段的逐条关联查询；修复 `Genre` 搜索候选词未应用当前库和过滤条件的问题。
+- 优化 `04-scan-import`：为扫描导入建立 `VID`、`Hash`、路径和现存文件索引，减少重复遍历与重复 `File.Exists`，并复用索引优化 NFO 导入判定。
+- 优化 `05-sync-plugin`：爬虫插件加载时优先选择与插件目录名或元数据 JSON 匹配的 DLL，降低误加载依赖 DLL 的风险，并补强缺失插件目录时的初始化处理。
+- 优化 `06-media-maintenance`：移除缓存清理中的强制 GC，去掉数据库清理任务中的固定等待，并补齐截图任务在找不到视频记录时的结束路径。
+- 优化 `01-bootstrap-startup`：补强启动页在 VM 尚未准备好时的退出保护，移除启动阶段重复的服务器配置读取，并简化插件搬运、删除和备份路径中的无意义短延迟。
+- 优化 `02-config-persistence`：增强 `EnsurePicPaths()` 的兼容处理，在 `PicPathJson` 缺失、损坏或字段不完整时自动回退并补齐默认配置。
+- 优化 `07-database-schema`：为 `metadata (DBId,DataType,ViewCount)` 增加索引，并同时加入建表 SQL 与增量 SQL，改善按播放次数排序时的数据库支撑能力。
+- 优化 `08-entity-relations`：收紧 `Video.Equals()` 的比较规则，仅在有效 `DataID` / `MVID` 存在时判等，避免未落库实体因默认值相同而被误判相等。
+- 补齐剩余未完全独立的文档模块，新增：`doc/modules/09-dialogs.md`、`doc/modules/10-utils-extern.md`、`doc/modules/11-style-theme.md`、`doc/modules/12-avalonedit.md`。
 
 ## [2026-03-07]
 
-### Changed
-- Fixed `Jvedio-WPF/Jvedio/Jvedio.csproj` pre-build steps so local WPF builds no longer depend on private `D:\SuperStudio\...` paths.
-- Restored local buildability by ensuring output directories are created before copy steps run.
-- Aligned `Jvedio-WPF` and `Jvedio.Test` to `x86`, disabled obsolete ClickOnce manifest generation, and corrected in-repo DLL reference paths.
-- Updated `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs` to explicitly discard the fire-and-forget task and remove the remaining async warning.
-- Verified the `Jvedio-WPF/Jvedio.sln` Debug build succeeds locally with zero warnings and zero errors.
+### 已变更
+- 修复 `Jvedio-WPF/Jvedio/Jvedio.csproj` 的预构建步骤，使本地 WPF 构建不再依赖私有 `D:\SuperStudio\...` 路径。
+- 在复制前补齐输出目录创建逻辑，恢复本地干净环境下的构建能力。
+- 将 `Jvedio-WPF` 与 `Jvedio.Test` 统一为 `x86`，关闭过时的 ClickOnce 清单生成，并修正仓库内 DLL 引用路径。
+- 更新 `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs`，显式丢弃 fire-and-forget 任务返回值，清理剩余异步警告。
+- 验证 `Jvedio-WPF/Jvedio.sln` 的 `Debug` 构建可在本地达到 `0 warning / 0 error`。
