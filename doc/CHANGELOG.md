@@ -30,6 +30,7 @@
 - 优化 `12-avalonedit`：为 `Jvedio-WPF/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `Jvedio-WPF/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
 - 修复搜索历史增量 SQL 的表名错误，将 `common_search_history` 更正为当前实际使用的 `common_search_histories`，避免新环境启动时记录 SQL 逻辑错误。
 - 优化启动插件迁移流程：当 `plugins/temp` 不存在时直接跳过，不再把正常的“无待迁移插件”场景记录为错误。
+- 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
 
 ## [2026-03-07]
 

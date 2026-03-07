@@ -7,6 +7,7 @@ using SuperUtils.NetWork.Entity;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Jvedio.Core.Server
@@ -41,12 +42,24 @@ namespace Jvedio.Core.Server
 
         public static async Task<ServerStatus> CheckStatus()
         {
+            if (!await IsPortOpen("127.0.0.1", (int)ConfigManager.JavaServerConfig.Port, 300))
+                return ServerStatus.UnReady;
+
             string url = $"http://localhost:{ConfigManager.JavaServerConfig.Port}/status/current";
             HttpResult result = await HttpClient.Get(url, null, SuperUtils.NetWork.Enums.HttpMode.Header);
             if (result != null && result.StatusCode == HttpStatusCode.OK)
                 return ServerStatus.Ready;
 
             return ServerStatus.UnReady;
+        }
+
+        private static async Task<bool> IsPortOpen(string host, int port, int timeout)
+        {
+            using (TcpClient client = new TcpClient()) {
+                Task connectTask = client.ConnectAsync(host, port);
+                Task completed = await Task.WhenAny(connectTask, Task.Delay(timeout));
+                return completed == connectTask && client.Connected;
+            }
         }
 
         public static async Task<bool> DownloadJar()
