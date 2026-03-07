@@ -18,6 +18,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Converted the maintained developer docs to Chinese, added `doc/modules/07-database-schema.md` and `doc/modules/08-entity-relations.md`, and regenerated the module diagrams.
 - Fixed a null-check bug in `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs`, a refresh comparison bug in `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`, scan-path deletion logic in `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs`, and cache-clear behavior in `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs`.
 - Verified `Jvedio-WPF/Jvedio.sln` builds successfully in `Debug` after the fixes.
+- Reduced `03-main-ui` page render overhead by preloading page association data in `VieModel_VideoList` instead of querying associations item-by-item during list rendering.
+- Fixed `VieModel_VideoList.GetSearchCandidate()` so `Genre` candidate queries honor the current DB/filter conditions.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `03-main-ui` module changes.
 
 ## [2026-03-07]
 

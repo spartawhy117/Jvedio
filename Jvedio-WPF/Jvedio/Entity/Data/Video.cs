@@ -1183,6 +1183,19 @@ namespace Jvedio.Entity
             }
         }
 
+        public static void SetAsso(ref Video video, HashSet<long> set)
+        {
+            video.HasAssociation = false;
+            video.AssociationList = new ObservableCollection<long>();
+
+            if (set != null) {
+                video.HasAssociation = set.Count > 0;
+                foreach (long item in set) {
+                    video.AssociationList.Add(item);
+                }
+            }
+        }
+
         public static Video GetById(long dataID)
         {
             Video video = MapperManager.videoMapper.SelectVideoByID(dataID);

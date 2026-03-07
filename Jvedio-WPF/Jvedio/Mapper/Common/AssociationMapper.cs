@@ -1,6 +1,7 @@
-﻿using Jvedio.Entity.Base;
+using Jvedio.Entity.Base;
 using Jvedio.Entity.CommonSQL;
 using Jvedio.Mapper.BaseMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -73,6 +74,29 @@ namespace Jvedio.Mapper
 
             set.Remove(dataID);
             return set;
+        }
+
+        public Dictionary<long, HashSet<long>> GetAssociationDatas(IEnumerable<long> dataIDs)
+        {
+            Dictionary<long, HashSet<long>> result = new Dictionary<long, HashSet<long>>();
+            if (dataIDs == null)
+                return result;
+
+            long[] ids = dataIDs.Distinct().ToArray();
+            if (ids.Length == 0)
+                return result;
+
+            InitAdjacencyList();
+            foreach (long dataID in ids) {
+                HashSet<long> set = new HashSet<long>();
+                HashSet<long> foundList = new HashSet<long>();
+                if (AdjacencyList != null && AdjacencyList.Keys.Count > 0)
+                    FindAssocData(ref set, AdjacencyList, dataID, ref foundList);
+                set.Remove(dataID);
+                result[dataID] = set;
+            }
+
+            return result;
         }
 
         private void FindAssocData(ref HashSet<long> set, Dictionary<long, ListNode<long>> dict,

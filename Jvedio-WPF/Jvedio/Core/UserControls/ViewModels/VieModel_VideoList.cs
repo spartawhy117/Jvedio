@@ -123,6 +123,8 @@ namespace Jvedio.Core.UserControls.ViewModels
 
         public CancellationToken RenderVideoCT { get; set; }
 
+        private Dictionary<long, HashSet<long>> CurrentAssociationMap { get; set; } = new Dictionary<long, HashSet<long>>();
+
         public string ClickFilterType { get; set; }
 
 
@@ -686,6 +688,7 @@ namespace Jvedio.Core.UserControls.ViewModels
             if (videos == null)
                 videos = new List<Video>();
             VideoList.AddRange(videos);
+            CurrentAssociationMap = associationMapper.GetAssociationDatas(VideoList.Select(arg => arg.DataID));
             CurrentCount = VideoList.Count;
             Render();
         }
@@ -718,7 +721,10 @@ namespace Jvedio.Core.UserControls.ViewModels
                 Video.SetImage(ref video, ShowImageMode);
                 Video.SetTagStamps(ref video); // 设置标签戳
                 Video.SetTitleAndDate(ref video); // 设置标题和发行日期
-                Video.SetAsso(ref video);
+                if (CurrentAssociationMap != null && CurrentAssociationMap.TryGetValue(video.DataID, out HashSet<long> associations))
+                    Video.SetAsso(ref video, associations);
+                else
+                    Video.SetAsso(ref video);
 
                 await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new LoadVideoDelegate(LoadVideo), video, i);
                 RenderProgress = (int)(100 * (i + 1) / (float)VideoList.Count);
@@ -786,7 +792,7 @@ namespace Jvedio.Core.UserControls.ViewModels
                     string genre_sql = $"SELECT {field} FROM metadata_video " +
                             "JOIN metadata " +
                             "on metadata.DataID=metadata_video.DataID ";
-                    List<Dictionary<string, object>> list = metaDataMapper.Select(genre_sql);
+                    List<Dictionary<string, object>> list = metaDataMapper.Select(genre_sql + wrapper.ToWhere(false));
                     if (list != null && list.Count > 0)
                         SetGenreCandidate(field, list, ref result);
                 } else {
