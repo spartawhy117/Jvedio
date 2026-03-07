@@ -9,6 +9,8 @@ Future code changes should continue adding dated entries here before commit.
 - Narrowed the repository to WPF-only maintenance by removing `Jvedio-Vue`, `Jvedio-Android`, and `Jvedio-Linux`.
 - Updated `README.md`, `README_EN.md`, and `README_JP.md` to state that only `Jvedio-WPF` is maintained.
 - Replaced the old developer wiki page with `Jvedio-WPF/Document/Wiki/5.0/developer.md`, expanding it into a module-oriented WPF developer guide with onboarding, common change paths, and debugging notes.
+- Removed the legacy `Jvedio-WPF/Document/Wiki/4.6` documentation set and the obsolete skin plugin sample documents under `Jvedio-WPF/Document/皮肤插件示例`.
+- Removed the leftover `Jvedio-WPF/Document/Document.md` skin plugin note so the remaining document set stays aligned with the current WPF-only maintenance scope.
 
 ## [2026-03-07]
 
