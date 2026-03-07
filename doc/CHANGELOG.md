@@ -44,6 +44,7 @@
 - 新增 `doc/metatube-only-plan.md`，固化 MetaTube 唯一搜刮源的实施步骤、阶段目标、每日执行规则、测试搜刮框与日志输出要求，后续严格按该计划推进。
 - 完成 MetaTube 计划阶段 1：新增 `MetaTubeConfig`，并在 `PathManager` 中建立 `metatube/cache/video`、`metatube/cache/actor`、`metatube/avatar`、`metatube/test`、`metatube/log` 等固定目录，为后续唯一搜刮源改造打基础。
 - 完成 MetaTube 计划阶段 2：新增内置搜刮抽象层 `IScraperProvider`、`ScraperProviderManager` 及统一 `Scrape*` 模型，并注册 `MetaTubeScraperProvider` 骨架作为当前唯一 provider。
+- 完成 MetaTube 计划阶段 3：新增 `MetaTubeClient`、`MetaTubeCache`、`MetaTubeConverter` 和 MetaTube 响应模型，当前 provider 已支持番号搜索、影片详情拉取、演员头像检索和永久 JSON 缓存。
 
 ## [2026-03-07]
 

@@ -98,7 +98,7 @@
 
 ## 阶段 3：MetaTube 客户端、缓存与格式适配
 
-状态：`[ ]`
+状态：`[x]`
 
 目标：
 - 从 MetaTube 服务端拉取数据
@@ -352,7 +352,7 @@ UI 内容：
 - [x] 阶段 0：计划文档写入与归档
 - [x] 阶段 1：配置与路径基建
 - [x] 阶段 2：建立内置搜刮抽象层
-- [ ] 阶段 3：MetaTube 客户端、缓存与适配
+- [x] 阶段 3：MetaTube 客户端、缓存与适配
 - [ ] 阶段 4：同步主链接入
 - [ ] 阶段 5：sidecar 与演员头像落盘
 - [ ] 阶段 6：设置页 MetaTube UI
@@ -360,6 +360,19 @@ UI 内容：
 - [ ] 阶段 8：旧插件搜刮链降级
 - [ ] 阶段 9：手动刷新与覆盖更新
 - [ ] 阶段 10：文档、日志、测试补齐
+
+## 阶段 3 执行记录
+
+- 已新增 `MetaTubeClient`，按 Jellyfin/MetaTube API 风格封装 `/v1/movies/search`、`/v1/movies/{provider}/{id}`、`/v1/actors/search` 请求
+- 已新增 `MetaTubeApiModels`，定义 MetaTube 的响应包装和电影/演员 DTO
+- 已新增 `MetaTubeCache`，实现以 `VID` 为键的永久 JSON 缓存
+- 已新增 `MetaTubeConverter`，将 MetaTube 电影与演员结果转换为统一 `ScrapeResult`
+- 已补全 `MetaTubeScraperProvider`：
+  - 支持缓存命中/未命中
+  - 支持根据番号搜索影片
+  - 支持补充演员头像搜索结果
+  - 支持输出统一 `ScrapeResult`
+- 已验证 `Release` 编译通过
 
 ## 阶段 2 执行记录
 

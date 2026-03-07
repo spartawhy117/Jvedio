@@ -398,6 +398,10 @@
     <Compile Include="Core\Scraper\Models\ScrapedActor.cs" />
     <Compile Include="Core\Scraper\Models\ScrapedImages.cs" />
     <Compile Include="Core\Scraper\MetaTube\MetaTubeScraperProvider.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeClient.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeCache.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeConverter.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeApiModels.cs" />
     <Compile Include="Entity\Base\ListNode.cs" />
     <Compile Include="Entity\CommonSQL\AIFaceInfo.cs" />
     <Compile Include="Entity\CommonSQL\Association.cs" />

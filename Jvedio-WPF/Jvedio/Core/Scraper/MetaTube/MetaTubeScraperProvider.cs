@@ -1,4 +1,7 @@
 using Jvedio.Core.Scraper.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,9 +15,49 @@ namespace Jvedio.Core.Scraper.MetaTube
 
         public bool Enabled => ConfigManager.MetaTubeConfig != null && ConfigManager.MetaTubeConfig.Enabled;
 
-        public Task<ScrapeResult> GetInfoAsync(ScrapeRequest request, CancellationToken cancellationToken)
+        public async Task<ScrapeResult> GetInfoAsync(ScrapeRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult<ScrapeResult>(null);
+            if (!Enabled || request == null || string.IsNullOrWhiteSpace(request.VID))
+                return null;
+
+            string serverUrl = ConfigManager.MetaTubeConfig.ServerUrl;
+            if (string.IsNullOrWhiteSpace(serverUrl))
+                throw new Exception("MetaTube server url is empty");
+
+            if (!request.ForceRefresh && MetaTubeCache.TryGetVideo(request.VID, out ScrapeResult cached)) {
+                App.Logger.Info($"MetaTube cache hit: {request.VID}");
+                return cached;
+            }
+
+            App.Logger.Info($"MetaTube cache miss: {request.VID}");
+            MetaTubeClient client = new MetaTubeClient(serverUrl);
+            List<MetaTubeMovieSearchResult> searchResults = await client.SearchMovieAsync(request.VID, cancellationToken).ConfigureAwait(false);
+            MetaTubeMovieSearchResult selected = searchResults?
+                .FirstOrDefault(arg => !string.IsNullOrWhiteSpace(arg.Number) && arg.Number.Equals(request.VID, StringComparison.OrdinalIgnoreCase))
+                ?? searchResults?.FirstOrDefault();
+
+            if (selected == null)
+                return null;
+
+            MetaTubeMovieInfo movieInfo = await client.GetMovieInfoAsync(selected.Provider, selected.Id, cancellationToken).ConfigureAwait(false);
+            List<MetaTubeActorSearchResult> actorInfos = new List<MetaTubeActorSearchResult>();
+            if (movieInfo?.Actors != null) {
+                foreach (string actorName in movieInfo.Actors.Where(arg => !string.IsNullOrWhiteSpace(arg)).Distinct()) {
+                    try {
+                        List<MetaTubeActorSearchResult> results = await client.SearchActorAsync(actorName, cancellationToken).ConfigureAwait(false);
+                        MetaTubeActorSearchResult actor = results?.FirstOrDefault(arg => !string.IsNullOrWhiteSpace(arg.Name) && arg.Name.Equals(actorName, StringComparison.OrdinalIgnoreCase))
+                            ?? results?.FirstOrDefault();
+                        if (actor != null)
+                            actorInfos.Add(actor);
+                    } catch (Exception ex) {
+                        App.Logger.Warn($"MetaTube actor search failed[{actorName}]: {ex.Message}");
+                    }
+                }
+            }
+
+            ScrapeResult result = MetaTubeConverter.ToScrapeResult(movieInfo, actorInfos);
+            MetaTubeCache.SaveVideo(request.VID, result);
+            return result;
         }
     }
 }

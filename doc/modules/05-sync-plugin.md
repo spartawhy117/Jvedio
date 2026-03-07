@@ -37,3 +37,4 @@
 - 网络设置页已去掉“标题为空才同步信息”开关，当前更偏向以“是否强制覆盖信息”为单一同步覆盖入口
 - MetaTube 唯一搜刮源的第一阶段已完成配置与目录基建，后续会逐步从旧插件搜刮链切换到内置 provider 模型
 - 已建立 `IScraperProvider + ScraperProviderManager` 的内置搜刮抽象，当前注册的唯一 provider 为 `MetaTubeScraperProvider` 骨架，后续将把同步主链从旧插件切换到该抽象层
+- 已补齐 MetaTube 的客户端、缓存和 DTO/转换层，当前 `MetaTubeScraperProvider` 已能根据番号搜索并组装统一 `ScrapeResult`，后续阶段将正式接入 `VideoDownLoader`
