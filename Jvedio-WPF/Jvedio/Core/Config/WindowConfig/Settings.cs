@@ -15,7 +15,7 @@ namespace Jvedio.Core.WindowConfig
             AutoGenScreenShot = true;
             CloseToTaskBar = true;
 
-            TeenMode = true;
+            TeenMode = false;
             AutoAddPrefix = true;
             Prefix = string.Empty;
             AutoBackupPeriodIndex = DEFAULT_BACKUP_PERIOD_INDEX;
@@ -101,7 +101,7 @@ namespace Jvedio.Core.WindowConfig
 
 
 
-        private bool _TeenMode = true;
+        private bool _TeenMode = false;
         public bool TeenMode {
             get { return _TeenMode; }
             set {

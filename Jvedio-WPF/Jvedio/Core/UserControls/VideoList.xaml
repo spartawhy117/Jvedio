@@ -89,8 +89,6 @@
             <MenuItem Name="TagMenuItems" Header="{DynamicResource AddTagStamp}" />
             <MenuItem Header="{DynamicResource Menu_Advance}">
                 <MenuItem Click="AddDataAssociation" Header="{DynamicResource DataAsso}" />
-                <MenuItem Click="GenerateScreenShot" Header="{DynamicResource Menu_GenerateScreenShot}" />
-                <MenuItem Click="GenerateGif" Header="{DynamicResource Menu_GenerateGif}" />
                 <MenuItem
                     Click="TranslateMovie"
                     Header="{DynamicResource Menu_Translate}"
@@ -103,7 +101,6 @@
                     Click="GenerateActor"
                     Header="{DynamicResource Menu_GenerateActressImage}"
                     Visibility="Collapsed" />
-                <MenuItem Click="RenameFile" Header="{DynamicResource Menu_RenameFile}" />
                 <MenuItem Click="ReMoveZero" Header="{DynamicResource Menu_RemoveZero}" />
 
             </MenuItem>
@@ -538,7 +535,6 @@
                             <Separator />
 
                             <MenuItem Header="{DynamicResource AllData}">
-                                <MenuItem Click="GenerateAllScreenShot" Header="{DynamicResource Menu_GenerateScreenShot}" />
                                 <MenuItem Click="DownloadAllVideo" Header="{DynamicResource SyncInfo}" />
                             </MenuItem>
                         </ContextMenu>

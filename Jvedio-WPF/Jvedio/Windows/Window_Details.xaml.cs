@@ -1034,8 +1034,7 @@ namespace Jvedio
 
         private void ShowMagnets()
         {
-            if (ConfigManager.Settings.TeenMode
-                || vieModel.CurrentVideo.Magnets == null
+            if (vieModel.CurrentVideo.Magnets == null
                 || vieModel.CurrentVideo.Magnets.Count == 0)
                 return;
 

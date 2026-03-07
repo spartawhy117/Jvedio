@@ -90,7 +90,7 @@ namespace Jvedio
 
         public static void Restore()
         {
-            Settings.TeenMode = true;
+            Settings.TeenMode = false;
         }
 
         private static void Init()
@@ -122,6 +122,8 @@ namespace Jvedio
             // 配置 ffmpeg 路径
             if (!File.Exists(ConfigManager.FFmpegConfig.Path) && File.Exists("ffmpeg.exe"))
                 ConfigManager.FFmpegConfig.Path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
+
+            Settings.TeenMode = false;
 
             EnsurePicPaths(); // 必须在配置加载后
             onLoaded?.Invoke();

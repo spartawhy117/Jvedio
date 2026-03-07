@@ -219,6 +219,7 @@
                         GroupName="ExtraImageView"
                         IsChecked="{Binding ShowScreenShot, Mode=TwoWay}"
                         Style="{StaticResource FlatRoundRadioButton}"
+                        Visibility="Collapsed"
                         ToolTip="{DynamicResource ScreenShot}">
                         <Grid>
                             <Image
@@ -429,10 +430,6 @@
                             <Grid.ContextMenu>
                                 <ContextMenu Opacity="0.8" PreviewKeyUp="ContextMenu_PreviewKeyUp">
                                     <MenuItem Click="DownLoad" Header="{DynamicResource Menu_SyncInfo}" />
-                                    <MenuItem Header="{DynamicResource Menu_Advance}">
-                                        <MenuItem Click="GetScreenShot" Header="{DynamicResource Menu_GenerateScreenShot}" />
-                                        <MenuItem Click="GetScreenGif" Header="{DynamicResource Menu_GenerateGif}" />
-                                    </MenuItem>
                                     <MenuItem Header="{DynamicResource OpenPath}">
                                         <MenuItem
                                             Command="cmd:File.OpenSelectFile"
@@ -440,9 +437,7 @@
                                             Header="{DynamicResource Movie}" />
                                         <MenuItem Click="OpenPath" Header="{DynamicResource Poster}" />
                                         <MenuItem Click="OpenPath" Header="{DynamicResource Thumbnail}" />
-                                        <MenuItem Click="OpenPath" Header="Gif" />
                                         <MenuItem Click="OpenPath" Header="{DynamicResource Preview}" />
-                                        <MenuItem Click="OpenPath" Header="{DynamicResource ScreenShot}" />
                                     </MenuItem>
 
                                     <MenuItem
@@ -453,7 +448,7 @@
                                     <MenuItem
                                         x:Name="CopyMagnetsMenuItem"
                                         Header="{DynamicResource CopyMagnets}"
-                                        Visibility="{Binding TeenMode, Source={x:Static local:ConfigManager.Settings}, Mode=OneWay, Converter={StaticResource BoolToOppositeVisibilityConverter}}" />
+                                        Visibility="Visible" />
 
                                     <MenuItem Click="CopyFile" Header="{DynamicResource Menu_CopyFile}" />
 
@@ -929,7 +924,7 @@
                                                     Margin="0,5,0,5"
                                                     Style="{StaticResource InfoStackPanel}"
                                                     Tag="{Binding CurrentVideo.VideoType}"
-                                                    Visibility="{Binding TeenMode, Converter={StaticResource BoolToOppositeVisibilityConverter}, Mode=OneWay, Source={x:Static local:ConfigManager.Settings}}">
+                                                    Visibility="Visible">
                                                     <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource Censored}" />
                                                     <TextBlock Style="{StaticResource BaseTextBlock}" Text="：" />
                                                     <ComboBox

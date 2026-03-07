@@ -910,6 +910,7 @@ namespace Jvedio
         private void SaveSettings()
         {
             ConfigManager.Main.ShowSearchHistory = vieModel.ShowSearchHistory;
+            ConfigManager.Settings.TeenMode = false;
 
             ConfigManager.Settings.TabControlSelectedIndex = vieModel.TabControlSelectedIndex;
             ConfigManager.Settings.OpenDataBaseDefault = vieModel.OpenDataBaseDefault;
@@ -923,10 +924,28 @@ namespace Jvedio
 
             ConfigManager.Settings.PicPathMode = vieModel.PicPathMode;
             ConfigManager.Settings.SkipExistImage = vieModel.SkipExistImage;
-            ConfigManager.Settings.DownloadWhenTitleNull = vieModel.DownloadWhenTitleNull;
+            ConfigManager.Settings.DownloadWhenTitleNull = false;
             ConfigManager.Settings.IgnoreCertVal = vieModel.IgnoreCertVal;
             ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
             ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
+
+            ConfigManager.Main.DisplaySearchBox = true;
+            ConfigManager.Main.DisplayPage = true;
+            ConfigManager.Main.PaginationCombobox = true;
+            ConfigManager.Main.DisplayStatusBar = true;
+            ConfigManager.Main.DisplayFunBar = true;
+            ConfigManager.Main.DisplayNavigation = true;
+            ConfigManager.Main.DetailWindowShowAllMovie = true;
+
+            ConfigManager.Settings.DetailShowBg = true;
+            ConfigManager.VideoConfig.BlurBackground = true;
+            ConfigManager.VideoConfig.DisplayID = true;
+            ConfigManager.VideoConfig.DisplayTitle = true;
+            ConfigManager.VideoConfig.DisplayDate = true;
+            ConfigManager.VideoConfig.DisplayStamp = true;
+            ConfigManager.VideoConfig.DisplayFavorites = true;
+            ConfigManager.VideoConfig.ShowFileNameIfTitleEmpty = true;
+            ConfigManager.VideoConfig.ShowCreateDateIfReleaseDateEmpty = true;
 
             // 代理
             ConfigManager.ProxyConfig.Server = vieModel.ProxyServer;
@@ -967,9 +986,9 @@ namespace Jvedio
             ConfigManager.FFmpegConfig.GifDuration = vieModel.GifDuration;
 
             // 重命名
-            ConfigManager.RenameConfig.AddRenameTag = vieModel.AddRenameTag;
-            ConfigManager.RenameConfig.RemoveTitleSpace = vieModel.RemoveTitleSpace;
-            ConfigManager.RenameConfig.FormatString = vieModel.FormatString;
+            ConfigManager.RenameConfig.RemoveTitleSpace = false;
+            ConfigManager.RenameConfig.AddRenameTag = false;
+            ConfigManager.RenameConfig.FormatString = string.Empty;
 
             // 监听
             ConfigManager.Settings.ListenEnabled = vieModel.ListenEnabled;
@@ -1256,6 +1275,7 @@ namespace Jvedio
                 vieModel.CloseToTaskBar = false;
 
                 ConfigManager.Settings.DelInfoAfterDelFile = true;
+                ConfigManager.Settings.TeenMode = false;
                 ConfigManager.Settings.HotKeyEnable = false;
                 ConfigManager.Settings.HotKeyString = "";
                 langComboBox.SelectedIndex = 0;
@@ -1294,7 +1314,7 @@ namespace Jvedio
                 // 网络
                 vieModel.IgnoreCertVal = true;
                 vieModel.HttpTimeout = ProxyConfig.DEFAULT_TIMEOUT;
-                vieModel.DownloadWhenTitleNull = true;
+                vieModel.DownloadWhenTitleNull = false;
                 vieModel.SkipExistImage = false;
                 vieModel.SaveInfoToNFO = false;
 

@@ -188,9 +188,6 @@
                                 Margin="5"
                                 Orientation="Vertical">
                                 <CheckBox Content="{DynamicResource CloseToBar}" IsChecked="{Binding CloseToTaskBar, Mode=TwoWay}" />
-                                <CheckBox Content="{DynamicResource TeenMode}" IsChecked="{Binding TeenMode, Mode=TwoWay, Source={x:Static config:ConfigManager.Settings}}" />
-
-
                                 <WrapPanel
                                     IsEnabled="False"
                                     Orientation="Horizontal"
@@ -741,7 +738,6 @@
                                 <StackPanel Orientation="Vertical">
 
 
-                                    <CheckBox Content="标题为空才同步信息" IsChecked="{Binding DownloadWhenTitleNull, Mode=TwoWay}" />
                                     <CheckBox Content="{DynamicResource SkipDownloadImage}" IsChecked="{Binding SkipExistImage, Mode=TwoWay}" />
                                     <CheckBox Content="{DynamicResource ForcedFetchInfo}" IsChecked="{Binding OverrideInfo, Source={x:Static config:ConfigManager.DownloadConfig}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -998,12 +994,8 @@
                                 Margin="5"
                                 Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <CheckBox Content="{DynamicResource SearchBar}" IsChecked="{Binding DisplaySearchBox, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-                                    <CheckBox Content="{DynamicResource StatusBar}" IsChecked="{Binding DisplayStatusBar, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
-                                    <CheckBox Content="{DynamicResource FunctionBar}" IsChecked="{Binding DisplayFunBar, Mode=TwoWay, Source={x:Static config:ConfigManager.Main}}" />
+                                    <TextBlock Style="{StaticResource BaseTextBlock}" Text="显示项默认全部开启" />
                                 </WrapPanel>
-                                <CheckBox Content="{DynamicResource ApplyBgToDetail}" IsChecked="{Binding DetailShowBg, Mode=TwoWay, Source={x:Static config:ConfigManager.Settings}}" />
-                                <CheckBox Content="{DynamicResource BlurBackground}" IsChecked="{Binding BlurBackground, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
 
                                 <WrapPanel
                                     Margin="5"
@@ -1047,16 +1039,7 @@
                                 Grid.Column="1"
                                 Margin="5"
                                 Orientation="Vertical">
-                                <WrapPanel Orientation="Horizontal">
-                                    <CheckBox Content="{DynamicResource ID}" IsChecked="{Binding DisplayID, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-                                    <CheckBox Content="{DynamicResource Title}" IsChecked="{Binding DisplayTitle, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-                                    <CheckBox Content="{DynamicResource Date}" IsChecked="{Binding DisplayDate, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-                                    <CheckBox Content="{DynamicResource Stamp}" IsChecked="{Binding DisplayStamp, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-                                    <CheckBox Content="{DynamicResource Favorites}" IsChecked="{Binding DisplayFavorites, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-
-                                </WrapPanel>
-                                <CheckBox Content="{DynamicResource ShowFIlename}" IsChecked="{Binding ShowFileNameIfTitleEmpty, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
-                                <CheckBox Content="{DynamicResource ShowCreateDate}" IsChecked="{Binding ShowCreateDateIfReleaseDateEmpty, Mode=TwoWay, Source={x:Static config:ConfigManager.VideoConfig}}" />
+                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="影片显示项默认全部开启" />
                                 <WrapPanel
                                     Margin="5"
                                     HorizontalAlignment="Left"
@@ -1092,7 +1075,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="{DynamicResource VedioProcessing}">
+            <TabItem Header="{DynamicResource VedioProcessing}" Visibility="Collapsed">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
 
@@ -1455,7 +1438,7 @@
             </TabItem>
 
 
-            <TabItem Header="{DynamicResource Rename}">
+            <TabItem Header="{DynamicResource Rename}" Visibility="Collapsed">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <Grid>

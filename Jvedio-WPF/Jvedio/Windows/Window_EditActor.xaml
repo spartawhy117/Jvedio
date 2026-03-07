@@ -211,11 +211,11 @@
                             MinWidth="0"
                             Content="{DynamicResource Actress_Cup}"
                             Style="{StaticResource BaseInfoLabel}"
-                            Visibility="{Binding TeenMode, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay, Converter={StaticResource OppositeBooleanConverter}}" />
+                            Visibility="Visible" />
                         <super:SearchBox
                             Margin="5"
                             Text="{Binding CurrentActorInfo.Cup, Mode=TwoWay}"
-                            Visibility="{Binding TeenMode, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay, Converter={StaticResource OppositeBooleanConverter}}" />
+                            Visibility="Visible" />
                     </DockPanel>
 
                     <DockPanel LastChildFill="True">

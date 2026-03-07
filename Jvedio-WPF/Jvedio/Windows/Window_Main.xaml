@@ -166,7 +166,7 @@
                     Command="{Binding AddNewMovie}"
                     Header="{DynamicResource ID}"
                     Icon="/Resources/Picture/新增.png"
-                    Visibility="{Binding Path=TeenMode, Source={x:Static config:ConfigManager.Settings}, Converter={StaticResource BoolToOppositeVisibilityConverter}}" />
+                                        Visibility="Visible" />
                 <MenuItem Click="ImportVideoByPaths" Header="{DynamicResource ScanMultiDir}" />
                 <MenuItem Click="ImportVideo" Header="{DynamicResource ScanNas}" />
             </MenuItem>
@@ -455,7 +455,7 @@
                                         BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                         Command="{Binding AddNewMovie}"
                                         Style="{StaticResource BorderButton}"
-                                        Visibility="{Binding Path=TeenMode, Source={x:Static config:ConfigManager.Settings}, Converter={StaticResource BoolToOppositeVisibilityConverter}}">
+                                        Visibility="Visible">
                                         <StackPanel Orientation="Horizontal">
                                             <Image
                                                 Height="13"
