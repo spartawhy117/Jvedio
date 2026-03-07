@@ -31,6 +31,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Simplified `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` cleanup tasks by removing fixed post-delete waits and handling empty paths as missing files directly.
 - Fixed `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` so a missing video record finalizes the task instead of leaving the screenshot task hanging.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `06-media-maintenance` module changes.
+- Hardened `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` shutdown handling by skipping startup-state persistence when the startup view model is not ready yet.
+- Removed redundant startup server-config reloading after `CrawlerManager.Init(true)` and simplified short-delay helper flows in plugin move/delete and backup tasks.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `01-bootstrap-startup` module changes.
 
 ## [2026-03-07]
 

@@ -84,7 +84,7 @@ namespace Jvedio
 
         public void Dispose()
         {
-            if (ConfigManager.StartUp == null)
+            if (ConfigManager.StartUp == null || vieModel == null)
                 return;
             ConfigManager.StartUp.Tile = vieModel.Tile;
             ConfigManager.StartUp.ShowHideItem = vieModel.ShowHideItem;
@@ -135,7 +135,6 @@ namespace Jvedio
             await MovePlugins();
             await DeletePlugins();
             CrawlerManager.Init(true);
-            ConfigManager.ServerConfig.Read();
 
             InitContext();
             UtilsManager.OnUtilSettingChange(); // 初始化 SuperUtils 的配置
@@ -210,19 +209,17 @@ namespace Jvedio
             }
         }
 
-        private async Task<bool> MovePlugins()
+        private Task<bool> MovePlugins()
         {
-            await Task.Delay(1);
             string path = Path.Combine(PathManager.BasePluginsPath, "temp");
             bool success = DirHelper.TryCopy(path, PathManager.BasePluginsPath);
             if (success)
                 DirHelper.TryDelete(path);
-            return true;
+            return Task.FromResult(true);
         }
 
-        private async Task<bool> DeletePlugins()
+        private Task<bool> DeletePlugins()
         {
-            await Task.Delay(1);
             List<string> list = JsonUtils.TryDeserializeObject<List<string>>(ConfigManager.PluginConfig.DeleteList);
             if (list != null && list.Count > 0) {
                 for (int i = list.Count - 1; i >= 0; i--) {
@@ -243,10 +240,10 @@ namespace Jvedio
                 ConfigManager.PluginConfig.DeleteList = JsonUtils.TrySerializeObject(list);
                 ConfigManager.PluginConfig.Save();
             }
-            return true;
+            return Task.FromResult(true);
         }
 
-        private async Task<bool> BackupData()
+        private Task<bool> BackupData()
         {
             if (ConfigManager.Settings.AutoBackup) {
                 int period = Jvedio.Core.WindowConfig.Settings.BackUpPeriods[(int)ConfigManager.Settings.AutoBackupPeriodIndex];
@@ -283,8 +280,7 @@ namespace Jvedio
                 }
             }
 
-            await Task.Delay(1);
-            return false;
+            return Task.FromResult(true);
         }
 
         private async Task<bool> MoveOldFiles()
