@@ -40,7 +40,7 @@
 
 ## 阶段 1：配置与路径基建
 
-状态：`[ ]`
+状态：`[x]`
 
 目标：
 - 为 MetaTube 增加独立配置
@@ -349,8 +349,8 @@ UI 内容：
 ## 当前进度
 
 - [x] 方案确认完成
-- [~] 阶段 0：计划文档写入与归档
-- [ ] 阶段 1：配置与路径基建
+- [x] 阶段 0：计划文档写入与归档
+- [x] 阶段 1：配置与路径基建
 - [ ] 阶段 2：建立内置搜刮抽象层
 - [ ] 阶段 3：MetaTube 客户端、缓存与适配
 - [ ] 阶段 4：同步主链接入
@@ -360,3 +360,15 @@ UI 内容：
 - [ ] 阶段 8：旧插件搜刮链降级
 - [ ] 阶段 9：手动刷新与覆盖更新
 - [ ] 阶段 10：文档、日志、测试补齐
+
+## 阶段 1 执行记录
+
+- 已新增 `Jvedio-WPF/Jvedio/Core/Config/Common/MetaTubeConfig.cs`
+- 已在 `ConfigManager` 中注册并纳入统一保存链
+- 已在 `PathManager` 中新增 MetaTube 固定目录：
+  - `data/<user>/metatube/cache/video/`
+  - `data/<user>/metatube/cache/actor/`
+  - `data/<user>/metatube/avatar/`
+  - `data/<user>/metatube/test/`
+  - `data/<user>/metatube/log/`
+- 已验证 `Release` 编译通过

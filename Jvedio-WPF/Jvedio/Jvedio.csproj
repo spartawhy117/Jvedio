@@ -288,6 +288,7 @@
     <Compile Include="Core\Config\Common\PluginConfig.cs" />
     <Compile Include="Core\Config\Common\ScanConfig.cs" />
     <Compile Include="Core\Config\Common\ServerConfig.cs" />
+    <Compile Include="Core\Config\Common\MetaTubeConfig.cs" />
     <Compile Include="Core\Config\WindowConfig\Filter.cs" />
     <Compile Include="Core\Config\WindowConfig\Settings.cs" />
     <Compile Include="Core\Crawler\ActorSearch.cs" />

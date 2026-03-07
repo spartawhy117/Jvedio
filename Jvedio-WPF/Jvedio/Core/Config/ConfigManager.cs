@@ -33,6 +33,7 @@ namespace Jvedio
         public static Jvedio.Core.Config.FFmpegConfig FFmpegConfig { get; set; }
         public static Jvedio.Core.Config.RenameConfig RenameConfig { get; set; }
         public static Jvedio.Core.Config.PluginConfig PluginConfig { get; set; }
+        public static Jvedio.Core.Config.MetaTubeConfig MetaTubeConfig { get; set; }
         public static Jvedio.Core.Config.ThemeConfig ThemeConfig { get; set; }
         public static Jvedio.Core.Config.DownloadConfig DownloadConfig { get; set; }
         public static Jvedio.Core.Config.JavaServerConfig JavaServerConfig { get; set; }
@@ -56,6 +57,7 @@ namespace Jvedio
             FFmpegConfig = Jvedio.Core.Config.FFmpegConfig.CreateInstance();
             RenameConfig = Jvedio.Core.Config.RenameConfig.CreateInstance();
             PluginConfig = Jvedio.Core.Config.PluginConfig.CreateInstance();
+            MetaTubeConfig = Jvedio.Core.Config.MetaTubeConfig.CreateInstance();
             ThemeConfig = Jvedio.Core.Config.ThemeConfig.CreateInstance();
             DownloadConfig = Jvedio.Core.Config.DownloadConfig.CreateInstance();
             JavaServerConfig = Jvedio.Core.Config.JavaServerConfig.CreateInstance();
@@ -81,6 +83,7 @@ namespace Jvedio
             FFmpegConfig.Save();
             RenameConfig.Save();
             PluginConfig.Save();
+            MetaTubeConfig.Save();
             ThemeConfig.Save();
             DownloadConfig.Save();
             JavaServerConfig.Save();
