@@ -10,7 +10,7 @@ namespace Jvedio.Core.DataBase.Tables
             {
                 "ALTER TABLE metadata ADD COLUMN PathExist INT DEFAULT 0;",
                 "ALTER TABLE actor_info ADD COLUMN ImageUrl TEXT;",
-                "ALTER TABLE common_search_history ADD COLUMN TypeMode INT DEFAULT 0;",
+                "ALTER TABLE common_search_histories ADD COLUMN TypeMode INT DEFAULT 0;",
                 "CREATE INDEX IF NOT EXISTS metadata_idx_DBId_DataType_ViewCount ON metadata (DBId,DataType,ViewCount);",
                 "INSERT or ignore into common_tagstamp (TagID,Foreground,Background,TagName) " +
                     "VALUES (10000,'255,255,255,255','255,165,0,255','新加入');",

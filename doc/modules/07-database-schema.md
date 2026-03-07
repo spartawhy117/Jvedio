@@ -43,3 +43,4 @@
 - 上层拼接 SQL 较多，复杂查询一致性依赖调用方
 - 跨表关系多，字段调整时回归范围大
 - 已为 `metadata (DBId,DataType,ViewCount)` 补充索引，改善按播放次数排序时的数据库支撑能力
+- 已修复搜索历史表的增量 SQL 表名错误，避免新环境启动时因 `common_search_history` / `common_search_histories` 不一致而记录 SQL 异常
