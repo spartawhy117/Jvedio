@@ -1,0 +1,11 @@
+flowchart LR
+    A[ConfigManager] --> B[Window configs]
+    A --> C[Task configs]
+    A --> D[Network and plugin configs]
+    A --> E[FFmpeg and path configs]
+    E --> F[PathManager]
+    F --> G[SqlManager]
+    G --> H[(Config sqlite)]
+    G --> I[(Data sqlite)]
+    J[MapperManager] --> I
+    J --> H

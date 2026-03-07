@@ -1,0 +1,10 @@
+flowchart TD
+    A[Window_Main] --> B[VieModel_Main]
+    A --> C[TabItemManager]
+    C --> D[VideoList]
+    C --> E[ActorList]
+    C --> F[LabelView]
+    D --> G[VieModel_VideoList]
+    G --> H[VideoMapper]
+    D --> I[Window_Details]
+    D --> J[Window_Edit]

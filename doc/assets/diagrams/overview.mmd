@@ -1,0 +1,13 @@
+flowchart TD
+    A[App.xaml.cs] --> B[WindowStartUp.xaml.cs]
+    B --> C[ConfigManager]
+    B --> D[MapperManager]
+    B --> E[CrawlerManager]
+    B --> F[Window_Main]
+    F --> G[VideoList and Tabs]
+    G --> H[Window_Details and Window_Edit]
+    G --> I[ScanTask]
+    G --> J[DownLoadTask]
+    G --> K[ScreenShotTask]
+    D --> L[(SQLite)]
+    C --> M[(Config DB)]

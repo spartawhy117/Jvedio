@@ -12,6 +12,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Removed the legacy `Jvedio-WPF/Document/Wiki/4.6` documentation set and the obsolete skin plugin sample documents under `Jvedio-WPF/Document/皮肤插件示例`.
 - Removed the leftover `Jvedio-WPF/Document/Document.md` skin plugin note so the remaining document set stays aligned with the current WPF-only maintenance scope.
 - Centralized maintained documentation under `doc/`, moved the developer guide to `doc/developer.md`, moved the changelog to `doc/CHANGELOG.md`, and removed remaining user-facing and legacy document sets.
+- Installed Mermaid CLI (`mmdc`) after online research so the maintained docs can include generated flowcharts and structure diagrams.
+- Simplified `doc/developer.md` into an index-style maintainer guide and added module docs under `doc/modules/`.
+- Added generated diagrams under `doc/assets/diagrams/` and ended each module article with current performance or bug-prone areas.
 
 ## [2026-03-07]
 

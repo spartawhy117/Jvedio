@@ -1,0 +1,9 @@
+flowchart TD
+    A[Scan trigger] --> B[ScanTask]
+    B --> C[ScanDir]
+    C --> D[VideoParser.ParseMovie]
+    D --> E[Import videos]
+    D --> F[Import NFO]
+    D --> G[Skip and fail buckets]
+    E --> H[Mapper writes]
+    H --> I[UI refresh]

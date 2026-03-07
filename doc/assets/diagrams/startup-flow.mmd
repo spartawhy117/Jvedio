@@ -1,0 +1,12 @@
+flowchart TD
+    A[App.Init] --> B[Create Logger and Managers]
+    B --> C[WindowStartUp.Loaded]
+    C --> D[Ensure files and dirs]
+    D --> E[InitMapper]
+    E --> F[ConfigManager.Init]
+    F --> G[Move old files]
+    G --> H[Backup and plugin cleanup]
+    H --> I[CrawlerManager.Init]
+    I --> J[ServerConfig.Read]
+    J --> K[Open DB or show startup page]
+    K --> L[Window_Main]

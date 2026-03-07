@@ -1,0 +1,9 @@
+flowchart TD
+    A[UI action] --> B[ScreenShotTask]
+    A --> C[Window_DataBase]
+    A --> D[UpgradeHelper]
+    B --> E[ScreenShot]
+    E --> F[FFmpeg]
+    B --> G[ImageCache]
+    C --> H[(SQLite cleanup)]
+    D --> I[Jvedio4ToJvedio5]

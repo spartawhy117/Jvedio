@@ -1,0 +1,11 @@
+flowchart TD
+    A[Sync trigger] --> B[DownLoadTask]
+    B --> C[VideoDownLoader]
+    C --> D[CrawlerManager plugins]
+    C --> E[ServerConfig]
+    C --> F[Remote site]
+    F --> G[Metadata dict]
+    G --> H[DB update]
+    G --> I[Poster/thumb/actor save]
+    H --> J[UI refresh]
+    I --> J
