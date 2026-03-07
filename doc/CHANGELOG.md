@@ -43,6 +43,7 @@
 - 继续清理设置页失效逻辑：删除 `Window_Settings.xaml` 中已隐藏的显示页、视频处理页、重命名页，并同步移除 `Window_Settings.xaml.cs` 中对应的初始化、保存和重置逻辑。
 - 新增 `doc/metatube-only-plan.md`，固化 MetaTube 唯一搜刮源的实施步骤、阶段目标、每日执行规则、测试搜刮框与日志输出要求，后续严格按该计划推进。
 - 完成 MetaTube 计划阶段 1：新增 `MetaTubeConfig`，并在 `PathManager` 中建立 `metatube/cache/video`、`metatube/cache/actor`、`metatube/avatar`、`metatube/test`、`metatube/log` 等固定目录，为后续唯一搜刮源改造打基础。
+- 完成 MetaTube 计划阶段 2：新增内置搜刮抽象层 `IScraperProvider`、`ScraperProviderManager` 及统一 `Scrape*` 模型，并注册 `MetaTubeScraperProvider` 骨架作为当前唯一 provider。
 
 ## [2026-03-07]
 

@@ -73,7 +73,7 @@
 
 ## 阶段 2：建立内置搜刮抽象层
 
-状态：`[ ]`
+状态：`[x]`
 
 目标：
 - 从旧插件搜刮模型切到内置 provider 模型
@@ -351,7 +351,7 @@ UI 内容：
 - [x] 方案确认完成
 - [x] 阶段 0：计划文档写入与归档
 - [x] 阶段 1：配置与路径基建
-- [ ] 阶段 2：建立内置搜刮抽象层
+- [x] 阶段 2：建立内置搜刮抽象层
 - [ ] 阶段 3：MetaTube 客户端、缓存与适配
 - [ ] 阶段 4：同步主链接入
 - [ ] 阶段 5：sidecar 与演员头像落盘
@@ -360,6 +360,19 @@ UI 内容：
 - [ ] 阶段 8：旧插件搜刮链降级
 - [ ] 阶段 9：手动刷新与覆盖更新
 - [ ] 阶段 10：文档、日志、测试补齐
+
+## 阶段 2 执行记录
+
+- 已新增内置搜刮抽象接口：`IScraperProvider`
+- 已新增内置搜刮器注册入口：`ScraperProviderManager`
+- 已新增统一模型：
+  - `ScrapeRequest`
+  - `ScrapeResult`
+  - `ScrapedActor`
+  - `ScrapedImages`
+- 已新增 `MetaTubeScraperProvider` 骨架，并作为当前唯一内置 provider 注册
+- 已将以上新文件纳入 `Jvedio.csproj`
+- 已验证 `Release` 编译通过
 
 ## 阶段 1 执行记录
 

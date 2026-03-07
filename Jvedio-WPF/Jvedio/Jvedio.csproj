@@ -391,6 +391,13 @@
     <Compile Include="Entity\Common\ActorInfo.cs" />
     <Compile Include="Entity\Common\Actress.cs" />
     <Compile Include="Core\Scan\ScanTask.cs" />
+    <Compile Include="Core\Scraper\IScraperProvider.cs" />
+    <Compile Include="Core\Scraper\ScraperProviderManager.cs" />
+    <Compile Include="Core\Scraper\Models\ScrapeRequest.cs" />
+    <Compile Include="Core\Scraper\Models\ScrapeResult.cs" />
+    <Compile Include="Core\Scraper\Models\ScrapedActor.cs" />
+    <Compile Include="Core\Scraper\Models\ScrapedImages.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeScraperProvider.cs" />
     <Compile Include="Entity\Base\ListNode.cs" />
     <Compile Include="Entity\CommonSQL\AIFaceInfo.cs" />
     <Compile Include="Entity\CommonSQL\Association.cs" />

@@ -36,3 +36,4 @@
 - 设置页中的插件 Tab 已从 UI 中移除，但插件相关配置与接口代码仍保留，后续如需彻底下线需继续清理事件和视图模型绑定
 - 网络设置页已去掉“标题为空才同步信息”开关，当前更偏向以“是否强制覆盖信息”为单一同步覆盖入口
 - MetaTube 唯一搜刮源的第一阶段已完成配置与目录基建，后续会逐步从旧插件搜刮链切换到内置 provider 模型
+- 已建立 `IScraperProvider + ScraperProviderManager` 的内置搜刮抽象，当前注册的唯一 provider 为 `MetaTubeScraperProvider` 骨架，后续将把同步主链从旧插件切换到该抽象层
