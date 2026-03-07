@@ -59,10 +59,6 @@ namespace Jvedio
 
         #region "静态属性"
 
-        private List<string> RenameList { get; set; } = new List<string>();
-
-        public static Video SampleVideo { get; set; }
-
         public static string SupportVideoFormat { get; set; }
 
         public static string SupportPictureFormat { get; set; } // bmp,gif,ico,jpe,jpeg,jpg,png
@@ -228,23 +224,6 @@ namespace Jvedio
 
         static Window_Settings()
         {
-            SampleVideo = new Video() {
-                VID = "IRONMAN-01",
-                Title = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Title"),
-                VideoType = VideoType.Normal,
-                ReleaseDate = "2020-01-01",
-                Director = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Director"),
-                Genre = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Genre"),
-                Series = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Tag"),
-                ActorNames = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Actor"),
-                Studio = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Studio"),
-                Rating = 9.0f,
-                Label = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Label"),
-                ReleaseYear = 2020,
-                Duration = 126,
-                Country = SuperControls.Style.LangManager.GetValueByKey("SampleMovie_Country"),
-            };
-
             SupportVideoFormat =
                 $"{SuperControls.Style.LangManager.GetValueByKey("NormalVideo")}(*.avi, *.mp4, *.mkv, *.mpg, *.rmvb)| *.avi; *.mp4; *.mkv; *.mpg; *.rmvb|{SuperControls.Style.LangManager.GetValueByKey("OtherVedio")}((*.rm, *.mov, *.mpeg, *.flv, *.wmv, *.m4v)| *.rm; *.mov; *.mpeg; *.flv; *.wmv; *.m4v|{SuperControls.Style.LangManager.GetValueByKey("AllFile")} (*.*)|*.*";
             SupportPictureFormat = $"图片(*.bmp, *.jpe, *.jpeg, *.jpg, *.png)|*.bmp;*.jpe;*.jpeg;*.jpg;*.png";
@@ -264,11 +243,6 @@ namespace Jvedio
         public void Init()
         {
             MainWindow = GetWindowByName("Main", App.Current.Windows) as Main;
-
-            // 绑定事件
-            foreach (var item in CheckedBoxWrapPanel.Children.OfType<ToggleButton>().ToList()) {
-                item.Click += AddToRename;
-            }
             vieModel.MainWindowVisible = MainWindow != null;
         }
 
@@ -276,9 +250,6 @@ namespace Jvedio
         {
             InitIndex();
             InitScanDatabases();
-            InitViewRename(ConfigManager.RenameConfig.FormatString);
-            InitCheckedBoxChecked();
-            InitRenameCombobox();
             InitProxy();
             InitLang();
         }
@@ -356,29 +327,6 @@ namespace Jvedio
 
         }
 
-
-        private void InitRenameCombobox()
-        {
-            foreach (ComboBoxItem item in OutComboBox.Items) {
-                if (item.Content.ToString().Equals(ConfigManager.RenameConfig.OutSplit)) {
-                    OutComboBox.SelectedIndex = OutComboBox.Items.IndexOf(item);
-                    break;
-                }
-            }
-
-            if (OutComboBox.SelectedIndex < 0)
-                OutComboBox.SelectedIndex = 0;
-
-            foreach (ComboBoxItem item in InComboBox.Items) {
-                if (item.Content.ToString().Equals(ConfigManager.RenameConfig.InSplit)) {
-                    InComboBox.SelectedIndex = InComboBox.Items.IndexOf(item);
-                    break;
-                }
-            }
-
-            if (InComboBox.SelectedIndex < 0)
-                OutComboBox.SelectedIndex = 0;
-        }
 
         public void AddPath(object sender, RoutedEventArgs e)
         {
@@ -518,22 +466,6 @@ namespace Jvedio
             ConfigManager.Settings.PicPathJson = JsonConvert.SerializeObject(vieModel.PicPaths);
         }
 
-        private void SetFFMPEGPath(object sender, RoutedEventArgs e)
-        {
-            System.Windows.Forms.OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog1.Title = SuperControls.Style.LangManager.GetValueByKey("ChooseFFmpeg");
-            openFileDialog1.FileName = "ffmpeg.exe";
-            openFileDialog1.Filter = "ffmpeg.exe|*.exe";
-            openFileDialog1.FilterIndex = 1;
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                string exePath = openFileDialog1.FileName;
-                if (File.Exists(exePath)) {
-                    if (new FileInfo(exePath).Name.ToLower() == "ffmpeg.exe")
-                        vieModel.FFMPEG_Path = exePath;
-                }
-            }
-        }
-
         private void DatabaseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 0)
@@ -557,28 +489,6 @@ namespace Jvedio
                         DatabaseComboBox.SelectedIndex = i;
                         break;
                     }
-                }
-            }
-        }
-
-        private void InitCheckedBoxChecked()
-        {
-            List<ToggleButton> toggleButtons = CheckedBoxWrapPanel.Children.OfType<ToggleButton>().ToList();
-            List<string> list = toggleButtons.Select(arg => Video.ToSqlField(arg.Content.ToString())).ToList();
-
-            // 按照顺序
-            string formatString = ConfigManager.RenameConfig.FormatString;
-            if (!string.IsNullOrEmpty(formatString)) {
-                int left = formatString.IndexOf("{"), right = formatString.IndexOf("}");
-                while (right > 0 && right < formatString.Length) {
-                    string name = formatString.Substring(left + 1, right - left - 1);
-                    if (list.Contains(name)) {
-                        RenameList.Add(name);
-                        toggleButtons[list.IndexOf(name)].IsChecked = true;
-                    }
-                    left = formatString.IndexOf("{", left + 1);
-                    right = formatString.IndexOf("}", right + 1);
-                    Console.WriteLine();
                 }
             }
         }
@@ -770,141 +680,12 @@ namespace Jvedio
             }
         }
 
-        private void ReplaceWithValue(string property)
-        {
-            string inSplit = ConfigManager.RenameConfig.InSplit.Equals("[null]") ? string.Empty : ConfigManager.RenameConfig.InSplit;
-            PropertyInfo[] propertyList = SampleVideo.GetType().GetProperties();
-            foreach (PropertyInfo item in propertyList) {
-                string name = item.Name;
-                if (name == property) {
-                    object o = item.GetValue(SampleVideo);
-                    if (o != null) {
-                        string value = o.ToString();
-
-                        if (property == "ActorNames" || property == "Genre" || property == "Label")
-                            value = value.Replace(" ", inSplit).Replace("/", inSplit);
-
-                        if (vieModel.RemoveTitleSpace && property.Equals("Title"))
-                            value = value.Trim();
-
-                        if (property == "VideoType") {
-                            int v = 0;
-                            int.TryParse(value, out v);
-                            if (v == 1)
-                                value = SuperControls.Style.LangManager.GetValueByKey("Uncensored");
-                            else if (v == 2)
-                                value = SuperControls.Style.LangManager.GetValueByKey("Censored");
-                            else if (v == 3)
-                                value = SuperControls.Style.LangManager.GetValueByKey("Europe");
-                        }
-
-                        vieModel.ViewRenameFormat = vieModel.ViewRenameFormat.Replace("{" + property + "}", value);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-
-
-        private void SetRenameFormat()
-        {
-            string format = vieModel.FormatString;
-            if (RenameList.Count > 0) {
-
-                StringBuilder builder = new StringBuilder();
-                string sep = ConfigManager.RenameConfig.OutSplit.Equals("[null]") ? string.Empty : ConfigManager.RenameConfig.OutSplit;
-                List<string> formatNames = new List<string>();
-                foreach (string name in RenameList) {
-                    formatNames.Add($"{{{name}}}");
-                }
-                vieModel.FormatString = string.Join(sep, formatNames);
-            } else
-                vieModel.FormatString = string.Empty;
-        }
-
-        private void AddToRename(object sender, RoutedEventArgs e)
-        {
-            ToggleButton toggleButton = sender as ToggleButton;
-            if (toggleButton != null) {
-                string sep = ConfigManager.RenameConfig.OutSplit.Equals("[null]") ? string.Empty : ConfigManager.RenameConfig.OutSplit;
-                string format = vieModel.FormatString;
-                string value = Video.ToSqlField(toggleButton.Content.ToString());
-                if ((bool)toggleButton.IsChecked) {
-
-                    if (format.IndexOf($"{{{value}}}") < 0) {
-                        // 加到最后
-                        if (format.Length > 0 && !string.IsNullOrEmpty(sep) && !format[format.Length - 1].Equals(sep.ToCharArray()[0]))
-                            format += sep;
-                        format += $"{{{value}}}";
-                        RenameList.Add(value);
-                    }
-                } else {
-                    // 移除所有
-                    format = format.Replace($"{sep}{{{value}}}", "");
-                    format = format.Replace($"{{{value}}}", "");
-                    RenameList.Remove(value);
-                }
-                vieModel.FormatString = format;
-            }
-            SetRenameFormat();
-            InitViewRename(vieModel.FormatString);
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (vieModel == null)
-                return;
-            TextBox textBox = (TextBox)sender;
-            string txt = textBox.Text;
-            InitViewRename(txt);
-        }
-
-        private void InitViewRename(string txt)
-        {
-            if (string.IsNullOrEmpty(txt)) {
-                vieModel.ViewRenameFormat = string.Empty;
-                return;
-            }
-
-            MatchCollection matches = Regex.Matches(txt, "\\{[a-zA-Z]+\\}");
-            if (matches != null && matches.Count > 0) {
-                vieModel.ViewRenameFormat = txt;
-                foreach (Match match in matches) {
-                    string property = match.Value.Replace("{", string.Empty).Replace("}", string.Empty);
-                    ReplaceWithValue(property);
-                }
-            } else {
-                vieModel.ViewRenameFormat = string.Empty;
-            }
-        }
-
-        private void OutComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0)
-                return;
-            ConfigManager.RenameConfig.OutSplit = ((ComboBoxItem)e.AddedItems[0]).Content.ToString();
-            SetRenameFormat();
-        }
-
-        private void InComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0)
-                return;
-            ConfigManager.RenameConfig.InSplit = ((ComboBoxItem)e.AddedItems[0]).Content.ToString();
-            SetRenameFormat();
-            InitViewRename(vieModel.FormatString);
-        }
-
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             SaveSettings();
             ConfigManager.Settings.Save();
             ConfigManager.ProxyConfig.Save();
             ConfigManager.ScanConfig.Save();
-            ConfigManager.FFmpegConfig.Save();
-            ConfigManager.RenameConfig.Save();
         }
 
         private void SaveSettings()
@@ -971,34 +752,9 @@ namespace Jvedio
             ConfigManager.ScanConfig.CopyNFOPreviewPath = ".preview";
             ConfigManager.ScanConfig.CopyNFOScreenShotPath = ".screenshot";
 
-            // ffmpeg
-            ConfigManager.FFmpegConfig.Path = vieModel.FFMPEG_Path;
-            ConfigManager.FFmpegConfig.ThreadNum = vieModel.ScreenShot_ThreadNum;
-            ConfigManager.FFmpegConfig.TimeOut = vieModel.ScreenShot_TimeOut;
-            ConfigManager.FFmpegConfig.ScreenShotNum = vieModel.ScreenShotNum;
-            ConfigManager.FFmpegConfig.ScreenShotIgnoreStart = vieModel.ScreenShotIgnoreStart;
-            ConfigManager.FFmpegConfig.ScreenShotIgnoreEnd = vieModel.ScreenShotIgnoreEnd;
-            ConfigManager.FFmpegConfig.SkipExistGif = vieModel.SkipExistGif;
-            ConfigManager.FFmpegConfig.SkipExistScreenShot = vieModel.SkipExistScreenShot;
-            ConfigManager.FFmpegConfig.ScreenShotAfterImport = vieModel.ScreenShotAfterImport;
-            ConfigManager.FFmpegConfig.GifAutoHeight = vieModel.GifAutoHeight;
-            ConfigManager.FFmpegConfig.GifWidth = vieModel.GifWidth;
-            ConfigManager.FFmpegConfig.GifHeight = vieModel.GifHeight;
-            ConfigManager.FFmpegConfig.GifDuration = vieModel.GifDuration;
-
-            // 重命名
-            ConfigManager.RenameConfig.RemoveTitleSpace = false;
-            ConfigManager.RenameConfig.AddRenameTag = false;
-            ConfigManager.RenameConfig.FormatString = string.Empty;
-
             // 监听
             ConfigManager.Settings.ListenEnabled = vieModel.ListenEnabled;
             ConfigManager.Settings.ListenPort = vieModel.ListenPort;
-        }
-
-        private void CopyFFmpegUrl(object sender, MouseButtonEventArgs e)
-        {
-            FileHelper.TryOpenUrl(FFMPEG_URL);
         }
 
         private void ImageSelectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1351,28 +1107,6 @@ namespace Jvedio
 
                 ConfigManager.VideoConfig.ShowFileNameIfTitleEmpty = true;
                 ConfigManager.VideoConfig.ShowCreateDateIfReleaseDateEmpty = true;
-
-                // 视频处理
-                vieModel.FFMPEG_Path = "";
-                vieModel.ScreenShot_ThreadNum = FFmpegConfig.DEFAULT_THREAD_NUM;
-                vieModel.SkipExistScreenShot = true;
-                vieModel.ScreenShotAfterImport = true;
-                vieModel.ScreenShotNum = FFmpegConfig.DEFAULT_SCREEN_SHOT_NUM;
-                vieModel.ScreenShotIgnoreStart = FFmpegConfig.DEFAULT_SCREEN_SHOT_IGNORE_START;
-                vieModel.ScreenShotIgnoreEnd = FFmpegConfig.DEFAULT_SCREEN_SHOT_IGNORE_END;
-                vieModel.SkipExistGif = false;
-                vieModel.GifWidth = FFmpegConfig.DEFAULT_GIF_WIDTH;
-                vieModel.GifHeight = FFmpegConfig.DEFAULT_GIF_HEIGHT;
-                vieModel.GifAutoHeight = true;
-                vieModel.GifDuration = FFmpegConfig.DEFAULT_GIF_DURATION;
-
-                // 重命名
-                vieModel.RemoveTitleSpace = false;
-                vieModel.AddRenameTag = false;
-                ConfigManager.RenameConfig.OutSplit = RenameConfig.DEFAULT_OUT_SPLIT;
-                ConfigManager.RenameConfig.InSplit = RenameConfig.DEFAULT_IN_SPLIT;
-                vieModel.FormatString = "";
-                ConfigManager.RenameConfig.Save();
 
                 // 库
                 vieModel.AutoBackup = true;
