@@ -247,6 +247,43 @@ namespace Jvedio.Core.Scan
             return videoMapper.ToEntity<Video>(list, typeof(Video).GetProperties(), false);
         }
 
+        private static string GetSizePathKey(long size, string path)
+        {
+            return $"{size}|{path?.Trim().ToLowerInvariant()}";
+        }
+
+        private static Dictionary<string, List<Video>> GroupVideosByVID(List<Video> videos)
+        {
+            if (videos == null)
+                return new Dictionary<string, List<Video>>(StringComparer.OrdinalIgnoreCase);
+            return videos
+                .Where(arg => !string.IsNullOrEmpty(arg.VID))
+                .GroupBy(arg => arg.VID, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(arg => arg.Key, arg => arg.ToList(), StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static Dictionary<string, List<Video>> GroupVideosByHash(List<Video> videos)
+        {
+            if (videos == null)
+                return new Dictionary<string, List<Video>>(StringComparer.OrdinalIgnoreCase);
+            return videos
+                .Where(arg => !string.IsNullOrEmpty(arg.Hash))
+                .GroupBy(arg => arg.Hash, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(arg => arg.Key, arg => arg.ToList(), StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static HashSet<string> BuildExistingPathSet(List<Video> videos)
+        {
+            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (videos == null)
+                return result;
+            foreach (Video video in videos) {
+                if (!string.IsNullOrEmpty(video?.Path) && File.Exists(video.Path))
+                    result.Add(video.Path);
+            }
+            return result;
+        }
+
         private void HandleImport(List<Video> import)
         {
             if (import == null || import.Count == 0) {
@@ -257,65 +294,71 @@ namespace Jvedio.Core.Scan
             List<Video> vidList = import.Where(arg => !string.IsNullOrEmpty(arg.VID)).ToList();
 
             existVideos = GetExistVideos();
+            Dictionary<string, List<Video>> existVideosByVID = GroupVideosByVID(existVideos);
+            Dictionary<string, List<Video>> existVideosByHash = GroupVideosByHash(existVideos);
+            HashSet<string> existPathSet = BuildExistingPathSet(existVideos);
+            HashSet<string> sameSizePathSet = new HashSet<string>(existVideos.Select(arg => GetSizePathKey(arg.Size, arg.Path)), StringComparer.OrdinalIgnoreCase);
 
             // 1. 处理有识别码的
             // 1.1 不需要导入
             // 存在同路径、相同大小的影片
-            foreach (var item in vidList.Where(arg => existVideos.Where(t => arg.Size.Equals(t.Size) && arg.Path.Equals(t.Path)).Any())) {
+            foreach (var item in vidList.Where(arg => sameSizePathSet.Contains(GetSizePathKey(arg.Size, arg.Path)))) {
                 ScanResult.NotImport.Add(item.Path, new ScanDetailInfo(LangManager.GetValueByKey("SamePathFileSize")));
             }
 
-            vidList.RemoveAll(arg => existVideos.Where(t => arg.Size.Equals(t.Size) && arg.Path.Equals(t.Path)).Any());
+            vidList.RemoveAll(arg => sameSizePathSet.Contains(GetSizePathKey(arg.Size, arg.Path)));
 
             // 存在不同路径、相同大小、相同 VID、且原路径也存在的影片
-            foreach (var item in vidList.Where(arg => existVideos
-                .Where(t => arg.Size.Equals(t.Size) && arg.VID.Equals(t.VID) && !arg.Path.Equals(t.Path) && File.Exists(t.Path))
-                .Any())) {
+            foreach (var item in vidList.Where(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID)
+                && existVideosByVID[arg.VID].Any(t => arg.Size.Equals(t.Size) && !arg.Path.Equals(t.Path) && existPathSet.Contains(t.Path)))) {
                 ScanDetailInfo scanDetailInfo = new ScanDetailInfo(LangManager.GetValueByKey("NotSamePathSameFileSize"));
                 StringBuilder builder = new StringBuilder($"和 {item.Path} 存在重复：");
                 builder.AppendLine();
                 builder.AppendLine();
-                List<Video> _videos = existVideos
-                .Where(t => item.Size.Equals(t.Size) && item.VID.Equals(t.VID) && !item.Path.Equals(t.Path) && File.Exists(t.Path)).ToList();
+                List<Video> _videos = existVideosByVID[item.VID]
+                .Where(t => item.Size.Equals(t.Size) && !item.Path.Equals(t.Path) && existPathSet.Contains(t.Path)).ToList();
                 foreach (var _video in _videos)
                     builder.AppendLine(_video.Path);
                 scanDetailInfo.Detail = builder.ToString();
                 ScanResult.NotImport.Add(item.Path, scanDetailInfo);
             }
 
-            vidList.RemoveAll(arg => existVideos.Where(t => arg.Size.Equals(t.Size) && arg.VID.Equals(t.VID) && !arg.Path.Equals(t.Path) && File.Exists(t.Path)).Any());
+            vidList.RemoveAll(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID)
+                && existVideosByVID[arg.VID].Any(t => arg.Size.Equals(t.Size) && !arg.Path.Equals(t.Path) && existPathSet.Contains(t.Path)));
 
             // 存在不同路径，相同 VID，不同大小，且原路径存在（可能是剪辑的视频），且分段视频不相等
             foreach (var item in vidList
-                .Where(arg => existVideos.Where(t => arg.VID.Equals(t.VID) &&
+                .Where(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID) && existVideosByVID[arg.VID].Where(t =>
                 !arg.Path.Equals(t.Path) &&
                 !arg.Size.Equals(t.Size) &&
-                File.Exists(t.Path) &&
+                existPathSet.Contains(t.Path) &&
                 t.SubSection.Equals(arg.SubSection))
                 .Any())) {
                 ScanDetailInfo scanDetailInfo = new ScanDetailInfo(LangManager.GetValueByKey("SamePathNotSameFileSize"));
                 StringBuilder builder = new StringBuilder($"和 {item.Path} 存在重复：");
                 builder.AppendLine();
                 builder.AppendLine();
-                List<Video> _videos = existVideos
-                    .Where(t => item.VID.Equals(t.VID) && !item.Path.Equals(t.Path) && !item.Size.Equals(t.Size) && File.Exists(t.Path)).ToList();
+                List<Video> _videos = existVideosByVID[item.VID]
+                    .Where(t => !item.Path.Equals(t.Path) && !item.Size.Equals(t.Size) && existPathSet.Contains(t.Path)).ToList();
                 foreach (var _video in _videos)
                     builder.AppendLine(_video.Path);
                 scanDetailInfo.Detail = builder.ToString();
                 ScanResult.NotImport.Add(item.Path, scanDetailInfo);
             }
 
-            vidList.RemoveAll(arg => existVideos.Where(t => arg.VID.Equals(t.VID)
-            && !arg.Path.Equals(t.Path) &&
-            !arg.Size.Equals(t.Size) &&
-            File.Exists(t.Path) &&
-            t.SubSection.Equals(arg.SubSection)).Any());
+            vidList.RemoveAll(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID)
+            && existVideosByVID[arg.VID].Any(t => !arg.Path.Equals(t.Path)
+            && !arg.Size.Equals(t.Size)
+            && existPathSet.Contains(t.Path)
+            && t.SubSection.Equals(arg.SubSection)));
 
             // 1.2 需要 update 路径
             // VID 相同，原路径（或分段视频路径）不同
             List<Video> toUpdate = new List<Video>();
             foreach (Video video in vidList) {
-                Video existVideo = existVideos.Where(t => video.VID.Equals(t.VID) && (!video.Path.Equals(t.Path) || !video.SubSection.Equals(t.SubSection))).FirstOrDefault();
+                Video existVideo = !string.IsNullOrEmpty(video.VID) && existVideosByVID.ContainsKey(video.VID)
+                    ? existVideosByVID[video.VID].FirstOrDefault(t => !video.Path.Equals(t.Path) || !video.SubSection.Equals(t.SubSection))
+                    : null;
                 if (existVideo != null) {
                     video.DataID = existVideo.DataID;
                     video.MVID = existVideo.MVID; // 下面使用 videoMapper 更新的时候会使用到
@@ -326,31 +369,33 @@ namespace Jvedio.Core.Scan
                 }
             }
 
-            vidList.RemoveAll(arg => existVideos.Where(t => arg.VID.Equals(t.VID)).Any());
+            vidList.RemoveAll(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID));
 
             // 1.3 需要 insert
             List<Video> toInsert = vidList;
 
             // 2. 处理无识别码的
             // 存在相同 HASH ，相同路径的影片
-            foreach (var item in noVidList.Where(arg => existVideos.Where(t => arg.Hash.Equals(t.Hash) && arg.Path.Equals(t.Path)).Any())) {
+            foreach (var item in noVidList.Where(arg => !string.IsNullOrEmpty(arg.Hash) && existVideosByHash.ContainsKey(arg.Hash) && existVideosByHash[arg.Hash].Any(t => arg.Path.Equals(t.Path)))) {
                 ScanDetailInfo scanDetailInfo = new ScanDetailInfo(LangManager.GetValueByKey("SameHashSamePath"));
                 StringBuilder builder = new StringBuilder($"和 {item.Path} 存在重复：");
                 builder.AppendLine();
                 builder.AppendLine();
-                List<Video> _videos = existVideos
-                    .Where(t => item.Hash.Equals(t.Hash) && item.Path.Equals(t.Path)).ToList();
+                List<Video> _videos = existVideosByHash[item.Hash]
+                    .Where(t => item.Path.Equals(t.Path)).ToList();
                 foreach (var _video in _videos)
                     builder.AppendLine(_video.Path);
                 scanDetailInfo.Detail = builder.ToString();
                 ScanResult.NotImport.Add(item.Path, scanDetailInfo);
             }
 
-            noVidList.RemoveAll(arg => existVideos.Where(t => arg.Hash.Equals(t.Hash) && arg.Path.Equals(t.Path)).Any());
+            noVidList.RemoveAll(arg => !string.IsNullOrEmpty(arg.Hash) && existVideosByHash.ContainsKey(arg.Hash) && existVideosByHash[arg.Hash].Any(t => arg.Path.Equals(t.Path)));
 
             // hash 相同，原路径不同则需要更新
             foreach (Video video in noVidList) {
-                Video existVideo = existVideos.Where(t => video.Hash.Equals(t.Hash) && !video.Path.Equals(t.Path)).FirstOrDefault();
+                Video existVideo = !string.IsNullOrEmpty(video.Hash) && existVideosByHash.ContainsKey(video.Hash)
+                    ? existVideosByHash[video.Hash].FirstOrDefault(t => !video.Path.Equals(t.Path))
+                    : null;
                 if (existVideo != null) {
                     video.DataID = existVideo.DataID;
                     video.MVID = existVideo.MVID; // 下面使用 videoMapper 更新的时候会使用到
@@ -362,7 +407,7 @@ namespace Jvedio.Core.Scan
             }
 
             // 剩余的导入
-            noVidList.RemoveAll(arg => existVideos.Where(t => arg.Hash.Equals(t.Hash) && !arg.Path.Equals(t.Path)).Any());
+            noVidList.RemoveAll(arg => !string.IsNullOrEmpty(arg.Hash) && existVideosByHash.ContainsKey(arg.Hash) && existVideosByHash[arg.Hash].Any(t => !arg.Path.Equals(t.Path)));
             toInsert.AddRange(noVidList);
 
             // 1.更新
@@ -518,6 +563,7 @@ namespace Jvedio.Core.Scan
                 return;
 
             existVideos = GetExistVideos();
+            Dictionary<string, List<Video>> existVideosByVID = GroupVideosByVID(existVideos);
             existActors = actorMapper.SelectList();
 
             // 解析图片路径
@@ -550,7 +596,9 @@ namespace Jvedio.Core.Scan
             // 1. 需要更新的
             List<Video> toUpdate = new List<Video>();
             foreach (Video video in import) {
-                Video existVideo = existVideos.Where(t => video.VID.Equals(t.VID)).FirstOrDefault();
+                Video existVideo = !string.IsNullOrEmpty(video.VID) && existVideosByVID.ContainsKey(video.VID)
+                    ? existVideosByVID[video.VID].FirstOrDefault()
+                    : null;
                 if (existVideo != null) {
                     video.DataID = existVideo.DataID;
                     video.MVID = existVideo.MVID; // 下面使用 videoMapper 更新的时候会使用到
@@ -563,7 +611,7 @@ namespace Jvedio.Core.Scan
                 }
             }
 
-            import.RemoveAll(arg => existVideos.Where(t => arg.VID.Equals(t.VID)).Any());
+            import.RemoveAll(arg => !string.IsNullOrEmpty(arg.VID) && existVideosByVID.ContainsKey(arg.VID));
 
             if (toUpdate?.Count > 0)
                 videoMapper.UpdateBatch(toUpdate, NFOUpdateVideoProps);

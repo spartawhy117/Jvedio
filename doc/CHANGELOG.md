@@ -21,6 +21,9 @@ Future code changes should continue adding dated entries here before commit and 
 - Reduced `03-main-ui` page render overhead by preloading page association data in `VieModel_VideoList` instead of querying associations item-by-item during list rendering.
 - Fixed `VieModel_VideoList.GetSearchCandidate()` so `Genre` candidate queries honor the current DB/filter conditions.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `03-main-ui` module changes.
+- Reduced repeated scan-time duplicate checks in `Jvedio-WPF/Jvedio/Core/Scan/ScanTask.cs` by indexing existing videos by VID, Hash, size-path, and existing file path state instead of repeatedly scanning the full in-memory list.
+- Simplified NFO import duplicate detection to reuse the same VID index during update/remove decisions.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `04-scan-import` module changes.
 
 ## [2026-03-07]
 
