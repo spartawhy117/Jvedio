@@ -37,6 +37,8 @@ Future code changes should continue adding dated entries here before commit and 
 - Hardened `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` picture-path initialization so damaged or partially missing `PicPathJson` values now fall back to normalized defaults instead of failing during config hydration.
 - Added default repair for missing absolute, app-relative, and data-relative image path entries during config load.
 - Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `02-config-persistence` module changes.
+- Added a `metadata (DBId,DataType,ViewCount)` index in `Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs` for both schema creation and incremental SQL upgrade commands, improving database support for list sorting by view count.
+- Verified `Jvedio-WPF/Jvedio.sln` still builds successfully in `Debug` after the `07-database-schema` module changes.
 
 ## [2026-03-07]
 
