@@ -40,3 +40,4 @@
 - 已补齐 MetaTube 的客户端、缓存和 DTO/转换层，当前 `MetaTubeScraperProvider` 已能根据番号搜索并组装统一 `ScrapeResult`，后续阶段将正式接入 `VideoDownLoader`
 - `VideoDownLoader` 已切到内置 provider 主链，当前旧插件搜刮链已不再作为主入口，但下游 `DownLoadTask` 仍通过兼容字典格式消费结果，后续仍需继续清理旧插件依赖
 - 当前已经可以在设置页直接配置 MetaTube 服务端、测试连接并执行单片搜刮测试，旧插件搜刮能力对最终用户已不再可见
+- MetaTube 调试链路现已输出更细的步骤日志，超时会明确显示为请求超时而不是笼统的“已取消一个任务”

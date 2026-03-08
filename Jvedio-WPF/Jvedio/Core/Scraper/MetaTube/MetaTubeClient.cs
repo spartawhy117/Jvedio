@@ -21,9 +21,12 @@ namespace Jvedio.Core.Scraper.MetaTube
 
         private string ServerUrl { get; set; }
 
-        public MetaTubeClient(string serverUrl)
+        private Action<string> Log { get; set; }
+
+        public MetaTubeClient(string serverUrl, Action<string> log = null)
         {
             ServerUrl = serverUrl?.Trim();
+            Log = log;
         }
 
         public async Task<List<MetaTubeMovieSearchResult>> SearchMovieAsync(string number, CancellationToken cancellationToken)
@@ -69,21 +72,27 @@ namespace Jvedio.Core.Scraper.MetaTube
 
         private async Task<T> GetDataAsync<T>(string url, CancellationToken cancellationToken)
         {
+            Log?.Invoke($"请求: {url}");
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url)) {
                 request.Headers.Add("Accept", "application/json");
                 request.Headers.Add("User-Agent", $"Jvedio/{App.GetLocalVersion()}");
-                using (HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false)) {
-                    string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    MetaTubeApiResponse<T> apiResponse = JsonConvert.DeserializeObject<MetaTubeApiResponse<T>>(content);
-                    if (!response.IsSuccessStatusCode) {
-                        string message = apiResponse?.Error?.Message ?? response.ReasonPhrase;
-                        throw new Exception($"MetaTube request failed: {message}");
+                try {
+                    using (HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false)) {
+                        string content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        Log?.Invoke($"响应码: {(int)response.StatusCode} {response.ReasonPhrase}");
+                        MetaTubeApiResponse<T> apiResponse = JsonConvert.DeserializeObject<MetaTubeApiResponse<T>>(content);
+                        if (!response.IsSuccessStatusCode) {
+                            string message = apiResponse?.Error?.Message ?? response.ReasonPhrase;
+                            throw new Exception($"MetaTube 请求失败: {message}");
+                        }
+
+                        if (apiResponse == null || apiResponse.Data == null)
+                            throw new Exception("MetaTube 响应数据为空");
+
+                        return apiResponse.Data;
                     }
-
-                    if (apiResponse == null || apiResponse.Data == null)
-                        throw new Exception("MetaTube response data is null");
-
-                    return apiResponse.Data;
+                } catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested) {
+                    throw new TimeoutException($"MetaTube 请求超时（{HttpClient.Timeout.TotalSeconds:0} 秒）: {url}", ex);
                 }
             }
         }

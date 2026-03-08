@@ -786,7 +786,7 @@ namespace Jvedio
 
             try {
                 string url = ConfigManager.MetaTubeConfig.ServerUrl;
-                MetaTubeClient client = new MetaTubeClient(url);
+                MetaTubeClient client = new MetaTubeClient(url, AppendMetaTubeLog);
                 string testVid = string.IsNullOrWhiteSpace(vieModel.MetaTubeTestVid) ? "ABP-001" : vieModel.MetaTubeTestVid.Trim();
                 AppendMetaTubeLog($"测试 URL: {url}");
                 AppendMetaTubeLog($"测试番号: {testVid}");
@@ -816,6 +816,9 @@ namespace Jvedio
                 if (provider == null)
                     throw new Exception("当前未找到可用的 MetaTube provider");
 
+                if (provider is MetaTubeScraperProvider metaTubeProvider)
+                    metaTubeProvider.LogAction = AppendMetaTubeLog;
+
                 ScrapeResult result = await provider.GetInfoAsync(new ScrapeRequest() {
                     VID = vid,
                     ForceRefresh = true,
@@ -831,7 +834,7 @@ namespace Jvedio
                 AppendMetaTubeLog("测试搜刮完成");
                 MessageNotify.Success("MetaTube 搜刮测试完成");
             } catch (Exception ex) {
-                AppendMetaTubeLog($"测试搜刮失败: {ex.Message}");
+                AppendMetaTubeLog($"测试搜刮失败: {ex}");
                 MessageCard.Error(ex.Message);
             }
         }
