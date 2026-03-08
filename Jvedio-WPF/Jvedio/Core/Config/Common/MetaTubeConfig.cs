@@ -11,6 +11,7 @@ namespace Jvedio.Core.Config
             ManualRefreshOnly = true;
             JsonCacheEnabled = true;
             ActorAvatarCacheEnabled = true;
+            RequestTimeoutSeconds = 60;
         }
 
         private static MetaTubeConfig _instance = null;
@@ -64,6 +65,15 @@ namespace Jvedio.Core.Config
             get { return _ActorAvatarCacheEnabled; }
             set {
                 _ActorAvatarCacheEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private int _RequestTimeoutSeconds;
+        public int RequestTimeoutSeconds {
+            get { return _RequestTimeoutSeconds; }
+            set {
+                _RequestTimeoutSeconds = value;
                 RaisePropertyChanged();
             }
         }

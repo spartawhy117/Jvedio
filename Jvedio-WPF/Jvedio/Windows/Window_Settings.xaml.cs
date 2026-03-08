@@ -785,14 +785,16 @@ namespace Jvedio
             try {
                 string url = ConfigManager.MetaTubeConfig.ServerUrl;
                 MetaTubeClient client = new MetaTubeClient(url, AppendMetaTubeLog);
-                string testVid = string.IsNullOrWhiteSpace(vieModel.MetaTubeTestVid) ? "ABP-001" : vieModel.MetaTubeTestVid.Trim();
                 AppendMetaTubeLog($"测试 URL: {url}");
-                AppendMetaTubeLog($"测试番号: {testVid}");
-                var results = await client.SearchMovieAsync(testVid, CancellationToken.None);
-                AppendMetaTubeLog($"连接成功，返回结果数: {results?.Count ?? 0}");
+                AppendMetaTubeLog("步骤 1/2：测试根地址");
+                var root = await client.PingRootAsync(CancellationToken.None);
+                AppendMetaTubeLog($"根地址可达，app={root?.Data?["app"]}, version={root?.Data?["version"]}");
+                AppendMetaTubeLog("步骤 2/2：测试 providers 接口");
+                var providers = await client.GetProvidersAsync(CancellationToken.None);
+                AppendMetaTubeLog($"providers 接口可达，movie providers 数量: {providers?.MovieProviders?.Count ?? 0}");
                 MessageNotify.Success("MetaTube 连接成功");
             } catch (Exception ex) {
-                AppendMetaTubeLog($"连接失败: {ex.Message}");
+                AppendMetaTubeLog($"连接失败: {ex}");
                 MessageCard.Error(ex.Message);
             }
         }

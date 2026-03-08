@@ -33,6 +33,15 @@ namespace Jvedio.Core.Scraper.MetaTube
         public string Homepage { get; set; }
     }
 
+    public class MetaTubeProvidersResponse
+    {
+        [JsonProperty("actor_providers")]
+        public System.Collections.Generic.Dictionary<string, string> ActorProviders { get; set; }
+
+        [JsonProperty("movie_providers")]
+        public System.Collections.Generic.Dictionary<string, string> MovieProviders { get; set; }
+    }
+
     public class MetaTubeMovieSearchResult : MetaTubeProviderInfo
     {
         [JsonProperty("actors")]
