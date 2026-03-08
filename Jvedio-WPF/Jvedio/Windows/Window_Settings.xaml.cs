@@ -4,6 +4,9 @@ using Jvedio.Core.Enums;
 using Jvedio.Core.Global;
 using Jvedio.Core.Media;
 using Jvedio.Core.Plugins.Crawler;
+using Jvedio.Core.Scraper;
+using Jvedio.Core.Scraper.MetaTube;
+using Jvedio.Core.Scraper.Models;
 using Jvedio.Entity;
 using Jvedio.Entity.Common;
 using Jvedio.Mapper;
@@ -30,6 +33,7 @@ using System.Reflection;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -244,6 +248,20 @@ namespace Jvedio
         {
             MainWindow = GetWindowByName("Main", App.Current.Windows) as Main;
             vieModel.MainWindowVisible = MainWindow != null;
+        }
+
+        private void AppendMetaTubeLog(string message)
+        {
+            string line = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            vieModel.MetaTubeLog = string.IsNullOrWhiteSpace(vieModel.MetaTubeLog) ? line : vieModel.MetaTubeLog + Environment.NewLine + line;
+
+            string file = Path.Combine(PathManager.MetaTubeLogPath, DateTime.Now.ToString("yyyy-MM-dd") + ".log");
+            File.AppendAllText(file, line + Environment.NewLine, Encoding.UTF8);
+        }
+
+        private void ClearMetaTubeLog()
+        {
+            vieModel.MetaTubeLog = string.Empty;
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
@@ -710,6 +728,8 @@ namespace Jvedio
             ConfigManager.Settings.IgnoreCertVal = vieModel.IgnoreCertVal;
             ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
             ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
+            ConfigManager.MetaTubeConfig.Enabled = vieModel.MetaTubeEnabled;
+            ConfigManager.MetaTubeConfig.ServerUrl = vieModel.MetaTubeServerUrl?.Trim();
 
             ConfigManager.Main.DisplaySearchBox = true;
             ConfigManager.Main.DisplayPage = true;
@@ -755,6 +775,84 @@ namespace Jvedio
             // 监听
             ConfigManager.Settings.ListenEnabled = vieModel.ListenEnabled;
             ConfigManager.Settings.ListenPort = vieModel.ListenPort;
+            ConfigManager.MetaTubeConfig.Save();
+        }
+
+        private async void TestMetaTubeConnection(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+            ClearMetaTubeLog();
+            AppendMetaTubeLog("开始测试 MetaTube 连接");
+
+            try {
+                string url = ConfigManager.MetaTubeConfig.ServerUrl;
+                MetaTubeClient client = new MetaTubeClient(url);
+                string testVid = string.IsNullOrWhiteSpace(vieModel.MetaTubeTestVid) ? "ABP-001" : vieModel.MetaTubeTestVid.Trim();
+                AppendMetaTubeLog($"测试 URL: {url}");
+                AppendMetaTubeLog($"测试番号: {testVid}");
+                var results = await client.SearchMovieAsync(testVid, CancellationToken.None);
+                AppendMetaTubeLog($"连接成功，返回结果数: {results?.Count ?? 0}");
+                MessageNotify.Success("MetaTube 连接成功");
+            } catch (Exception ex) {
+                AppendMetaTubeLog($"连接失败: {ex.Message}");
+                MessageCard.Error(ex.Message);
+            }
+        }
+
+        private async void RunMetaTubeTest(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+            ClearMetaTubeLog();
+
+            string vid = vieModel.MetaTubeTestVid?.Trim();
+            if (string.IsNullOrWhiteSpace(vid)) {
+                MessageCard.Error("请输入测试番号");
+                return;
+            }
+
+            try {
+                AppendMetaTubeLog($"开始测试搜刮: {vid}");
+                IScraperProvider provider = ScraperProviderManager.GetActiveProvider();
+                if (provider == null)
+                    throw new Exception("当前未找到可用的 MetaTube provider");
+
+                ScrapeResult result = await provider.GetInfoAsync(new ScrapeRequest() {
+                    VID = vid,
+                    ForceRefresh = true,
+                }, CancellationToken.None);
+
+                if (result == null)
+                    throw new Exception("MetaTube 未返回影片数据");
+
+                AppendMetaTubeLog($"影片标题: {result.Title}");
+                AppendMetaTubeLog($"演员数量: {result.Actors?.Count ?? 0}");
+                AppendMetaTubeLog($"预览图数量: {result.Images?.PreviewImages?.Count ?? 0}");
+                await MetaTubeOutputWriter.WriteTestOutputAsync(vid, result, AppendMetaTubeLog, CancellationToken.None);
+                AppendMetaTubeLog("测试搜刮完成");
+                MessageNotify.Success("MetaTube 搜刮测试完成");
+            } catch (Exception ex) {
+                AppendMetaTubeLog($"测试搜刮失败: {ex.Message}");
+                MessageCard.Error(ex.Message);
+            }
+        }
+
+        private void ClearMetaTubeCache(object sender, RoutedEventArgs e)
+        {
+            try {
+                if (Directory.Exists(PathManager.MetaTubeCachePath))
+                    DirHelper.TryDelete(PathManager.MetaTubeCachePath);
+                if (!Directory.Exists(PathManager.MetaTubeCachePath))
+                    Directory.CreateDirectory(PathManager.MetaTubeCachePath);
+                if (!Directory.Exists(PathManager.MetaTubeVideoCachePath))
+                    Directory.CreateDirectory(PathManager.MetaTubeVideoCachePath);
+                if (!Directory.Exists(PathManager.MetaTubeActorCachePath))
+                    Directory.CreateDirectory(PathManager.MetaTubeActorCachePath);
+                AppendMetaTubeLog("已清理 MetaTube JSON 缓存目录");
+                MessageNotify.Success("MetaTube 缓存已清理");
+            } catch (Exception ex) {
+                AppendMetaTubeLog($"清理缓存失败: {ex.Message}");
+                MessageCard.Error(ex.Message);
+            }
         }
 
         private void ImageSelectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

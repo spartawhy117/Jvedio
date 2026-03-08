@@ -1,4 +1,5 @@
-﻿using Jvedio.Core.Crawler;
+using Jvedio.Core.Crawler;
+using Jvedio.Core.Config;
 using Jvedio.Core.Enums;
 using Jvedio.Core.Plugins.Crawler;
 using Jvedio.Entity;
@@ -538,6 +539,50 @@ namespace Jvedio.ViewModel
         }
 
 
+
+        #endregion
+
+        #region "MetaTube"
+
+        private bool _MetaTubeEnabled = ConfigManager.MetaTubeConfig.Enabled;
+
+        public bool MetaTubeEnabled {
+            get { return _MetaTubeEnabled; }
+            set {
+                _MetaTubeEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _MetaTubeServerUrl = ConfigManager.MetaTubeConfig.ServerUrl;
+
+        public string MetaTubeServerUrl {
+            get { return _MetaTubeServerUrl; }
+            set {
+                _MetaTubeServerUrl = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _MetaTubeTestVid = string.Empty;
+
+        public string MetaTubeTestVid {
+            get { return _MetaTubeTestVid; }
+            set {
+                _MetaTubeTestVid = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _MetaTubeLog = string.Empty;
+
+        public string MetaTubeLog {
+            get { return _MetaTubeLog; }
+            set {
+                _MetaTubeLog = value;
+                RaisePropertyChanged();
+            }
+        }
 
         #endregion
 

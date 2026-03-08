@@ -353,6 +353,13 @@ namespace Jvedio
                 Refresh();
         }
 
+        private void RefreshFromMetaTube(object sender, RoutedEventArgs e)
+        {
+            if (vieModel?.CurrentVideo == null || vieModel.CurrentVideo.DataID <= 0)
+                return;
+            DownLoadTask.RefreshVideo(vieModel.CurrentVideo);
+        }
+
         public void RefreshGrade(long dataID, float data)
         {
             if (vieModel.CurrentVideo.DataID != dataID)

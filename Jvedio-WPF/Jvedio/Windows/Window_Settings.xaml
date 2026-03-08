@@ -155,7 +155,7 @@
 
                     <StackPanel>
 
-                        <Grid>
+                        <Grid Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="*" />
@@ -748,24 +748,12 @@
                                             Margin="0"
                                             Content="{DynamicResource SaveToNFO}"
                                             IsChecked="{Binding SaveInfoToNFO, Mode=TwoWay}" />
-                                        <StackPanel Orientation="Horizontal" Visibility="Visible">
-                                            <super:SearchBox
-                                                Width="380"
-                                                MinWidth="400"
-                                                Margin="5"
-                                                Background="{DynamicResource Menu.Background}"
-                                                FontSize="15"
-                                                PlaceHolder="{DynamicResource ToolTip_SameAsVedio}"
-                                                PlaceHolderForeground="{DynamicResource Control.Disabled.Background}"
-                                                Text="{Binding NFOSavePath, Mode=TwoWay}" />
-
-                                            <Button
-                                                HorizontalAlignment="Left"
-                                                Click="SelectNfoPath"
-                                                Content="{DynamicResource ChooseDir}" />
-                                            <CheckBox Content="{DynamicResource overwrite}" IsChecked="{Binding OverwriteNFO, Mode=TwoWay}" />
-
-                                        </StackPanel>
+                                        <TextBlock
+                                            Margin="10,5,0,0"
+                                            Foreground="{DynamicResource Window.Sub.Foreground}"
+                                            Style="{StaticResource BaseTextBlock}"
+                                            Text="NFO 将固定写入影片目录下的 movie.nfo，图片将固定写入影片目录下的 poster.jpg / thumb.jpg / fanart.jpg。" />
+                                        <CheckBox Content="{DynamicResource overwrite}" IsChecked="{Binding OverwriteNFO, Mode=TwoWay}" />
 
 
 
@@ -1200,6 +1188,48 @@
                     </StackPanel>
 
                 </StackPanel>
+            </TabItem>
+
+            <TabItem Header="MetaTube">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource SettingTitleStyle}" Text="服务" />
+                            <StackPanel Grid.Column="1" Margin="5" Orientation="Vertical">
+                                <CheckBox Content="启用 MetaTube" IsChecked="{Binding MetaTubeEnabled, Mode=TwoWay}" />
+                                <StackPanel Margin="5,5,0,0" Orientation="Horizontal">
+                                    <TextBlock MinWidth="100" Style="{StaticResource BaseTextBlock}" Text="服务端 URL" />
+                                    <super:SearchBox Width="520" Text="{Binding MetaTubeServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Margin="10,0,0,0" Click="TestMetaTubeConnection" Content="测试连接" Style="{StaticResource ButtonPrimary}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource SettingTitleStyle}" Text="调试" />
+                            <StackPanel Grid.Column="1" Margin="5" Orientation="Vertical">
+                                <StackPanel Margin="5,5,0,0" Orientation="Horizontal">
+                                    <TextBlock MinWidth="100" Style="{StaticResource BaseTextBlock}" Text="测试番号" />
+                                    <super:SearchBox Width="300" Text="{Binding MetaTubeTestVid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Margin="10,0,0,0" Click="RunMetaTubeTest" Content="搜刮测试" Style="{StaticResource ButtonPrimary}" />
+                                    <Button Margin="10,0,0,0" Click="ClearMetaTubeCache" Content="清理缓存" Style="{StaticResource ButtonWarning}" />
+                                </StackPanel>
+                                <TextBlock Margin="10,5,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="测试输出目录：data/&lt;user&gt;/metatube/test/&lt;番号&gt;/" />
+                                <TextBlock Margin="10,0,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="演员头像目录：data/&lt;user&gt;/metatube/avatar/" />
+                                <TextBlock Margin="10,0,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="日志目录：data/&lt;user&gt;/metatube/log/" />
+                                <TextBox Margin="5,10,0,0" MinHeight="260" AcceptsReturn="True" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Style="{StaticResource BaseTextBox}" Text="{Binding MetaTubeLog, Mode=OneWay}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
 
             <TabItem Header="{DynamicResource Plugin}" Visibility="Collapsed">

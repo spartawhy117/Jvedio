@@ -41,6 +41,8 @@ namespace Jvedio.Core.Net
 
         public bool OverrideInfo { get; set; }// 强制下载覆盖信息
 
+        public bool ForceRefresh { get; set; }// 强制忽略 MetaTube 缓存
+
         #endregion
 
 
@@ -52,12 +54,13 @@ namespace Jvedio.Core.Net
             public static int SMALL_IMAGE = 50;
         }
 
-        public DownLoadTask(Video video, bool downloadPreview = false, bool overrideInfo = false) :
+        public DownLoadTask(Video video, bool downloadPreview = false, bool overrideInfo = false, bool forceRefresh = false) :
             this(video.toMetaData())
         {
             Title = string.IsNullOrEmpty(video.VID) ? video.Title : video.VID;
             DownloadPreview = downloadPreview;
             OverrideInfo = overrideInfo;
+            ForceRefresh = forceRefresh;
         }
 
         static DownLoadTask()
@@ -454,7 +457,7 @@ namespace Jvedio.Core.Net
                     Video video = videoMapper.SelectVideoByID(DataID);
                     RequestHeader header = null;
                     Dictionary<string, object> dict = null;
-                    VideoDownLoader downLoader = new VideoDownLoader(video, Token, Logger);
+                    VideoDownLoader downLoader = new VideoDownLoader(video, Token, Logger, ForceRefresh);
                     StatusText = $"1. 开始同步信息: {video.VID}";
                     try {
                         //dict = new Dictionary<string, object>();
@@ -569,6 +572,19 @@ namespace Jvedio.Core.Net
                 MessageNotify.Warning(LangManager.GetValueByKey("TaskExists"));
                 return;
             }
+            downloadTask.onError += (s, ev) => MessageCard.Error((ev as MessageCallBackEventArgs).Message);
+            App.DownloadManager.AddTask(downloadTask);
+        }
+
+        public static void RefreshVideo(Video video)
+        {
+            DownLoadTask downloadTask = new DownLoadTask(video, ConfigManager.DownloadConfig.DownloadPreviewImage, true, true);
+
+            if (App.DownloadManager.Exists(downloadTask)) {
+                MessageNotify.Warning(LangManager.GetValueByKey("TaskExists"));
+                return;
+            }
+
             downloadTask.onError += (s, ev) => MessageCard.Error((ev as MessageCallBackEventArgs).Message);
             App.DownloadManager.AddTask(downloadTask);
         }

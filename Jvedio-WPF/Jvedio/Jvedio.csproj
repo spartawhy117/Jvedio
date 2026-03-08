@@ -402,6 +402,7 @@
     <Compile Include="Core\Scraper\MetaTube\MetaTubeCache.cs" />
     <Compile Include="Core\Scraper\MetaTube\MetaTubeConverter.cs" />
     <Compile Include="Core\Scraper\MetaTube\MetaTubeApiModels.cs" />
+    <Compile Include="Core\Scraper\MetaTube\MetaTubeOutputWriter.cs" />
     <Compile Include="Entity\Base\ListNode.cs" />
     <Compile Include="Entity\CommonSQL\AIFaceInfo.cs" />
     <Compile Include="Entity\CommonSQL\Association.cs" />

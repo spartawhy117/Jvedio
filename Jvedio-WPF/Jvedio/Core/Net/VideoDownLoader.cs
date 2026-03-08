@@ -31,6 +31,8 @@ namespace Jvedio.Core.Net
 
         private CancellationToken cancellationToken { get; set; }
 
+        private bool ForceRefresh { get; set; }
+
         public Video CurrentVideo { get; set; }
 
         public RequestHeader Header { get; set; }
@@ -41,12 +43,13 @@ namespace Jvedio.Core.Net
 
         #endregion
 
-        public VideoDownLoader(Video video, CancellationToken token, TaskLogger Logger)
+        public VideoDownLoader(Video video, CancellationToken token, TaskLogger Logger, bool forceRefresh = false)
         {
             CurrentVideo = video;
             cancellationToken = token;
             Header = CrawlerHeader.Default;
             TaskLogger = Logger;
+            ForceRefresh = forceRefresh;
         }
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace Jvedio.Core.Net
                 VID = CurrentVideo.VID,
                 Path = CurrentVideo.Path,
                 Hash = CurrentVideo.Hash,
-                ForceRefresh = false,
+                ForceRefresh = ForceRefresh,
             };
 
             IScraperProvider provider = ScraperProviderManager.GetActiveProvider();

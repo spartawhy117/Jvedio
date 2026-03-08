@@ -47,6 +47,10 @@
 - 完成 MetaTube 计划阶段 3：新增 `MetaTubeClient`、`MetaTubeCache`、`MetaTubeConverter` 和 MetaTube 响应模型，当前 provider 已支持番号搜索、影片详情拉取、演员头像检索和永久 JSON 缓存。
 - 完成 MetaTube 计划阶段 4：`VideoDownLoader` 已改为通过 `ScraperProviderManager` 使用当前唯一内置 provider，并将 `ScrapeResult` 转换为兼容现有 `DownLoadTask` 的字典结构，正式切出旧插件搜刮主链。
 - 完成 MetaTube 计划阶段 5：新增影片 sidecar 路径解析器、演员头像路径解析器和 `VideoNfoWriter`，并将海报、缩略图、背景图、NFO、演员头像落盘逻辑切换到影片目录 / data 目录的固定规则。
+- 完成 MetaTube 计划阶段 6：设置页已新增 `MetaTube` 页签，并将服务端 URL、测试番号、连接测试、搜刮测试和日志输出集中到该页签中，同时把旧图片/NFO 目录设置改为说明型 UI。
+- 完成 MetaTube 计划阶段 7：新增测试搜刮模式，可将指定番号的结果写入 `data/<user>/metatube/test/<番号>/`，并输出界面日志和文件日志。
+- 完成 MetaTube 计划阶段 8：旧插件搜刮链已彻底退出运行主入口，当前仅保留兼容代码，不再作为用户可见流程。
+- 完成 MetaTube 计划阶段 9：详情页已新增手动刷新入口，可强制忽略缓存并覆盖当前影片的数据库、图片和 NFO。
 
 ## [2026-03-07]
 
