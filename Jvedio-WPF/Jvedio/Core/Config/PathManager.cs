@@ -52,9 +52,7 @@ namespace Jvedio.Core.Global
 
         public static string MetaTubeAvatarPath { get; set; }
 
-        public static string MetaTubeTestPath { get; set; }
-
-        public static string MetaTubeLogPath { get; set; }
+        public static string MetaTubeTestRootPath { get; set; }
 
         public static string[] PicPaths { get; set; }
 
@@ -94,8 +92,7 @@ namespace Jvedio.Core.Global
             MetaTubeVideoCachePath = Path.Combine(MetaTubeCachePath, "video");
             MetaTubeActorCachePath = Path.Combine(MetaTubeCachePath, "actor");
             MetaTubeAvatarPath = Path.Combine(MetaTubePath, "avatar");
-            MetaTubeTestPath = Path.Combine(MetaTubePath, "test");
-            MetaTubeLogPath = Path.Combine(MetaTubePath, "log");
+            MetaTubeTestRootPath = Path.Combine(LogPath, "test");
 
             // 初始化文件夹
             InitDirs = new[] {
@@ -111,8 +108,7 @@ namespace Jvedio.Core.Global
                 MetaTubeVideoCachePath,
                 MetaTubeActorCachePath,
                 MetaTubeAvatarPath,
-                MetaTubeTestPath,
-                MetaTubeLogPath,
+                MetaTubeTestRootPath,
             };
             oldDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DataBase"); // Jvedio 5.0 之前的
             BasePicPath = string.Empty;

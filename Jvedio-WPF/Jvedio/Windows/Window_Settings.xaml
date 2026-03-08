@@ -1222,9 +1222,8 @@
                                     <Button Margin="10,0,0,0" Click="RunMetaTubeTest" Content="搜刮测试" Style="{StaticResource ButtonPrimary}" />
                                     <Button Margin="10,0,0,0" Click="ClearMetaTubeCache" Content="清理缓存" Style="{StaticResource ButtonWarning}" />
                                 </StackPanel>
-                                <TextBlock Margin="10,5,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="测试输出目录：data/&lt;user&gt;/metatube/test/&lt;番号&gt;/" />
-                                <TextBlock Margin="10,0,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="演员头像目录：data/&lt;user&gt;/metatube/avatar/" />
-                                <TextBlock Margin="10,0,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="日志目录：data/&lt;user&gt;/metatube/log/" />
+                                <TextBlock Margin="10,5,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="测试输出目录：data/&lt;user&gt;/log/test/&lt;番号&gt;/" />
+                                <TextBlock Margin="10,0,0,0" Foreground="{DynamicResource Window.Sub.Foreground}" Style="{StaticResource BaseTextBlock}" Text="调试日志将直接写入主日志文件 data/&lt;user&gt;/log/&lt;yyyy-MM-dd&gt;.log" />
                                 <TextBox Margin="5,10,0,0" MinHeight="260" AcceptsReturn="True" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" Style="{StaticResource BaseTextBox}" Text="{Binding MetaTubeLog, Mode=OneWay}" TextWrapping="Wrap" />
                             </StackPanel>
                         </Grid>

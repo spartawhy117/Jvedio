@@ -22,7 +22,7 @@ namespace Jvedio.Core.Scraper.MetaTube
             if (result == null || string.IsNullOrWhiteSpace(vid))
                 return;
 
-            string outputDir = Path.Combine(PathManager.MetaTubeTestPath, vid.Trim().ToUpperInvariant());
+            string outputDir = Path.Combine(PathManager.MetaTubeTestRootPath, vid.Trim().ToUpperInvariant());
             if (!Directory.Exists(outputDir))
                 Directory.CreateDirectory(outputDir);
 
@@ -39,10 +39,25 @@ namespace Jvedio.Core.Scraper.MetaTube
 
             if (result.Actors != null) {
                 foreach (ScrapedActor actor in result.Actors.Where(arg => arg != null && !string.IsNullOrWhiteSpace(arg.AvatarUrl))) {
-                    string path = Core.Media.ActorAvatarPathResolver.GetAvatarPath(actor.ActorId, actor.Name, Path.GetExtension(actor.AvatarUrl));
+                    string ext = Path.GetExtension(actor.AvatarUrl);
+                    if (string.IsNullOrWhiteSpace(ext))
+                        ext = ".jpg";
+                    string name = string.IsNullOrWhiteSpace(actor.ActorId) ? $"actor-{Sanitize(actor.Name)}" : $"actor-{Sanitize(actor.ActorId)}";
+                    string path = Path.Combine(outputDir, name + ext);
                     await DownloadImageAsync(actor.AvatarUrl, path, log, cancellationToken);
                 }
             }
+        }
+
+        private static string Sanitize(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "unknown";
+            string result = value.Trim();
+            foreach (char c in Path.GetInvalidFileNameChars()) {
+                result = result.Replace(c, '_');
+            }
+            return result;
         }
 
         private static async Task DownloadImageAsync(string url, string path, Action<string> log, CancellationToken cancellationToken)

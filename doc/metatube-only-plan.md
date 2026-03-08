@@ -29,7 +29,7 @@
   - 演员头像
   - 本地数据库
 - 测试搜刮输出目录采用推荐方案：
-  - `data/<user>/metatube/test/<番号>/`
+  - `data/<user>/log/test/<番号>/`
 
 ## 状态说明
 
@@ -64,7 +64,7 @@
   - `data/<user>/metatube/cache/video/`
   - `data/<user>/metatube/cache/actor/`
   - `data/<user>/metatube/avatar/`
-  - `data/<user>/metatube/test/`
+  - `data/<user>/log/test/`
 - 启动时自动创建上述目录
 
 验证点：
@@ -255,7 +255,7 @@ UI 内容：
   - 错误堆栈/失败原因
 
 建议日志路径：
-- `data/<user>/metatube/log/`
+- 直接并入主日志：`data/<user>/log/<yyyy-MM-dd>.log`
 - 同时界面内显示最近一次测试日志摘要
 
 验证点：
@@ -378,13 +378,13 @@ UI 内容：
 - 已新增 `搜刮测试` 按钮
 - 已新增 `MetaTubeOutputWriter`
 - 测试搜刮会将结果写入：
-  - `data/<user>/metatube/test/<番号>/meta.json`
+  - `data/<user>/log/test/<番号>/meta.json`
   - `movie.nfo`
   - `poster.jpg`
   - `thumb.jpg`
   - `fanart.jpg`
-- 演员头像同时写入 `data/<user>/metatube/avatar/`
-- 已新增界面日志输出与 `data/<user>/metatube/log/` 文件日志
+- 演员头像同时写入同一个 `test/<番号>/` 目录
+- 已新增界面日志输出，并已并入主日志流
 
 ## 阶段 8 执行记录
 
@@ -475,6 +475,5 @@ UI 内容：
   - `data/<user>/metatube/cache/video/`
   - `data/<user>/metatube/cache/actor/`
   - `data/<user>/metatube/avatar/`
-  - `data/<user>/metatube/test/`
-  - `data/<user>/metatube/log/`
+  - `data/<user>/log/test/`
 - 已验证 `Release` 编译通过

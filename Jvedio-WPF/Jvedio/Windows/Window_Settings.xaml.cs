@@ -254,9 +254,7 @@ namespace Jvedio
         {
             string line = $"[{DateTime.Now:HH:mm:ss}] {message}";
             vieModel.MetaTubeLog = string.IsNullOrWhiteSpace(vieModel.MetaTubeLog) ? line : vieModel.MetaTubeLog + Environment.NewLine + line;
-
-            string file = Path.Combine(PathManager.MetaTubeLogPath, DateTime.Now.ToString("yyyy-MM-dd") + ".log");
-            File.AppendAllText(file, line + Environment.NewLine, Encoding.UTF8);
+            App.Logger.Info($"[MetaTube-Test] {message}");
         }
 
         private void ClearMetaTubeLog()
