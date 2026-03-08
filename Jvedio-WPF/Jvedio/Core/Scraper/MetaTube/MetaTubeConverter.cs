@@ -58,6 +58,7 @@ namespace Jvedio.Core.Scraper.MetaTube
             result.ExtraFields["Homepage"] = movieInfo.Homepage;
             result.ExtraFields["Series"] = movieInfo.Series;
             result.ExtraFields["Label"] = movieInfo.Label;
+            result.ExtraFields["ActorIds"] = result.Actors.Select(arg => arg.ActorId).ToList();
 
             return result;
         }

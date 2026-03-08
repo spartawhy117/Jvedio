@@ -1,5 +1,7 @@
-﻿using Jvedio.Core.Enums;
+using Jvedio.Core.Enums;
 using Jvedio.Core.Exceptions;
+using Jvedio.Core.Media;
+using Jvedio.Core.Nfo;
 using Jvedio.Entity;
 using SuperControls.Style;
 using SuperUtils.Common;
@@ -147,7 +149,7 @@ namespace Jvedio.Core.Net
             if (!string.IsNullOrEmpty(imageUrl)) {
                 // todo 原来的 domain 可能没法用，得替换 domain
                 Logger.Info($"url: {imageUrl}");
-                string saveFileName = video.GetBigImage(Path.GetExtension(imageUrl), false);
+                string saveFileName = SidecarPathResolver.GetFanartPath(video, Path.GetExtension(imageUrl));
                 if (!File.Exists(saveFileName)) {
                     byte[] fileByte = await downLoader.DownloadImage(imageUrl, header, (error) => {
                         if (!string.IsNullOrEmpty(error))
@@ -173,27 +175,56 @@ namespace Jvedio.Core.Net
         {
             if (!ConfigManager.DownloadConfig.DownloadThumbNail)
                 return true;
-            object o = GetInfoFromExist("SmallImageUrl", video, dict);
-            string imageUrl = o != null ? o.ToString() : string.Empty;
+            object poster = GetInfoFromExist("SmallImageUrl", video, dict);
+            object thumb = GetInfoFromExist("ThumbImageUrl", video, dict);
+            string posterUrl = poster != null ? poster.ToString() : string.Empty;
+            string thumbUrl = thumb != null ? thumb.ToString() : string.Empty;
 
-            // 2. 小图
-            if (!string.IsNullOrEmpty(imageUrl)) {
-                Logger.Info($"url: {imageUrl}");
-                string saveFileName = video.GetSmallImage(Path.GetExtension(imageUrl), false);
-                if (!File.Exists(saveFileName)) {
-                    byte[] fileByte = await downLoader.DownloadImage(imageUrl, header, (error) => {
-                        if (!string.IsNullOrEmpty(error))
-                            Logger.Error($"{imageUrl} => {error}");
-                    });
-                    if (fileByte != null && fileByte.Length > 0) {
-                        FileHelper.ByteArrayToFile(fileByte, saveFileName);
-                        StatusText = "4.1 同步缩略图成功";
-                        return true;
-                    } else
-                        Logger.Error($"sync thumbnail failed, file byte is empty");
+            if (!string.IsNullOrEmpty(posterUrl) || !string.IsNullOrEmpty(thumbUrl)) {
+                bool saved = false;
+
+                if (!string.IsNullOrEmpty(posterUrl)) {
+                    Logger.Info($"poster url: {posterUrl}");
+                    string savePoster = SidecarPathResolver.GetPosterPath(video, Path.GetExtension(posterUrl));
+                    if (!File.Exists(savePoster)) {
+                        byte[] fileByte = await downLoader.DownloadImage(posterUrl, header, (error) => {
+                            if (!string.IsNullOrEmpty(error))
+                                Logger.Error($"{posterUrl} => {error}");
+                        });
+                        if (fileByte != null && fileByte.Length > 0) {
+                            FileHelper.ByteArrayToFile(fileByte, savePoster);
+                            saved = true;
+                        } else {
+                            Logger.Error("sync poster failed, file byte is empty");
+                        }
+                    } else {
+                        Logger.Info($"{LangManager.GetValueByKey("SkipDownloadImage")} {savePoster}");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(thumbUrl)) {
+                    Logger.Info($"thumb url: {thumbUrl}");
+                    string saveThumb = SidecarPathResolver.GetThumbPath(video, Path.GetExtension(thumbUrl));
+                    if (!File.Exists(saveThumb)) {
+                        byte[] fileByte = await downLoader.DownloadImage(thumbUrl, header, (error) => {
+                            if (!string.IsNullOrEmpty(error))
+                                Logger.Error($"{thumbUrl} => {error}");
+                        });
+                        if (fileByte != null && fileByte.Length > 0) {
+                            FileHelper.ByteArrayToFile(fileByte, saveThumb);
+                            saved = true;
+                        } else {
+                            Logger.Error("sync thumb failed, file byte is empty");
+                        }
+                    } else {
+                        Logger.Info($"{LangManager.GetValueByKey("SkipDownloadImage")} {saveThumb}");
+                    }
+                }
+
+                if (saved) {
+                    StatusText = "4.1 同步海报与缩略图成功";
                     await Task.Delay(Delay.SMALL_IMAGE);
-                } else {
-                    Logger.Info($"{LangManager.GetValueByKey("SkipDownloadImage")} {saveFileName}");
+                    return true;
                 }
             } else {
                 Logger.Error("sync thumbnail image url is empty");
@@ -232,6 +263,8 @@ namespace Jvedio.Core.Net
             if (names == null)
                 return false;
 
+            List<string> actorIds = GetInfoFromExist("ActorIds", video, dict) as List<string>;
+
             if (urls == null) {
                 SaveActorNames(names, video);
                 return true;
@@ -254,7 +287,6 @@ namespace Jvedio.Core.Net
                         if (actorInfo == null || actorInfo.ActorID <= 0) {
                             actorInfo = new ActorInfo();
                             actorInfo.ActorName = actorName;
-                            actorInfo.ImageUrl = url;
                             actorMapper.Insert(actorInfo);
                         }
 
@@ -263,7 +295,8 @@ namespace Jvedio.Core.Net
                         metaDataMapper.ExecuteNonQuery(sql);
                         StatusText = $"{i + 1}/{actorCount} 成功保存演员信息: {actorName}";
                         // 下载图片
-                        string saveFileName = actorInfo.GetImagePath(video.Path, Path.GetExtension(url), false);
+                        string actorId = actorIds != null && actorIds.Count == actorCount ? actorIds[i] : actorInfo.ActorID.ToString();
+                        string saveFileName = ActorAvatarPathResolver.GetAvatarPath(actorId, actorName, Path.GetExtension(url));
                         if (!File.Exists(saveFileName)) {
                             byte[] fileByte = await downLoader.DownloadImage(url, header, (error) => {
                                 if (!string.IsNullOrEmpty(error))
@@ -271,10 +304,14 @@ namespace Jvedio.Core.Net
                             });
                             if (fileByte != null && fileByte.Length > 0) {
                                 FileHelper.ByteArrayToFile(fileByte, saveFileName);
+                                actorInfo.ImageUrl = saveFileName;
+                                actorMapper.UpdateById(actorInfo);
                                 StatusText = $"{i + 1}/{actorCount} 成功同步演员头像: {actorName}";
                             } else
                                 Logger.Error($"{i + 1}/{actorCount} sync actor（{actorName}）image failed, file byte is empty");
                         } else {
+                            actorInfo.ImageUrl = saveFileName;
+                            actorMapper.UpdateById(actorInfo);
                             Logger.Info($"{LangManager.GetValueByKey("SkipDownloadImage")} {saveFileName}");
                         }
                     }
@@ -398,7 +435,7 @@ namespace Jvedio.Core.Net
                 }
 
                 // 保存 nfo
-                video.SaveNfo();
+                VideoNfoWriter.Save(video, ConfigManager.DownloadConfig.OverrideInfo);
                 if (ConfigManager.Settings.SaveInfoToNFO)
                     StatusText = "2.3 成功保存 NFO";
                 onDownloadSuccess?.Invoke(this);

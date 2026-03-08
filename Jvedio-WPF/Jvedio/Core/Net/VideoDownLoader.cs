@@ -104,9 +104,11 @@ namespace Jvedio.Core.Net
             dict["Rating"] = result.Rating.ToString();
             dict["Genre"] = result.Genres;
             dict["ActorNames"] = result.Actors?.Select(arg => arg.Name).Where(arg => !string.IsNullOrWhiteSpace(arg)).Distinct().ToList() ?? new List<string>();
+            dict["ActorIds"] = result.Actors?.Select(arg => arg.ActorId).ToList() ?? new List<string>();
             dict["ActressImageUrl"] = result.Actors?.Select(arg => arg.AvatarUrl).Where(arg => !string.IsNullOrWhiteSpace(arg)).ToList() ?? new List<string>();
-            dict["BigImageUrl"] = result.Images?.PosterUrl ?? string.Empty;
-            dict["SmallImageUrl"] = result.Images?.ThumbUrl ?? string.Empty;
+            dict["BigImageUrl"] = string.IsNullOrWhiteSpace(result.Images?.FanartUrl) ? (result.Images?.PosterUrl ?? string.Empty) : result.Images.FanartUrl;
+            dict["SmallImageUrl"] = string.IsNullOrWhiteSpace(result.Images?.PosterUrl) ? (result.Images?.ThumbUrl ?? string.Empty) : result.Images.PosterUrl;
+            dict["ThumbImageUrl"] = string.IsNullOrWhiteSpace(result.Images?.ThumbUrl) ? (result.Images?.PosterUrl ?? string.Empty) : result.Images.ThumbUrl;
             dict["ExtraImageUrl"] = result.Images?.PreviewImages ?? new List<string>();
             dict["WebType"] = result.ExtraFields.ContainsKey("Provider") ? result.ExtraFields["Provider"] : result.ProviderId;
             dict["DataCode"] = result.ExtraFields.ContainsKey("ProviderId") ? result.ExtraFields["ProviderId"] : string.Empty;

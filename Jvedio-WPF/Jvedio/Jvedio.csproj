@@ -458,7 +458,10 @@
     <Compile Include="Utils\Common\Converter.cs" />
     <Compile Include="Core\Media\Gif.cs" />
     <Compile Include="Core\Media\GifImage.cs" />
+    <Compile Include="Core\Media\SidecarPathResolver.cs" />
+    <Compile Include="Core\Media\ActorAvatarPathResolver.cs" />
     <Compile Include="Core\FFmpeg\ScreenShot.cs" />
+    <Compile Include="Core\Nfo\VideoNfoWriter.cs" />
     <Compile Include="Utils\Config\RecentWatchedConfig.cs" />
     <Compile Include="Utils\Config\ScanPathConfig.cs" />
     <Compile Include="Entity\Common\MySqlite.cs" />

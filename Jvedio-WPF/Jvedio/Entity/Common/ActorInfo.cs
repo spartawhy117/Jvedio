@@ -282,13 +282,9 @@ namespace Jvedio.Entity
         public static void SetImage(ref ActorInfo actorInfo)
         {
             // 加载图片
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
             BitmapImage smallimage = null;
-            if (pathType != PathType.RelativeToData) {
-                // 如果是相对于影片格式的，则不设置图片
-                string smallImagePath = actorInfo.GetImagePath();
-                smallimage = ImageCache.Get(smallImagePath);
-            }
+            string smallImagePath = actorInfo.GetImagePath();
+            smallimage = ImageCache.Get(smallImagePath);
 
             if (smallimage == null)
                 smallimage = MetaData.DefaultActorImage;
@@ -298,37 +294,10 @@ namespace Jvedio.Entity
         public string GetImagePath(string dataPath = "", string ext = ".jpg", bool searchExt = true)
         {
             string result = string.Empty;
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            string basePicPath = ConfigManager.Settings.PicPaths[pathType.ToString()].ToString();
-            if (pathType != PathType.RelativeToData) {
-                if (pathType == PathType.RelativeToApp)
-                    basePicPath = System.IO.Path.Combine(PathManager.CurrentUserFolder, basePicPath);
-                string saveDir = System.IO.Path.Combine(basePicPath, "Actresses");
-                if (!Directory.Exists(saveDir))
-                    FileHelper.TryCreateDir(saveDir);
+            if (!string.IsNullOrWhiteSpace(ImageUrl) && File.Exists(ImageUrl))
+                return ImageUrl;
 
-                // 优先使用 1_name.jpg 的方式
-                result = System.IO.Path.Combine(saveDir, $"{ActorID}_{ActorName}{ext}");
-                if (!File.Exists(result))
-                    result = System.IO.Path.Combine(saveDir, $"{ActorName}{ext}");
-            } else if (!string.IsNullOrEmpty(dataPath)) {
-                string basePath = System.IO.Path.GetDirectoryName(dataPath);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                if (dict != null && dict.ContainsKey("ActorImagePath")) {
-                    string path = System.IO.Path.GetFullPath(System.IO.Path.Combine(basePath, dict["ActorImagePath"]));
-                    string[] arr = FileHelper.TryGetAllFiles(path, "*.*");
-                    if (arr != null && arr.Length > 0) {
-                        List<string> list = arr.ToList();
-                        list = list.Where(arg => ScanTask.PICTURE_EXTENSIONS_LIST.Contains(System.IO.Path.GetExtension(arg).ToLower())).ToList();
-
-                        foreach (string item in list) {
-                            if (System.IO.Path.GetFileNameWithoutExtension(item).ToLower().Equals(ActorName))
-                                return item;
-                        }
-                    }
-                }
-
-            }
+            result = ActorAvatarPathResolver.GetAvatarPath(ActorID > 0 ? ActorID.ToString() : string.Empty, ActorName, ext);
 
             // 替换成其他扩展名
             if (searchExt && !File.Exists(result))

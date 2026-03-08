@@ -46,6 +46,7 @@
 - 完成 MetaTube 计划阶段 2：新增内置搜刮抽象层 `IScraperProvider`、`ScraperProviderManager` 及统一 `Scrape*` 模型，并注册 `MetaTubeScraperProvider` 骨架作为当前唯一 provider。
 - 完成 MetaTube 计划阶段 3：新增 `MetaTubeClient`、`MetaTubeCache`、`MetaTubeConverter` 和 MetaTube 响应模型，当前 provider 已支持番号搜索、影片详情拉取、演员头像检索和永久 JSON 缓存。
 - 完成 MetaTube 计划阶段 4：`VideoDownLoader` 已改为通过 `ScraperProviderManager` 使用当前唯一内置 provider，并将 `ScrapeResult` 转换为兼容现有 `DownLoadTask` 的字典结构，正式切出旧插件搜刮主链。
+- 完成 MetaTube 计划阶段 5：新增影片 sidecar 路径解析器、演员头像路径解析器和 `VideoNfoWriter`，并将海报、缩略图、背景图、NFO、演员头像落盘逻辑切换到影片目录 / data 目录的固定规则。
 
 ## [2026-03-07]
 

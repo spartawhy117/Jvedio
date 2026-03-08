@@ -167,7 +167,7 @@
 
 ## 阶段 5：影片 sidecar 与演员头像落盘
 
-状态：`[ ]`
+状态：`[x]`
 
 目标：
 - 影片 sidecar 固定写入影片目录
@@ -354,12 +354,29 @@ UI 内容：
 - [x] 阶段 2：建立内置搜刮抽象层
 - [x] 阶段 3：MetaTube 客户端、缓存与适配
 - [x] 阶段 4：同步主链接入
-- [ ] 阶段 5：sidecar 与演员头像落盘
+- [x] 阶段 5：sidecar 与演员头像落盘
 - [ ] 阶段 6：设置页 MetaTube UI
 - [ ] 阶段 7：测试搜刮模式
 - [ ] 阶段 8：旧插件搜刮链降级
 - [ ] 阶段 9：手动刷新与覆盖更新
 - [ ] 阶段 10：文档、日志、测试补齐
+
+## 阶段 5 执行记录
+
+- 已新增 `SidecarPathResolver`，统一影片目录 sidecar 路径：
+  - `movie.nfo`
+  - `poster.jpg`
+  - `thumb.jpg`
+  - `fanart.jpg`
+- 已新增 `ActorAvatarPathResolver`，统一演员头像缓存到 `data/<user>/metatube/avatar/`
+- 已新增 `VideoNfoWriter`，封装影片 sidecar NFO 输出
+- 已将 `DownLoadTask` 改为：
+  - 海报图输出到 `fanart.jpg`
+  - 海报/缩略图分别输出到 `poster.jpg` / `thumb.jpg`
+  - 演员头像输出到全局 data 缓存目录
+- 已将 `Video.SaveNfo()` 切换到 sidecar 规则
+- 已将 `Video.GetBigImage()` / `GetSmallImage()` 切换为优先返回影片目录下的 sidecar 图片
+- 已验证 `Release` 编译通过
 
 ## 阶段 4 执行记录
 

@@ -2,6 +2,7 @@
 using Jvedio.Core.Enums;
 using Jvedio.Core.Global;
 using Jvedio.Core.Media;
+using Jvedio.Core.Nfo;
 using Jvedio.Core.Scan;
 using Jvedio.Entity.CommonSQL;
 using Jvedio.Mapper;
@@ -610,6 +611,13 @@ namespace Jvedio.Entity
 
         public string GetSmallImage(string ext = ".jpg", bool searchExt = true)
         {
+            if (!string.IsNullOrEmpty(Path) && File.Exists(Path)) {
+                string sidecarPath = SidecarPathResolver.GetPosterPath(this, ext);
+                if (searchExt && !File.Exists(sidecarPath))
+                    sidecarPath = FileHelper.FindWithExt(sidecarPath, ScanTask.PICTURE_EXTENSIONS_LIST);
+                return FileHelper.TryGetFullPath(sidecarPath);
+            }
+
             string smallImagePath = GetImagePath(ImageType.Small, ext);
             PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
             if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
@@ -629,6 +637,13 @@ namespace Jvedio.Entity
 
         public string GetBigImage(string ext = ".jpg", bool searchExt = true)
         {
+            if (!string.IsNullOrEmpty(Path) && File.Exists(Path)) {
+                string sidecarPath = SidecarPathResolver.GetFanartPath(this, ext);
+                if (searchExt && !File.Exists(sidecarPath))
+                    sidecarPath = FileHelper.FindWithExt(sidecarPath, ScanTask.PICTURE_EXTENSIONS_LIST);
+                return FileHelper.TryGetFullPath(sidecarPath);
+            }
+
             string bigImagePath = GetImagePath(ImageType.Big, ext);
 
             PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
@@ -764,26 +779,8 @@ namespace Jvedio.Entity
         {
             if (!ConfigManager.Settings.SaveInfoToNFO)
                 return;
-            string dir = ConfigManager.Settings.NFOSavePath;
             bool overrideInfo = ConfigManager.DownloadConfig.OverrideInfo;
-
-            string saveName = $"{VID.ToProperFileName()}.nfo";
-            if (string.IsNullOrEmpty(VID))
-                saveName = $"{System.IO.Path.GetFileNameWithoutExtension(Path)}.nfo";
-
-            string saveFileName = string.Empty;
-
-            if (Directory.Exists(dir))
-                saveFileName = System.IO.Path.Combine(dir, saveName);
-
-            // 与视频同路径，视频存在才行
-            if (!Directory.Exists(dir) && File.Exists(Path))
-                saveFileName = System.IO.Path.Combine(new FileInfo(Path).DirectoryName, saveName);
-
-            if (string.IsNullOrEmpty(saveFileName))
-                return;
-            if (overrideInfo || !File.Exists(saveFileName))
-                SaveToNFO(this, saveFileName);
+            VideoNfoWriter.Save(this, overrideInfo);
         }
 
         public static string ToSqlField(string content)
@@ -1104,6 +1101,7 @@ namespace Jvedio.Entity
         {
             var nfo = new NFO(nfoPath, "movie");
             nfo.SetNodeText("source", video.WebUrl);
+            nfo.SetNodeText("plot", video.Plot);
             nfo.SetNodeText("title", video.Title);
             nfo.SetNodeText("director", video.Director);
             nfo.SetNodeText("rating", video.Rating.ToString());
