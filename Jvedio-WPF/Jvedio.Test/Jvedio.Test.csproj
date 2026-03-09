@@ -90,11 +90,16 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IntegrationTests\MetaTube\MetaTubeIntegrationTests.cs" />
+    <Compile Include="IntegrationTests\MetaTube\MetaTubeTestConfig.cs" />
     <Compile Include="ScanTest\ImportTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Content Include="IntegrationTests\MetaTube\meta-tube-test-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="FFmpeg\command.md" />
     <None Include="Files\Files.7z" />
     <None Include="Files\NFO.7z" />

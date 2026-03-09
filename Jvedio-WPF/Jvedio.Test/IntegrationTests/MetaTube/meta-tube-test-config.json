@@ -1,0 +1,32 @@
+{
+  "enabled": true,
+  "serverUrl": "https://metatube-server.hf.space",
+  "requestTimeoutSeconds": 60,
+  "warmupBeforeScrape": true,
+  "clearOutputBeforeRun": true,
+  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\MetaTube",
+  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\Cache",
+  "logToConsole": true,
+  "cases": [
+    {
+      "name": "movie-and-actor-basic",
+      "vid": "SDDE-759",
+      "expectMovieHit": true,
+      "expectMovieTitleNotEmpty": true,
+      "expectActorCountMin": 1,
+      "expectPreviewCountMin": 1,
+      "expectActorAvatarAtLeastOne": true,
+      "expectTestOutputFiles": true
+    },
+    {
+      "name": "single-actor-case",
+      "vid": "MRPA-015",
+      "expectMovieHit": true,
+      "expectMovieTitleNotEmpty": true,
+      "expectActorCountMin": 1,
+      "expectPreviewCountMin": 1,
+      "expectActorAvatarAtLeastOne": true,
+      "expectTestOutputFiles": true
+    }
+  ]
+}
