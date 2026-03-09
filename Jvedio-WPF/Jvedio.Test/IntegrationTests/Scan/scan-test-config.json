@@ -1,0 +1,30 @@
+{
+  "enabled": true,
+  "cleanOutputBeforeRun": true,
+  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\Scan",
+  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestData\\FlatLibrary",
+  "cases": [
+    {
+      "name": "flat-single-video",
+      "files": ["SDDE-759.mp4"],
+      "expectOrganized": true,
+      "expectedDirectoryName": "SDDE-759",
+      "expectSubtitleMoved": false,
+      "expectSkipped": false
+    },
+    {
+      "name": "flat-video-with-subtitle",
+      "files": ["MRPA-015.mp4", "MRPA-015.srt"],
+      "expectOrganized": true,
+      "expectedDirectoryName": "MRPA-015",
+      "expectSubtitleMoved": true,
+      "expectSkipped": false
+    },
+    {
+      "name": "organize-failed-should-skip",
+      "files": ["LOCK-001.mp4"],
+      "expectOrganized": false,
+      "expectSkipped": true
+    }
+  ]
+}

@@ -50,5 +50,18 @@ namespace Jvedio.Core.Logs
             }
         }
 
+        public static void ResetCurrentLog()
+        {
+            DirHelper.TryCreateDirectory(FilePath);
+            string filepath = System.IO.Path.Combine(FilePath, DateHelper.NowDate() + ".log");
+            lock (LogLock) {
+                try {
+                    File.WriteAllText(filepath, string.Empty);
+                } catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
     }
 }

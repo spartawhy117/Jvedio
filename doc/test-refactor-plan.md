@@ -105,6 +105,8 @@ Jvedio.Test/
 
 ### 阶段 2：建立 MetaTube 配置驱动测试
 
+状态：`[x]`
+
 目标：
 - 建立不依赖 UI 的 MetaTube 集成测试链
 
@@ -122,7 +124,15 @@ Jvedio.Test/
 - cache
 - test output
 
+执行记录：
+- 已新增 `MetaTubeIntegrationTests.cs`
+- 已新增 `MetaTubeTestConfig.cs`
+- 已新增 `meta-tube-test-config.json`
+- 当前已覆盖 warmup、影片搜索、详情转换、头像验证和测试输出验证骨架
+
 ### 阶段 3：建立扫描链测试
+
+状态：`[x]`
 
 目标：
 - 建立平铺影片自动整理和扫描导入回归链
@@ -138,7 +148,15 @@ Jvedio.Test/
 - 整理失败即跳过
 - 整理成功后路径更新
 
+执行记录：
+- 已新增 `LibraryOrganizeTests.cs`
+- 已新增 `ScanImportIntegrationTests.cs`
+- 已新增 `scan-test-config.json`
+- 当前已覆盖平铺影片整理、字幕迁移、整理失败跳过和路径更新骨架
+
 ### 阶段 4：补充纯单元测试
+
+状态：`[x]`
 
 目标：
 - 让不依赖网络的核心逻辑能够快速回归
@@ -150,7 +168,12 @@ Jvedio.Test/
 - `UnitTests/Core/Scraper/ScrapeResultMappingTests.cs`
 - `UnitTests/Core/Scan/LibraryOrganizerRuleTests.cs`
 
+执行记录：
+- 已新增 sidecar、actor-avatar、cache、scrape mapping、organizer 规则的单元测试骨架
+
 ### 阶段 5：日志覆盖模式测试
+
+状态：`[x]`
 
 目标：
 - 验证启动程序时日志覆盖旧内容，而不是单日无限追加
@@ -161,6 +184,10 @@ Jvedio.Test/
 覆盖点：
 - 启动后日志文件被覆盖
 - 当前运行仅保留本次会话日志
+
+执行记录：
+- 已新增 `LoggerInitializationTests.cs`
+- 已在正式代码中实现 `Logger.ResetCurrentLog()` 并接入 `App.Init()`
 
 ## 执行优先级
 
@@ -183,7 +210,7 @@ Jvedio.Test/
 ## 当前进度
 
 - [x] 阶段 1：清理旧测试
-- [ ] 阶段 2：MetaTube 集成测试
-- [ ] 阶段 3：扫描链测试
-- [ ] 阶段 4：纯单元测试
-- [ ] 阶段 5：日志覆盖测试
+- [x] 阶段 2：MetaTube 集成测试
+- [x] 阶段 3：扫描链测试
+- [x] 阶段 4：纯单元测试
+- [x] 阶段 5：日志覆盖测试

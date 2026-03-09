@@ -92,12 +92,23 @@
   <ItemGroup>
     <Compile Include="IntegrationTests\MetaTube\MetaTubeIntegrationTests.cs" />
     <Compile Include="IntegrationTests\MetaTube\MetaTubeTestConfig.cs" />
+    <Compile Include="IntegrationTests\Scan\LibraryOrganizeTests.cs" />
+    <Compile Include="IntegrationTests\Scan\ScanImportIntegrationTests.cs" />
+    <Compile Include="UnitTests\Core\Logs\LoggerInitializationTests.cs" />
+    <Compile Include="UnitTests\Core\Media\ActorAvatarPathResolverTests.cs" />
+    <Compile Include="UnitTests\Core\Media\SidecarPathResolverTests.cs" />
+    <Compile Include="UnitTests\Core\Scan\LibraryOrganizerRuleTests.cs" />
+    <Compile Include="UnitTests\Core\Scraper\MetaTubeCacheTests.cs" />
+    <Compile Include="UnitTests\Core\Scraper\ScrapeResultMappingTests.cs" />
     <Compile Include="ScanTest\ImportTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <Content Include="IntegrationTests\MetaTube\meta-tube-test-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IntegrationTests\Scan\scan-test-config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="FFmpeg\command.md" />

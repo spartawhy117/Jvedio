@@ -42,6 +42,7 @@ namespace Jvedio
         {
 
             Logger = Jvedio.Core.Logs.Logger.Instance;
+            Jvedio.Core.Logs.Logger.ResetCurrentLog();
 
 
             ScreenShotManager = ScreenShotManager.CreateInstance();
