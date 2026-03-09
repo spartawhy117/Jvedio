@@ -81,6 +81,8 @@ Jvedio.Test/
 
 ### 阶段 1：清理或降级旧测试
 
+状态：`[x]`
+
 目标：
 - 删除旧 crawler 空壳测试
 - 将 UI 测试降级为可选
@@ -94,6 +96,12 @@ Jvedio.Test/
   - `UITest/TestBase.cs`
 - 重构：
   - `ScanTest/ImportTest.cs`
+
+执行记录：
+- 已将 `UITest/Scan/ScanTest.cs` 从测试工程编译清单中移除
+- 已将 `UITest/TestBase.cs` 从测试工程编译清单中移除
+- 已将 `UnitTests/Core/Crawler/CrawlerServer.cs` 从测试工程编译清单中移除
+- 当前测试工程主入口已收敛为 `ScanTest/ImportTest.cs`，为后续重写为扫描链测试做准备
 
 ### 阶段 2：建立 MetaTube 配置驱动测试
 
@@ -174,7 +182,7 @@ Jvedio.Test/
 
 ## 当前进度
 
-- [ ] 阶段 1：清理旧测试
+- [x] 阶段 1：清理旧测试
 - [ ] 阶段 2：MetaTube 集成测试
 - [ ] 阶段 3：扫描链测试
 - [ ] 阶段 4：纯单元测试

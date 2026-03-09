@@ -92,9 +92,6 @@
   <ItemGroup>
     <Compile Include="ScanTest\ImportTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UITest\Scan\ScanTest.cs" />
-    <Compile Include="UITest\TestBase.cs" />
-    <Compile Include="UnitTests\Core\Crawler\CrawlerServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
