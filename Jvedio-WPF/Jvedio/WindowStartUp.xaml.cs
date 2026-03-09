@@ -606,11 +606,11 @@ namespace Jvedio
             if (id <= 0 || !File.Exists(imagePath))
                 return;
 
-            // 复制到 ProjectImagePath 下
+            // 复制到库封面缓存目录下
             string name = Path.GetFileNameWithoutExtension(imagePath);
             string ext = Path.GetExtension(imagePath).ToLower();
             string newName = $"{id}_{name}{ext}";
-            string newPath = Path.Combine(PathManager.ProjectImagePath, newName);
+            string newPath = Path.Combine(PathManager.LibraryImageCachePath, newName);
             FileHelper.TryCopyFile(imagePath, newPath);
 
             AppDatabase app1 = vieModel.Databases.Where(x => x.DBId == id).SingleOrDefault();

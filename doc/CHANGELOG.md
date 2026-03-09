@@ -57,6 +57,7 @@
 - 开始执行 data 目录收敛阶段：移除自动备份功能、删除设置页中的备份选项，并停止创建和清理 `backup/` 目录。
 - 完成 data 目录收敛阶段步骤 2：移除 `olddata/` 目录用法，并将旧版本迁移后的历史文件改为直接清理，不再保留到 `data/<user>/olddata/`。
 - 完成 data 目录收敛阶段步骤 3：将 MetaTube 正式缓存迁移到通用 `cache/` 目录，影片 JSON 使用 `cache/video/`，演员头像使用 `cache/actor-avatar/`，旧 `metatube/` 目录不再继续使用。
+- 完成 data 目录收敛阶段步骤 4：移除 `image/` 目录用法，将库封面缓存统一迁移到 `cache/library-image/`，旧 `image/library` 目录不再继续使用。
 
 ## [2026-03-07]
 

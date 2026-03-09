@@ -26,8 +26,6 @@ namespace Jvedio.Core.Global
 
         public static string BasePicPath { get; set; }
 
-        public static string ProjectImagePath { get; set; }
-
         public static string TranslateDataBasePath { get; set; }
 
         public static string BasePluginsPath { get; set; }
@@ -39,6 +37,8 @@ namespace Jvedio.Core.Global
         public static string UserConfigPath { get; set; }
 
         public static string CachePath { get; set; }
+
+        public static string LibraryImageCachePath { get; set; }
 
         public static string VideoCachePath { get; set; }
 
@@ -71,13 +71,13 @@ namespace Jvedio.Core.Global
 
             LogPath = Path.Combine(CurrentUserFolder, "log");
             PicPath = Path.Combine(CurrentUserFolder, "pic");
-            ProjectImagePath = Path.Combine(CurrentUserFolder, "image", "library");
             TranslateDataBasePath = Path.Combine(CurrentUserFolder, "Translate.sqlite");
             ScanConfigPath = Path.Combine(CurrentUserFolder, "ScanPathConfig.xml");
             ServersConfigPath = Path.Combine(CurrentUserFolder, "ServersConfigPath.xml");
             UserConfigPath = Path.Combine(CurrentUserFolder, "user-config.xml");
             BasePluginsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
             CachePath = Path.Combine(CurrentUserFolder, "cache");
+            LibraryImageCachePath = Path.Combine(CachePath, "library-image");
             VideoCachePath = Path.Combine(CachePath, "video");
             ActorAvatarCachePath = Path.Combine(CachePath, "actor-avatar");
             MetaTubeTestRootPath = Path.Combine(LogPath, "test");
@@ -86,10 +86,10 @@ namespace Jvedio.Core.Global
             InitDirs = new[] {
                 LogPath,
                 PicPath,
-                ProjectImagePath,
                 Path.Combine(BasePluginsPath, "themes"),
                 Path.Combine(BasePluginsPath, "crawlers"),
                 CachePath,
+                LibraryImageCachePath,
                 VideoCachePath,
                 ActorAvatarCachePath,
                 MetaTubeTestRootPath,

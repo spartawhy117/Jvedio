@@ -51,7 +51,7 @@ namespace Jvedio.Entity
 
             set {
                 _ImagePath = value;
-                string actual_path = Path.Combine(PathManager.ProjectImagePath, ImagePath);
+                string actual_path = Path.Combine(PathManager.LibraryImageCachePath, ImagePath);
                 if (File.Exists(actual_path))
                     Image = ImageHelper.BitmapImageFromFile(actual_path);
                 RaisePropertyChanged();

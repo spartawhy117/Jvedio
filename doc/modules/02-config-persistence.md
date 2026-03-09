@@ -51,3 +51,4 @@
 - 自动备份功能和 `backup/` 目录用法已开始清理，目录收敛阶段后续会继续处理 `olddata / image / metatube / pic`
 - `olddata/` 目录用法已移除，旧版本迁移后的历史文件当前改为直接清理，不再保留到当前用户数据目录中
 - `metatube/` provider 专属目录已开始收敛到通用 `cache/` 结构，当前正式影片缓存使用 `cache/video/`，正式演员头像缓存使用 `cache/actor-avatar/`
+- 原 `image/library` 目录已收敛到 `cache/library-image/`，库封面缓存后续统一走通用 cache 结构而不再依赖单独的 image 目录
