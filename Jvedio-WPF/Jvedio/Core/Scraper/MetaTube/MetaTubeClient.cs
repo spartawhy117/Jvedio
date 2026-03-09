@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Jvedio.Core.Scraper.MetaTube
 {
@@ -58,10 +60,12 @@ namespace Jvedio.Core.Scraper.MetaTube
         public async Task WarmupAsync(CancellationToken cancellationToken)
         {
             Log?.Invoke("预热步骤 1/2：访问根地址");
-            await PingRootAsync(cancellationToken);
+            MetaTubeApiResponse<Dictionary<string, object>> root = await PingRootAsync(cancellationToken);
+            Log?.Invoke($"根地址预热成功: app={TryGetValue(root?.Data, "app")}, version={TryGetValue(root?.Data, "version")}");
             Log?.Invoke("预热步骤 2/2：访问 providers 接口");
-            await GetProvidersAsync(cancellationToken);
-            Log?.Invoke("预热完成");
+            MetaTubeProvidersResponse providers = await GetProvidersAsync(cancellationToken);
+            Log?.Invoke($"providers 预热成功: movie={providers?.MovieProviders?.Count ?? 0}, actor={providers?.ActorProviders?.Count ?? 0}");
+            Log?.Invoke("预热完成，可继续执行搜刮");
         }
 
         public async Task<List<MetaTubeMovieSearchResult>> SearchMovieAsync(string number, CancellationToken cancellationToken)
@@ -102,13 +106,21 @@ namespace Jvedio.Core.Scraper.MetaTube
 
         private string ComposeUrl(string path, NameValueCollection nv)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            foreach (string key in nv)
-                query.Add(key, nv.Get(key));
+            StringBuilder query = new StringBuilder();
+            if (nv != null) {
+                foreach (string key in nv.AllKeys.Where(arg => arg != null)) {
+                    if (query.Length > 0)
+                        query.Append('&');
+                    string value = nv.Get(key) ?? string.Empty;
+                    query.Append(Uri.EscapeDataString(key));
+                    query.Append('=');
+                    query.Append(Uri.EscapeDataString(value));
+                }
+            }
 
             var builder = new UriBuilder(ServerUrl) {
                 Path = path,
-                Query = query.ToString() ?? string.Empty,
+                Query = query.ToString(),
             };
             return builder.ToString();
         }
@@ -152,6 +164,13 @@ namespace Jvedio.Core.Scraper.MetaTube
                     throw;
                 }
             }
+        }
+
+        private string TryGetValue(Dictionary<string, object> dict, string key)
+        {
+            if (dict == null || string.IsNullOrWhiteSpace(key) || !dict.ContainsKey(key) || dict[key] == null)
+                return string.Empty;
+            return Convert.ToString(dict[key], CultureInfo.InvariantCulture);
         }
     }
 }

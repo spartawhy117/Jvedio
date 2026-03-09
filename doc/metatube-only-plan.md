@@ -387,6 +387,10 @@ UI 内容：
 - 已确认 Jellyfin MetaTube 插件存在单独的 `GetActorInfoAsync()` 演员详情链路
 - 已确认当前 Jvedio 侧只有 `SearchActorAsync()`，缺少 actor detail 兜底
 - 已确认需要在测试搜刮和正式搜刮前先做一次服务预热
+- 已补充执行策略：
+  - 修正演员搜索 query 为标准 UTF-8 编码
+  - 预热阶段必须明确输出成功/失败结果
+  - 只有预热成功后才继续执行搜刮
 
 ## 阶段 11：data 目录收敛与旧目录清理
 

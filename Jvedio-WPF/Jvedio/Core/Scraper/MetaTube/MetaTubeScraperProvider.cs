@@ -35,6 +35,7 @@ namespace Jvedio.Core.Scraper.MetaTube
             App.Logger.Info($"MetaTube cache miss: {request.VID}");
             LogAction?.Invoke($"缓存未命中: {request.VID}");
             MetaTubeClient client = new MetaTubeClient(serverUrl, LogAction);
+            LogAction?.Invoke("开始预热 MetaTube 服务");
             await client.WarmupAsync(cancellationToken).ConfigureAwait(false);
             LogAction?.Invoke($"搜索番号: {request.VID}");
             List<MetaTubeMovieSearchResult> searchResults = await client.SearchMovieAsync(request.VID, cancellationToken).ConfigureAwait(false);
@@ -61,10 +62,14 @@ namespace Jvedio.Core.Scraper.MetaTube
                         if (actor != null) {
                             LogAction?.Invoke($"演员命中[{actorName}]: provider={actor.Provider}, id={actor.Id}, images={actor.Images?.Length ?? 0}");
                             if (!string.IsNullOrWhiteSpace(actor.Provider) && !string.IsNullOrWhiteSpace(actor.Id)) {
-                                MetaTubeActorInfo actorInfo = await client.GetActorInfoAsync(actor.Provider, actor.Id, cancellationToken).ConfigureAwait(false);
-                                if (actorInfo != null) {
-                                    LogAction?.Invoke($"演员详情[{actorName}]拉取成功: images={actorInfo.Images?.Length ?? 0}");
-                                    actor.Images = actorInfo.Images != null && actorInfo.Images.Length > 0 ? actorInfo.Images : actor.Images;
+                                try {
+                                    MetaTubeActorInfo actorInfo = await client.GetActorInfoAsync(actor.Provider, actor.Id, cancellationToken).ConfigureAwait(false);
+                                    if (actorInfo != null) {
+                                        LogAction?.Invoke($"演员详情[{actorName}]拉取成功: images={actorInfo.Images?.Length ?? 0}");
+                                        actor.Images = actorInfo.Images != null && actorInfo.Images.Length > 0 ? actorInfo.Images : actor.Images;
+                                    }
+                                } catch (Exception ex) {
+                                    LogAction?.Invoke($"演员详情拉取失败[{actorName}]: {ex.Message}");
                                 }
                             }
                             actorInfos.Add(actor);
