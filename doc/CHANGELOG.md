@@ -59,6 +59,7 @@
 - 完成 data 目录收敛阶段步骤 3：将 MetaTube 正式缓存迁移到通用 `cache/` 目录，影片 JSON 使用 `cache/video/`，演员头像使用 `cache/actor-avatar/`，旧 `metatube/` 目录不再继续使用。
 - 完成 data 目录收敛阶段步骤 4：移除 `image/` 目录用法，将库封面缓存统一迁移到 `cache/library-image/`，旧 `image/library` 目录不再继续使用。
 - 完成 data 目录收敛阶段步骤 5：停止创建和使用 `pic/` 目录，旧图片路径设置退化为说明文本，正式图片、预览图、截图、GIF 和演员头像读取统一切到影片目录与 `cache/` 结构。
+- 完成 data 目录收敛阶段收尾：默认配置中的自动备份已关闭，并完成 `Release/data/<user>/` 目录实测清理，当前仅保留数据库、主日志和统一 cache 结构。
 
 ## [2026-03-07]
 

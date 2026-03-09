@@ -18,8 +18,8 @@ namespace Jvedio.Core.WindowConfig
             TeenMode = false;
             AutoAddPrefix = true;
             Prefix = string.Empty;
-            AutoBackupPeriodIndex = DEFAULT_BACKUP_PERIOD_INDEX;
-            AutoBackup = true;
+            AutoBackupPeriodIndex = 0;
+            AutoBackup = false;
             DetailShowBg = true;
             CurrentLanguage = "zh-CN";
             DownloadWhenTitleNull = true;

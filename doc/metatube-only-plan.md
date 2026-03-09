@@ -360,11 +360,11 @@ UI 内容：
 - [x] 阶段 8：旧插件搜刮链降级
 - [x] 阶段 9：手动刷新与覆盖更新
 - [x] 阶段 10：文档、日志、测试补齐
-- [~] 阶段 11：data 目录收敛与旧目录清理
+- [x] 阶段 11：data 目录收敛与旧目录清理
 
 ## 阶段 11：data 目录收敛与旧目录清理
 
-状态：`[~]`
+状态：`[x]`
 
 目标：
 - 将 `data/<user>/` 收敛为配置数据库、业务数据库、主日志、测试输出、正式缓存几个核心区域
@@ -428,6 +428,7 @@ UI 内容：
 - 已完成步骤 3：将 `metatube/cache/video` 迁移到 `cache/video/`，将 `metatube/avatar` 迁移到 `cache/actor-avatar/`，并删除旧 `metatube/` 目录用法
 - 已完成步骤 4：移除 `image/` 目录用法，将库封面缓存统一迁移到 `cache/library-image/`
 - 已完成步骤 5：停止创建和使用 `pic/` 目录，正式图片、测试输出和缓存读取逻辑已切换到影片目录与 `cache/` 结构
+- 已完成目录清理验证：当前 `Release/data/<user>/` 已收敛为 `app_configs.sqlite`、`app_datas.sqlite`、`log/`、`cache/`
 
 ## 阶段 10 执行记录
 
