@@ -360,6 +360,70 @@ UI 内容：
 - [x] 阶段 8：旧插件搜刮链降级
 - [x] 阶段 9：手动刷新与覆盖更新
 - [x] 阶段 10：文档、日志、测试补齐
+- [~] 阶段 11：data 目录收敛与旧目录清理
+
+## 阶段 11：data 目录收敛与旧目录清理
+
+状态：`[~]`
+
+目标：
+- 将 `data/<user>/` 收敛为配置数据库、业务数据库、主日志、测试输出、正式缓存几个核心区域
+- 删除 `backup`、`olddata`、`image`、`metatube`，并最终清理 `pic`
+
+目标结构：
+- `app_configs.sqlite`
+- `app_datas.sqlite`
+- `log/<yyyy-MM-dd>.log`
+- `log/test/<VID>/`
+- `cache/video/<VID>.json`
+- `cache/actor-avatar/<actorId>.jpg`
+
+正式运行：
+- 影片目录：
+  - `<VID>.nfo`
+  - `<VID>-poster.jpg`
+  - `<VID>-thumb.jpg`
+  - `<VID>-fanart.jpg`
+- `data` 目录：
+  - `cache/video/`
+  - `cache/actor-avatar/`
+
+测试运行：
+- `log/test/<VID>/`
+  - `meta.json`
+  - `<VID>.nfo`
+  - `<VID>-poster.jpg`
+  - `<VID>-thumb.jpg`
+  - `<VID>-fanart.jpg`
+  - `actor-*.jpg`
+
+计划删除：
+- `backup/`
+- `olddata/`
+- `image/`
+- `metatube/`
+- `pic/`（最后处理）
+
+执行顺序：
+1. 删除备份功能和 `backup/` `[x]`
+2. 删除 `olddata/`
+3. 将 `metatube/cache/video` 和 `metatube/avatar` 迁移到 `cache/`
+4. 清理 `image/`
+5. 完成 `pic/` 依赖替换后删除 `pic/`
+
+前置条件：
+- `Video.GetBigImage()` / `GetSmallImage()` 已完全切到新规则
+- 演员头像读取不再依赖 `pic/`
+- 设置页旧图片路径逻辑已移除
+- 详情页、列表页、编辑页不再使用旧图片目录
+
+## 阶段 11 执行记录
+
+- 已确认目录收敛目标：
+  - 保留 `log/` 和 `cache/`
+  - 删除 `backup/`、`olddata/`、`image/`、`metatube/`
+  - `pic/` 作为最后一批清理目标
+- 已完成步骤 1：删除备份功能和 `backup/` 目录用法
 
 ## 阶段 10 执行记录
 

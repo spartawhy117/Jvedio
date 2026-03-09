@@ -724,8 +724,8 @@ namespace Jvedio
             ConfigManager.Settings.DownloadWhenTitleNull = false;
             ConfigManager.ScanConfig.ScanNfo = true;
             ConfigManager.Settings.IgnoreCertVal = vieModel.IgnoreCertVal;
-            ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
-            ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
+            ConfigManager.Settings.AutoBackup = false;
+            ConfigManager.Settings.AutoBackupPeriodIndex = 0;
             ConfigManager.MetaTubeConfig.Enabled = vieModel.MetaTubeEnabled;
             ConfigManager.MetaTubeConfig.ServerUrl = vieModel.MetaTubeServerUrl?.Trim();
 
@@ -1208,10 +1208,6 @@ namespace Jvedio
 
                 ConfigManager.VideoConfig.ShowFileNameIfTitleEmpty = true;
                 ConfigManager.VideoConfig.ShowCreateDateIfReleaseDateEmpty = true;
-
-                // 库
-                vieModel.AutoBackup = true;
-                vieModel.AutoBackupPeriodIndex = Jvedio.Core.WindowConfig.Settings.DEFAULT_BACKUP_PERIOD_INDEX;
 
                 ConfigManager.Main.Save();
                 ApplySettings(null, null);

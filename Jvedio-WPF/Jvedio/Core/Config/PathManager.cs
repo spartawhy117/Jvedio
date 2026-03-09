@@ -22,8 +22,6 @@ namespace Jvedio.Core.Global
 
         public static string AllOldDataPath { get; set; }
 
-        public static string BackupPath { get; set; }
-
         public static string LogPath { get; set; }
 
         public static string PicPath { get; set; }
@@ -78,7 +76,6 @@ namespace Jvedio.Core.Global
             }
 
             AllOldDataPath = Path.Combine(CurrentUserFolder, "olddata");
-            BackupPath = Path.Combine(CurrentUserFolder, "backup");
             LogPath = Path.Combine(CurrentUserFolder, "log");
             PicPath = Path.Combine(CurrentUserFolder, "pic");
             ProjectImagePath = Path.Combine(CurrentUserFolder, "image", "library");
@@ -96,7 +93,6 @@ namespace Jvedio.Core.Global
 
             // 初始化文件夹
             InitDirs = new[] {
-                BackupPath,
                 LogPath,
                 PicPath,
                 ProjectImagePath,

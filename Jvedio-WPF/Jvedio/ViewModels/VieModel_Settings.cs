@@ -808,29 +808,6 @@ namespace Jvedio.ViewModel
         #endregion
 
         #region "库"
-        private bool _AutoBackup = ConfigManager.Settings.AutoBackup;
-
-        public bool AutoBackup {
-            get { return _AutoBackup; }
-
-            set {
-                _AutoBackup = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int _AutoBackupPeriodIndex = (int)ConfigManager.Settings.AutoBackupPeriodIndex;
-
-        public int AutoBackupPeriodIndex {
-            get { return _AutoBackupPeriodIndex; }
-
-            set {
-                _AutoBackupPeriodIndex = value;
-                RaisePropertyChanged();
-            }
-        }
-
-
         private bool _IndexCreating;
 
         public bool IndexCreating {

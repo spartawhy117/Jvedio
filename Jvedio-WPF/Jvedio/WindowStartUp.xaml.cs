@@ -131,7 +131,6 @@ namespace Jvedio
             await MoveOldFiles();
             InitAppData();
             DeleteDirs();
-            await BackupData();
             await MovePlugins();
             await DeletePlugins();
             CrawlerManager.Init(true);
@@ -245,46 +244,6 @@ namespace Jvedio
             return Task.FromResult(true);
         }
 
-        private Task<bool> BackupData()
-        {
-            if (ConfigManager.Settings.AutoBackup) {
-                int period = Jvedio.Core.WindowConfig.Settings.BackUpPeriods[(int)ConfigManager.Settings.AutoBackupPeriodIndex];
-                bool backup = false;
-                string[] arr = DirHelper.TryGetDirList(PathManager.BackupPath);
-                if (arr != null && arr.Length > 0) {
-                    string dirname = arr[arr.Length - 1];
-                    if (Directory.Exists(dirname)) {
-                        string dirName = Path.GetFileName(dirname);
-                        DateTime before = DateTime.Now.AddDays(1);
-                        DateTime now = DateTime.Now;
-                        DateTime.TryParse(dirName, out before);
-                        if (now.CompareTo(before) < 0 || (now - before).TotalDays > period) {
-                            backup = true;
-                        }
-                    }
-                } else {
-                    backup = true;
-                }
-
-                if (backup) {
-                    string dir = Path.Combine(BackupPath, DateHelper.NowDate());
-                    DirHelper.TryCreateDirectory(dir, (Action<Exception>)((err) => {
-                        Logger.Error(err);
-                        return;
-                    }));
-                    string target1 = Path.Combine(dir, "app_configs.sqlite");
-                    string target2 = Path.Combine(dir, "app_datas.sqlite");
-                    string target3 = Path.Combine(dir, "image");
-                    FileHelper.TryCopyFile(SqlManager.DEFAULT_SQLITE_CONFIG_PATH, target1);
-                    FileHelper.TryCopyFile(SqlManager.DEFAULT_SQLITE_PATH, target2);
-                    string origin = Path.Combine(CurrentUserFolder, "image");
-                    DirHelper.TryCopy(origin, target3);
-                }
-            }
-
-            return Task.FromResult(true);
-        }
-
         private async Task<bool> MoveOldFiles()
         {
             // 迁移公共数据
@@ -360,9 +319,6 @@ namespace Jvedio
             try {
                 // 清除日志
                 ClearLogBefore(CLEAR_LOG_DAY, PathManager.LogPath);
-                // 清除备份文件
-                DeleteDirBefore(CLEAR_BACKUP_DAY, PathManager.BackupPath);
-
                 if (!ConfigManager.Settings.Debug) {
                     FileHelper.TryDeleteFile("upgrade.bat");
                     FileHelper.TryDeleteFile("upgrade-plugins.bat");
