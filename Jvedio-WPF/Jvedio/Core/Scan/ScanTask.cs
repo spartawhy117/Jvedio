@@ -195,6 +195,8 @@ namespace Jvedio.Core.Scan
                         Logger.Error(msg);
                     });
 
+                    AutoOrganizeImportedVideos(parseResult.import);
+
                     Progress = 60;
 
                     ScanResult.TotalCount = parseResult.import.Count + parseResult.notImport.Count + parseResult.failNFO.Count;
@@ -420,6 +422,37 @@ namespace Jvedio.Core.Scan
 
             // 2.导入
             InsertData(toInsert);
+        }
+
+        private void AutoOrganizeImportedVideos(List<Video> import)
+        {
+            if (import == null || import.Count == 0)
+                return;
+
+            List<Video> toSkip = new List<Video>();
+            foreach (Video video in import.Where(arg => arg != null && !string.IsNullOrWhiteSpace(arg.Path) && !arg.Path.EndsWith(".nfo", StringComparison.OrdinalIgnoreCase)).ToList()) {
+                try {
+                    LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, FileExt);
+                    if (!result.Success) {
+                        Logs.Add($"[Library-Organize] skip: {video.Path} => {result.Message}");
+                        ScanResult.NotImport[video.Path] = new ScanDetailInfo($"目录整理失败，已跳过 => {result.Message}");
+                        toSkip.Add(video);
+                        continue;
+                    }
+
+                    if (result.Organized) {
+                        Logs.Add($"[Library-Organize] {video.Path} => {result.TargetVideoPath}");
+                        video.Path = result.TargetVideoPath;
+                    }
+                } catch (Exception ex) {
+                    Logs.Add($"[Library-Organize] error: {video.Path} => {ex.Message}");
+                    ScanResult.NotImport[video.Path] = new ScanDetailInfo($"目录整理异常，已跳过 => {ex.Message}");
+                    toSkip.Add(video);
+                }
+            }
+
+            if (toSkip.Count > 0)
+                import.RemoveAll(arg => toSkip.Contains(arg));
         }
 
         private void HandleNotImport(Dictionary<string, NotImportReason> notImport)

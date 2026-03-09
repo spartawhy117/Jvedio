@@ -391,6 +391,8 @@
     <Compile Include="Entity\Common\ActorInfo.cs" />
     <Compile Include="Entity\Common\Actress.cs" />
     <Compile Include="Core\Scan\ScanTask.cs" />
+    <Compile Include="Core\Scan\LibraryOrganizeResult.cs" />
+    <Compile Include="Core\Scan\LibraryOrganizer.cs" />
     <Compile Include="Core\Scraper\IScraperProvider.cs" />
     <Compile Include="Core\Scraper\ScraperProviderManager.cs" />
     <Compile Include="Core\Scraper\Models\ScrapeRequest.cs" />
