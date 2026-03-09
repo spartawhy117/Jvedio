@@ -407,7 +407,7 @@ UI 内容：
 执行顺序：
 1. 删除备份功能和 `backup/` `[x]`
 2. 删除 `olddata/` `[x]`
-3. 将 `metatube/cache/video` 和 `metatube/avatar` 迁移到 `cache/`
+3. 将 `metatube/cache/video` 和 `metatube/avatar` 迁移到 `cache/` `[x]`
 4. 清理 `image/`
 5. 完成 `pic/` 依赖替换后删除 `pic/`
 
@@ -425,6 +425,7 @@ UI 内容：
   - `pic/` 作为最后一批清理目标
 - 已完成步骤 1：删除备份功能和 `backup/` 目录用法
 - 已完成步骤 2：移除 `olddata/` 目录用法，并将旧版本迁移后的历史文件改为直接清理，不再落到 `data/<user>/olddata/`
+- 已完成步骤 3：将 `metatube/cache/video` 迁移到 `cache/video/`，将 `metatube/avatar` 迁移到 `cache/actor-avatar/`，并删除旧 `metatube/` 目录用法
 
 ## 阶段 10 执行记录
 

@@ -15,7 +15,7 @@ namespace Jvedio.Core.Media
                 normalizedExt = "." + normalizedExt;
 
             string key = string.IsNullOrWhiteSpace(actorId) ? GetFallbackKey(actorName) : Normalize(actorId);
-            return Path.Combine(PathManager.MetaTubeAvatarPath, key + normalizedExt);
+            return Path.Combine(PathManager.ActorAvatarCachePath, key + normalizedExt);
         }
 
         private static string GetFallbackKey(string actorName)

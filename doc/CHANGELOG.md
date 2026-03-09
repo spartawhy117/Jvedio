@@ -56,6 +56,7 @@
 - 优化 MetaTube 连接诊断：将连接测试拆分为根地址和 providers 接口检查，为请求增加更细的耗时日志，并将默认超时提升到 60 秒，更贴合当前 `hf.space` 服务的响应时间。
 - 开始执行 data 目录收敛阶段：移除自动备份功能、删除设置页中的备份选项，并停止创建和清理 `backup/` 目录。
 - 完成 data 目录收敛阶段步骤 2：移除 `olddata/` 目录用法，并将旧版本迁移后的历史文件改为直接清理，不再保留到 `data/<user>/olddata/`。
+- 完成 data 目录收敛阶段步骤 3：将 MetaTube 正式缓存迁移到通用 `cache/` 目录，影片 JSON 使用 `cache/video/`，演员头像使用 `cache/actor-avatar/`，旧 `metatube/` 目录不再继续使用。
 
 ## [2026-03-07]
 

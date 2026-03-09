@@ -842,15 +842,15 @@ namespace Jvedio
         private void ClearMetaTubeCache(object sender, RoutedEventArgs e)
         {
             try {
-                if (Directory.Exists(PathManager.MetaTubeCachePath))
-                    DirHelper.TryDelete(PathManager.MetaTubeCachePath);
-                if (!Directory.Exists(PathManager.MetaTubeCachePath))
-                    Directory.CreateDirectory(PathManager.MetaTubeCachePath);
-                if (!Directory.Exists(PathManager.MetaTubeVideoCachePath))
-                    Directory.CreateDirectory(PathManager.MetaTubeVideoCachePath);
-                if (!Directory.Exists(PathManager.MetaTubeActorCachePath))
-                    Directory.CreateDirectory(PathManager.MetaTubeActorCachePath);
-                AppendMetaTubeLog("已清理 MetaTube JSON 缓存目录");
+                if (Directory.Exists(PathManager.VideoCachePath))
+                    DirHelper.TryDelete(PathManager.VideoCachePath);
+                if (!Directory.Exists(PathManager.CachePath))
+                    Directory.CreateDirectory(PathManager.CachePath);
+                if (!Directory.Exists(PathManager.VideoCachePath))
+                    Directory.CreateDirectory(PathManager.VideoCachePath);
+                if (!Directory.Exists(PathManager.ActorAvatarCachePath))
+                    Directory.CreateDirectory(PathManager.ActorAvatarCachePath);
+                AppendMetaTubeLog("已清理影片 JSON 缓存目录");
                 MessageNotify.Success("MetaTube 缓存已清理");
             } catch (Exception ex) {
                 AppendMetaTubeLog($"清理缓存失败: {ex.Message}");

@@ -50,3 +50,4 @@
 - `MetaTube` 测试输出现已统一写入主日志目录下的 `log/test/<番号>/`，测试日志也并入主日志文件，调试路径比独立子目录更集中
 - 自动备份功能和 `backup/` 目录用法已开始清理，目录收敛阶段后续会继续处理 `olddata / image / metatube / pic`
 - `olddata/` 目录用法已移除，旧版本迁移后的历史文件当前改为直接清理，不再保留到当前用户数据目录中
+- `metatube/` provider 专属目录已开始收敛到通用 `cache/` 结构，当前正式影片缓存使用 `cache/video/`，正式演员头像缓存使用 `cache/actor-avatar/`

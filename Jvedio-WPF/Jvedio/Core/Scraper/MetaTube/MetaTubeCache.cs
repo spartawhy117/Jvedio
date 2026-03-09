@@ -37,7 +37,7 @@ namespace Jvedio.Core.Scraper.MetaTube
 
         public static string GetVideoCachePath(string vid)
         {
-            return Path.Combine(PathManager.MetaTubeVideoCachePath, NormalizeKey(vid) + ".json");
+            return Path.Combine(PathManager.VideoCachePath, NormalizeKey(vid) + ".json");
         }
 
         private static string NormalizeKey(string value)

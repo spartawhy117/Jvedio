@@ -38,15 +38,11 @@ namespace Jvedio.Core.Global
 
         public static string UserConfigPath { get; set; }
 
-        public static string MetaTubePath { get; set; }
+        public static string CachePath { get; set; }
 
-        public static string MetaTubeCachePath { get; set; }
+        public static string VideoCachePath { get; set; }
 
-        public static string MetaTubeVideoCachePath { get; set; }
-
-        public static string MetaTubeActorCachePath { get; set; }
-
-        public static string MetaTubeAvatarPath { get; set; }
+        public static string ActorAvatarCachePath { get; set; }
 
         public static string MetaTubeTestRootPath { get; set; }
 
@@ -81,11 +77,9 @@ namespace Jvedio.Core.Global
             ServersConfigPath = Path.Combine(CurrentUserFolder, "ServersConfigPath.xml");
             UserConfigPath = Path.Combine(CurrentUserFolder, "user-config.xml");
             BasePluginsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
-            MetaTubePath = Path.Combine(CurrentUserFolder, "metatube");
-            MetaTubeCachePath = Path.Combine(MetaTubePath, "cache");
-            MetaTubeVideoCachePath = Path.Combine(MetaTubeCachePath, "video");
-            MetaTubeActorCachePath = Path.Combine(MetaTubeCachePath, "actor");
-            MetaTubeAvatarPath = Path.Combine(MetaTubePath, "avatar");
+            CachePath = Path.Combine(CurrentUserFolder, "cache");
+            VideoCachePath = Path.Combine(CachePath, "video");
+            ActorAvatarCachePath = Path.Combine(CachePath, "actor-avatar");
             MetaTubeTestRootPath = Path.Combine(LogPath, "test");
 
             // 初始化文件夹
@@ -95,11 +89,9 @@ namespace Jvedio.Core.Global
                 ProjectImagePath,
                 Path.Combine(BasePluginsPath, "themes"),
                 Path.Combine(BasePluginsPath, "crawlers"),
-                MetaTubePath,
-                MetaTubeCachePath,
-                MetaTubeVideoCachePath,
-                MetaTubeActorCachePath,
-                MetaTubeAvatarPath,
+                CachePath,
+                VideoCachePath,
+                ActorAvatarCachePath,
                 MetaTubeTestRootPath,
             };
             oldDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DataBase"); // Jvedio 5.0 之前的
