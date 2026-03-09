@@ -361,6 +361,32 @@ UI 内容：
 - [x] 阶段 9：手动刷新与覆盖更新
 - [x] 阶段 10：文档、日志、测试补齐
 - [x] 阶段 11：data 目录收敛与旧目录清理
+- [~] 阶段 13：MetaTube 头像补拉与预热诊断
+
+## 阶段 13：MetaTube 头像补拉与预热诊断
+
+状态：`[~]`
+
+目标：
+- 补齐演员头像拉取链路，避免只靠 `/v1/actors/search` 的首条结果导致头像为空
+- 在测试搜刮与正式搜刮前先预热远程服务，降低 `hf.space` 冷启动和慢响应影响
+- 继续增强日志，明确电影、演员和预热各阶段的耗时与失败点
+
+计划内容：
+1. 在 `MetaTubeApiModels` 中新增演员详情模型
+2. 在 `MetaTubeClient` 中新增：
+   - `GetActorInfoAsync()`
+   - `WarmupAsync()`
+3. 在 `MetaTubeScraperProvider` 中：
+   - 搜刮前先调用预热
+   - 演员搜索后尝试 actor detail 补拉
+   - 输出演员搜索结果数、命中详情、头像 URL 等更细日志
+4. 在设置页测试搜刮前默认执行预热
+
+执行记录：
+- 已确认 Jellyfin MetaTube 插件存在单独的 `GetActorInfoAsync()` 演员详情链路
+- 已确认当前 Jvedio 侧只有 `SearchActorAsync()`，缺少 actor detail 兜底
+- 已确认需要在测试搜刮和正式搜刮前先做一次服务预热
 
 ## 阶段 11：data 目录收敛与旧目录清理
 

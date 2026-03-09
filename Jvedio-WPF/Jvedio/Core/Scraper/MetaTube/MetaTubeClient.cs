@@ -15,6 +15,7 @@ namespace Jvedio.Core.Scraper.MetaTube
     {
         private const string MovieInfoApi = "/v1/movies";
         private const string MovieSearchApi = "/v1/movies/search";
+        private const string ActorInfoApi = "/v1/actors";
         private const string ActorSearchApi = "/v1/actors/search";
 
         private static readonly HttpClient HttpClient;
@@ -54,6 +55,15 @@ namespace Jvedio.Core.Scraper.MetaTube
             return await GetDataAsync<MetaTubeProvidersResponse>(url, cancellationToken);
         }
 
+        public async Task WarmupAsync(CancellationToken cancellationToken)
+        {
+            Log?.Invoke("预热步骤 1/2：访问根地址");
+            await PingRootAsync(cancellationToken);
+            Log?.Invoke("预热步骤 2/2：访问 providers 接口");
+            await GetProvidersAsync(cancellationToken);
+            Log?.Invoke("预热完成");
+        }
+
         public async Task<List<MetaTubeMovieSearchResult>> SearchMovieAsync(string number, CancellationToken cancellationToken)
         {
             string url = ComposeUrl(MovieSearchApi, new NameValueCollection() {
@@ -80,6 +90,14 @@ namespace Jvedio.Core.Scraper.MetaTube
                 { "fallback", true.ToString() },
             });
             return await GetDataAsync<List<MetaTubeActorSearchResult>>(url, cancellationToken);
+        }
+
+        public async Task<MetaTubeActorInfo> GetActorInfoAsync(string provider, string id, CancellationToken cancellationToken)
+        {
+            string url = ComposeUrl($"{ActorInfoApi}/{provider}/{id}", new NameValueCollection() {
+                { "lazy", true.ToString() },
+            });
+            return await GetDataAsync<MetaTubeActorInfo>(url, cancellationToken);
         }
 
         private string ComposeUrl(string path, NameValueCollection nv)

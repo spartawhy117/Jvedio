@@ -811,6 +811,7 @@ namespace Jvedio
                 if (provider is MetaTubeScraperProvider metaTubeProvider)
                     metaTubeProvider.LogAction = AppendMetaTubeLog;
 
+                AppendMetaTubeLog("开始预热 MetaTube 服务");
                 ScrapeResult result = await provider.GetInfoAsync(new ScrapeRequest() {
                     VID = vid,
                     ForceRefresh = true,
