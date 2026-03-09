@@ -15,10 +15,10 @@ namespace Jvedio.Test.ScanTest
         // mock 参考 https://learn.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
 
         [TestMethod]
-        [DataRow(new string[] { "abcd-123.mp4" })]
-        public void BasicImport(string[] scanPaths, string[] filePaths)
+        public void BasicImport()
         {
-            Core.Scan.ScanTask scanTask = new Core.Scan.ScanTask(scanPaths.ToList(), filePaths.ToList());
+            List<string> filePaths = new List<string>() { "abcd-123.mp4" };
+            Core.Scan.ScanTask scanTask = new Core.Scan.ScanTask(new List<string>(), filePaths.ToList());
             ScanResult scanResult = scanTask.ScanResult;
             List<string> import = scanResult.Import;
             List<string> failNFO = scanResult.FailNFO;

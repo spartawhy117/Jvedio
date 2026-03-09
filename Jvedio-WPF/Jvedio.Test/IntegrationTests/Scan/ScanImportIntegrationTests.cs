@@ -15,6 +15,7 @@ namespace Jvedio.Test.IntegrationTests.Scan
         [TestMethod]
         public void ScanTaskUsesOrganizedPathAfterMove()
         {
+            TestBootstrap.EnsureWpfContext();
             string root = Path.Combine(Path.GetTempPath(), "JvedioScanTests", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string videoPath = Path.Combine(root, "ABP-001.mp4");
@@ -34,6 +35,7 @@ namespace Jvedio.Test.IntegrationTests.Scan
         [TestMethod]
         public void FailedOrganizationMovieIsMarkedAsNotImport()
         {
+            TestBootstrap.EnsureWpfContext();
             string root = Path.Combine(Path.GetTempPath(), "JvedioScanTests", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string videoPath = Path.Combine(root, "LOCK-002.mp4");

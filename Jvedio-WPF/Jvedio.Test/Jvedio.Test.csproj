@@ -56,8 +56,8 @@
     <Reference Include="Moq, Version=4.20.69.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\packages\Moq.4.20.69\lib\net462\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Jvedio\Reference\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="SeleniumExtras.PageObjects, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -94,6 +94,9 @@
     <Compile Include="IntegrationTests\MetaTube\MetaTubeTestConfig.cs" />
     <Compile Include="IntegrationTests\Scan\LibraryOrganizeTests.cs" />
     <Compile Include="IntegrationTests\Scan\ScanImportIntegrationTests.cs" />
+    <Compile Include="IntegrationTests\Scan\ScanTestConfig.cs" />
+    <Compile Include="TestBootstrap.cs" />
+    <Compile Include="TestAssemblyBootstrap.cs" />
     <Compile Include="UnitTests\Core\Logs\LoggerInitializationTests.cs" />
     <Compile Include="UnitTests\Core\Media\ActorAvatarPathResolverTests.cs" />
     <Compile Include="UnitTests\Core\Media\SidecarPathResolverTests.cs" />

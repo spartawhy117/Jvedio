@@ -1,4 +1,5 @@
 using Jvedio.Core.Global;
+using Jvedio.Core.Config;
 using Jvedio.Core.Scraper.MetaTube;
 using Jvedio.Core.Scraper.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,6 +14,9 @@ namespace Jvedio.Test.UnitTests.Core.Scraper
         [TestMethod]
         public void MetaTubeCacheCanSaveAndReadVideo()
         {
+            TestBootstrap.EnsureWpfContext();
+            if (ConfigManager.MetaTubeConfig == null)
+                ConfigManager.MetaTubeConfig = MetaTubeConfig.CreateInstance();
             PathManager.VideoCachePath = Path.Combine(Path.GetTempPath(), "metatube-cache-test", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(PathManager.VideoCachePath);
             ConfigManager.MetaTubeConfig.JsonCacheEnabled = true;

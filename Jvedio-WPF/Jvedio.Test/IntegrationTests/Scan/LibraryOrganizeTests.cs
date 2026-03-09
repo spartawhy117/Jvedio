@@ -18,6 +18,7 @@ namespace Jvedio.Test.IntegrationTests.Scan
         [TestInitialize]
         public void Initialize()
         {
+            TestBootstrap.EnsureWpfContext();
             Config = ScanTestConfig.Load(ConfigPath);
             if (!Config.Enabled)
                 Assert.Inconclusive("扫描链测试未启用，请修改 scan-test-config.json 中的 enabled。");

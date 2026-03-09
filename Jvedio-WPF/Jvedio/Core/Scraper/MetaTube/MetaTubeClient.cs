@@ -20,7 +20,7 @@ namespace Jvedio.Core.Scraper.MetaTube
         private const string ActorInfoApi = "/v1/actors";
         private const string ActorSearchApi = "/v1/actors/search";
 
-        private static readonly HttpClient HttpClient;
+        private readonly HttpClient HttpClient;
 
         private string ServerUrl { get; set; }
 
@@ -30,19 +30,18 @@ namespace Jvedio.Core.Scraper.MetaTube
         {
             ServerUrl = serverUrl?.Trim();
             Log = log;
-            HttpClient.Timeout = TimeSpan.FromSeconds(Math.Max(30, ConfigManager.MetaTubeConfig?.RequestTimeoutSeconds ?? 60));
-        }
-
-        static MetaTubeClient()
-        {
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             HttpClientHandler handler = new HttpClientHandler() {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 UseCookies = false,
             };
             HttpClient = new HttpClient(handler) {
-                Timeout = TimeSpan.FromSeconds(60),
+                Timeout = TimeSpan.FromSeconds(Math.Max(30, ConfigManager.MetaTubeConfig?.RequestTimeoutSeconds ?? 60)),
             };
+        }
+
+        static MetaTubeClient()
+        {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
 
         public async Task<MetaTubeApiResponse<Dictionary<string, object>>> PingRootAsync(CancellationToken cancellationToken)

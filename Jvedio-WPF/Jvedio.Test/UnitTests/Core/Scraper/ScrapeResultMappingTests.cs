@@ -1,6 +1,7 @@
 using Jvedio.Core.Net;
 using Jvedio.Core.Scraper.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Runtime.Serialization;
 
 namespace Jvedio.Test.UnitTests.Core.Scraper
 {
@@ -20,7 +21,7 @@ namespace Jvedio.Test.UnitTests.Core.Scraper
             result.Images.ThumbUrl = "thumb";
             result.Images.FanartUrl = "fanart";
 
-            VideoDownLoader loader = new VideoDownLoader(null, default, null);
+            VideoDownLoader loader = (VideoDownLoader)FormatterServices.GetUninitializedObject(typeof(VideoDownLoader));
             var method = typeof(VideoDownLoader).GetMethod("ToDictionary", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var dict = (System.Collections.Generic.Dictionary<string, object>)method.Invoke(loader, new object[] { result });
             Assert.AreEqual("ABP-001", dict["VID"]);

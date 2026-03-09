@@ -452,7 +452,7 @@ namespace Jvedio.Core.Scan
             }
 
             if (toSkip.Count > 0)
-                import.RemoveAll(arg => toSkip.Contains(arg));
+                import.RemoveAll(arg => toSkip.Any(item => ReferenceEquals(item, arg)));
         }
 
         private void HandleNotImport(Dictionary<string, NotImportReason> notImport)

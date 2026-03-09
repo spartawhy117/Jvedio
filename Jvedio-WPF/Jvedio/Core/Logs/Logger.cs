@@ -13,8 +13,6 @@ namespace Jvedio.Core.Logs
     public class Logger : AbstractLogger
     {
 
-        private static string FilePath { get; set; } = PathManager.LogPath;
-
         private static object LogLock { get; set; }
         public static Logger Instance { get; }
 
@@ -37,9 +35,10 @@ namespace Jvedio.Core.Logs
             if (str == null)
                 str = "";
             Console.Write(str);
-            DirHelper.TryCreateDirectory(FilePath);
+            string filePath = PathManager.LogPath;
+            DirHelper.TryCreateDirectory(filePath);
             string filepath =
-                System.IO.Path.Combine(FilePath, DateHelper.NowDate() + ".log");
+                System.IO.Path.Combine(filePath, DateHelper.NowDate() + ".log");
             lock (LogLock) {
                 try {
                     File.AppendAllText(filepath, str);
@@ -52,8 +51,9 @@ namespace Jvedio.Core.Logs
 
         public static void ResetCurrentLog()
         {
-            DirHelper.TryCreateDirectory(FilePath);
-            string filepath = System.IO.Path.Combine(FilePath, DateHelper.NowDate() + ".log");
+            string filePath = PathManager.LogPath;
+            DirHelper.TryCreateDirectory(filePath);
+            string filepath = System.IO.Path.Combine(filePath, DateHelper.NowDate() + ".log");
             lock (LogLock) {
                 try {
                     File.WriteAllText(filepath, string.Empty);

@@ -69,10 +69,14 @@ namespace Jvedio.Core.Scraper.MetaTube
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            cancellationToken.ThrowIfCancellationRequested();
-            byte[] bytes = await HttpClient.GetByteArrayAsync(url);
-            File.WriteAllBytes(path, bytes);
-            log?.Invoke($"写入文件: {path}");
+            try {
+                cancellationToken.ThrowIfCancellationRequested();
+                byte[] bytes = await HttpClient.GetByteArrayAsync(url);
+                File.WriteAllBytes(path, bytes);
+                log?.Invoke($"写入文件: {path}");
+            } catch (Exception ex) {
+                log?.Invoke($"写入文件失败: {path} => {ex.Message}");
+            }
         }
     }
 }

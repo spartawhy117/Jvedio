@@ -129,6 +129,7 @@ Jvedio.Test/
 - 已新增 `MetaTubeTestConfig.cs`
 - 已新增 `meta-tube-test-config.json`
 - 当前已覆盖 warmup、影片搜索、详情转换、头像验证和测试输出验证骨架
+- `Jvedio.Test` Release 下已实际跑通 `MetaTubeIntegrationTests`，相关测试当前可执行并通过
 
 ### 阶段 3：建立扫描链测试
 
@@ -153,6 +154,7 @@ Jvedio.Test/
 - 已新增 `ScanImportIntegrationTests.cs`
 - 已新增 `scan-test-config.json`
 - 当前已覆盖平铺影片整理、字幕迁移、整理失败跳过和路径更新骨架
+- `Jvedio.Test` Release 下已实际跑通扫描链测试，当前自动整理相关测试可执行并通过
 
 ### 阶段 4：补充纯单元测试
 
@@ -170,6 +172,7 @@ Jvedio.Test/
 
 执行记录：
 - 已新增 sidecar、actor-avatar、cache、scrape mapping、organizer 规则的单元测试骨架
+- 当前纯单元测试已在 `Jvedio.Test` Release 中实际执行并通过
 
 ### 阶段 5：日志覆盖模式测试
 
@@ -188,6 +191,7 @@ Jvedio.Test/
 执行记录：
 - 已新增 `LoggerInitializationTests.cs`
 - 已在正式代码中实现 `Logger.ResetCurrentLog()` 并接入 `App.Init()`
+- 当前日志覆盖测试已在 `Jvedio.Test` Release 中实际执行并通过
 
 ## 执行优先级
 
