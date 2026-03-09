@@ -967,14 +967,7 @@ namespace Jvedio
 
         private void OpenImageSavePath(object sender, RoutedEventArgs e)
         {
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (!ConfigManager.Settings.PicPaths.ContainsKey(pathType.ToString()))
-                return;
-            string basePicPath = ConfigManager.Settings.PicPaths[pathType.ToString()].ToString();
-            if (pathType == PathType.RelativeToApp)
-                basePicPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, basePicPath);
-            basePicPath = Path.GetFullPath(basePicPath);
-            FileHelper.TryOpenPath(basePicPath);
+            FileHelper.TryOpenPath(PathManager.CachePath);
         }
 
         private void OpenLogPath(object sender, RoutedEventArgs e)

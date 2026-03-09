@@ -101,10 +101,9 @@ namespace Jvedio.ViewModel
 
             string param = o.ToString();
 
-            if (!ShowRelativeScreen &&
-             (PathType)ConfigManager.Settings.PicPathMode == PathType.RelativeToData) {
+            if (!ShowRelativeScreen) {
                 ShowRelativeScreen = true;
-                MessageCard.Info("当前图片模式为相对于影片，如果影片都位于同一目录，图片将会重复/覆盖");
+                MessageCard.Info("当前图片与 sidecar 规则已统一到影片目录和 cache 目录。");
             }
 
             SelectWrapper<Video> ExtraWrapper = new SelectWrapper<Video>();

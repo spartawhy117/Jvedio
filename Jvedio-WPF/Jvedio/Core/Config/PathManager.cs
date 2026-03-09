@@ -24,8 +24,6 @@ namespace Jvedio.Core.Global
 
         public static string PicPath { get; set; }
 
-        public static string BasePicPath { get; set; }
-
         public static string TranslateDataBasePath { get; set; }
 
         public static string BasePluginsPath { get; set; }
@@ -45,8 +43,6 @@ namespace Jvedio.Core.Global
         public static string ActorAvatarCachePath { get; set; }
 
         public static string MetaTubeTestRootPath { get; set; }
-
-        public static string[] PicPaths { get; set; }
 
         public static string[] InitDirs { get; set; }
 
@@ -70,7 +66,7 @@ namespace Jvedio.Core.Global
             }
 
             LogPath = Path.Combine(CurrentUserFolder, "log");
-            PicPath = Path.Combine(CurrentUserFolder, "pic");
+            PicPath = CachePath;
             TranslateDataBasePath = Path.Combine(CurrentUserFolder, "Translate.sqlite");
             ScanConfigPath = Path.Combine(CurrentUserFolder, "ScanPathConfig.xml");
             ServersConfigPath = Path.Combine(CurrentUserFolder, "ServersConfigPath.xml");
@@ -85,7 +81,6 @@ namespace Jvedio.Core.Global
             // 初始化文件夹
             InitDirs = new[] {
                 LogPath,
-                PicPath,
                 Path.Combine(BasePluginsPath, "themes"),
                 Path.Combine(BasePluginsPath, "crawlers"),
                 CachePath,
@@ -95,9 +90,6 @@ namespace Jvedio.Core.Global
                 MetaTubeTestRootPath,
             };
             oldDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DataBase"); // Jvedio 5.0 之前的
-            BasePicPath = string.Empty;
-            PicPaths = new[] { "ScreenShot", "SmallPic", "BigPic", "ExtraPic", "Actresses", "Gif" };
-
             ReferenceDllPaths = new string[]{
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"x64\SQLite.Interop.dll") ,
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"x86\SQLite.Interop.dll")

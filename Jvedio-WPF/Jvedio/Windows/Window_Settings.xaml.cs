@@ -472,14 +472,7 @@ namespace Jvedio
 
         private void SavePath()
         {
-            Dictionary<string, string> dict = (Dictionary<string, string>)vieModel.PicPaths[PathType.RelativeToData.ToString()];
-            dict["BigImagePath"] = vieModel.BigImagePath;
-            dict["SmallImagePath"] = vieModel.SmallImagePath;
-            dict["PreviewImagePath"] = vieModel.PreviewImagePath;
-            dict["ScreenShotPath"] = vieModel.ScreenShotPath;
-            dict["ActorImagePath"] = vieModel.ActorImagePath;
-            vieModel.PicPaths[PathType.RelativeToData.ToString()] = dict;
-            ConfigManager.Settings.PicPathJson = JsonConvert.SerializeObject(vieModel.PicPaths);
+            ConfigManager.Settings.PicPathJson = string.Empty;
         }
 
         private void DatabaseComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -719,7 +712,6 @@ namespace Jvedio
             ConfigManager.Settings.OverwriteNFO = vieModel.OverwriteNFO;
             ConfigManager.Settings.AutoHandleHeader = vieModel.AutoHandleHeader;
 
-            ConfigManager.Settings.PicPathMode = vieModel.PicPathMode;
             ConfigManager.Settings.SkipExistImage = vieModel.SkipExistImage;
             ConfigManager.Settings.DownloadWhenTitleNull = false;
             ConfigManager.ScanConfig.ScanNfo = true;
@@ -855,16 +847,6 @@ namespace Jvedio
             } catch (Exception ex) {
                 AppendMetaTubeLog($"清理缓存失败: {ex.Message}");
                 MessageCard.Error(ex.Message);
-            }
-        }
-
-        private void ImageSelectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int idx = (sender as ComboBox).SelectedIndex;
-            if (idx >= 0 && vieModel != null && idx < VieModel_Settings.PIC_PATH_MODE_COUNT) {
-                PathType type = (PathType)idx;
-                if (type != PathType.RelativeToData)
-                    vieModel.BasePicPath = vieModel.PicPaths[type.ToString()].ToString();
             }
         }
 
@@ -1142,9 +1124,6 @@ namespace Jvedio
                 // 图片
                 vieModel.AutoGenScreenShot = true;
 
-                ImageSelectComboBox.SelectedIndex = 0;
-                vieModel.BasePicPath = Path.Combine(PathManager.CurrentUserFolder, "pic");
-
                 // 扫描与导入
                 vieModel.FetchVID = true;
                 vieModel.LoadDataAfterScan = true;
@@ -1212,16 +1191,6 @@ namespace Jvedio
                 ConfigManager.Main.Save();
                 ApplySettings(null, null);
 
-            }
-        }
-
-        private void SetBasePicPath(object sender, RoutedEventArgs e)
-        {
-            var path = FileHelper.SelectPath(this);
-            if (Directory.Exists(path)) {
-                if (!path.EndsWith("\\"))
-                    path += "\\";
-                vieModel.BasePicPath = path;
             }
         }
 

@@ -311,9 +311,6 @@ namespace Jvedio
         private void NewActor(object sender, RoutedEventArgs e)
         {
             searchActorPopup.IsOpen = true;
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType.Equals(PathType.RelativeToData))
-                MessageCard.Info(LangManager.GetValueByKey("ShowActorImageWarning"));
         }
 
         private void DeleteActor(object sender, RoutedEventArgs e)

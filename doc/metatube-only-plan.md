@@ -409,7 +409,7 @@ UI 内容：
 2. 删除 `olddata/` `[x]`
 3. 将 `metatube/cache/video` 和 `metatube/avatar` 迁移到 `cache/` `[x]`
 4. 清理 `image/` `[x]`
-5. 完成 `pic/` 依赖替换后删除 `pic/`
+5. 完成 `pic/` 依赖替换后删除 `pic/` `[x]`
 
 前置条件：
 - `Video.GetBigImage()` / `GetSmallImage()` 已完全切到新规则
@@ -427,6 +427,7 @@ UI 内容：
 - 已完成步骤 2：移除 `olddata/` 目录用法，并将旧版本迁移后的历史文件改为直接清理，不再落到 `data/<user>/olddata/`
 - 已完成步骤 3：将 `metatube/cache/video` 迁移到 `cache/video/`，将 `metatube/avatar` 迁移到 `cache/actor-avatar/`，并删除旧 `metatube/` 目录用法
 - 已完成步骤 4：移除 `image/` 目录用法，将库封面缓存统一迁移到 `cache/library-image/`
+- 已完成步骤 5：停止创建和使用 `pic/` 目录，正式图片、测试输出和缓存读取逻辑已切换到影片目录与 `cache/` 结构
 
 ## 阶段 10 执行记录
 

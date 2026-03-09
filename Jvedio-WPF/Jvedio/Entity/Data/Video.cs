@@ -501,39 +501,18 @@ namespace Jvedio.Entity
         /// <returns></returns>
         private string GetImagePath(ImageType imageType, string ext = null)
         {
-            string result = string.Empty;
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            string basePicPath = ConfigManager.Settings.PicPaths[pathType.ToString()].ToString();
-            if (pathType != PathType.RelativeToData) {
-                if (pathType == PathType.RelativeToApp)
-                    basePicPath = System.IO.Path.Combine(PathManager.CurrentUserFolder, basePicPath);
-                string saveDir = string.Empty;
-                if (imageType == ImageType.Big)
-                    saveDir = System.IO.Path.Combine(basePicPath, "BigPic");
-                else if (imageType == ImageType.Small)
-                    saveDir = System.IO.Path.Combine(basePicPath, "SmallPic");
-                else if (imageType == ImageType.Preview)
-                    saveDir = System.IO.Path.Combine(basePicPath, "ExtraPic");
-                else if (imageType == ImageType.ScreenShot)
-                    saveDir = System.IO.Path.Combine(basePicPath, "ScreenShot");
-                else if (imageType == ImageType.Gif)
-                    saveDir = System.IO.Path.Combine(basePicPath, "Gif");
-                else if (imageType == ImageType.Actor) {
-                    saveDir = System.IO.Path.Combine(basePicPath, "Actresses");
-                    return System.IO.Path.GetFullPath(saveDir);
-                }
-                if (!Directory.Exists(saveDir))
-                    FileHelper.TryCreateDir(saveDir);
-                if (!string.IsNullOrEmpty(VID))
-                    result = System.IO.Path.Combine(saveDir, $"{VID}{(string.IsNullOrEmpty(ext) ? string.Empty : ext)}");
-                else
-                    result = System.IO.Path.Combine(saveDir, $"{Hash}{(string.IsNullOrEmpty(ext) ? string.Empty : ext)}");
-            } else {
-                // todo 其它图片模式
-            }
-
-            if (!string.IsNullOrEmpty(result))
-                return System.IO.Path.GetFullPath(result);
+            if (imageType == ImageType.Big)
+                return SidecarPathResolver.GetFanartPath(this, ext);
+            if (imageType == ImageType.Small)
+                return SidecarPathResolver.GetPosterPath(this, ext);
+            if (imageType == ImageType.Preview)
+                return SidecarPathResolver.GetPreviewDirectory(this);
+            if (imageType == ImageType.ScreenShot)
+                return SidecarPathResolver.GetScreenShotDirectory(this);
+            if (imageType == ImageType.Gif)
+                return SidecarPathResolver.GetGifPath(this, string.IsNullOrWhiteSpace(ext) ? ".gif" : ext);
+            if (imageType == ImageType.Actor)
+                return PathManager.ActorAvatarCachePath;
             return string.Empty;
         }
 
@@ -617,18 +596,7 @@ namespace Jvedio.Entity
                     sidecarPath = FileHelper.FindWithExt(sidecarPath, ScanTask.PICTURE_EXTENSIONS_LIST);
                 return FileHelper.TryGetFullPath(sidecarPath);
             }
-
             string smallImagePath = GetImagePath(ImageType.Small, ext);
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string smallPath = System.IO.Path.Combine(basePicPath, dict["SmallImagePath"]);
-                if (string.IsNullOrEmpty(System.IO.Path.GetExtension(smallPath)))
-                    smallPath += ext;
-                smallImagePath = ParseRelativeImageFileName(smallPath);
-            }
-
             // 替换成其他扩展名
             if (searchExt && !File.Exists(smallImagePath))
                 smallImagePath = FileHelper.FindWithExt(smallImagePath, ScanTask.PICTURE_EXTENSIONS_LIST);
@@ -643,19 +611,7 @@ namespace Jvedio.Entity
                     sidecarPath = FileHelper.FindWithExt(sidecarPath, ScanTask.PICTURE_EXTENSIONS_LIST);
                 return FileHelper.TryGetFullPath(sidecarPath);
             }
-
             string bigImagePath = GetImagePath(ImageType.Big, ext);
-
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string bigPath = FileHelper.TryGetFullPath(System.IO.Path.Combine(basePicPath, dict["BigImagePath"]));
-                if (string.IsNullOrEmpty(System.IO.Path.GetExtension(bigPath)))
-                    bigPath += ext;
-                bigImagePath = ParseRelativeImageFileName(bigPath);
-            }
-
             // 替换成其他扩展名
             if (searchExt && !File.Exists(bigImagePath))
                 bigImagePath = FileHelper.FindWithExt(bigImagePath, ScanTask.PICTURE_EXTENSIONS_LIST);
@@ -664,46 +620,16 @@ namespace Jvedio.Entity
 
         public string GetExtraImage()
         {
-            string imagePath = GetImagePath(ImageType.Preview);
-
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string path = FileHelper.TryGetFullPath(System.IO.Path.Combine(basePicPath, dict["PreviewImagePath"]));
-                imagePath = ParseRelativePath(path);
-            }
-
-            return FileHelper.TryGetFullPath(imagePath);
+            return FileHelper.TryGetFullPath(GetImagePath(ImageType.Preview));
         }
         public string GetActorPath()
         {
-            string imagePath = GetImagePath(ImageType.Actor);
-
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string path = FileHelper.TryGetFullPath(System.IO.Path.Combine(basePicPath, dict["ActorImagePath"]));
-                imagePath = ParseRelativePath(path);
-            }
-
-            return FileHelper.TryGetFullPath(imagePath);
+            return FileHelper.TryGetFullPath(GetImagePath(ImageType.Actor));
         }
 
         public string GetScreenShot()
         {
-            string imagePath = GetImagePath(ImageType.ScreenShot);
-
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string path = FileHelper.TryGetFullPath(System.IO.Path.Combine(basePicPath, dict["ScreenShotPath"]));
-                imagePath = ParseRelativePath(path);
-            }
-
-            return imagePath;
+            return GetImagePath(ImageType.ScreenShot);
         }
 
         /// <summary>
@@ -712,17 +638,7 @@ namespace Jvedio.Entity
         /// <returns></returns>
         public string GetGifPath()
         {
-            string imagePath = GetImagePath(ImageType.Gif, ".gif");
-
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData && !string.IsNullOrEmpty(Path) && File.Exists(Path)) {
-                string basePicPath = System.IO.Path.GetDirectoryName(Path);
-                Dictionary<string, string> dict = (Dictionary<string, string>)ConfigManager.Settings.PicPaths[pathType.ToString()];
-                string path = FileHelper.TryGetFullPath(System.IO.Path.Combine(basePicPath, dict["Gif"]));
-                imagePath = ParseRelativePath(path);
-            }
-
-            return FileHelper.TryGetFullPath(imagePath);
+            return FileHelper.TryGetFullPath(GetImagePath(ImageType.Gif, ".gif"));
         }
 
 

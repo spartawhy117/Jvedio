@@ -371,10 +371,6 @@ namespace Jvedio
             foreach (var item in InitDirs) {
                 FileHelper.TryCreateDir(item);
             }
-
-            foreach (var item in PicPaths) {
-                FileHelper.TryCreateDir(Path.Combine(PicPath, item));
-            }
         }
 
         public void EnsureFileExists()

@@ -52,3 +52,4 @@
 - `olddata/` 目录用法已移除，旧版本迁移后的历史文件当前改为直接清理，不再保留到当前用户数据目录中
 - `metatube/` provider 专属目录已开始收敛到通用 `cache/` 结构，当前正式影片缓存使用 `cache/video/`，正式演员头像缓存使用 `cache/actor-avatar/`
 - 原 `image/library` 目录已收敛到 `cache/library-image/`，库封面缓存后续统一走通用 cache 结构而不再依赖单独的 image 目录
+- `pic/` 目录已停止作为正式图片路径来源，设置页中的旧图片路径选择已退化为说明文本，后续运行不再依赖 `pic/BigPic`、`pic/SmallPic` 等旧目录

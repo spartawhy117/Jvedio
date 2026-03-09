@@ -160,21 +160,10 @@ namespace Jvedio
 
         private void ActorImage_Drop(object sender, DragEventArgs e)
         {
-            PathType pathType = (PathType)ConfigManager.Settings.PicPathMode;
-            if (pathType == PathType.RelativeToData) {
-                MsgBox.Show(LangManager.GetValueByKey("ActorImageNotSupported"));
-                return;
-            }
-
-
             if (CurrentActorInfo == null || string.IsNullOrEmpty(CurrentActorInfo.ActorName)) {
                 MsgBox.Show(LangManager.GetValueByKey("ActorCanNotBeNull"));
                 return;
             }
-
-            string basePicPath = ConfigManager.Settings.PicPaths[pathType.ToString()].ToString();
-            string saveDir = System.IO.Path.GetFullPath(System.IO.Path.Combine(basePicPath, "Actresses"));
-            string name = CurrentActorInfo.ActorName.ToProperFileName();
             string[] dragdropFiles = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (dragdropFiles != null && dragdropFiles.Length > 0) {
                 System.Collections.Generic.List<string> list = dragdropFiles.Where(arg => ScanTask.PICTURE_EXTENSIONS_LIST.Contains(System.IO.Path.GetExtension(arg).ToLower())).ToList();
