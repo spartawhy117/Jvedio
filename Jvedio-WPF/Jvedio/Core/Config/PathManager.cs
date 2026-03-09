@@ -20,8 +20,6 @@ namespace Jvedio.Core.Global
 
         public static string oldDataPath { get; set; }
 
-        public static string AllOldDataPath { get; set; }
-
         public static string LogPath { get; set; }
 
         public static string PicPath { get; set; }
@@ -75,7 +73,6 @@ namespace Jvedio.Core.Global
                 }
             }
 
-            AllOldDataPath = Path.Combine(CurrentUserFolder, "olddata");
             LogPath = Path.Combine(CurrentUserFolder, "log");
             PicPath = Path.Combine(CurrentUserFolder, "pic");
             ProjectImagePath = Path.Combine(CurrentUserFolder, "image", "library");
@@ -96,7 +93,6 @@ namespace Jvedio.Core.Global
                 LogPath,
                 PicPath,
                 ProjectImagePath,
-                AllOldDataPath,
                 Path.Combine(BasePluginsPath, "themes"),
                 Path.Combine(BasePluginsPath, "crawlers"),
                 MetaTubePath,

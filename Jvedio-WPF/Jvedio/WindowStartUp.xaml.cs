@@ -259,11 +259,9 @@ namespace Jvedio
                 ConfigManager.Settings.OpenDataBaseDefault = false;
             }
 
-            // 移动文件
-            string targetDir = Path.Combine(AllOldDataPath, "DataBase");
-            if (Directory.Exists(targetDir))
-                DirHelper.TryDelete(targetDir);
-            DirHelper.TryMoveDir(oldDataPath, targetDir); // 移动 DataBase
+            // 清理旧目录
+            if (Directory.Exists(oldDataPath))
+                DirHelper.TryDelete(oldDataPath);
             string[] moveFiles =
             {
                 "SearchHistory", "ServersConfig", "RecentWatch",
@@ -273,7 +271,7 @@ namespace Jvedio
             foreach (string filename in moveFiles) {
                 string origin = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
                 if (File.Exists(origin))
-                    FileHelper.TryMoveFile(origin, Path.Combine(AllOldDataPath, filename));
+                    FileHelper.TryDeleteFile(origin);
             }
 
             return true;
