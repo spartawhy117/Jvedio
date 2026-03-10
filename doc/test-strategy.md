@@ -275,3 +275,56 @@
 3. 扫描链验证
 
 只有快速验证通过后，再跑网络验证。
+
+## 当前已跑通的 18 个测试项目
+
+### 快速验证
+
+1. `BasicImport`
+   - 验证 `ScanTask` 基础导入结果对象可生成
+2. `SubSectionImport`
+   - 验证分段影片扫描场景可正常完成
+3. `MetaTubeCacheCanSaveAndReadVideo`
+   - 验证 `cache/video/<VID>.json` 的保存与读取
+4. `ScrapeResultCanBeMappedToDictionary`
+   - 验证 `ScrapeResult -> Dictionary<string, object>` 映射
+5. `OrganizerShouldFallbackToFileNameWhenVidMissing`
+   - 验证 `VID` 缺失时目录整理器回退到文件主名
+6. `ActorAvatarPathShouldPreferActorId`
+   - 验证正式演员头像路径优先使用 `actorId`
+7. `SidecarPathShouldUseVidPrefix`
+   - 验证正式 sidecar 使用 `VID` 前缀命名
+8. `LoggerShouldResetDailyLogOnStartup`
+   - 验证程序启动时会覆盖当日日志文件
+
+### 扫描链验证
+
+9. `CanOrganizeFlatVideoIntoDedicatedDirectory`
+   - 验证平铺影片能自动整理到独立目录
+10. `CanMoveSiblingSubtitleTogether`
+   - 验证同名字幕会跟随影片一起移动
+11. `SkipsMovieWhenOrganizationFails`
+   - 验证整理失败的影片会被跳过
+12. `ScanTaskUsesOrganizedPathAfterMove`
+   - 验证整理成功后 `Video.Path` 会更新为新路径
+13. `FailedOrganizationMovieIsMarkedAsNotImport`
+   - 验证整理失败影片会进入 `ScanResult.NotImport`
+
+### 网络验证
+
+14. `CanWarmupMetaTubeServer`
+   - 验证根地址与 `/v1/providers` 预热成功
+15. `CanSearchMovieByVid`
+   - 验证根据 `VID` 执行 MetaTube 电影搜索成功
+16. `CanFetchMovieDetailAndConvert`
+   - 验证电影详情获取并转换为 `ScrapeResult`
+17. `CanFetchActorAvatarWhenAvailable`
+   - 验证演员搜索、actor detail 与头像获取链路
+18. `CanWriteTestOutputFiles`
+   - 验证测试输出目录中生成 `meta.json / nfo / 图片` 文件
+
+## 建议维护规则
+
+- 每次新增测试后，同步更新本节的测试清单
+- 如果测试名称、断言范围或分类发生变化，也同步更新本节
+- 当某个测试被废弃或替换时，明确记录替代测试项
