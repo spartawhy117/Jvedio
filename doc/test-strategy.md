@@ -54,7 +54,7 @@
 ### MetaTube 测试配置
 
 文件：
-- `IntegrationTests/MetaTube/meta-tube-test-config.json`
+- `config/meta-tube-test-config.json`
 
 建议结构：
 
@@ -106,7 +106,11 @@
 ### 扫描链测试配置
 
 文件：
-- `IntegrationTests/Scan/scan-test-config.json`
+- `config/scan-test-config.json`
+
+统一规则：
+- 后续新增测试配置文件统一放在 `Jvedio.Test/config/`
+- 测试代码统一从测试输出目录下的 `config/` 读取配置，避免配置文件散落在各个测试目录中
 
 建议结构：
 

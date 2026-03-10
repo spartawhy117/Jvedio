@@ -15,7 +15,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
     [TestClass]
     public class MetaTubeIntegrationTests
     {
-        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "IntegrationTests", "MetaTube", "meta-tube-test-config.json");
+        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "meta-tube-test-config.json");
 
         private MetaTubeTestConfig Config { get; set; }
 
@@ -62,7 +62,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
         {
             MetaTubeClient client = CreateClient();
             foreach (MetaTubeTestCase item in Config.Cases) {
-                var results = await client.SearchMovieAsync(item.Vid, CancellationToken.None);
+                var results = await SearchMovieAsync(client, item.Vid);
                 if (item.ExpectMovieHit) {
                     Assert.IsNotNull(results, item.Name);
                     Assert.IsTrue(results.Count > 0, item.Name);
@@ -76,7 +76,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
         {
             MetaTubeClient client = CreateClient();
             foreach (MetaTubeTestCase item in Config.Cases) {
-                var searchResults = await client.SearchMovieAsync(item.Vid, CancellationToken.None);
+                var searchResults = await SearchMovieAsync(client, item.Vid);
                 var selected = searchResults.First(arg => !string.IsNullOrWhiteSpace(arg.Number) && arg.Number.Equals(item.Vid, StringComparison.OrdinalIgnoreCase));
                 var movieInfo = await client.GetMovieInfoAsync(selected.Provider, selected.Id, CancellationToken.None);
                 var result = MetaTubeConverter.ToScrapeResult(movieInfo);
@@ -93,7 +93,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
         {
             MetaTubeClient client = CreateClient();
             foreach (MetaTubeTestCase item in Config.Cases) {
-                var searchResults = await client.SearchMovieAsync(item.Vid, CancellationToken.None);
+                var searchResults = await SearchMovieAsync(client, item.Vid);
                 var selected = searchResults.First(arg => !string.IsNullOrWhiteSpace(arg.Number) && arg.Number.Equals(item.Vid, StringComparison.OrdinalIgnoreCase));
                 var movieInfo = await client.GetMovieInfoAsync(selected.Provider, selected.Id, CancellationToken.None);
 
@@ -131,7 +131,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
         {
             MetaTubeClient client = CreateClient();
             foreach (MetaTubeTestCase item in Config.Cases) {
-                var searchResults = await client.SearchMovieAsync(item.Vid, CancellationToken.None);
+                var searchResults = await SearchMovieAsync(client, item.Vid);
                 var selected = searchResults.First(arg => !string.IsNullOrWhiteSpace(arg.Number) && arg.Number.Equals(item.Vid, StringComparison.OrdinalIgnoreCase));
                 var movieInfo = await client.GetMovieInfoAsync(selected.Provider, selected.Id, CancellationToken.None);
                 var result = MetaTubeConverter.ToScrapeResult(movieInfo);
@@ -151,6 +151,21 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
                 if (Config.LogToConsole)
                     Console.WriteLine(message);
             });
+        }
+
+        private async Task<System.Collections.Generic.List<MetaTubeMovieSearchResult>> SearchMovieAsync(MetaTubeClient client, string vid)
+        {
+            if (Config.WarmupBeforeScrape)
+                await client.WarmupAsync(CancellationToken.None);
+
+            try {
+                return await client.SearchMovieAsync(vid, CancellationToken.None);
+            } catch (TimeoutException) when (Config.WarmupBeforeScrape) {
+                if (Config.LogToConsole)
+                    Console.WriteLine($"search retry after timeout: {vid}");
+                await client.WarmupAsync(CancellationToken.None);
+                return await client.SearchMovieAsync(vid, CancellationToken.None);
+            }
         }
 
         private void TryResetDirectory(string path)
