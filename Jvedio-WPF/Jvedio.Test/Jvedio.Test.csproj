@@ -108,10 +108,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Content Include="config\meta-tube-test-config.json">
+    <Content Include="config\meta-tube\meta-tube-test-config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="config\scan-test-config.json">
+    <Content Include="config\scan\scan-test-config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\meta-tube\run-meta-tube-tests.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\scan\run-scan-tests.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\run-all-tests.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="FFmpeg\command.md" />

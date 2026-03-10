@@ -35,9 +35,15 @@
 ```text
 Jvedio.Test/
 ├─ config/
-│  ├─ meta-tube-test-config.json
-│  ├─ scan-test-config.json
-│  └─ （后续其他测试配置）
+│  ├─ meta-tube/
+│  │  ├─ meta-tube-test-config.json
+│  │  ├─ output/
+│  │  └─ run-meta-tube-tests.ps1
+│  ├─ scan/
+│  │  ├─ scan-test-config.json
+│  │  ├─ output/
+│  │  └─ run-scan-tests.ps1
+│  └─ run-all-tests.ps1
 ├─ IntegrationTests/
 │  ├─ MetaTube/
 │  │  ├─ MetaTubeIntegrationTests.cs
@@ -129,7 +135,7 @@ Jvedio.Test/
 执行记录：
 - 已新增 `MetaTubeIntegrationTests.cs`
 - 已新增 `MetaTubeTestConfig.cs`
-- 已将 `meta-tube-test-config.json` 收敛到 `Jvedio.Test/config/`
+- 已将 `meta-tube-test-config.json` 收敛到 `Jvedio.Test/config/meta-tube/`
 - 当前已覆盖 warmup、影片搜索、详情转换、头像验证和测试输出验证骨架
 - `Jvedio.Test` Release 下已实际跑通 `MetaTubeIntegrationTests`，相关测试当前可执行并通过
 
@@ -154,7 +160,7 @@ Jvedio.Test/
 执行记录：
 - 已新增 `LibraryOrganizeTests.cs`
 - 已新增 `ScanImportIntegrationTests.cs`
-- 已将 `scan-test-config.json` 收敛到 `Jvedio.Test/config/`
+- 已将 `scan-test-config.json` 收敛到 `Jvedio.Test/config/scan/`
 - 当前已覆盖平铺影片整理、字幕迁移、整理失败跳过和路径更新骨架
 - `Jvedio.Test` Release 下已实际跑通扫描链测试，当前自动整理相关测试可执行并通过
 

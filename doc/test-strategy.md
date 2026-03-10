@@ -54,7 +54,7 @@
 ### MetaTube 测试配置
 
 文件：
-- `config/meta-tube-test-config.json`
+- `config/meta-tube/meta-tube-test-config.json`
 
 建议结构：
 
@@ -65,8 +65,8 @@
   "requestTimeoutSeconds": 60,
   "warmupBeforeScrape": true,
   "clearOutputBeforeRun": true,
-  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\MetaTube",
-  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\Cache",
+  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\MetaTube",
+  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\Cache",
   "logToConsole": true,
   "cases": [
     {
@@ -106,11 +106,12 @@
 ### 扫描链测试配置
 
 文件：
-- `config/scan-test-config.json`
+- `config/scan/scan-test-config.json`
 
 统一规则：
 - 后续新增测试配置文件统一放在 `Jvedio.Test/config/`
 - 测试代码统一从测试输出目录下的 `config/` 读取配置，避免配置文件散落在各个测试目录中
+- 每类测试的 JSON 配置和该类测试输出统一放在同一个 `config/<suite>/` 子目录下维护
 
 建议结构：
 
@@ -118,8 +119,8 @@
 {
   "enabled": true,
   "cleanOutputBeforeRun": true,
-  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\Scan",
-  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestData\\FlatLibrary",
+  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\Scan",
+  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\FlatLibrary",
   "cases": [
     {
       "name": "flat-single-video",
@@ -197,6 +198,25 @@
 
 ## 执行步骤
 
+## PowerShell 脚本入口
+
+- MetaTube 测试：`config/meta-tube/run-meta-tube-tests.ps1`
+- 扫描链测试：`config/scan/run-scan-tests.ps1`
+- 全量测试：`config/run-all-tests.ps1`
+
+说明：
+- 这三个脚本都支持双击执行
+- 会自动编译 `Jvedio.Test`
+- 再调用 `vstest.console.exe` 执行对应测试
+- 执行结束后会停留窗口，方便查看结果
+
+## 当前测试日志位置
+
+- 测试主日志当前仍写到：
+  - `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
+- 当前没有将主日志迁移到 `config/<suite>/output/`
+- `config/<suite>/output/` 目前只用于保存该类测试的业务输出文件
+
 ### 快速验证执行步骤
 
 1. 编译测试工程
@@ -219,7 +239,7 @@
 
 ### 网络验证执行步骤
 
-1. 检查 `meta-tube-test-config.json`
+1. 检查 `config/meta-tube/meta-tube-test-config.json`
 2. 清理旧测试输出目录
 3. 运行：
    - `CanWarmupMetaTubeServer`
@@ -238,7 +258,7 @@
 
 ### 扫描链验证执行步骤
 
-1. 检查 `scan-test-config.json`
+1. 检查 `config/scan/scan-test-config.json`
 2. 准备平铺测试目录样本
 3. 运行：
    - `LibraryOrganizeTests`

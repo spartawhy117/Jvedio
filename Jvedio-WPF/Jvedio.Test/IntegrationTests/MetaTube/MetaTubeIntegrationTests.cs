@@ -15,7 +15,7 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
     [TestClass]
     public class MetaTubeIntegrationTests
     {
-        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "meta-tube-test-config.json");
+        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "meta-tube", "meta-tube-test-config.json");
 
         private MetaTubeTestConfig Config { get; set; }
 

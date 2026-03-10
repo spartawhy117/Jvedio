@@ -1,8 +1,8 @@
 {
   "enabled": true,
   "cleanOutputBeforeRun": true,
-  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestOutput\\Scan",
-  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\TestData\\FlatLibrary",
+  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\Scan",
+  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\FlatLibrary",
   "cases": [
     {
       "name": "flat-single-video",

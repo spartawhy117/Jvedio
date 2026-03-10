@@ -11,7 +11,7 @@ namespace Jvedio.Test.IntegrationTests.Scan
     [TestClass]
     public class LibraryOrganizeTests
     {
-        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "scan-test-config.json");
+        private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "scan", "scan-test-config.json");
 
         private ScanTestConfig Config { get; set; }
 

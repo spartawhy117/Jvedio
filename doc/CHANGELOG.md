@@ -69,6 +69,7 @@
 - `Jvedio.Test` 的 Release 测试已实跑通过，当前 18 个测试全部通过，说明 MetaTube 集成测试、扫描链测试、单元测试和日志覆盖测试已经从“骨架”进入可运行状态。
 - 在 `doc/test-strategy.md` 中补充当前已跑通的 18 个测试项目清单，明确每个测试的验证目标与所属分类，方便后续持续维护测试体系。
 - 将 `Jvedio.Test` 的测试配置文件统一收敛到 `Jvedio.Test/config/`，后续新增测试配置统一放在该目录中，便于持续维护和执行。
+- 继续细化测试配置目录：将 MetaTube 与扫描链配置进一步拆到 `config/meta-tube/` 和 `config/scan/` 子目录下，并新增可双击执行的 PowerShell 脚本，测试输出统一落在对应 `output/` 子目录中，主日志仍保留在 `bin/Release/data/<user>/log/`。
 - 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
 
 ## [2026-03-07]
