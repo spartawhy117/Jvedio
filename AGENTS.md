@@ -109,6 +109,7 @@
 ## 文档索引
 - 开发总览：`doc/developer.md`
 - MetaTube 主计划：`doc/metatube-only-plan.md`
-- 测试改造计划：`doc/test-refactor-plan.md`
-- 测试方法说明：`doc/test-strategy.md`
+- 测试目标文档：`doc/test-targets.md`
+- 测试计划文档：`doc/test-plan.md`
+- 当前测试清单：`doc/test-current-suite.md`
 - 变更日志：`doc/CHANGELOG.md`

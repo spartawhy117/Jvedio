@@ -74,6 +74,7 @@
 - 调整测试输出根目录：MetaTube 与扫描链测试现在直接把业务输出写入各自 `config/<suite>/output/` 根目录，避免用户进入 `output/` 后看不到实际结果文件。
 - 新增仓库根目录 `AGENTS.md`，收敛当前主程序、测试、sidecar、cache、日志与文档更新的高频规则，作为后续 agent 进入仓库时的统一入口说明。
 - 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
+- 将旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md` 收敛迁移为三份职责更清晰的新文档：`doc/test-targets.md`、`doc/test-plan.md`、`doc/test-current-suite.md`，并同步更新 `developer.md` 与 `AGENTS.md` 的文档索引。
 
 ## [2026-03-07]
 
