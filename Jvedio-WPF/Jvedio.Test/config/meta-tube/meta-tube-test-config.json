@@ -10,7 +10,7 @@
   "cases": [
     {
       "name": "movie-and-actor-basic",
-      "vid": "SDDE-759",
+      "vid": "JUR-293-C",
       "expectMovieHit": true,
       "expectMovieTitleNotEmpty": true,
       "expectActorCountMin": 1,
@@ -20,7 +20,7 @@
     },
     {
       "name": "single-actor-case",
-      "vid": "MRPA-015",
+      "vid": "SNOS-037",
       "expectMovieHit": true,
       "expectMovieTitleNotEmpty": true,
       "expectActorCountMin": 1,

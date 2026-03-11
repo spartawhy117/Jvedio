@@ -37,7 +37,7 @@ namespace Jvedio.Test.IntegrationTests.Scan
             string videoPath = Path.Combine(root, testCase.Files[0]);
             File.WriteAllText(videoPath, "dummy");
 
-            Video video = new Video() { VID = "SDDE-759", Path = videoPath };
+            Video video = new Video() { VID = testCase.ExpectedDirectoryName, Path = videoPath };
             LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, new List<string>() { ".mp4" });
 
             Assert.IsTrue(result.Success);
@@ -55,11 +55,16 @@ namespace Jvedio.Test.IntegrationTests.Scan
                 File.WriteAllText(Path.Combine(root, file), "dummy");
             }
 
-            Video video = new Video() { VID = "MRPA-015", Path = Path.Combine(root, "MRPA-015.mp4") };
+            string videoFile = testCase.Files.First(arg => Path.GetExtension(arg).Equals(".mp4", StringComparison.OrdinalIgnoreCase));
+            Video video = new Video() { VID = testCase.ExpectedDirectoryName, Path = Path.Combine(root, videoFile) };
             LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, new List<string>() { ".mp4" });
 
             Assert.IsTrue(result.Success);
-            Assert.IsTrue(result.MovedFiles.Any(arg => arg.EndsWith("MRPA-015.srt", StringComparison.OrdinalIgnoreCase)));
+            if (testCase.ExpectSubtitleMoved) {
+                string subtitleFile = testCase.Files.FirstOrDefault(arg => !Path.GetExtension(arg).Equals(".mp4", StringComparison.OrdinalIgnoreCase));
+                Assert.IsFalse(string.IsNullOrWhiteSpace(subtitleFile), "配置要求验证字幕迁移，但未提供字幕样本文件。");
+                Assert.IsTrue(result.MovedFiles.Any(arg => arg.EndsWith(subtitleFile, StringComparison.OrdinalIgnoreCase)));
+            }
         }
 
         [TestMethod]

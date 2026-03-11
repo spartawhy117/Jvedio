@@ -124,9 +124,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="FFmpeg\command.md" />
-    <None Include="Files\Files.7z" />
-    <None Include="Files\NFO.7z" />
-    <None Include="packages.config" />
     <None Include="测试用例.xlsx" />
     <None Include="测试记录\Jvedio5.0-测试用例.xlsx" />
   </ItemGroup>
@@ -135,9 +132,6 @@
       <Project>{dcfb456d-b299-459f-a4c7-ec3d183b3971}</Project>
       <Name>Jvedio</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="SqliteTest\main.py" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

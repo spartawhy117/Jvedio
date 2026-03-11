@@ -14,9 +14,9 @@
     },
     {
       "name": "flat-video-with-subtitle",
-      "files": ["MRPA-015.mp4", "MRPA-015.srt"],
+      "files": ["JUR-293-C.mp4", "JUR-293-C.srt"],
       "expectOrganized": true,
-      "expectedDirectoryName": "MRPA-015",
+      "expectedDirectoryName": "JUR-293-C",
       "expectSubtitleMoved": true,
       "expectSkipped": false
     },

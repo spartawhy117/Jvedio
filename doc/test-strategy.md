@@ -209,6 +209,7 @@
 - 会自动编译 `Jvedio.Test`
 - 再调用 `vstest.console.exe` 执行对应测试
 - 执行结束后会停留窗口，方便查看结果
+- 如需在自动化场景中无停顿执行，可传入 `-NoPause`
 
 ## 当前测试日志位置
 
@@ -216,6 +217,7 @@
   - `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
 - 当前没有将主日志迁移到 `config/<suite>/output/`
 - `config/<suite>/output/` 目前只用于保存该类测试的业务输出文件
+- 当前 MetaTube 与扫描链脚本已验证可正常执行并输出对应测试结果
 
 ### 快速验证执行步骤
 
