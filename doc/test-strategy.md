@@ -65,8 +65,8 @@
   "requestTimeoutSeconds": 60,
   "warmupBeforeScrape": true,
   "clearOutputBeforeRun": true,
-  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\MetaTube",
-  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\Cache",
+  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output",
+  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\cache",
   "logToConsole": true,
   "cases": [
     {
@@ -119,8 +119,8 @@
 {
   "enabled": true,
   "cleanOutputBeforeRun": true,
-  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\Scan",
-  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\FlatLibrary",
+  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output",
+  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\flat-library",
   "cases": [
     {
       "name": "flat-single-video",
@@ -216,7 +216,7 @@
 - 测试主日志当前仍写到：
   - `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
 - 当前没有将主日志迁移到 `config/<suite>/output/`
-- `config/<suite>/output/` 目前只用于保存该类测试的业务输出文件
+- `config/<suite>/output/` 现在就是该类测试的直接输出根目录，不再额外套一层 `MetaTube/` 或 `Scan/`
 - 当前 MetaTube 与扫描链脚本已验证可正常执行并输出对应测试结果
 
 ### 快速验证执行步骤

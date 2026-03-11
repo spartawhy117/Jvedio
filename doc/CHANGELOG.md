@@ -71,6 +71,7 @@
 - 将 `Jvedio.Test` 的测试配置文件统一收敛到 `Jvedio.Test/config/`，后续新增测试配置统一放在该目录中，便于持续维护和执行。
 - 继续细化测试配置目录：将 MetaTube 与扫描链配置进一步拆到 `config/meta-tube/` 和 `config/scan/` 子目录下，并新增可双击执行的 PowerShell 脚本，测试输出统一落在对应 `output/` 子目录中，主日志仍保留在 `bin/Release/data/<user>/log/`。
 - 修复测试脚本与配置细节：调整 PowerShell 脚本的工程相对路径和 `-NoPause` 支持，修正扫描链配置样本，并验证 MetaTube 脚本与扫描链脚本均可直接执行通过。
+- 调整测试输出根目录：MetaTube 与扫描链测试现在直接把业务输出写入各自 `config/<suite>/output/` 根目录，避免用户进入 `output/` 后看不到实际结果文件。
 - 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
 
 ## [2026-03-07]

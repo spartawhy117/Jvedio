@@ -4,8 +4,8 @@
   "requestTimeoutSeconds": 60,
   "warmupBeforeScrape": true,
   "clearOutputBeforeRun": true,
-  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\MetaTube",
-  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\Cache",
+  "testOutputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output",
+  "cacheRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\meta-tube\\output\\cache",
   "logToConsole": true,
   "cases": [
     {
