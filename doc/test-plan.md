@@ -89,8 +89,8 @@ Jvedio.Test/
 测试主日志写入：
 - `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
 
-### suite 输出位置
-测试业务输出写入：
+### suite 输出位置（测试工程）
+测试工程业务输出写入：
 - `config/meta-tube/output/`
 - `config/scan/output/`
 
@@ -98,6 +98,16 @@ Jvedio.Test/
 - 主日志仍按正式程序的日志路径工作
 - suite 的 `output/` 只负责保存该类测试的业务输出文件
 - 当前不将主日志迁移到 `config/<suite>/output/`
+
+### 主程序内置调试输出位置
+当运行主程序 `Jvedio.exe` 并在设置页中执行 MetaTube 搜刮测试时：
+
+- 调试输出写入：
+  - `data/<user>/log/test/<VID>/`
+
+说明：
+- 这是主程序运行时的调试输出路径
+- 不应与 `Jvedio.Test` 的 suite 输出目录混淆
 
 ## 6. 配置文件说明
 

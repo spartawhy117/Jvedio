@@ -78,7 +78,7 @@
 - 后续影片继续处理
 - 整理成功后 `Video.Path` 正确更新
 
-### 3.3 sidecar 与缓存目标
+### 3.3 正式运行的 sidecar 与缓存目标
 
 正式 sidecar：
 - 写入影片目录
@@ -88,11 +88,22 @@
 - `cache/video/` 仅保留一份当前有效影片缓存
 - `cache/actor-avatar/` 保存正式演员头像缓存
 
-测试输出：
+主程序内置调试输出：
 - 只写入 `log/test/<VID>/`
 - 不污染正式缓存
 
-### 3.4 日志目标
+### 3.4 测试工程输出目标
+
+当通过 `Jvedio.Test` 运行自动化测试时：
+
+- MetaTube suite 输出写入：
+  - `config/meta-tube/output/`
+- 扫描链 suite 输出写入：
+  - `config/scan/output/`
+
+这类输出属于测试工程自己的业务产物，不等同于主程序运行时的 `data/<user>/log/test/<VID>/` 调试输出。
+
+### 3.5 日志目标
 
 - 主日志在每次启动时覆盖旧内容
 - MetaTube 测试日志并入主日志流

@@ -98,14 +98,17 @@
 
 ## 7. 当前输出位置
 
-### MetaTube 输出
+### MetaTube 输出（测试工程）
 - `config/meta-tube/output/`
 
-### Scan 输出
+### Scan 输出（测试工程）
 - `config/scan/output/`
 
-### 主日志
+### 测试工程主日志
 - `bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
+
+### 主程序内置调试输出
+- `data/<user>/log/test/<VID>/`
 
 ## 8. 当前维护规则
 
