@@ -11,9 +11,13 @@
 - 脚本怎么运行？
 - 新增模块测试时要怎么落地？
 
-## 2. 测试工程结构
+本文件不负责定义测试目标与断言边界；这些内容统一放在：
+- `doc/test-targets.md`
 
-当前推荐结构：
+本文件也不负责维护当前测试清单；当前已实现的测试项统一放在：
+- `doc/test-current-suite.md`
+
+## 2. 当前测试工程结构
 
 ```text
 Jvedio.Test/
@@ -34,7 +38,8 @@ Jvedio.Test/
 │  └─ Core/
 ├─ ScanTest/
 ├─ Properties/
-└─ ...
+├─ TestBootstrap.cs
+└─ TestAssemblyBootstrap.cs
 ```
 
 ## 3. 当前测试分层
@@ -42,7 +47,7 @@ Jvedio.Test/
 ### 3.1 快速验证
 - 纯逻辑
 - 不联网
-- 跑得快
+- 运行快
 
 ### 3.2 网络验证
 - 访问真实 MetaTube 服务
@@ -81,25 +86,23 @@ Jvedio.Test/
 ## 5. 主日志与 output 的关系
 
 ### 主日志位置
-当前测试主日志写入：
+测试主日志写入：
 - `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
 
 ### suite 输出位置
-当前测试业务输出写入：
+测试业务输出写入：
 - `config/meta-tube/output/`
 - `config/scan/output/`
 
 说明：
 - 主日志仍按正式程序的日志路径工作
 - suite 的 `output/` 只负责保存该类测试的业务输出文件
-- 目前不将主日志迁移到 `config/<suite>/output/`
+- 当前不将主日志迁移到 `config/<suite>/output/`
 
-## 6. MetaTube 配置文件说明
+## 6. 配置文件说明
 
-配置文件：
-- `config/meta-tube/meta-tube-test-config.json`
-
-主要字段：
+### 6.1 MetaTube 配置
+字段重点：
 - `enabled`
 - `serverUrl`
 - `requestTimeoutSeconds`
@@ -113,14 +116,10 @@ Jvedio.Test/
 说明：
 - `cases` 中每个对象对应一个要测试的影片
 - `testOutputRoot` 指向 MetaTube suite 输出目录
-- `cacheRoot` 指向 MetaTube 测试缓存目录
+- `cacheRoot` 指向测试缓存目录
 
-## 7. Scan 配置文件说明
-
-配置文件：
-- `config/scan/scan-test-config.json`
-
-主要字段：
+### 6.2 Scan 配置
+字段重点：
 - `enabled`
 - `cleanOutputBeforeRun`
 - `testRoot`
@@ -130,54 +129,51 @@ Jvedio.Test/
 说明：
 - `cases` 中每个对象描述一个扫描整理场景
 - `files` 表示待构造的平铺文件列表
-- `expectOrganized` / `expectSkipped` 用于定义预期
+- `expectOrganized / expectSkipped` 定义场景预期
 
-## 8. PowerShell 脚本入口
+## 7. PowerShell 脚本入口
 
 ### MetaTube
-脚本：
 - `config/meta-tube/run-meta-tube-tests.ps1`
 
 ### Scan
-脚本：
 - `config/scan/run-scan-tests.ps1`
 
 ### 全量
-脚本：
 - `config/run-all-tests.ps1`
 
 ### 脚本行为
 - 自动 build `Jvedio.Test`
 - 自动运行对应测试
 - 支持双击执行
-- 支持：
+- 支持参数：
   - `-NoPause`
 
-## 9. 推荐执行流程
+## 8. 推荐执行流程
 
-### 9.1 快速验证
+### 8.1 快速验证
 1. build `Jvedio.Test`
 2. 跑纯单元测试
 3. 检查 sidecar/cache/path 逻辑
 
-### 9.2 网络验证
+### 8.2 网络验证
 1. 检查 `config/meta-tube/meta-tube-test-config.json`
 2. 清理 `config/meta-tube/output/`
 3. 跑 `run-meta-tube-tests.ps1`
 4. 检查 output 和日志
 
-### 9.3 扫描链验证
+### 8.3 扫描链验证
 1. 检查 `config/scan/scan-test-config.json`
 2. 清理 `config/scan/output/`
 3. 跑 `run-scan-tests.ps1`
 4. 检查目录整理结果
 
-### 9.4 全量回归
+### 8.4 全量回归
 1. 运行 `run-all-tests.ps1`
 2. 确认全部测试通过
 3. 再进行提交
 
-## 10. 新增模块测试流程
+## 9. 新增模块测试流程
 
 当新增一个功能模块测试时，建议按下面步骤做：
 
@@ -193,7 +189,7 @@ Jvedio.Test/
 7. 如果目录结构、脚本、执行方式变了，再更新：
    - `doc/test-plan.md`
 
-## 11. 文档更新规则
+## 10. 文档更新规则
 
 ### 更新 `test-current-suite.md`
 当测试清单发生变化时更新：
@@ -215,7 +211,7 @@ Jvedio.Test/
 - 输出目录变更
 - 测试流程变化
 
-## 12. 后续演进建议
+## 11. 后续演进建议
 
 后续继续扩展测试体系时，优先级建议是：
 

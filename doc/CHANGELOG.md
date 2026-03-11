@@ -75,6 +75,7 @@
 - 新增仓库根目录 `AGENTS.md`，收敛当前主程序、测试、sidecar、cache、日志与文档更新的高频规则，作为后续 agent 进入仓库时的统一入口说明。
 - 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
 - 将旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md` 收敛迁移为三份职责更清晰的新文档：`doc/test-targets.md`、`doc/test-plan.md`、`doc/test-current-suite.md`，并同步更新 `developer.md` 与 `AGENTS.md` 的文档索引。
+- 继续压缩并重写 `doc/test-targets.md` 与 `doc/test-plan.md`，明确区分快速功能测试目标、正式运行测试目标，以及正式问题回灌到自动化测试的规则与工程流程。
 - 已删除旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md`，当前测试文档统一以 `test-targets.md`、`test-plan.md`、`test-current-suite.md` 为准。
 
 ## [2026-03-07]
