@@ -72,6 +72,7 @@
 - 继续细化测试配置目录：将 MetaTube 与扫描链配置进一步拆到 `config/meta-tube/` 和 `config/scan/` 子目录下，并新增可双击执行的 PowerShell 脚本，测试输出统一落在对应 `output/` 子目录中，主日志仍保留在 `bin/Release/data/<user>/log/`。
 - 修复测试脚本与配置细节：调整 PowerShell 脚本的工程相对路径和 `-NoPause` 支持，修正扫描链配置样本，并验证 MetaTube 脚本与扫描链脚本均可直接执行通过。
 - 调整测试输出根目录：MetaTube 与扫描链测试现在直接把业务输出写入各自 `config/<suite>/output/` 根目录，避免用户进入 `output/` 后看不到实际结果文件。
+- 新增仓库根目录 `AGENTS.md`，收敛当前主程序、测试、sidecar、cache、日志与文档更新的高频规则，作为后续 agent 进入仓库时的统一入口说明。
 - 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
 
 ## [2026-03-07]
