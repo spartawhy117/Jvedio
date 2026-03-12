@@ -5,10 +5,13 @@
 - `doc/developer.md`：开发总览
 - `doc/modules/`：模块文档
 - `doc/CHANGELOG.md`：变更日志
-- `doc/metatube-only-plan.md`：MetaTube 唯一搜刮源实施计划
 - `doc/test-targets.md`：测试目标文档
 - `doc/test-plan.md`：测试计划文档
 - `doc/test-current-suite.md`：当前测试清单
+
+历史 planning 归档：
+
+- `plan/archive/metatube-only-plan/README.md`：MetaTube 唯一搜刮源历史计划归档说明
 
 ![模块总览](assets/diagrams/overview.svg)
 

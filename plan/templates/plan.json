@@ -1,0 +1,45 @@
+{
+  "id": "feature-slug",
+  "name": "Feature Title",
+  "overview": "One-sentence description of the feature goal.",
+  "status": "prepare",
+  "hasConfirmed": false,
+  "parts": [
+    "req",
+    "tech",
+    "todos",
+    "handoff"
+  ],
+  "feature": {
+    "slug": "feature-slug",
+    "title": "Feature Title"
+  },
+  "content": "",
+  "todolist": [
+    {
+      "id": "clarify-scope",
+      "content": "Clarify scope and constraints for the feature",
+      "dependencies": [],
+      "status": "pending"
+    },
+    {
+      "id": "draft-plan",
+      "content": "Draft the technical plan and implementation sequence",
+      "dependencies": [
+        "clarify-scope"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "prepare-handoff",
+      "content": "Prepare a minimal handoff for build mode after approval",
+      "dependencies": [
+        "draft-plan"
+      ],
+      "status": "pending"
+    }
+  ],
+  "openQuestions": [],
+  "optionPaths": [],
+  "updatedAt": ""
+}

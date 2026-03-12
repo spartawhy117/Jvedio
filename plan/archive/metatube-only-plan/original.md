@@ -1,4 +1,7 @@
-# MetaTube 唯一搜刮源实施计划
+# MetaTube 唯一搜刮源实施计划（历史归档快照）
+
+> 本文件由 `doc/metatube-only-plan.md` 迁移归档而来，保留历史实施计划正文。
+> 当前仅用于历史追溯，不作为 active feature plan 使用。
 
 ## 当前目标
 
@@ -285,7 +288,7 @@
 
 - `Jvedio.Test` Release 测试已通过
 - 当前已跑通 18 个测试
-- 测试清单详见：`doc/test-strategy.md`
+- 当前测试清单详见：`doc/test-current-suite.md`
 
 ## 后续建议
 

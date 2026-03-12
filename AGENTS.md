@@ -108,8 +108,21 @@
 
 ## 文档索引
 - 开发总览：`doc/developer.md`
-- MetaTube 主计划：`doc/metatube-only-plan.md`
+- MetaTube 历史计划归档：`plan/archive/metatube-only-plan/README.md`
 - 测试目标文档：`doc/test-targets.md`
 - 测试计划文档：`doc/test-plan.md`
 - 当前测试清单：`doc/test-current-suite.md`
 - 变更日志：`doc/CHANGELOG.md`
+
+## 增强规划工作流
+- 复杂功能、跨模块修改、架构调整优先使用 `plan-todo` 模式。
+- 项目级 planning 结构统一放在 `plan/` 目录。
+- 当前 feature 的主要工件：
+  - `plan/active/<feature>/plan.json`
+  - `plan/active/<feature>/plan.md`
+  - `plan/active/<feature>/.plan-original.md`
+  - `plan/active/<feature>/handoff.md`
+- build 模式默认优先读取当前 feature 的 `handoff.md`，只有在需要额外背景时再读取 `plan.json` 或 `plan.md`。
+- 旧的计划或进度文档完成迁移后应收敛到 `plan/archive/` 或 `doc/_legacy/`，避免继续占用 `doc/` 主索引位置。
+- 同一时间只维护一个 active feature；切换 feature 时优先恢复已有 plan，而不是新建重复计划。
+- 如果存在多个可行方案，必须输出单独的 `方案路径` 区块，并在用户明确确认前保持规划状态。
