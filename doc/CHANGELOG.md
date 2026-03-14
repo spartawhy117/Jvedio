@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 更新 `AGENTS.md` 的收尾校验规则：如果本轮仅为文档/纯内容调整，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则允许跳过 `Jvedio.Test` 集成测试，但仍需完成 Release 构建并说明原因。
+- 收紧 `doc/UI/desktop-ui-shell-refactor/` 的绘图约束，补齐首页/设置页线稿说明、设置页分组展示规则、主题 token 使用规则，以及首批输出命名与验证要求，降低后续线稿图生成歧义。
 - 将 `plan/active/unit-test-refactor/` 迁移归档到 `plan/archive/unit-test-refactor/`，并把该 feature 状态更新为 `completed`，作为单元测试改造完成后的历史记录保留。
 - 完成 `doc/metatube-only-plan.md` 的历史归档迁移：将正文快照收敛到 `plan/archive/metatube-only-plan/original.md`，同步更新索引与 legacy 说明，并删除 `doc/` 下的旧计划文档。
 - 将仓库收敛为仅维护 `Jvedio-WPF`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。

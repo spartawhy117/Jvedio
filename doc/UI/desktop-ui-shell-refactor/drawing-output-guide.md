@@ -19,6 +19,7 @@
 - Home page Dark mockup
 - Favorites page wireframe
 - Actors page wireframe
+- Settings page wireframe
 - Settings page Light mockup
 - Settings page Dark mockup
 - Navigation and icon semantic diagram
@@ -38,11 +39,20 @@
   - `home-wireframe-v1.*`
   - `favorites-wireframe-v1.*`
   - `actors-wireframe-v1.*`
+  - `settings-wireframe-v1.*`
 - Mockups:
   - `home-light-v1.*`
   - `home-dark-v1.*`
   - `settings-light-v1.*`
   - `settings-dark-v1.*`
+- Diagrams:
+  - `navigation-icon-semantics-v1.*`
+
+## First-batch drawing constraints
+
+- The Home wireframe should show the non-empty library-management list layout as the primary case.
+- The Settings wireframe and mockups should use the `基本` section as the selected state.
+- The navigation and icon semantic diagram should map first-level destinations and the semantic icon keys defined in `icon-config-spec.md`.
 
 ## Review rules
 

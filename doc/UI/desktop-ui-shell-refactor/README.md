@@ -38,4 +38,5 @@ This directory contains the stable design specifications for the desktop UI shel
 
 - Text specifications are ready.
 - No drawing MCP is currently connected in this session.
+- The first drawing batch should cover Home, Favorites, Actors, Settings, and the navigation/icon semantic diagram defined in `drawing-output-guide.md`.
 - Existing screenshots remain in [old](D:\study\Proj\Jvedio\doc\UI\old) for before/after comparison.

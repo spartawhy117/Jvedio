@@ -17,6 +17,7 @@
 - Main content:
   - flat list or low-elevation card list
   - one row per media library
+  - the first drawing batch should treat this as a list-first page, not a gallery page
 
 ## Library list fields
 
@@ -27,6 +28,16 @@
 - Item count
 - Created time or last updated time
 - Hidden-state hint when applicable
+
+## Row interaction rules
+
+- Row primary action:
+  - open the selected library
+- Row secondary actions:
+  - place them at the trailing side as compact buttons or an overflow menu
+- Hidden libraries:
+  - show only when `显示隐藏库` is enabled
+  - keep the hidden-state hint visible in the row instead of moving the row into a separate section
 
 ## Per-library actions
 
@@ -49,3 +60,4 @@ These actions should migrate from the current startup-window logic instead of be
 
 - Do not use the visual poster-collage library card style as the primary home representation.
 - Library management clarity is more important than visual variety on this page.
+- The page should not duplicate the top-right shell settings entry or other global shell actions.

@@ -3,6 +3,7 @@
 ## Main window
 
 - Left navigation rail
+  - fixed order from top to bottom
   - Home
   - Favorites
   - Actors
@@ -11,6 +12,7 @@
   - Categories
     - Genre
     - Series
+  - Settings is not part of the left rail in this refactor
 - Right content area
   - Home page
   - Favorites page
@@ -23,6 +25,7 @@
 
 - Search action
 - Optional small status or utility actions
+  - keep these secondary to search and settings
 - Settings entry
   - gear icon
   - label text
@@ -33,13 +36,16 @@
 - App start:
   - open the main window directly
   - land on Home
+  - highlight Home in the left rail
 - Selecting a library in the left rail:
   - opens the library page for that library
+  - keeps the library item highlighted until another first-level destination is selected
 - Selecting Genre or Series:
   - opens the corresponding aggregate content page
 - Opening settings:
   - does not replace the main page
   - opens a separate settings window
+  - does not add a settings destination into the main left rail
 
 ## Page responsibilities
 

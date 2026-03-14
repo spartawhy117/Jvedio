@@ -22,6 +22,20 @@ No other themes are exposed in the first refactor phase.
 - Selected state
 - Disabled state
 
+## Token application rules
+
+- Navigation rail:
+  - uses the secondary panel background
+  - selected item uses the selected state plus primary text emphasis
+- Main content background:
+  - uses the window background
+- Cards and grouped setting panels:
+  - use the card background with border or divider separation
+- Destructive actions:
+  - use the danger color consistently in both themes
+- Search, primary action buttons, and active toggles:
+  - use the accent color as the only strong highlight color in the first phase
+
 ## Light theme direction
 
 - Main background:

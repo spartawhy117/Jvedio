@@ -16,9 +16,10 @@
 ## Drawing phase
 
 - Home page wireframe matches the documented media-library management list layout.
-- Settings page wireframe matches the documented left-navigation layout.
+- Settings page wireframe matches the documented standalone window and left-navigation layout.
 - Both Light and Dark mockups use the documented token rules.
 - Navigation icons and action icons align with the semantic keys in `icon-config-spec.md`.
+- The navigation and icon semantic diagram is exported with the documented first-batch naming rules.
 
 ## Implementation phase
 
