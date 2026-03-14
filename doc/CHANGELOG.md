@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 将 `plan/active/unit-test-refactor/` 迁移归档到 `plan/archive/unit-test-refactor/`，并把该 feature 状态更新为 `completed`，作为单元测试改造完成后的历史记录保留。
 - 完成 `doc/metatube-only-plan.md` 的历史归档迁移：将正文快照收敛到 `plan/archive/metatube-only-plan/original.md`，同步更新索引与 legacy 说明，并删除 `doc/` 下的旧计划文档。
 - 将仓库收敛为仅维护 `Jvedio-WPF`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。
 - 更新 `README.md`、`README_EN.md`、`README_JP.md`，明确仓库当前只维护 `Jvedio-WPF`。

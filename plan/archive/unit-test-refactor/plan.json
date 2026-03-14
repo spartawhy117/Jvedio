@@ -2,7 +2,7 @@
   "id": "unit-test-refactor",
   "name": "unit test refactor",
   "overview": "Normalize Jvedio.Test unit-test structure, naming, isolation, and maintenance rules without expanding into broad production refactors.",
-  "status": "approved",
+  "status": "completed",
   "hasConfirmed": true,
   "parts": [
     "req",
@@ -52,7 +52,7 @@
       "dependencies": [
         "prepare-build-handoff"
       ],
-      "status": "ready"
+      "status": "completed"
     },
     {
       "id": "implement-lookup-organize-scan-flow",
@@ -60,7 +60,7 @@
       "dependencies": [
         "simplify-scan-config-model"
       ],
-      "status": "ready"
+      "status": "completed"
     },
     {
       "id": "align-scan-script-and-validation",
@@ -68,7 +68,7 @@
       "dependencies": [
         "implement-lookup-organize-scan-flow"
       ],
-      "status": "ready"
+      "status": "completed"
     }
   ],
   "openQuestions": [],
@@ -109,18 +109,23 @@
       "recommended": false
     }
   ],
-  "updatedAt": "2026-03-14",
+  "updatedAt": "2026-03-15",
+  "completedAt": "2026-03-15",
   "restoredFromArchive": "2026-03-14",
   "reviewContext": {
     "resolvedFindings": [
       "Legacy `ScanTest/ImportTest.cs` is already absent; scan import coverage now lives in `UnitTests/Core/Scan/ScanTaskImportTests.cs` and `IntegrationTests/Scan/ScanImportIntegrationTests.cs`.",
       "Previously tracked `UnitTests/Core/Crawler/CrawlerServer.cs` is also absent and not referenced by `Jvedio.Test.csproj`."
     ],
-    "nextPlanningFocus": "Implement the simplified scan test config and lookup-and-organize-only flow with report output.",
+    "nextPlanningFocus": "Feature completed. Keep this plan as the finished reference until the next active feature replaces it.",
     "confirmedPath": "A",
     "resolvedByUser": [
       "User accepted path A to remove residual empty-directory and stale-doc drift in the same build pass.",
       "User chose a simplified scan-test configuration driven by input/output roots and minimal switches, with lookup-and-organize-only behavior."
+    ],
+    "completionSummary": [
+      "The unit-test refactor work has passed functional verification.",
+      "The simplified scan test workflow, documentation sync, and test-structure cleanup are now treated as completed for this feature."
     ]
   }
 }

@@ -8,6 +8,16 @@
   - 必须保持当前运行时目录规则与测试输出规则不被破坏。
   - 文档更新需要与测试结构同步。
 
+## 完成状态
+
+- 当前状态：`completed`
+- 完成结论：单元测试改造相关功能检测已完成，当前 plan 从“已批准待执行”切换为“已完成”
+- 完成范围：
+  - `Jvedio.Test` 的 unit / integration 边界收敛
+  - scan 配置与执行流简化
+  - 相关测试文档同步
+- 当前处理方式：保留本目录作为已完成 feature 的执行记录，待后续切换新 active feature 时再决定是否归档迁移
+
 ## 核心需求分析
 
 - 目标范围：
@@ -135,10 +145,10 @@
 
 ## 用户确认状态
 
-- 当前状态：approved
+- 当前状态：completed
 - 是否批准执行：true
 - 已确认 feature slug：`unit-test-refactor`
 - 已确认方案路径：A
 - 已确认收尾策略：删除空 `ScanTest/` 目录并同步文档表述
 - 已确认 scan 测试策略：仅验证查询命中、目录整理、未命中保留和结果报告
-- 当前 planning 结论：scan 配置简化方案与执行拆解已收敛，可直接进入 build-ready handoff
+- 当前 planning 结论：单元测试改造功能检测已完成，本 feature 进入完成态并保留现有 handoff 作为结果记录
