@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 完成桌面 UI 首批线稿产出：生成 Home、Favorites、Actors、Settings 和导航/图标语义图，并将 `.png` 与 `.excalidraw` 文件统一导出到 `doc/UI/new/`，便于后续直接截图评审和继续微调。
 - 更新 `AGENTS.md` 的收尾校验规则：如果本轮仅为文档/纯内容调整，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则允许跳过 `Jvedio.Test` 集成测试，但仍需完成 Release 构建并说明原因。
 - 收紧 `doc/UI/desktop-ui-shell-refactor/` 的绘图约束，补齐首页/设置页线稿说明、设置页分组展示规则、主题 token 使用规则，以及首批输出命名与验证要求，降低后续线稿图生成歧义。
 - 将 `plan/active/unit-test-refactor/` 迁移归档到 `plan/archive/unit-test-refactor/`，并把该 feature 状态更新为 `completed`，作为单元测试改造完成后的历史记录保留。
