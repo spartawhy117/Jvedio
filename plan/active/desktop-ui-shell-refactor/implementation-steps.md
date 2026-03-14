@@ -14,6 +14,22 @@
 - Exit condition:
   - Wireframes and mockups are reviewed and approved.
 
+### Current refinement focus
+
+- Before moving to implementation, continue refining the UI and matching functional documents page by page.
+- Recommended order for the next documentation/design pass:
+  1. shared main shell
+  2. Home
+  3. Favorites
+  4. Library content page
+  5. Actors
+  6. Settings
+  7. Library Editor
+- For each page:
+  - update the page spec first
+  - redraw/export the wireframe
+  - record the changed behavior in the corresponding doc
+
 ## Step 2. Land theme and icon infrastructure
 
 - Goal:

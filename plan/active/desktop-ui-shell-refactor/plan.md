@@ -58,6 +58,20 @@
 5. 形成后续绘图输入文档和实施步骤文档。
 6. 通过 Release 构建做一次仓库级验证，确认文档调整没有引入路径或工程干扰。
 
+## 当前进展更新
+
+- 已完成共享主框架与页面级内容区的文档拆分。
+- 已输出当前 Light 方向线稿：
+  - shared main shell
+  - Home content
+  - Favorites content
+  - Actors content
+  - Library content
+  - Settings window
+  - Library Editor window
+- 当前进入“按页面细化 UI 和对应功能文档”的阶段。
+- 下一步不建议直接写 WPF 代码，先继续把各页面的交互和字段规则收敛到稳定文档。
+
 ## 风险与未决问题
 
 - 风险：

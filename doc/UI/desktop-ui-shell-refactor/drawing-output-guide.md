@@ -6,6 +6,7 @@
 
 ## Drawing inputs
 
+- `main-shell-spec.md`
 - `information-architecture.md`
 - `home-page-spec.md`
 - `settings-page-spec.md`
@@ -14,11 +15,13 @@
 
 ## Required first-batch outputs
 
-- Main shell home page wireframe
+- Shared main shell wireframe
+- Home content-page wireframe
 - Home page Light mockup
 - Home page Dark mockup
 - Favorites page wireframe
 - Actors page wireframe
+- Library content page wireframe
 - Settings page wireframe
 - Settings page Light mockup
 - Settings page Dark mockup
@@ -36,9 +39,11 @@
 ## Naming rules
 
 - Wireframes:
+  - `main-shell-wireframe-v1.*`
   - `home-wireframe-v1.*`
   - `favorites-wireframe-v1.*`
   - `actors-wireframe-v1.*`
+  - `library-content-wireframe-v1.*`
   - `settings-wireframe-v1.*`
 - Mockups:
   - `home-light-v1.*`
@@ -50,6 +55,8 @@
 
 ## First-batch drawing constraints
 
+- The shared shell wireframe should show the fixed-width left rail and adaptive right content area.
+- The content-page wireframes should focus on the right content area and assume the shared shell is already present.
 - The Home wireframe should show the non-empty library-management list layout as the primary case.
 - The Settings wireframe and mockups should use the `基本` section as the selected state.
 - The navigation and icon semantic diagram should map first-level destinations and the semantic icon keys defined in `icon-config-spec.md`.

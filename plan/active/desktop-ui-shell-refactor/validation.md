@@ -15,7 +15,11 @@
 
 ## Drawing phase
 
+- Shared shell wireframe matches the documented fixed-width left rail, adaptive right content area, `智能分类`, and title-area settings entry.
 - Home page wireframe matches the documented media-library management list layout.
+- Favorites page wireframe matches the documented no-search, sorting, and bottom-right paging rules.
+- Actors page wireframe matches the documented search, sorting, fixed avatar size, and card-content rules.
+- Library content page wireframe matches the documented `VID / 名称 / 发布时间` sorting and 50-item paging rhythm.
 - Settings page wireframe matches the documented standalone window and left-navigation layout.
 - Both Light and Dark mockups use the documented token rules.
 - Navigation icons and action icons align with the semantic keys in `icon-config-spec.md`.
@@ -48,7 +52,7 @@
 
 ### Settings
 
-- Settings opens from the top-right gear + label entry.
+- Settings opens from the shared shell title-area `设置` entry.
 - Language selector exposes only `中文` and `English`.
 - Theme selector exposes only `Light` and `Dark`.
 - Save, Apply, and Restore Default all work.

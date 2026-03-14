@@ -2,20 +2,22 @@
 
 ## Purpose
 
-- Keep settings in a standalone window, opened from the top-right gear + label entry in the main shell.
+- Keep settings in a standalone shell, opened directly from the footer settings button at the bottom-right of the main left rail.
+- `版本检查` is one page inside the settings window, not a separate shell popup action.
 
 ## Layout
 
-- Two-column structure:
-  - left navigation
-  - right scrollable content area
+- Compact two-column structure inspired by the WeChat desktop settings window:
+  - narrow left navigation
+  - right scrollable content list
 - Window header:
-  - title text for settings
-  - optional close button
-- Bottom fixed action bar:
-  - `恢复默认`
-  - `保存`
-  - `应用`
+  - minimal title treatment
+  - close button
+- Right content style:
+  - use a single compact vertical list per page
+  - do not split the first version into multiple cards or sections
+  - keep row spacing tight
+  - use inline controls at the right side of each row when needed
 
 ## Left navigation
 
@@ -25,14 +27,15 @@
 - 网络
 - 库
 - MetaTube
+- 版本检查
 
 Only one left-nav item is selected at a time.
 
 ## Right content rules
 
-- Organize settings into low-elevation cards or grouped panels.
-- Each card should contain one coherent setting group only.
-- Use short helper text where needed.
+- Every page should read as one compact list instead of stacked cards.
+- Use short row labels and short helper text only when necessary.
+- Prefer a denser visual rhythm similar to WeChat desktop settings.
 
 ## Language and theme rules
 
@@ -45,39 +48,28 @@ Only one left-nav item is selected at a time.
   - Dark
 - Underlying config should remain extensible for future additional languages or themes, but the UI in this phase exposes only the options above.
 
-## Basic page expected groups
+## Current iteration rule
 
-- App behavior
-  - close to tray or taskbar behavior
-  - hotkey entry
-- Language and appearance
-  - language
-  - theme
-- Player
-  - external player path or related playback preference
+- Keep the original left-side page categories for now.
+- Do not over-specify each page's detailed fields in this round.
+- During later page-by-page implementation, the function list and UI layout can be refined together.
+- For the current wireframe batch, one representative compact list is enough to show the shell direction.
 
-## Other page expected groups
+## Version-check rules
 
-- 图片
-  - image naming or output behavior summaries
-  - cache-related read-only or adjustable options that still exist in the current product
-- 扫描与导入
-  - scan behavior
-  - organize-before-import behavior
-  - import defaults that remain user-configurable
-- 网络
-  - request or timeout-related settings
-  - proxy or connectivity-related settings when available
-- 库
-  - library-related defaults or management preferences that belong in settings rather than Home
-- MetaTube
-  - server URL
-  - test video id
-  - connection test
-  - scrape test
-  - log or diagnostics entry
+- Version checks are manual in this phase.
+- The version-check page should use the same compact list style as the other settings pages.
+- The UI may surface:
+  - current version
+  - latest-version status after a user-triggered check
+  - a button that checks for updates
+  - a button or link that opens the project release page
+- Do not design an in-app download-and-install flow for this phase.
 
 ## Drawing rule for first batch
 
-- The first settings wireframe and both settings mockups should show the `基本` section as the selected left-nav item.
-- The right content area should render 2 to 3 cards from the `基本` section so the shell, spacing, and action bar can be reviewed consistently.
+- The first settings wireframe should show the compact WeChat-like shell direction clearly.
+- The wireframe should show the existing left navigation categories plus `版本检查`.
+- The selected state can stay on `基本`.
+- The right content area should render one compact list for the selected page instead of grouped cards.
+- The current exported wireframe batch should use the Light theme direction first.
