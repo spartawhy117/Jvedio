@@ -12,9 +12,7 @@ namespace Jvedio.Test.UnitTests.Core.Media
         [TestMethod]
         public void SidecarPathShouldUseVidPrefix()
         {
-            TestBootstrap.EnsureWpfContext();
-            string root = Path.Combine(Path.GetTempPath(), "JvedioSidecar", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(root);
+            string root = TestBootstrap.CreateTempDirectory("JvedioSidecar");
             string moviePath = Path.Combine(root, "ABP-001.mp4");
             File.WriteAllText(moviePath, "dummy");
 

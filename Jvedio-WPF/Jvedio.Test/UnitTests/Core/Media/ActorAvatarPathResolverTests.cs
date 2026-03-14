@@ -11,9 +11,11 @@ namespace Jvedio.Test.UnitTests.Core.Media
         [TestMethod]
         public void ActorAvatarPathShouldPreferActorId()
         {
-            PathManager.ActorAvatarCachePath = Path.Combine(Path.GetTempPath(), "actor-avatar-test");
-            string path = ActorAvatarPathResolver.GetAvatarPath("12345", "演员A", ".jpg");
-            StringAssert.EndsWith(path, Path.Combine("actor-avatar-test", "12345.jpg"));
+            string root = TestBootstrap.CreateTempDirectory("actor-avatar-test");
+            using (TestBootstrap.OverridePathManagerPath(nameof(PathManager.ActorAvatarCachePath), root)) {
+                string path = ActorAvatarPathResolver.GetAvatarPath("12345", "演员A", ".jpg");
+                Assert.AreEqual(Path.Combine(root, "12345.jpg"), path);
+            }
         }
     }
 }

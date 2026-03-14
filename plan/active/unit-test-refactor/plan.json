@@ -1,0 +1,126 @@
+{
+  "id": "unit-test-refactor",
+  "name": "unit test refactor",
+  "overview": "Normalize Jvedio.Test unit-test structure, naming, isolation, and maintenance rules without expanding into broad production refactors.",
+  "status": "approved",
+  "hasConfirmed": true,
+  "parts": [
+    "req",
+    "tech",
+    "todos",
+    "handoff"
+  ],
+  "feature": {
+    "slug": "unit-test-refactor",
+    "title": "unit test refactor"
+  },
+  "content": "Refactor unit-test structure inside Jvedio.Test only. Keep production code changes out of scope unless absolutely necessary for test compilation.",
+  "todolist": [
+    {
+      "id": "inspect-current-tests",
+      "content": "Review current UnitTests and identify legacy, floating, or inconsistent test files",
+      "dependencies": [],
+      "status": "completed"
+    },
+    {
+      "id": "define-test-boundaries",
+      "content": "Define what should remain unit test versus integration test within Jvedio.Test",
+      "dependencies": [
+        "inspect-current-tests"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "plan-structure-cleanup",
+      "content": "Plan directory, naming, bootstrap, and helper cleanup for Jvedio.Test",
+      "dependencies": [
+        "define-test-boundaries"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "prepare-build-handoff",
+      "content": "Prepare a minimal execution handoff for build mode after user approval",
+      "dependencies": [
+        "plan-structure-cleanup"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "simplify-scan-config-model",
+      "content": "Redesign scan test config to use only input root, output root, report settings, and minimal switches",
+      "dependencies": [
+        "prepare-build-handoff"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "implement-lookup-organize-scan-flow",
+      "content": "Implement scan test flow that reads files from input root, organizes matched videos, leaves unmatched files in place, and emits a summary report",
+      "dependencies": [
+        "simplify-scan-config-model"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "align-scan-script-and-validation",
+      "content": "Update the scan PowerShell entry and validation rules to use the simplified config and output report",
+      "dependencies": [
+        "implement-lookup-organize-scan-flow"
+      ],
+      "status": "ready"
+    }
+  ],
+  "openQuestions": [],
+  "optionPaths": [
+    {
+      "id": "path-a",
+      "name": "Minimal test-only refactor",
+      "applicability": "Use when the goal is to improve Jvedio.Test structure without broad production impact.",
+      "advantages": [
+        "Low risk",
+        "Small blast radius",
+        "Fast to validate"
+      ],
+      "costs": [
+        "Some deep testability problems remain for later"
+      ],
+      "risks": [
+        "A few awkward reflection or global-state patterns may remain temporarily"
+      ],
+      "impact": "Execution focuses on Jvedio.Test structure, csproj cleanup, helper normalization, and documentation sync.",
+      "recommended": true
+    },
+    {
+      "id": "path-b",
+      "name": "Test refactor plus production seam cleanup",
+      "applicability": "Use when small production-code changes are allowed to improve testability now.",
+      "advantages": [
+        "Better long-term testability"
+      ],
+      "costs": [
+        "Larger review scope",
+        "More regression surface"
+      ],
+      "risks": [
+        "Feature scope may expand beyond test refactor"
+      ],
+      "impact": "Would require touching production classes and validation beyond Jvedio.Test.",
+      "recommended": false
+    }
+  ],
+  "updatedAt": "2026-03-14",
+  "restoredFromArchive": "2026-03-14",
+  "reviewContext": {
+    "resolvedFindings": [
+      "Legacy `ScanTest/ImportTest.cs` is already absent; scan import coverage now lives in `UnitTests/Core/Scan/ScanTaskImportTests.cs` and `IntegrationTests/Scan/ScanImportIntegrationTests.cs`.",
+      "Previously tracked `UnitTests/Core/Crawler/CrawlerServer.cs` is also absent and not referenced by `Jvedio.Test.csproj`."
+    ],
+    "nextPlanningFocus": "Implement the simplified scan test config and lookup-and-organize-only flow with report output.",
+    "confirmedPath": "A",
+    "resolvedByUser": [
+      "User accepted path A to remove residual empty-directory and stale-doc drift in the same build pass.",
+      "User chose a simplified scan-test configuration driven by input/output roots and minimal switches, with lookup-and-organize-only behavior."
+    ]
+  }
+}

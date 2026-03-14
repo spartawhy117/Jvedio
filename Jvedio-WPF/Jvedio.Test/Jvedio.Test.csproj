@@ -101,9 +101,9 @@
     <Compile Include="UnitTests\Core\Media\ActorAvatarPathResolverTests.cs" />
     <Compile Include="UnitTests\Core\Media\SidecarPathResolverTests.cs" />
     <Compile Include="UnitTests\Core\Scan\LibraryOrganizerRuleTests.cs" />
+    <Compile Include="UnitTests\Core\Scan\ScanTaskImportTests.cs" />
     <Compile Include="UnitTests\Core\Scraper\MetaTubeCacheTests.cs" />
     <Compile Include="UnitTests\Core\Scraper\ScrapeResultMappingTests.cs" />
-    <Compile Include="ScanTest\ImportTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -10,11 +11,17 @@ namespace Jvedio.Test.IntegrationTests.Scan
 
         public bool CleanOutputBeforeRun { get; set; }
 
-        public string TestRoot { get; set; }
+        public bool WarmupBeforeScan { get; set; } = true;
 
-        public string FlatLibraryRoot { get; set; }
+        public string ServerUrl { get; set; }
 
-        public List<ScanTestCase> Cases { get; set; } = new List<ScanTestCase>();
+        public int RequestTimeoutSeconds { get; set; } = 60;
+
+        public string InputRoot { get; set; }
+
+        public string OutputRoot { get; set; }
+
+        public ScanReportConfig Report { get; set; } = new ScanReportConfig();
 
         public static ScanTestConfig Load(string path)
         {
@@ -23,18 +30,54 @@ namespace Jvedio.Test.IntegrationTests.Scan
         }
     }
 
-    public class ScanTestCase
+    public class ScanReportConfig
     {
-        public string Name { get; set; }
+        public bool Enabled { get; set; } = true;
 
-        public string[] Files { get; set; }
+        public string Format { get; set; } = "json";
 
-        public bool ExpectOrganized { get; set; }
+        public string FileName { get; set; } = "scan-result.json";
+    }
 
-        public string ExpectedDirectoryName { get; set; }
+    public class ScanOrganizeReport
+    {
+        public string GeneratedAt { get; set; } = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-        public bool ExpectSubtitleMoved { get; set; }
+        public string InputRoot { get; set; }
 
-        public bool ExpectSkipped { get; set; }
+        public string OutputRoot { get; set; }
+
+        public List<ScanOrganizedItem> Organized { get; set; } = new List<ScanOrganizedItem>();
+
+        public List<ScanUnmatchedItem> Unmatched { get; set; } = new List<ScanUnmatchedItem>();
+
+        public List<ScanErrorItem> Errors { get; set; } = new List<ScanErrorItem>();
+    }
+
+    public class ScanOrganizedItem
+    {
+        public string SourceFile { get; set; }
+
+        public string MatchedVid { get; set; }
+
+        public string TargetDirectory { get; set; }
+
+        public string TargetVideoPath { get; set; }
+    }
+
+    public class ScanUnmatchedItem
+    {
+        public string SourceFile { get; set; }
+
+        public string Query { get; set; }
+
+        public string Reason { get; set; }
+    }
+
+    public class ScanErrorItem
+    {
+        public string SourceFile { get; set; }
+
+        public string Reason { get; set; }
     }
 }

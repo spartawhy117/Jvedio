@@ -1,10 +1,16 @@
-using Jvedio.Core.Scan;
+using Jvedio;
+using Jvedio.Core.Config;
+using Jvedio.Core.Scraper.MetaTube;
 using Jvedio.Entity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Jvedio.Test.IntegrationTests.Scan
 {
@@ -12,6 +18,10 @@ namespace Jvedio.Test.IntegrationTests.Scan
     public class LibraryOrganizeTests
     {
         private static readonly string ConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "scan", "scan-test-config.json");
+        private static readonly HashSet<string> VideoExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".mp4", ".mkv", ".avi", ".wmv", ".mov", ".iso",
+        };
 
         private ScanTestConfig Config { get; set; }
 
@@ -23,76 +33,174 @@ namespace Jvedio.Test.IntegrationTests.Scan
             if (!Config.Enabled)
                 Assert.Inconclusive("扫描链测试未启用，请修改 scan-test-config.json 中的 enabled。");
 
-            if (Config.CleanOutputBeforeRun && Directory.Exists(Config.FlatLibraryRoot))
-                Directory.Delete(Config.FlatLibraryRoot, true);
+            App.Init();
+            if (ConfigManager.MetaTubeConfig == null)
+                ConfigManager.MetaTubeConfig = MetaTubeConfig.CreateInstance();
+            ConfigManager.MetaTubeConfig.Enabled = true;
+            ConfigManager.MetaTubeConfig.ServerUrl = Config.ServerUrl?.Trim();
+            ConfigManager.MetaTubeConfig.RequestTimeoutSeconds = Config.RequestTimeoutSeconds;
 
-            Directory.CreateDirectory(Config.FlatLibraryRoot);
+            if (string.IsNullOrWhiteSpace(Config.InputRoot) || string.IsNullOrWhiteSpace(Config.OutputRoot))
+                Assert.Inconclusive("scan-test-config.json 必须提供 inputRoot 和 outputRoot。");
+
+            Directory.CreateDirectory(Config.InputRoot);
+            if (Config.CleanOutputBeforeRun && Directory.Exists(Config.OutputRoot))
+                Directory.Delete(Config.OutputRoot, true);
+            Directory.CreateDirectory(Config.OutputRoot);
         }
 
         [TestMethod]
-        public void CanOrganizeFlatVideoIntoDedicatedDirectory()
+        public async Task CanLookupAndOrganizeVideosFromInputDirectory()
         {
-            ScanTestCase testCase = Config.Cases.First(arg => arg.Name == "flat-single-video");
-            string root = PrepareCaseDirectory(testCase);
-            string videoPath = Path.Combine(root, testCase.Files[0]);
-            File.WriteAllText(videoPath, "dummy");
+            List<string> sourceFiles = Directory.GetFiles(Config.InputRoot, "*.*", SearchOption.TopDirectoryOnly)
+                .Where(path => VideoExtensions.Contains(Path.GetExtension(path)))
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-            Video video = new Video() { VID = testCase.ExpectedDirectoryName, Path = videoPath };
-            LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, new List<string>() { ".mp4" });
+            ScanOrganizeReport report = new ScanOrganizeReport() {
+                InputRoot = Config.InputRoot,
+                OutputRoot = Config.OutputRoot,
+            };
 
-            Assert.IsTrue(result.Success);
-            Assert.IsTrue(result.Organized);
-            Assert.AreEqual(testCase.ExpectedDirectoryName, Path.GetFileName(result.TargetDirectory));
-            Assert.IsTrue(File.Exists(result.TargetVideoPath));
-        }
-
-        [TestMethod]
-        public void CanMoveSiblingSubtitleTogether()
-        {
-            ScanTestCase testCase = Config.Cases.First(arg => arg.Name == "flat-video-with-subtitle");
-            string root = PrepareCaseDirectory(testCase);
-            foreach (string file in testCase.Files) {
-                File.WriteAllText(Path.Combine(root, file), "dummy");
+            if (sourceFiles.Count == 0) {
+                WriteReport(report);
+                Assert.Inconclusive($"输入目录中没有可测试影片，请先放入影片文件：{Config.InputRoot}");
             }
 
-            string videoFile = testCase.Files.First(arg => Path.GetExtension(arg).Equals(".mp4", StringComparison.OrdinalIgnoreCase));
-            Video video = new Video() { VID = testCase.ExpectedDirectoryName, Path = Path.Combine(root, videoFile) };
-            LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, new List<string>() { ".mp4" });
+            MetaTubeClient client = CreateClient();
+            if (Config.WarmupBeforeScan)
+                await client.WarmupAsync(CancellationToken.None);
 
-            Assert.IsTrue(result.Success);
-            if (testCase.ExpectSubtitleMoved) {
-                string subtitleFile = testCase.Files.FirstOrDefault(arg => !Path.GetExtension(arg).Equals(".mp4", StringComparison.OrdinalIgnoreCase));
-                Assert.IsFalse(string.IsNullOrWhiteSpace(subtitleFile), "配置要求验证字幕迁移，但未提供字幕样本文件。");
-                Assert.IsTrue(result.MovedFiles.Any(arg => arg.EndsWith(subtitleFile, StringComparison.OrdinalIgnoreCase)));
+            foreach (string sourceFile in sourceFiles) {
+                string query = Path.GetFileNameWithoutExtension(sourceFile)?.Trim();
+                if (string.IsNullOrWhiteSpace(query)) {
+                    report.Errors.Add(new ScanErrorItem() {
+                        SourceFile = Path.GetFileName(sourceFile),
+                        Reason = "无法从文件名生成查询关键字",
+                    });
+                    continue;
+                }
+
+                try {
+                    MetaTubeMovieSearchResult selected = await SearchFirstMatchAsync(client, query);
+                    if (selected == null) {
+                        report.Unmatched.Add(new ScanUnmatchedItem() {
+                            SourceFile = Path.GetFileName(sourceFile),
+                            Query = query,
+                            Reason = "No MetaTube match",
+                        });
+                        continue;
+                    }
+
+                    string targetDirectoryName = string.IsNullOrWhiteSpace(selected.Number) ? query.ToUpperInvariant() : selected.Number.Trim().ToUpperInvariant();
+                    string targetDirectory = Path.Combine(Config.OutputRoot, targetDirectoryName);
+                    Directory.CreateDirectory(targetDirectory);
+
+                    string targetVideoPath = Path.Combine(targetDirectory, Path.GetFileName(sourceFile));
+                    if (File.Exists(targetVideoPath))
+                        File.Delete(targetVideoPath);
+                    File.Move(sourceFile, targetVideoPath);
+
+                    report.Organized.Add(new ScanOrganizedItem() {
+                        SourceFile = Path.GetFileName(sourceFile),
+                        MatchedVid = targetDirectoryName,
+                        TargetDirectory = targetDirectory,
+                        TargetVideoPath = targetVideoPath,
+                    });
+                } catch (Exception ex) {
+                    report.Errors.Add(new ScanErrorItem() {
+                        SourceFile = Path.GetFileName(sourceFile),
+                        Reason = ex.Message,
+                    });
+                }
+            }
+
+            WriteReport(report);
+
+            foreach (ScanOrganizedItem item in report.Organized) {
+                Assert.IsTrue(Directory.Exists(item.TargetDirectory), item.SourceFile);
+                Assert.IsTrue(File.Exists(item.TargetVideoPath), item.SourceFile);
+            }
+
+            foreach (ScanUnmatchedItem item in report.Unmatched) {
+                Assert.IsTrue(File.Exists(Path.Combine(Config.InputRoot, item.SourceFile)), item.SourceFile);
+            }
+
+            Assert.AreEqual(0, report.Errors.Count, string.Join(Environment.NewLine, report.Errors.Select(arg => $"{arg.SourceFile}: {arg.Reason}")));
+        }
+
+        private MetaTubeClient CreateClient()
+        {
+            return new MetaTubeClient(Config.ServerUrl, null);
+        }
+
+        private async Task<MetaTubeMovieSearchResult> SearchFirstMatchAsync(MetaTubeClient client, string query)
+        {
+            List<MetaTubeMovieSearchResult> results;
+            try {
+                results = await client.SearchMovieAsync(query, CancellationToken.None);
+            } catch (Exception ex) when (ex.Message.IndexOf("not found", StringComparison.OrdinalIgnoreCase) >= 0) {
+                return null;
+            }
+
+            if (results == null || results.Count == 0)
+                return null;
+
+            return results.FirstOrDefault(arg => !string.IsNullOrWhiteSpace(arg.Number)
+                && arg.Number.Equals(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void WriteReport(ScanOrganizeReport report)
+        {
+            if (Config.Report == null || !Config.Report.Enabled)
+                return;
+
+            string format = string.IsNullOrWhiteSpace(Config.Report.Format) ? "json" : Config.Report.Format.Trim().ToLowerInvariant();
+            string fileName = string.IsNullOrWhiteSpace(Config.Report.FileName) ? "scan-result.json" : Config.Report.FileName.Trim();
+            string reportPath = Path.Combine(Config.OutputRoot, fileName);
+            Directory.CreateDirectory(Config.OutputRoot);
+
+            if (format == "json" || format == "both")
+                File.WriteAllText(reportPath, JsonConvert.SerializeObject(report, Formatting.Indented));
+
+            if (format == "txt" || format == "both") {
+                string txtName = Path.GetExtension(fileName).Equals(".txt", StringComparison.OrdinalIgnoreCase)
+                    ? fileName
+                    : Path.GetFileNameWithoutExtension(fileName) + ".txt";
+                File.WriteAllText(Path.Combine(Config.OutputRoot, txtName), BuildTextReport(report), Encoding.UTF8);
             }
         }
 
-        [TestMethod]
-        public void SkipsMovieWhenOrganizationFails()
+        private string BuildTextReport(ScanOrganizeReport report)
         {
-            ScanTestCase testCase = Config.Cases.First(arg => arg.Name == "organize-failed-should-skip");
-            string root = PrepareCaseDirectory(testCase);
-            string filePath = Path.Combine(root, testCase.Files[0]);
-            File.WriteAllText(filePath, "dummy");
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("Organized:");
+            if (report.Organized.Count == 0)
+                builder.AppendLine("- none");
+            else {
+                foreach (ScanOrganizedItem item in report.Organized)
+                    builder.AppendLine($"- {item.SourceFile} -> {item.MatchedVid}");
+            }
 
-            string targetDir = Path.Combine(root, "LOCK-001");
-            Directory.CreateDirectory(targetDir);
-            File.WriteAllText(Path.Combine(targetDir, "LOCK-001.mp4"), "existing");
+            builder.AppendLine();
+            builder.AppendLine("Unmatched:");
+            if (report.Unmatched.Count == 0)
+                builder.AppendLine("- none");
+            else {
+                foreach (ScanUnmatchedItem item in report.Unmatched)
+                    builder.AppendLine($"- {item.SourceFile}");
+            }
 
-            Video video = new Video() { VID = "LOCK-001", Path = filePath };
-            LibraryOrganizeResult result = LibraryOrganizer.TryOrganize(video, new List<string>() { ".mp4" });
+            builder.AppendLine();
+            builder.AppendLine("Errors:");
+            if (report.Errors.Count == 0)
+                builder.AppendLine("- none");
+            else {
+                foreach (ScanErrorItem item in report.Errors)
+                    builder.AppendLine($"- {item.SourceFile}: {item.Reason}");
+            }
 
-            Assert.IsFalse(result.Success);
-            Assert.IsTrue(testCase.ExpectSkipped);
-        }
-
-        private string PrepareCaseDirectory(ScanTestCase testCase)
-        {
-            string root = Path.Combine(Config.FlatLibraryRoot, testCase.Name);
-            if (Directory.Exists(root))
-                Directory.Delete(root, true);
-            Directory.CreateDirectory(root);
-            return root;
+            return builder.ToString();
         }
     }
 }

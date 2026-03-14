@@ -1,4 +1,5 @@
 using Jvedio.Core.Global;
+using Jvedio.Core.Media;
 using Jvedio.Core.Nfo;
 using Jvedio.Core.Scraper.Models;
 using Newtonsoft.Json;
@@ -33,34 +34,39 @@ namespace Jvedio.Core.Scraper.MetaTube
             await VideoNfoWriter.SaveFromScrapeResultAsync(result, Path.Combine(outputDir, "movie.nfo"));
             log?.Invoke($"写入 NFO: {Path.Combine(outputDir, "movie.nfo")}");
 
-            await DownloadImageAsync(result.Images?.PosterUrl, Path.Combine(outputDir, "poster.jpg"), log, cancellationToken);
-            await DownloadImageAsync(result.Images?.ThumbUrl, Path.Combine(outputDir, "thumb.jpg"), log, cancellationToken);
-            await DownloadImageAsync(result.Images?.FanartUrl, Path.Combine(outputDir, "fanart.jpg"), log, cancellationToken);
+            string homepage = result.ExtraFields != null && result.ExtraFields.ContainsKey("Homepage")
+                ? result.ExtraFields["Homepage"]?.ToString()
+                : string.Empty;
+
+            await DownloadImageAsync(result.Images?.PosterUrl, Path.Combine(outputDir, "poster.jpg"), log, cancellationToken, homepage);
+            await DownloadImageAsync(result.Images?.ThumbUrl, Path.Combine(outputDir, "thumb.jpg"), log, cancellationToken, homepage);
+            await DownloadImageAsync(result.Images?.FanartUrl, Path.Combine(outputDir, "fanart.jpg"), log, cancellationToken, homepage);
 
             if (result.Actors != null) {
                 foreach (ScrapedActor actor in result.Actors.Where(arg => arg != null && !string.IsNullOrWhiteSpace(arg.AvatarUrl))) {
-                    string ext = Path.GetExtension(actor.AvatarUrl);
+                    string ext = GetFileExtension(actor.AvatarUrl);
                     if (string.IsNullOrWhiteSpace(ext))
                         ext = ".jpg";
-                    string name = string.IsNullOrWhiteSpace(actor.ActorId) ? $"actor-{Sanitize(actor.Name)}" : $"actor-{Sanitize(actor.ActorId)}";
-                    string path = Path.Combine(outputDir, name + ext);
-                    await DownloadImageAsync(actor.AvatarUrl, path, log, cancellationToken);
+                    string path = ActorAvatarPathResolver.GetAvatarPath(actor.ActorId, actor.Name, ext);
+                    await DownloadImageAsync(actor.AvatarUrl, path, log, cancellationToken, null);
                 }
             }
         }
 
-        private static string Sanitize(string value)
+        private static string GetFileExtension(string url)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                return "unknown";
-            string result = value.Trim();
-            foreach (char c in Path.GetInvalidFileNameChars()) {
-                result = result.Replace(c, '_');
-            }
-            return result;
+            if (string.IsNullOrWhiteSpace(url))
+                return string.Empty;
+
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                return Path.GetExtension(uri.AbsolutePath);
+
+            int queryIndex = url.IndexOf('?');
+            string cleanUrl = queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
+            return Path.GetExtension(cleanUrl);
         }
 
-        private static async Task DownloadImageAsync(string url, string path, Action<string> log, CancellationToken cancellationToken)
+        private static async Task DownloadImageAsync(string url, string path, Action<string> log, CancellationToken cancellationToken, string refererUrl)
         {
             if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(path))
                 return;
@@ -71,12 +77,36 @@ namespace Jvedio.Core.Scraper.MetaTube
 
             try {
                 cancellationToken.ThrowIfCancellationRequested();
-                byte[] bytes = await HttpClient.GetByteArrayAsync(url);
-                File.WriteAllBytes(path, bytes);
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url)) {
+                    request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36");
+                    request.Headers.TryAddWithoutValidation("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
+                    request.Headers.TryAddWithoutValidation("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+
+                    Uri referrer = BuildReferrer(url, refererUrl);
+                    if (referrer != null)
+                        request.Headers.Referrer = referrer;
+
+                    using (HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)) {
+                        response.EnsureSuccessStatusCode();
+                        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                        File.WriteAllBytes(path, bytes);
+                    }
+                }
                 log?.Invoke($"写入文件: {path}");
             } catch (Exception ex) {
-                log?.Invoke($"写入文件失败: {path} => {ex.Message}");
+                log?.Invoke($"写入文件失败: {path} <= {url} => {ex.Message}");
             }
+        }
+
+        private static Uri BuildReferrer(string url, string refererUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(refererUrl) && Uri.TryCreate(refererUrl, UriKind.Absolute, out Uri explicitReferrer))
+                return explicitReferrer;
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri imageUri))
+                return null;
+
+            return new Uri(imageUri.GetLeftPart(UriPartial.Authority) + "/");
         }
     }
 }

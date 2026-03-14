@@ -12,17 +12,16 @@ namespace Jvedio.Test.UnitTests.Core.Logs
         [TestMethod]
         public void LoggerShouldResetDailyLogOnStartup()
         {
-            string root = Path.Combine(Path.GetTempPath(), "logger-test", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(root);
-            typeof(PathManager).GetProperty("LogPath").SetValue(null, root);
+            string root = TestBootstrap.CreateTempDirectory("logger-test");
+            using (TestBootstrap.OverridePathManagerPath(nameof(PathManager.LogPath), root)) {
+                string file = Path.Combine(root, SuperUtils.Time.DateHelper.NowDate() + ".log");
+                File.WriteAllText(file, "old log");
 
-            string file = Path.Combine(root, SuperUtils.Time.DateHelper.NowDate() + ".log");
-            File.WriteAllText(file, "old log");
+                Logger.ResetCurrentLog();
 
-            Logger.ResetCurrentLog();
-
-            Assert.IsTrue(File.Exists(file));
-            Assert.AreEqual(string.Empty, File.ReadAllText(file));
+                Assert.IsTrue(File.Exists(file));
+                Assert.AreEqual(string.Empty, File.ReadAllText(file));
+            }
         }
     }
 }

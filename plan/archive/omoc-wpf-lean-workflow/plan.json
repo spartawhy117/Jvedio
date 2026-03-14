@@ -1,0 +1,102 @@
+{
+  "id": "omoc-wpf-lean-workflow",
+  "name": "Oh My OpenCode lean workflow for WPF testing and UI refactor",
+  "overview": "Create a low-overhead Oh My OpenCode operating model for a WPF project that minimizes agent count, dispatches, and iteration loops while still covering test work and UI refactor work.",
+  "status": "archived",
+  "hasConfirmed": false,
+  "parts": [
+    "req",
+    "tech",
+    "todos",
+    "handoff"
+  ],
+  "feature": {
+    "slug": "omoc-wpf-lean-workflow",
+    "title": "Oh My OpenCode lean workflow for WPF testing and UI refactor"
+  },
+  "content": "Deliver a concise but complete markdown guide tailored to the Jvedio WPF repository. The guide should recommend the minimum practical agent topology and explicit token-saving limits.",
+  "todolist": [
+    {
+      "id": "switch-feature",
+      "content": "Archive the previous active feature and switch planning focus to omoc-wpf-lean-workflow",
+      "dependencies": [],
+      "status": "completed"
+    },
+    {
+      "id": "inspect-wpf-test-surface",
+      "content": "Inspect current WPF UI entry points, style surface, and test layout in Jvedio",
+      "dependencies": [
+        "switch-feature"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "draft-lean-workflow-guide",
+      "content": "Draft the markdown guide with option paths, topology, limits, and repository-specific mapping",
+      "dependencies": [
+        "inspect-wpf-test-surface"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "self-iterate-guide-twice",
+      "content": "Refine the guide in two internal passes and persist the final polished version",
+      "dependencies": [
+        "draft-lean-workflow-guide"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "await-user-path-confirmation",
+      "content": "Wait for the user to confirm the recommended single-agent path before any execution-oriented handoff",
+      "dependencies": [
+        "self-iterate-guide-twice"
+      ],
+      "status": "pending"
+    }
+  ],
+  "openQuestions": [
+    "Whether the user wants to stay on the recommended single-agent path or intentionally keep a lightweight explore subagent available.",
+    "Whether a later non-planning mode should export the guide to the Desktop as originally requested."
+  ],
+  "optionPaths": [
+    {
+      "id": "path-a",
+      "name": "Single-agent strict serial workflow",
+      "applicability": "Best for one-subscription users who want the lowest token spend and the least orchestration overhead.",
+      "advantages": [
+        "Lowest coordination cost",
+        "Stable context continuity",
+        "Best fit for large WPF XAML and mixed code-behind files"
+      ],
+      "costs": [
+        "Slightly slower repository exploration"
+      ],
+      "risks": [
+        "Large features can still bloat context if not sliced carefully"
+      ],
+      "impact": "Keep one primary agent only, split testing and UI work into separate features, and allow at most one on-demand explore call per feature.",
+      "recommended": true
+    },
+    {
+      "id": "path-b",
+      "name": "Dual-agent lightweight collaboration",
+      "applicability": "Use only if repository-wide searching is repeatedly necessary and the user accepts extra token spend.",
+      "advantages": [
+        "Faster search sweeps",
+        "Cleaner main execution context"
+      ],
+      "costs": [
+        "Higher token usage",
+        "Extra summarization overhead"
+      ],
+      "risks": [
+        "Duplicated repository reads across agents"
+      ],
+      "impact": "Keep one main agent plus a tightly capped explore subagent whenever discovery work clearly outweighs the added cost.",
+      "recommended": false
+    }
+  ],
+  "updatedAt": "2026-03-14",
+  "archivedReason": "Switched active planning focus to unit-test-refactor at the user's request."
+}

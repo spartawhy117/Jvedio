@@ -1,30 +1,14 @@
 {
   "enabled": true,
   "cleanOutputBeforeRun": true,
-  "testRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output",
-  "flatLibraryRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output\\flat-library",
-  "cases": [
-    {
-      "name": "flat-single-video",
-      "files": ["SDDE-759.mp4"],
-      "expectOrganized": true,
-      "expectedDirectoryName": "SDDE-759",
-      "expectSubtitleMoved": false,
-      "expectSkipped": false
-    },
-    {
-      "name": "flat-video-with-subtitle",
-      "files": ["JUR-293-C.mp4", "JUR-293-C.srt"],
-      "expectOrganized": true,
-      "expectedDirectoryName": "JUR-293-C",
-      "expectSubtitleMoved": true,
-      "expectSkipped": false
-    },
-    {
-      "name": "organize-failed-should-skip",
-      "files": ["LOCK-001.mp4"],
-      "expectOrganized": false,
-      "expectSkipped": true
-    }
-  ]
+  "warmupBeforeScan": true,
+  "serverUrl": "https://metatube-server.hf.space",
+  "requestTimeoutSeconds": 60,
+  "inputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\input",
+  "outputRoot": "D:\\study\\Proj\\Jvedio\\Jvedio-WPF\\Jvedio.Test\\config\\scan\\output",
+  "report": {
+    "enabled": true,
+    "format": "json",
+    "fileName": "scan-result.json"
+  }
 }

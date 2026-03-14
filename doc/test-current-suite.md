@@ -2,10 +2,10 @@
 
 ## 1. 当前状态
 
-当前 `Jvedio.Test` 已实跑通过：
-- 总测试数：18
-- 通过数：18
-- 失败数：0
+当前 `Jvedio.Test` 当前登记测试数：
+- 总测试数：16
+- 最近一次定向验证通过：3
+- 最近一次定向验证失败：0
 
 测试配置目录：
 - `Jvedio.Test/config/`
@@ -14,6 +14,8 @@
 - `Jvedio.Test/bin/Release/data/<user>/log/`
 
 ## 2. 快速验证测试
+
+当前快速验证中的扫描导入类测试统一放在 `UnitTests/Core/Scan/`，不再使用旧的 `ScanTest/` 目录。
 
 ### `BasicImport`
 - 目标：验证 `ScanTask` 基础导入结果对象可生成
@@ -41,14 +43,10 @@
 
 ## 3. 扫描链验证测试
 
-### `CanOrganizeFlatVideoIntoDedicatedDirectory`
-- 目标：验证平铺影片能自动整理到独立目录
+当前文件系统整理与导入后路径变更类测试统一放在 `IntegrationTests/Scan/`。
 
-### `CanMoveSiblingSubtitleTogether`
-- 目标：验证同名字幕跟随影片一起移动
-
-### `SkipsMovieWhenOrganizationFails`
-- 目标：验证整理失败时影片被跳过
+### `CanLookupAndOrganizeVideosFromInputDirectory`
+- 目标：验证输入目录中的影片可按 MetaTube 命中结果整理到输出目录，并生成未命中报告
 
 ### `ScanTaskUsesOrganizedPathAfterMove`
 - 目标：验证整理成功后 `Video.Path` 更新
@@ -84,6 +82,7 @@
 
 ### Scan
 - `config/scan/run-scan-tests.ps1`
+- 使用方式：将待测影片放入 `config/scan/input/` 后执行脚本
 
 ### 全量
 - `config/run-all-tests.ps1`

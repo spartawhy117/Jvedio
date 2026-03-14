@@ -9,7 +9,7 @@ $vstest = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\C
 
 Push-Location $root
 & $msbuild ".\Jvedio.Test.csproj" -target:Build -property:Configuration=Release -maxcpucount
-& $vstest ".\bin\Release\Jvedio.Test.dll" /Tests:CanOrganizeFlatVideoIntoDedicatedDirectory,CanMoveSiblingSubtitleTogether,SkipsMovieWhenOrganizationFails,ScanTaskUsesOrganizedPathAfterMove,FailedOrganizationMovieIsMarkedAsNotImport
+& $vstest ".\bin\Release\Jvedio.Test.dll" /Tests:CanLookupAndOrganizeVideosFromInputDirectory,ScanTaskUsesOrganizedPathAfterMove,FailedOrganizationMovieIsMarkedAsNotImport
 Pop-Location
 
 if (-not $NoPause -and -not $env:JVEDIO_TEST_NO_PAUSE) {

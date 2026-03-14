@@ -36,11 +36,17 @@ Jvedio.Test/
 │  └─ Scan/
 ├─ UnitTests/
 │  └─ Core/
-├─ ScanTest/
+│     ├─ Logs/
+│     ├─ Media/
+│     ├─ Scan/
+│     └─ Scraper/
 ├─ Properties/
 ├─ TestBootstrap.cs
 └─ TestAssemblyBootstrap.cs
 ```
+
+说明：
+- 当前不再保留单独的 `ScanTest/` 旧目录；扫描导入相关快速验证位于 `UnitTests/Core/Scan/`，文件系统整理链验证位于 `IntegrationTests/Scan/`。
 
 ## 3. 当前测试分层
 
@@ -132,14 +138,18 @@ Jvedio.Test/
 字段重点：
 - `enabled`
 - `cleanOutputBeforeRun`
-- `testRoot`
-- `flatLibraryRoot`
-- `cases`
+- `warmupBeforeScan`
+- `serverUrl`
+- `requestTimeoutSeconds`
+- `inputRoot`
+- `outputRoot`
+- `report`
 
 说明：
-- `cases` 中每个对象描述一个扫描整理场景
-- `files` 表示待构造的平铺文件列表
-- `expectOrganized / expectSkipped` 定义场景预期
+- scan 测试不再维护 case 列表；只需要把待测影片直接放进 `inputRoot`
+- 运行脚本后，能在 MetaTube 命中的影片会被整理到 `outputRoot/<VID>/`
+- 未命中的影片保持在 `inputRoot`
+- `report` 用于输出最终 JSON/TXT 汇总文件
 
 ## 7. PowerShell 脚本入口
 
@@ -174,9 +184,9 @@ Jvedio.Test/
 
 ### 8.3 扫描链验证
 1. 检查 `config/scan/scan-test-config.json`
-2. 清理 `config/scan/output/`
+2. 将待测影片放入 `config/scan/input/`
 3. 跑 `run-scan-tests.ps1`
-4. 检查目录整理结果
+4. 检查 `config/scan/output/` 中的整理结果与 `scan-result.json` / `txt`
 
 ### 8.4 全量回归
 1. 运行 `run-all-tests.ps1`

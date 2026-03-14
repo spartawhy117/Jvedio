@@ -13,9 +13,7 @@ namespace Jvedio.Test.UnitTests.Core.Scan
         [TestMethod]
         public void OrganizerShouldFallbackToFileNameWhenVidMissing()
         {
-            TestBootstrap.EnsureWpfContext();
-            string root = Path.Combine(Path.GetTempPath(), "organizer-rule-test", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(root);
+            string root = TestBootstrap.CreateTempDirectory("organizer-rule-test");
             string path = Path.Combine(root, "movie-file.mp4");
             File.WriteAllText(path, "dummy");
 

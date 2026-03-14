@@ -17,16 +17,17 @@ namespace Jvedio.Test.UnitTests.Core.Scraper
             TestBootstrap.EnsureWpfContext();
             if (ConfigManager.MetaTubeConfig == null)
                 ConfigManager.MetaTubeConfig = MetaTubeConfig.CreateInstance();
-            PathManager.VideoCachePath = Path.Combine(Path.GetTempPath(), "metatube-cache-test", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(PathManager.VideoCachePath);
-            ConfigManager.MetaTubeConfig.JsonCacheEnabled = true;
+            string cacheRoot = TestBootstrap.CreateTempDirectory("metatube-cache-test");
+            using (TestBootstrap.OverridePathManagerPath(nameof(PathManager.VideoCachePath), cacheRoot)) {
+                ConfigManager.MetaTubeConfig.JsonCacheEnabled = true;
 
-            ScrapeResult result = new ScrapeResult() { VID = "ABP-001", Title = "Title" };
-            MetaTubeCache.SaveVideo("ABP-001", result);
+                ScrapeResult result = new ScrapeResult() { VID = "ABP-001", Title = "Title" };
+                MetaTubeCache.SaveVideo("ABP-001", result);
 
-            bool ok = MetaTubeCache.TryGetVideo("ABP-001", out ScrapeResult loaded);
-            Assert.IsTrue(ok);
-            Assert.AreEqual("Title", loaded.Title);
+                bool ok = MetaTubeCache.TryGetVideo("ABP-001", out ScrapeResult loaded);
+                Assert.IsTrue(ok);
+                Assert.AreEqual("Title", loaded.Title);
+            }
         }
     }
 }

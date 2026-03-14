@@ -1,8 +1,10 @@
 using Jvedio;
 using Jvedio.Core.Config;
 using Jvedio.Core.Global;
+using Jvedio.Core.Media;
 using Jvedio.Core.Scraper.MetaTube;
 using Jvedio.Core.Scraper.Models;
+using Jvedio.Core.Scraper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -128,19 +130,35 @@ namespace Jvedio.Test.IntegrationTests.MetaTube
         [TestMethod]
         public async Task CanWriteTestOutputFiles()
         {
-            MetaTubeClient client = CreateClient();
+            MetaTubeScraperProvider provider = new MetaTubeScraperProvider();
+            provider.LogAction = message => {
+                if (Config.LogToConsole)
+                    Console.WriteLine(message);
+            };
+
             foreach (MetaTubeTestCase item in Config.Cases) {
-                var searchResults = await SearchMovieAsync(client, item.Vid);
-                var selected = SelectMovieResult(searchResults, item.Vid);
-                var movieInfo = await client.GetMovieInfoAsync(selected.Provider, selected.Id, CancellationToken.None);
-                var result = MetaTubeConverter.ToScrapeResult(movieInfo);
-                await MetaTubeOutputWriter.WriteTestOutputAsync(item.Vid, result, null, CancellationToken.None);
+                var result = await provider.GetInfoAsync(new ScrapeRequest() {
+                    VID = item.Vid,
+                    ForceRefresh = true,
+                }, CancellationToken.None);
+
+                Assert.IsNotNull(result, item.Name);
+                await MetaTubeOutputWriter.WriteTestOutputAsync(item.Vid, result, message => {
+                    if (Config.LogToConsole)
+                        Console.WriteLine(message);
+                }, CancellationToken.None);
 
                 if (item.ExpectTestOutputFiles) {
                     string root = Path.Combine(PathManager.MetaTubeTestRootPath, item.Vid);
                     Assert.IsTrue(File.Exists(Path.Combine(root, "meta.json")), item.Name);
                     Assert.IsTrue(Directory.GetFiles(root, "*.nfo").Length > 0 || File.Exists(Path.Combine(root, "movie.nfo")), item.Name);
+                    Assert.IsTrue(File.Exists(Path.Combine(root, "poster.jpg")), item.Name + " poster");
                 }
+
+                if (item.ExpectActorAvatarAtLeastOne)
+                    Assert.IsTrue(result.Actors.Any(actor => actor != null && !string.IsNullOrWhiteSpace(actor.AvatarUrl)
+                        && File.Exists(ActorAvatarPathResolver.GetAvatarPath(actor.ActorId, actor.Name, Path.GetExtension(new Uri(actor.AvatarUrl).AbsolutePath))))
+                    , item.Name + " actor avatar");
             }
         }
 
