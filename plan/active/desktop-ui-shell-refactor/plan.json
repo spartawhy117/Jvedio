@@ -1,0 +1,72 @@
+{
+  "id": "desktop-ui-shell-refactor",
+  "name": "Desktop UI Shell Refactor",
+  "overview": "Persist the desktop UI refactor planning docs and pre-drawing specifications before implementation.",
+  "status": "approved",
+  "hasConfirmed": true,
+  "parts": [
+    "req",
+    "tech",
+    "todos",
+    "handoff",
+    "validation",
+    "design-docs"
+  ],
+  "feature": {
+    "slug": "desktop-ui-shell-refactor",
+    "title": "Desktop UI Shell Refactor"
+  },
+  "content": "Home becomes a media-library management page, settings stay separate, language and theme options are intentionally narrowed for v1, and drawing outputs will be generated later into doc/UI/desktop-ui-shell-refactor/ after a drawing MCP is installed.",
+  "todolist": [
+    {
+      "id": "cleanup-active-state",
+      "content": "Keep only desktop-ui-shell-refactor under plan/active and archive the empty completed placeholders",
+      "dependencies": [],
+      "status": "completed"
+    },
+    {
+      "id": "persist-feature-docs",
+      "content": "Create the planning, validation, handoff, and implementation docs under plan/active/desktop-ui-shell-refactor",
+      "dependencies": [
+        "cleanup-active-state"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "persist-ui-specs",
+      "content": "Create stable UI specification docs under doc/UI/desktop-ui-shell-refactor",
+      "dependencies": [
+        "persist-feature-docs"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "drawing-phase",
+      "content": "Generate wireframes and mockups after a drawing MCP is available",
+      "dependencies": [
+        "persist-ui-specs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "implementation-phase",
+      "content": "Implement the WPF UI refactor after the drawings are reviewed and locked",
+      "dependencies": [
+        "drawing-phase"
+      ],
+      "status": "pending"
+    }
+  ],
+  "openQuestions": [
+    "Whether the icon pipeline should later add a generator that converts manifest entries into IconResources.xaml automatically."
+  ],
+  "optionPaths": [
+    {
+      "id": "path-a",
+      "label": "Document and draw first",
+      "recommended": true,
+      "status": "selected"
+    }
+  ],
+  "updatedAt": "2026-03-15"
+}
