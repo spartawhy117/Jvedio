@@ -37,37 +37,31 @@ public sealed class VideoService
 
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
         var videos = LoadLibraryVideos(connection, library.LibraryId);
-        var keyword = request.Keyword?.Trim() ?? string.Empty;
-        if (!string.IsNullOrWhiteSpace(keyword))
-        {
-            videos = videos
-                .Where(video =>
-                    ContainsIgnoreCase(video.Title, keyword)
-                    || ContainsIgnoreCase(video.DisplayTitle, keyword)
-                    || ContainsIgnoreCase(video.Vid, keyword)
-                    || ContainsIgnoreCase(video.Path, keyword))
-                .ToList();
-        }
-
-        if (request.MissingSidecarOnly)
-        {
-            videos = videos.Where(video => video.HasMissingAssets).ToList();
-        }
-
-        var sorted = SortVideos(videos, request.SortBy, request.SortOrder);
-        var pageIndex = Math.Max(0, request.PageIndex);
-        var pageSize = Math.Clamp(request.PageSize <= 0 ? DefaultPageSize : request.PageSize, 1, MaxPageSize);
-        var paged = sorted
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize)
-            .ToList();
+        var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly);
+        var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
 
         return new GetLibraryVideosResponse
         {
-            Items = paged,
-            PageIndex = pageIndex,
-            PageSize = pageSize,
-            TotalCount = sorted.Count,
+            Items = pagedResult.Items,
+            PageIndex = pagedResult.PageIndex,
+            PageSize = pagedResult.PageSize,
+            TotalCount = pagedResult.TotalCount,
+        };
+    }
+
+    public GetFavoriteVideosResponse GetFavoriteVideos(GetFavoriteVideosRequest request)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var favorites = LoadFavoriteVideos(connection);
+        var filtered = ApplyVideoFilters(favorites, request.Keyword, request.MissingSidecarOnly);
+        var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
+
+        return new GetFavoriteVideosResponse
+        {
+            Items = pagedResult.Items,
+            PageIndex = pagedResult.PageIndex,
+            PageSize = pagedResult.PageSize,
+            TotalCount = pagedResult.TotalCount,
         };
     }
 
@@ -285,6 +279,107 @@ public sealed class VideoService
         }
 
         return result;
+    }
+
+    private List<VideoListItemDto> LoadFavoriteVideos(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT metadata.DataID,
+                   metadata.DBId,
+                   IFNULL(metadata.Title, ''),
+                   IFNULL(metadata.Path, ''),
+                   IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(metadata.LastScanDate, ''),
+                   IFNULL(metadata.ViewDate, ''),
+                   IFNULL(metadata.ViewCount, 0),
+                   IFNULL(metadata.Rating, 0),
+                   IFNULL(metadata.FavoriteCount, 0),
+                   IFNULL(metadata_video.VID, ''),
+                   IFNULL(metadata_video.Duration, 0)
+            FROM metadata
+            INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
+            WHERE metadata.DataType = 0
+              AND IFNULL(metadata.FavoriteCount, 0) > 0
+            ORDER BY metadata.FavoriteCount DESC, metadata.ViewDate DESC, metadata.DataID DESC;
+            """;
+
+        var result = new List<VideoListItemDto>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var dataId = reader.GetInt64(0);
+            var path = reader.GetString(3);
+            var vid = reader.GetString(10);
+            var sidecars = BuildSidecarState(path, vid);
+            result.Add(new VideoListItemDto
+            {
+                DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
+                DurationSeconds = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
+                HasFanart = sidecars.Fanart.Exists,
+                HasMissingAssets = sidecars.HasMissingAssets,
+                HasNfo = sidecars.Nfo.Exists,
+                HasPoster = sidecars.Poster.Exists,
+                HasThumb = sidecars.Thumb.Exists,
+                LibraryId = reader.GetInt64(1).ToString(),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                Path = path,
+                ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
+                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Title = reader.GetString(2),
+                Vid = vid,
+                VideoId = dataId.ToString(),
+                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+            });
+        }
+
+        return result;
+    }
+
+    private static List<VideoListItemDto> ApplyVideoFilters(
+        IEnumerable<VideoListItemDto> videos,
+        string? keyword,
+        bool missingSidecarOnly)
+    {
+        var result = videos.ToList();
+        var normalizedKeyword = keyword?.Trim() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(normalizedKeyword))
+        {
+            result = result
+                .Where(video =>
+                    ContainsIgnoreCase(video.Title, normalizedKeyword)
+                    || ContainsIgnoreCase(video.DisplayTitle, normalizedKeyword)
+                    || ContainsIgnoreCase(video.Vid, normalizedKeyword)
+                    || ContainsIgnoreCase(video.Path, normalizedKeyword))
+                .ToList();
+        }
+
+        if (missingSidecarOnly)
+        {
+            result = result.Where(video => video.HasMissingAssets).ToList();
+        }
+
+        return result;
+    }
+
+    private static PagedVideoResult BuildPagedResult(
+        IReadOnlyList<VideoListItemDto> videos,
+        string? sortBy,
+        string? sortOrder,
+        int pageIndex,
+        int pageSize)
+    {
+        var sorted = SortVideos(videos, sortBy, sortOrder);
+        var normalizedPageIndex = Math.Max(0, pageIndex);
+        var normalizedPageSize = Math.Clamp(pageSize <= 0 ? DefaultPageSize : pageSize, 1, MaxPageSize);
+        var paged = sorted
+            .Skip(normalizedPageIndex * normalizedPageSize)
+            .Take(normalizedPageSize)
+            .ToList();
+
+        return new PagedVideoResult(paged, normalizedPageIndex, normalizedPageSize, sorted.Count);
     }
 
     private VideoDetailRecord? LoadVideoDetailRecord(SqliteConnection connection, string videoId)
@@ -557,4 +652,10 @@ public sealed class VideoService
         string Plot,
         string Outline,
         string WebUrl);
+
+    private readonly record struct PagedVideoResult(
+        IReadOnlyList<VideoListItemDto> Items,
+        int PageIndex,
+        int PageSize,
+        int TotalCount);
 }

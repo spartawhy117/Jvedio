@@ -161,6 +161,10 @@
 - Exit condition:
   - Favorites 路由、结果集、跳到影片详情和返回链路可用。
 
+当前状态：
+
+- 已完成。Electron 已新增 `#/favorites` 一级路由、Favorites 聚合结果集、筛选排序刷新，以及 `Favorites -> Video Detail -> Favorites` 返回链路；Worker 已补齐 `GET /api/videos/favorites`。
+
 ## Step 11. Implement smart categories: category and series
 
 - Goal:

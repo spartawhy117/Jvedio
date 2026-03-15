@@ -21,6 +21,7 @@ export type SettingsRouteGroup = "basic" | "picture" | "scanImport" | "network" 
 
 export type AppRoute =
   | { kind: "home" }
+  | { kind: "favorites"; query: LibraryVideoRouteQuery }
   | { kind: "actors"; query: ActorsRouteQuery }
   | { kind: "actor"; actorId: string; query: ActorsRouteQuery }
   | { kind: "library"; libraryId: string; query: LibraryVideoRouteQuery }
@@ -34,6 +35,10 @@ export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto
   }
 
   if (route.kind === "video") {
+    return route;
+  }
+
+  if (route.kind === "favorites") {
     return route;
   }
 
@@ -65,6 +70,13 @@ export function parseRoute(hash: string): AppRoute {
         query: parseLibraryVideoRouteQuery(queryText),
       };
     }
+  }
+
+  if (routePath === "/favorites" || routePath === "/favorites/") {
+    return {
+      kind: "favorites",
+      query: parseLibraryVideoRouteQuery(queryText),
+    };
   }
 
   if (routePath === "/actors" || routePath === "/actors/") {
@@ -117,6 +129,13 @@ export function parseRoute(hash: string): AppRoute {
 }
 
 export function toHash(route: AppRoute): string {
+  if (route.kind === "favorites") {
+    const queryString = buildLibraryVideoRouteQuery(route.query);
+    return queryString.length > 0
+      ? `#/favorites?${queryString}`
+      : "#/favorites";
+  }
+
   if (route.kind === "actors") {
     const queryString = buildActorsRouteQuery(route.query);
     return queryString.length > 0

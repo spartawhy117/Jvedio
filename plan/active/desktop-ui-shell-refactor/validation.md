@@ -71,6 +71,14 @@
 - 影片详情页能返回演员详情，同时保留返回媒体库入口。
 - 列表筛选、排序和分页状态在演员详情往返过程中不丢失。
 
+## 第六批：Favorites 聚合页
+
+- 主壳左侧一级导航可进入 `#/favorites`。
+- Favorites 页能展示基于 `metadata.FavoriteCount` 的收藏结果集。
+- Favorites 页支持关键字筛选、排序、刷新。
+- 从 Favorites 进入影片详情时会写入稳定 `backTo` 返回态。
+- 影片详情页能返回 Favorites，并保留当时的筛选/排序状态。
+
 ## Build validation
 
 - 运行受影响的 Electron 聚焦回归。

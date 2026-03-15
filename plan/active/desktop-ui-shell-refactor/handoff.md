@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐，以及演员页第三轮收口均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。后续执行顺序已冻结为：`1. Favorites`、`2. 智能分类（类别）`、`3. 智能分类（系列）`。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口，以及 Favorites 一级聚合页均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。后续执行顺序已推进为：`1. 智能分类（类别）`、`2. 智能分类（系列）`。
 
 ## Latest Progress
 
@@ -141,6 +141,12 @@
   - Actors 列表结果现已直接跳转到右侧内容区演员详情页，并保留列表筛选、排序、分页状态
   - 演员详情页已打通到影片详情页的 `backTo` 返回态，影片详情页可返回演员详情或媒体库
   - `electron/main/testing/actorsRegression.ts` 已改为覆盖独立演员详情页、关联影片下钻和返回链路
+- 已完成 Favorites 一级聚合页：
+  - Worker 已新增 `GET /api/videos/favorites`
+  - renderer 已新增 `#/favorites` 一级路由与主壳导航入口
+  - Favorites 页已支持关键字筛选、排序、刷新，并复用统一影片卡片
+  - 影片详情页已将返回按钮从“仅演员”收口为通用 `backTo`，可返回 Favorites、Actors 或媒体库
+  - 已新增 `electron/` `npm run regression:favorites` 与 `electron/main/testing/favoritesRegression.ts`
 - 已冻结后续任务状态交互：
   - 不在本轮引入独立任务中心页面
   - 扫描与抓取状态以“库页内联 + 全局活动条 + Home 摘要”承接
@@ -148,13 +154,10 @@
 
 ## Next Recommended Work
 
-1. Favorites：
-   - 先补最小路由壳、结果集和与统一影片卡片的衔接
-   - 复用现有播放、详情和返回链路
-2. 智能分类 / 类别：
+1. 智能分类 / 类别：
    - 先补类别路由、列表和结果集
    - 保持最小闭环：跳转到影片详情并复用现有返回链路
-3. 智能分类 / 系列：
+2. 智能分类 / 系列：
    - 在类别页稳定后接系列页
    - 继续复用统一影片卡片和影片详情返回链路
 
@@ -198,6 +201,11 @@
   - MetaTube diagnostics
   - `settings.changed`
   - 恢复默认
+- `electron/` `npm run regression:favorites` 已通过，覆盖：
+  - Favorites 一级路由与结果集展示
+  - 关键字筛选、排序、刷新
+  - 从 Favorites 下钻到影片详情
+  - 从影片详情返回 Favorites 并保留筛选 / 排序状态
 - `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建。
 - `electron/` `npm run regression:actors` 已通过，覆盖：
   - Actors 路由壳

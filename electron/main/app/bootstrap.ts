@@ -8,6 +8,7 @@ import { configureTray } from "../shell/tray";
 import { prepareBatch3RegressionEnvironment, runBatch3Regression } from "../testing/batch3Regression";
 import { prepareC3RegressionEnvironment, runC3Regression } from "../testing/c3Regression";
 import { prepareDRegressionEnvironment, runDRegression } from "../testing/dRegression";
+import { prepareFavoritesRegressionEnvironment, runFavoritesRegression } from "../testing/favoritesRegression";
 import { prepareSettingsRegressionEnvironment, runSettingsRegression } from "../testing/settingsRegression";
 import { WorkerProcessController } from "../worker/workerProcess";
 
@@ -17,6 +18,7 @@ async function bootstrap(): Promise<void> {
   const batch3RegressionEnvironment = await prepareBatch3RegressionEnvironment(electronRoot);
   const c3RegressionEnvironment = await prepareC3RegressionEnvironment(electronRoot);
   const dRegressionEnvironment = await prepareDRegressionEnvironment(electronRoot);
+  const favoritesRegressionEnvironment = await prepareFavoritesRegressionEnvironment(electronRoot);
   const settingsRegressionEnvironment = await prepareSettingsRegressionEnvironment(electronRoot);
   const workerController = new WorkerProcessController(electronRoot);
 
@@ -61,6 +63,13 @@ async function bootstrap(): Promise<void> {
         await workerController.stop();
       }
     });
+    await workerController.stop();
+    app.exit(success ? 0 : 1);
+    return;
+  }
+
+  if (favoritesRegressionEnvironment) {
+    const success = await runFavoritesRegression(mainWindow, favoritesRegressionEnvironment);
     await workerController.stop();
     app.exit(success ? 0 : 1);
     return;

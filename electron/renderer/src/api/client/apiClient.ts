@@ -7,6 +7,8 @@ import type {
   GetActorDetailResponse,
   GetActorsRequest,
   GetActorsResponse,
+  GetFavoriteVideosRequest,
+  GetFavoriteVideosResponse,
   GetActorVideosRequest,
   GetActorVideosResponse,
   GetBootstrapResponse,
@@ -108,6 +110,23 @@ export class ApiClient {
     const queryString = searchParams.toString();
     const path = `/api/libraries/${encodeURIComponent(libraryId)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`;
     return this.request<GetLibraryVideosResponse>(path);
+  }
+
+  public getFavoriteVideos(request: GetFavoriteVideosRequest): Promise<GetFavoriteVideosResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+    if (request.missingSidecarOnly) {
+      searchParams.set("missingSidecarOnly", "true");
+    }
+
+    const queryString = searchParams.toString();
+    return this.request<GetFavoriteVideosResponse>(`/api/videos/favorites${queryString.length > 0 ? `?${queryString}` : ""}`);
   }
 
   public getActors(request: GetActorsRequest): Promise<GetActorsResponse> {

@@ -144,6 +144,22 @@ export interface GetLibraryVideosResponse {
   totalCount: number;
 }
 
+export interface GetFavoriteVideosRequest {
+  keyword: string;
+  missingSidecarOnly: boolean;
+  pageIndex: number;
+  pageSize: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface GetFavoriteVideosResponse {
+  items: readonly VideoListItemDto[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface GetActorsRequest {
   keyword: string;
   pageIndex: number;

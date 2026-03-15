@@ -10,6 +10,15 @@ namespace Jvedio.Worker.Controllers;
 [Route("api/videos")]
 public sealed class VideosController : ControllerBase
 {
+    [HttpGet("favorites")]
+    public ActionResult<ApiResponse<GetFavoriteVideosResponse>> GetFavorites(
+        [FromQuery] GetFavoriteVideosRequest request,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.GetFavoriteVideos(request);
+        return ApiResponse<GetFavoriteVideosResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
     [HttpGet("{videoId}")]
     public ActionResult<ApiResponse<GetVideoDetailResponse>> GetVideo(
         string videoId,
