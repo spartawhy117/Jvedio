@@ -5,6 +5,7 @@
 - 前端只负责 UI 和交互。
 - C# Worker 负责本地能力。
 - 两者通过 localhost API 与 `SSE` 通信。
+- 详细 contracts 以 `worker-api-spec.md` 为准。
 
 ## 进程关系
 
@@ -28,27 +29,79 @@
 
 - `/api/app/bootstrap`
 - `/api/libraries`
-- `/api/libraries/{id}/scan-path`
+- `/api/libraries/{id}/scan-paths`
 - `/api/libraries/{id}/scan`
 - `/api/libraries/{id}/scrape`
 - `/api/videos`
 - `/api/videos/{id}`
 - `/api/videos/{id}/play`
+- `/api/videos/{id}/refresh-metadata`
+- `/api/videos/{id}/open-folder`
 - `/api/actors`
 - `/api/settings`
 - `/api/tasks`
 - `/api/events`
 
+## 通信约定
+
+- renderer 不直接硬编码 Worker 端口
+- Electron main / preload 负责提供 base URL
+- 查询类接口优先同步返回
+- 长耗时动作统一走：
+  - `HTTP 202`
+  - task ticket
+  - `SSE` 事件回推
+
+## 任务模型草案
+
+- 第一阶段任务类型：
+  - `library.scan`
+  - `library.scrape`
+  - `video.refresh-metadata`
+  - `video.play`
+  - `settings.save`
+- 状态：
+  - `queued`
+  - `running`
+  - `succeeded`
+  - `failed`
+  - `cancelled`
+  - `partial`
+
 ## 事件流草案
 
-- 扫描开始
-- 扫描进度更新
-- 命中/未命中结果
-- 抓取开始
-- 抓取完成
-- sidecar 输出完成
-- 播放调用结果
-- 设置保存结果
+- `worker.ready`
+- `task.created`
+- `task.progress`
+- `task.completed`
+- `task.failed`
+- `task.cancelled`
+- `library.changed`
+- `video.changed`
+- `settings.changed`
+
+## 错误流草案
+
+- 同步校验失败：
+  - `400`
+  - `404`
+  - `409`
+  - `422`
+- Worker 内部异常：
+  - `500`
+- Worker 未就绪：
+  - `503`
+- 异步任务失败不回退成同步错误，而是通过：
+  - `task.failed`
+  - `GET /api/tasks/{id}`
+  - 结构化错误对象
+
+## renderer 对接要求
+
+- renderer 只保留一个全局 SSE 连接
+- 页面组件不直接管理 EventSource 生命周期
+- 共享组件不直接发 API 请求
+- 长任务入口统一展示任务摘要，不在按钮点击后自行轮询
 
 ## 本期边界
 

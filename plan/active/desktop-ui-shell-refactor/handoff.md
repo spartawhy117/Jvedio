@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 A：方案文档与参考资产落地。
+- 阶段 B：renderer 目录与 Worker API 草案冻结。
 
 ## Latest Progress
 
@@ -26,23 +26,27 @@
 - 已拉取本地参考仓库 `D:\study\Proj\jellyfin-web`。
 - 已完成 `jellyfin-web` 首轮结构审计，并新增 `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md`。
 - 已产出 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，明确 `fntv-electron` 与 `jellyfin-web` 的双参考分工。
+- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录推进到文件级骨架和 feature 边界。
+- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker API 的请求/响应、任务模型、错误流和 SSE 订阅模型。
+- 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
 - 现有根目录 UI 文档已标注 Electron 规格为当前主入口，旧 WPF 线稿不再作为默认实施路线。
 
 ## Next Recommended Work
 
-1. 基于新的双参考策略，补齐 renderer 真实目录与组件拆分草案：
-   - app
-   - features
-   - components
-   - hooks
-2. 对照当前规格再检查 Electron 前端页面级文档是否需要补充：
+1. 对照新的 renderer 目录草案，补齐页面文档中的组件命名与 section 边界：
    - Home
    - Library
    - Actors
    - Video Detail
    - Settings
-3. 细化 Worker API 草案与前后端事件流草案，补足更具体的任务模型、错误流和任务订阅模型。
-4. 再进入第二大步：库管理能力实现。
+2. 基于 `worker-api-spec.md` 开始冻结 contracts 目录和 DTO 命名规则：
+   - bootstrap
+   - libraries
+   - videos
+   - actors
+   - settings
+   - tasks
+3. 再进入第二大步：库管理能力实现。
 
 ## Validation Steps
 
@@ -52,6 +56,8 @@
 - `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-audit.md` 存在且能独立说明借鉴边界。
 - `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md` 存在且能独立说明页面实现参考边界。
 - `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md` 存在且能直接指导页面落地拆分。
+- `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md` 存在且能直接指导 renderer 建目录。
+- `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md` 存在且能直接指导 contracts 冻结。
 - Release 构建通过。
 
 ## Blockers And Caveats
@@ -60,3 +66,5 @@
 - 当前根目录旧 UI 文档仍保留，用于历史参考；实施时必须优先以 `electron/` 子目录为准。
 - `fntv-electron` 的真实实现以远端页面加载和 preload 注入为主，不能误当作 Jvedio 本地页面工程模板。
 - `jellyfin-web` 为大型新旧并存前端，不可整体照搬，只能按页面结构、hook 分层和视图状态建模做定向借鉴。
+- Worker 端口是否固定值仍未最终冻结；renderer 侧应继续通过 preload 抽象 base URL。
+- 第一阶段任务能力是否单独做任务中心页面仍保留为产品开放项。

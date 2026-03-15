@@ -10,7 +10,9 @@
     "validation",
     "implementation-steps",
     "electron-docs",
-    "reference-notes"
+    "reference-notes",
+    "renderer-architecture",
+    "worker-api-spec"
   ],
   "feature": {
     "slug": "desktop-ui-shell-refactor",
@@ -46,7 +48,7 @@
       "dependencies": [
         "add-reference-notes"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "freeze-api-and-page-draft",
@@ -54,7 +56,7 @@
       "dependencies": [
         "pull-reference-repo"
       ],
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "openQuestions": [

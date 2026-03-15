@@ -5,11 +5,13 @@
 阅读顺序：
 
 1. `product-summary.md`
-2. `frontend-page-rebuild-plan.md`
-3. `information-architecture.md`
-4. 页面文档
-5. `backend-bridge.md`
-6. `validation-flow.md`
+2. `information-architecture.md`
+3. `frontend-page-rebuild-plan.md`
+4. `renderer-architecture.md`
+5. 页面文档
+6. `backend-bridge.md`
+7. `worker-api-spec.md`
+8. `validation-flow.md`
 
 目录说明：
 
@@ -19,6 +21,8 @@
   - 主壳、左侧导航、页面职责
 - `frontend-page-rebuild-plan.md`
   - 双参考源整合后的前端页面重构计划
+- `renderer-architecture.md`
+  - renderer 真实目录、feature 边界和组件拆分草案
 - `page-home.md`
   - Home 页规格
 - `page-library.md`
@@ -31,6 +35,8 @@
   - 设置页规格
 - `backend-bridge.md`
   - Electron 与 Worker 的职责边界、接口分组和事件流
+- `worker-api-spec.md`
+  - Worker API 的请求/响应、任务模型、错误流和 SSE 细化草案
 - `validation-flow.md`
   - 分批验证流程
 

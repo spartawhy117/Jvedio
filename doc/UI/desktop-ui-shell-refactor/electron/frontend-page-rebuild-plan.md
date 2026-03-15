@@ -87,15 +87,23 @@
   - play
   - task events
 
-## 推荐前端目录草案
+## 推荐前端目录总览
 
 ```text
 renderer/
   src/
     app/
-      routes/
       layout/
+      navigation/
       providers/
+      routes/
+    api/
+      app/
+      libraries/
+      actors/
+      videos/
+      settings/
+      tasks/
     features/
       home/
       library/
@@ -117,9 +125,13 @@ renderer/
       useVideoDetail.ts
       useSettings.ts
       useTasks.ts
+    styles/
     types/
     utils/
 ```
+
+- 文件级目录和组件拆分见 `renderer-architecture.md`
+- 本文只保留总览，不再在这里展开到具体文件
 
 ## 页面级重构方案
 

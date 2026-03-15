@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录从粗粒度页面草图细化到 `app / api / features / components / hooks / styles / types / utils` 的真实文件级骨架，并明确 Home、Library、Actors、Video Detail、Settings 的组件拆分边界。
+- 新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker 的统一响应 envelope、长任务模型、错误流、SSE 事件名以及 libraries / videos / actors / settings / tasks 端点的请求与返回结构。
+- 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`product-summary.md`、`frontend-page-rebuild-plan.md`、`backend-bridge.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`、`plan.md`、`plan.json`，把这轮 renderer / Worker API 规格纳入 active feature 主线，并同步推进阶段状态。
 - 拉取本地参考仓库 `D:\study\Proj\jellyfin-web`，并基于提交 `e6fe869a3b94fef35811bcd8ea4a9c0a713979b6` 完成首轮结构审计，新增 `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md`，明确其适合作为页面结构、列表/详情页组织和页面级数据 hook 分层参考。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，将 `fntv-electron` 与 `jellyfin-web` 整合为“双参考源”策略，并细化 Jvedio 的 Home、Library、Actors、Video Detail、Settings 五个核心页面的可落地重构方案。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`doc/UI/desktop-ui-shell-refactor/electron/product-summary.md`、`doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，把参考源职责重新划分为“桌面壳参考”和“页面实现参考”。

@@ -9,12 +9,13 @@
 ## 第一阶段范围
 
 - 新的桌面主壳
+- renderer 真实目录与组件拆分草案
 - Home 媒体库管理页
 - Library 内容浏览页
 - Actors 一级导航页
 - Video Detail 页
 - Settings 入口与设置页
-- Worker API 与任务状态桥接草案
+- Worker API、任务状态桥接与 SSE 细化草案
 
 ## 第一阶段非目标
 

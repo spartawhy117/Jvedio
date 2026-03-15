@@ -107,7 +107,7 @@
   - Actors
   - Video Detail
   - Settings
-- 输出 Worker API 草案与事件流说明。
+- 输出 renderer 真实目录、组件拆分、Worker API 草案与事件流说明。
 - 输出 Electron E2E 与 Worker 集成测试草案。
 
 ### 阶段 C：实现第一批
@@ -150,7 +150,7 @@
 
 - 当前根目录旧 UI 文档仍存在，后续实施时必须明确以 `electron/` 子目录为准。
 - `WindowStartUp` 仍承载库管理逻辑，后续 Home 页迁移必须依赖现有实现梳理。
-- 参考项目 `fntv-electron` 尚未拉取到本地；本轮只完成文档落地。
+- 参考项目 `fntv-electron` 与 `jellyfin-web` 已拉取到本地，但只能按既定边界做结构参考，不能误当现成工程模板。
 - 本轮变更仅限文档，不修改生产代码，不新增实现工程。
 
 ## 验证要求
@@ -158,6 +158,7 @@
 - `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
 - `handoff.md` 可独立说明当前状态。
 - `doc/UI/desktop-ui-shell-refactor/electron/` 文档完整。
+- `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md` 与 `worker-api-spec.md` 存在。
 - `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 明确区分借鉴与非目标。
 - Release 构建通过。
 - 本轮仅文档变更，不跑 `Jvedio.Test` 集成测试。
