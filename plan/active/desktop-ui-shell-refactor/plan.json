@@ -83,6 +83,38 @@
         "freeze-contract-naming"
       ],
       "status": "completed"
+    },
+    {
+      "id": "c1-home-mvp-skeleton",
+      "content": "Stage C-1: Create contracts plus Electron and Worker project skeletons for Home MVP",
+      "dependencies": [
+        "prepare-home-mvp-implementation"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "c2-home-mvp-worker-sync-apis",
+      "content": "Stage C-2: Implement bootstrap, libraries, create/delete, and tasks summary APIs",
+      "dependencies": [
+        "c1-home-mvp-skeleton"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "c3-home-mvp-renderer-flow",
+      "content": "Stage C-3: Implement Home page flow, dialogs, and left navigation sync in renderer",
+      "dependencies": [
+        "c2-home-mvp-worker-sync-apis"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "c4-home-mvp-events-and-errors",
+      "content": "Stage C-4: Add event consumption, task summary refresh, and structured error handling",
+      "dependencies": [
+        "c3-home-mvp-renderer-flow"
+      ],
+      "status": "pending"
     }
   ],
   "openQuestions": [

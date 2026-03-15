@@ -5,7 +5,7 @@
 ## Locked Decisions
 
 - 继续使用 `desktop-ui-shell-refactor` 作为唯一 active feature slug。
-- 本轮只做文档，不进入代码改造。
+- 文档冻结阶段已完成，当前已进入阶段 C 的代码实现。
 - 前端参考源改为 `QiaoKes/fntv-electron`，但只参考桌面壳、导航、页面组织和桌面交互方式。
 - 后端继续复用现有 C# 能力，不做远程服务化。
 - 第一阶段播放能力继续沿用外部播放器/系统默认播放器模式。
@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 C 准备完成：可进入 Home MVP 实现。
+- 阶段 `C-1` 已完成：工程骨架与启动链路已落地，下一步进入 `C-2` Worker 同步接口实现。
 
 ## Latest Progress
 
@@ -33,6 +33,10 @@
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、落地顺序、done 定义和验证顺序。
 - 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
 - 现有根目录 UI 文档已标注 Electron 规格为当前主入口，旧 WPF 线稿不再作为默认实施路线。
+- 已新增 `Jvedio-WPF/Jvedio.Contracts`，落地 `Common / App / Libraries / Tasks` 四组首批 DTO 与事件 contracts。
+- 已新增 `Jvedio-WPF/Jvedio.Worker`，落地 localhost 宿主骨架、健康检查端点和 `JVEDIO_WORKER_READY` 启动信号。
+- 已新增根目录 `electron/` 工程骨架，落地 `main / preload / renderer` 三段最小启动链路，并通过 IPC 向 renderer 注入 Worker base URL。
+- 已完成 `Release` 构建、`npm run build` 和 `npm run smoke`，确认 Electron 能拉起 Worker 并完成 ready 健康探测。
 
 ## Next Recommended Work
 
@@ -46,16 +50,16 @@
 - 路径 C：
   - 先做 Electron 壳层与 localhost 通路 Spike
 
-1. 按 `home-mvp-implementation-entry.md` 开始实际建工程：
-   - `Jvedio.Contracts`
-   - `Jvedio.Worker`
-   - Electron main / preload / renderer 骨架
-2. 第一批实现只进入 Home MVP：
-   - Home 页库列表
-   - 新建库
-   - 删除库
-   - 左侧库导航同步
-   - bootstrap / libraries / tasks 摘要读取
+1. 进入 `阶段 C-2`，先实现 Worker 同步接口：
+   - `GET /api/app/bootstrap`
+   - `GET /api/libraries`
+   - `POST /api/libraries`
+   - `DELETE /api/libraries/{libraryId}`
+   - `GET /api/tasks`
+2. `C-2` 完成后立刻做接口级验证，不等待 renderer 接线。
+3. 再进入 `阶段 C-3` 到 `阶段 C-4`：
+   - renderer Home 闭环
+   - 事件与错误收口
 
 ## Validation Steps
 
@@ -69,7 +73,11 @@
 - `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md` 存在且能直接指导 contracts 冻结。
 - `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md` 存在且能直接指导 `Jvedio.Contracts` 建目录。
 - `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 存在且能直接指导阶段 C 开工。
+- 阶段 C 已拆为 `C-1` 到 `C-4`，并具备逐步测试策略。
 - Release 构建通过。
+- `Jvedio.Contracts` 与 `Jvedio.Worker` 已加入 `Jvedio-WPF/Jvedio.sln` 并可成功构建。
+- `electron/` 已可通过 `npm run build` 完成 TypeScript 构建。
+- `npm run smoke` 已验证 Electron 主进程可以拉起 `Jvedio.Worker` 并等待 ready 健康探测通过。
 
 ## Blockers And Caveats
 

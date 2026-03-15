@@ -21,6 +21,19 @@
   - bootstrap
   - libraries
   - tasks summary
+- 建议按子步骤验证，而不是等全部实现后一次性联调：
+  - `C-1`
+    - 工程骨架与进程拉起
+  - `C-2`
+    - Worker 同步接口
+  - `C-3`
+    - Home UI 闭环
+  - `C-4`
+    - 事件与错误收口
+- `C-1` 当前已完成验证：
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+  - `electron/` `npm run build` 通过
+  - `electron/` `npm run smoke` 通过，Electron 已确认可拉起 Worker 并等待 ready 健康探测
 - Home 页新建库
 - Home 页删除库
 - 左侧导航同步

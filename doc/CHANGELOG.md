@@ -6,6 +6,10 @@
 ## [未发布]
 
 ### 已变更
+- 完成阶段 `C-1` 工程骨架落地：新增 `Jvedio-WPF/Jvedio.Contracts` 与 `Jvedio-WPF/Jvedio.Worker`，并在根目录新增 `electron/` 的 `main / preload / renderer` 最小工程骨架；同时将两个新 .NET 工程接入 `Jvedio-WPF/Jvedio.sln`。
+- 为 `Jvedio.Worker` 落地 localhost 宿主健康检查和 `JVEDIO_WORKER_READY` 启动信号，为 Electron 主进程落地 Worker 拉起、ready 探测、IPC bridge 和最小 smoke 验证页面。
+- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将 active feature 状态推进到“`C-1` 已完成，下一步进入 `C-2`”。
+- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将阶段 C 拆分为 `C-1` 到 `C-4` 四个实现步，并明确推荐采用“每步完成后先做对应模块测试，阶段末再做整体回归”的测试策略。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、Contracts / Worker / Electron / renderer 的落地顺序，以及 Home MVP 的 done 定义与验证顺序，使下一轮可以直接按文档开工。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts 的 DTO 命名、task payload 命名、event payload 命名与错误码前缀，并将其作为未来 `Jvedio.Contracts` 的首批目录输入。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-home.md`、`page-library.md`、`page-actors.md`、`page-video-detail.md`、`page-settings.md`，使五个页面规格与 `renderer-architecture.md` 对齐，补齐页面级组件、section 结构、页面状态、API 依赖和分批实现边界。

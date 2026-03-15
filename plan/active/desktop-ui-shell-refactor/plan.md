@@ -2,7 +2,7 @@
 
 - 功能目标：
   - 将当前 UI 重构规划从 WPF 线稿路线切换为 `Electron 前端 + C# Worker + localhost API` 路线。
-  - 在不改动生产代码的前提下，先把方案文档、进度跟踪文档、验证流程和参考说明完整落地。
+  - 首轮先完成方案文档、进度跟踪文档、验证流程和参考说明落地，当前已进入阶段 C 的代码实现。
   - 让后续新会话优先读取 `handoff.md` 即可恢复上下文，减少 token 消耗。
 - 前端方向：
   - 参考 `QiaoKes/fntv-electron` 的桌面壳、导航、页面内容组织与桌面交互方式。
@@ -11,7 +11,8 @@
 - 后端方向：
   - 保留当前 C# 业务能力，未来拆成 `Jvedio.Core`、`Jvedio.Worker`、`Jvedio.Contracts`。
 - 当前阶段：
-  - 只做文档与跟踪体系落地，不进入代码实现。
+  - 已进入阶段 C 代码实现。
+  - `C-1` 已完成，当前准备进入 `C-2` Worker 同步接口闭环。
 
 ## 文档结构决策
 
@@ -118,6 +119,78 @@
   - Home 页库管理最小闭环
   - 左侧库导航联动
   - 数据持久化与错误反馈
+
+#### 阶段 C-1：Contracts 与工程骨架
+
+- 目标：
+  - 建立 `Jvedio.Contracts`、`Jvedio.Worker`、Electron main / preload / renderer 的最小工程骨架
+- 范围：
+  - `bootstrap`
+  - `libraries`
+  - `tasks summary`
+- 完成标准：
+  - Contracts 可被 Worker 与 renderer 同时引用
+  - Electron 主窗口能启动
+  - Worker 宿主能被 Electron 拉起
+
+#### 阶段 C-1 当前结果
+
+- 已落地：
+  - `Jvedio-WPF/Jvedio.Contracts`
+  - `Jvedio-WPF/Jvedio.Worker`
+  - 根目录 `electron/` main / preload / renderer 骨架
+- 已完成验证：
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+  - `electron/` `npm run build` 通过
+  - `electron/` `npm run smoke` 通过
+- 下一步：
+  - 进入 `C-2`，实现 `bootstrap / libraries / tasks summary` 的同步读写接口
+
+#### 阶段 C-2：Worker 同步接口闭环
+
+- 目标：
+  - 先打通 Home 所需的同步读写接口
+- 范围：
+  - `GET /api/app/bootstrap`
+  - `GET /api/libraries`
+  - `POST /api/libraries`
+  - `DELETE /api/libraries/{libraryId}`
+  - `GET /api/tasks`
+- 完成标准：
+  - 接口可独立调用
+  - 新建 / 删除库数据持久化正确
+  - 错误返回满足 `contracts-naming.md`
+
+#### 阶段 C-3：renderer Home 闭环
+
+- 目标：
+  - 完成 Home 页、左侧导航和基础路由壳联动
+- 范围：
+  - `AppShell`
+  - `HomePage`
+  - `CreateLibraryDialog`
+  - `DeleteLibraryDialog`
+  - `useHomePageData`
+  - `useLibraryNavItems`
+- 完成标准：
+  - 首页可加载
+  - 新建 / 删除库可从 UI 走通
+  - 左侧导航实时同步
+  - 打开库可进入 Library 路由壳
+
+#### 阶段 C-4：事件与错误收口
+
+- 目标：
+  - 补齐 Home MVP 所需的最小事件流和错误反馈
+- 范围：
+  - `GET /api/events`
+  - `library.changed`
+  - 任务摘要更新
+  - Worker 未就绪错误处理
+- 完成标准：
+  - Home 能消费库变更事件
+  - Home 能消费任务摘要更新
+  - 错误提示明确且不吞异常
 
 ### 阶段 D：实现第二批
 
@@ -289,11 +362,38 @@
   - `Jvedio.Contracts` 的首批落地文件清单
   - Home MVP 的 done 定义与验证顺序
 
-## 进入阶段 C 前的推荐动作
+## 阶段 C 当前推荐动作
 
-- 先创建实现分支与工程骨架。
-- 先落 contracts，再落 Worker 最小接口，再接 Electron 壳层，最后接 Home renderer。
-- 严格把范围限制在 Home MVP，不提前触碰扫描 / 抓取 / Settings / Video Detail。
+- `C-1` 已完成，不再重复调整工程骨架。
+- 进入 `C-2` 时继续严格按 `bootstrap / libraries / tasks summary` 范围推进。
+- 先打通 Worker 同步接口，再接 renderer Home，不提前触碰扫描 / 抓取 / Settings / Video Detail。
+
+## 阶段 C 测试策略
+
+- 不建议等阶段 C 全部实现完成后，才开始按功能模块测试。
+- 推荐策略：
+  - `C-1` 完成后，先做工程级静态验证：
+    - 构建
+    - 引用关系
+    - 进程拉起
+  - `C-2` 完成后，先做 Worker 接口测试：
+    - bootstrap
+    - libraries
+    - create/delete
+    - tasks summary
+  - `C-3` 完成后，先做 Home 页面闭环测试：
+    - 首屏加载
+    - 新建库
+    - 删除库
+    - 左侧导航同步
+    - 路由跳转
+  - `C-4` 完成后，再做阶段 C 的整体回归：
+    - 事件流
+    - 错误流
+    - Home MVP 端到端闭环
+- 原因：
+  - Home MVP 横跨 contracts、Worker、Electron 和 renderer 四层，若等全部完成后再测，定位问题会明显变慢。
+  - 先按子步骤测试，能尽早发现 DTO 漂移、生命周期问题和 UI 状态回填问题。
 
 ## 下一步完成标准
 
@@ -329,4 +429,4 @@
 - 已确认文档组织：`plan + doc` 双层结构
 - 已确认 `Actors` 为左侧一级导航重点页面
 - 已确认播放策略：继续沿用外部播放器
-- 已确认当前阶段：只做文档落地，不做代码改造
+- 已确认当前阶段：进入阶段 C 代码实现，当前完成 `C-1`

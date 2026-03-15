@@ -1,0 +1,19 @@
+{
+  "name": "jvedio-electron-shell",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Stage C-1 shell scaffold for the Jvedio Electron Home MVP.",
+  "main": "dist/main/app/bootstrap.js",
+  "scripts": {
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "tsc -p tsconfig.renderer.json",
+    "start": "npm run build && electron .",
+    "smoke": "npm run build && electron . --smoke"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "electron": "41.0.2",
+    "typescript": "5.9.3"
+  }
+}

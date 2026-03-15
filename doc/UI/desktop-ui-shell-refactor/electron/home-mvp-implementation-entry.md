@@ -252,6 +252,66 @@ Jvedio.Contracts/
 
 - 先把读路径跑通，再补写路径和对话框
 
+## 阶段 C 分步
+
+### C-1：Contracts 与工程骨架
+
+- 先建：
+  - `Jvedio.Contracts`
+  - `Jvedio.Worker`
+  - Electron main / preload / renderer 最小骨架
+- 本步结束要求：
+  - 工程能编译
+  - Electron 能拉起 Worker
+
+#### C-1 当前结果
+
+- 已新增：
+  - `Jvedio-WPF/Jvedio.Contracts`
+  - `Jvedio-WPF/Jvedio.Worker`
+  - 根目录 `electron/`
+- 已完成验证：
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+  - `npm run build`
+  - `npm run smoke`
+- 当前结论：
+  - `C-1` 已完成，可进入 `C-2` Worker 同步接口实现。
+
+### C-2：Worker 同步接口
+
+- 先接：
+  - `GET /api/app/bootstrap`
+  - `GET /api/libraries`
+  - `POST /api/libraries`
+  - `DELETE /api/libraries/{libraryId}`
+  - `GET /api/tasks`
+- 本步结束要求：
+  - 接口可单独验证
+  - create / delete 持久化正确
+
+### C-3：renderer Home 闭环
+
+- 先接：
+  - `AppShell`
+  - `HomePage`
+  - `useHomePageData`
+  - `CreateLibraryDialog`
+  - `DeleteLibraryDialog`
+  - `useLibraryNavItems`
+- 本步结束要求：
+  - 新建 / 删除库可从 UI 走通
+  - 左侧导航同步
+
+### C-4：事件与错误收口
+
+- 最后接：
+  - `GET /api/events`
+  - `library.changed`
+  - 任务摘要刷新
+  - Worker 未就绪错误反馈
+- 本步结束要求：
+  - Home MVP 端到端闭环完成
+
 ## Home MVP 的 Done 定义
 
 ### 功能完成标准
@@ -284,6 +344,32 @@ Jvedio.Contracts/
   - `[Worker-HomeMvp]`
 
 ## 验证顺序
+
+## 测试策略建议
+
+- 不建议等整个阶段 C 全部实现完成后，再开始按功能模块测试。
+- 推荐按 `C-1` 到 `C-4` 逐步测试：
+  - `C-1`
+    - 构建测试
+    - 进程启动测试
+  - `C-2`
+    - Worker 接口测试
+    - 新建 / 删除库持久化测试
+  - `C-3`
+    - Home 页面交互测试
+    - 导航同步测试
+  - `C-4`
+    - SSE 事件测试
+    - 错误流测试
+    - 阶段 C 整体回归
+- 推荐节奏：
+  - 每完成一个子步骤，立刻跑该子步骤对应测试
+  - `C-4` 完成后，再补一次阶段 C 全链路回归
+
+原因：
+
+- 如果等全部写完再测，问题会跨 contracts、Worker、Electron、renderer 四层叠在一起，定位成本过高。
+- 逐步测试更符合当前 Home MVP 的最小闭环推进方式。
 
 ### 第 1 轮：静态验证
 
