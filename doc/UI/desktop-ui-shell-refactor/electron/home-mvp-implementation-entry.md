@@ -309,7 +309,8 @@ Jvedio.Contracts/
   - `npm run smoke`
 - 当前结论：
   - `C-3` 已完成代码落地与工程级验证。
-  - 下一步建议先做 Home 聚焦回归，再进入 `C-4`。
+  - `C-3` 自动聚焦回归已通过。
+  - 下一步进入 `C-4`。
 
 ### C-3：renderer Home 闭环
 
@@ -331,8 +332,16 @@ Jvedio.Contracts/
   - `electron/` `npm run build`
   - `electron/` `npm run smoke`
   - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
-- 当前待补：
-  - Home 首屏、新建库、删除库、导航同步、路由跳转的聚焦人工回归
+- 已完成聚焦回归：
+  - `electron/` `npm run regression:c3`
+  - Home 首屏加载
+  - 新建库
+  - 删除库
+  - 左侧导航同步
+  - 库路由跳转
+  - 删除当前库后的路由回退与提示消息
+- 已修复问题：
+  - renderer 原生 ES module 导入缺失 `.js` 扩展，导致 Electron 文件页空白
 
 ### C-4：事件与错误收口
 
@@ -425,7 +434,7 @@ Jvedio.Contracts/
 - 左侧导航同步
 - 打开库路由跳转
 - 当前状态：
-  - `C-3` 代码已完成，以上交互仍需单独执行聚焦人工回归
+  - 已通过 `electron/` `npm run regression:c3` 自动验证
 
 ### 第 4 轮：事件与错误验证
 

@@ -1,4 +1,4 @@
-import type { LibraryListItemDto } from "../../types/api";
+import type { LibraryListItemDto } from "../../types/api.js";
 
 export type AppRoute =
   | { kind: "home" }

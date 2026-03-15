@@ -7,7 +7,7 @@ import type {
   GetBootstrapResponse,
   GetLibrariesResponse,
   GetTasksResponse
-} from "../../types/api";
+} from "../../types/api.js";
 
 export class WorkerApiError extends Error {
   public readonly details: unknown;

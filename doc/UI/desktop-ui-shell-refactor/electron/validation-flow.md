@@ -45,12 +45,15 @@
   - `electron/` `npm run build`
   - `electron/` `npm run smoke`
   - `Jvedio-WPF/Jvedio.sln` Release 构建通过
-- `C-3` 下一步聚焦回归：
+- `C-3` 自动聚焦回归已通过：
+  - `electron/` `npm run regression:c3`
   - Home 页新建库
   - Home 页删除库
   - 左侧导航同步
   - 库路由跳转
   - 删除当前库后的路由回退与提示消息
+- `C-3` 回归首轮发现并修复：
+  - renderer 原生 ES module 导入缺少 `.js` 扩展，导致 Electron 文件页空白
 
 ## 第二批：扫描路径、扫描和拉取
 

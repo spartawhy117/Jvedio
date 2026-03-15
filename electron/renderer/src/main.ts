@@ -1,4 +1,4 @@
-import { HomePageController } from "./features/home/useHomePageData";
+import { HomePageController } from "./features/home/useHomePageData.js";
 
 async function bootstrap(): Promise<void> {
   const appRoot = document.getElementById("app");

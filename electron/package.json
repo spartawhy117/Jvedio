@@ -8,6 +8,7 @@
     "build": "npm run build:main && npm run build:renderer",
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "tsc -p tsconfig.renderer.json",
+    "regression:c3": "npm run build && electron . --regression-c3",
     "start": "npm run build && electron .",
     "smoke": "npm run build && electron . --smoke"
   },

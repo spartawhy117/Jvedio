@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `C-3` 已完成：renderer Home 最小闭环已落地并通过构建、冒烟与 Release 构建验证；下一步先做 Home 聚焦回归，再进入 `C-4` 事件与错误收口。
+- 阶段 `C-3` 已完成：renderer Home 最小闭环与聚焦功能回归均已通过；下一步进入 `C-4` 事件与错误收口。
 
 ## Latest Progress
 
@@ -59,35 +59,35 @@
   - `electron/` `npm run build`
   - `electron/` `npm run smoke`
   - `Jvedio-WPF/Jvedio.sln` `Release` 构建
-- `C-3` 的聚焦功能回归尚未单独自动化，下一步应先完成人工走查后再进入 `C-4`。
+- 已完成 `C-3` 自动聚焦回归：
+  - 新增 `electron/` `npm run regression:c3`
+  - 使用临时 sqlite 副本自动验证 Home 首屏加载、新建库、删除库、左侧导航同步、库路由跳转
+  - 首轮回归发现 renderer 原生 ES module 缺失 `.js` 扩展导致页面空白，已修复并通过二次回归
 
 ## Next Recommended Work
 
 ### 方案路径
 
 - 路径 A：
-  - 先做 `C-3` 聚焦回归，再进入 `C-4`
+  - 直接进入 `C-4`
   - 推荐
 - 路径 B：
-  - 直接继续 `C-4`，最后再集中回归
+  - 先补 Electron E2E，再进入 `C-4`
 - 路径 C：
-  - 先补 Electron E2E，再恢复功能开发
+  - 先扩 Home 页面视觉细节，再回头补事件流
 
-1. 先做 `C-3` 聚焦功能回归：
-   - Home 首屏加载
-   - 新建库 / 删除库
-   - 左侧导航同步
-   - 库路由跳转
-   - 错误提示与删除后路由回退
-2. 回归无阻塞后进入 `阶段 C-4`：
+1. 进入 `阶段 C-4`：
    - `GET /api/events`
    - `library.changed`
    - 任务摘要刷新
    - 结构化错误收口
-3. `C-4` 完成后做阶段 C 整体回归：
+2. `C-4` 完成后做阶段 C 整体回归：
    - 事件流
    - 错误流
    - Home MVP 端到端闭环
+3. 如需继续收紧回归，再补 Electron 侧更稳定的 E2E 包装：
+   - 保留临时 sqlite 副本策略
+   - 把 `C-3` 聚焦回归纳入固定脚本
 
 ## Validation Steps
 
@@ -110,6 +110,7 @@
 - 测试库创建后已成功回删，`app_databases` 当前恢复为单条 `Jav` 记录。
 - `C-3` renderer Home 闭环代码已落地，可通过 Home 页加载、库列表渲染、新建/删除对话框和 Library 路由壳串起最小 UI 链路。
 - `Jvedio-WPF/Jvedio.sln` 已再次通过 `Release` 构建。
+- `electron/` `npm run regression:c3` 已通过，覆盖 Home 首屏加载、新建库、删除库、左侧导航同步与库路由跳转五项检查。
 
 ## Blockers And Caveats
 

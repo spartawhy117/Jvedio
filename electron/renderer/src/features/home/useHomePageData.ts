@@ -1,14 +1,14 @@
-import { ApiClient, WorkerApiError } from "../../api/client/apiClient";
-import { useLibraryNavItems } from "../../app/navigation/useLibraryNavItems";
-import { ensureRoute, toHash, type AppRoute } from "../../app/routes/router";
+import { ApiClient, WorkerApiError } from "../../api/client/apiClient.js";
+import { useLibraryNavItems } from "../../app/navigation/useLibraryNavItems.js";
+import { ensureRoute, toHash, type AppRoute } from "../../app/routes/router.js";
 import type {
   GetBootstrapResponse,
   LibraryListItemDto,
   TaskSummaryDto,
   WorkerStatusDto
-} from "../../types/api";
-import { renderCreateLibraryDialog } from "./CreateLibraryDialog";
-import { renderDeleteLibraryDialog } from "./DeleteLibraryDialog";
+} from "../../types/api.js";
+import { renderCreateLibraryDialog } from "./CreateLibraryDialog.js";
+import { renderDeleteLibraryDialog } from "./DeleteLibraryDialog.js";
 
 interface AppBridge {
   getAppVersion(): Promise<string>;

@@ -1,4 +1,4 @@
-import type { LibraryListItemDto } from "../../types/api";
+import type { LibraryListItemDto } from "../../types/api.js";
 
 export function renderDeleteLibraryDialog(library: LibraryListItemDto, errorMessage: string | null, pending: boolean): string {
   const scanPath = library.scanPaths[0] ?? "未配置扫描目录";

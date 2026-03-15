@@ -1,5 +1,5 @@
-import type { LibraryListItemDto } from "../../types/api";
-import type { AppRoute } from "../routes/router";
+import type { LibraryListItemDto } from "../../types/api.js";
+import type { AppRoute } from "../routes/router.js";
 
 export interface NavigationItem {
   active: boolean;

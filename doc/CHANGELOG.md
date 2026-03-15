@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 新增 `electron/` `npm run regression:c3` 与 `electron/main/testing/c3Regression.ts`，通过临时 `sqlite` 副本自动验证 Home 首屏加载、新建库、删除库、左侧导航同步和库路由跳转，避免污染当前真实库数据。
+- 修复 renderer 原生 ES module 导入缺少 `.js` 扩展的问题，解决 Electron 文件页加载时 Home 页面空白、`C-3` 首屏无法渲染的实际缺陷。
+- 更新 `plan/active/desktop-ui-shell-refactor/handoff.md`、`plan.md`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 聚焦回归已通过，下一步进入 `C-4`”。
 - 完成阶段 `C-3` renderer Home 闭环：新增 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`app/navigation/useLibraryNavItems.ts`、`features/home/` 与 `types/api.ts`，在 renderer 侧落地 Worker API 调用、hash 路由、动态左侧库导航、Home 控制器和新建/删除库对话框。
 - 重写 `electron/renderer/index.html` 与 `electron/renderer/src/main.ts`，将原最小 smoke 页面替换为 Home MVP 壳层、库列表、任务摘要、Library 路由壳、结构化错误提示和响应式布局。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 已实现并完成构建验证，下一步先做聚焦功能回归，再进入 `C-4`”。
