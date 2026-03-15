@@ -13,6 +13,8 @@ import type {
   GetVideoDetailResponse,
   PlayVideoRequest,
   PlayVideoResponse,
+  RunMetaTubeDiagnosticsRequest,
+  RunMetaTubeDiagnosticsResponse,
   StartLibraryScanRequest,
   StartLibraryScanResponse,
   StartLibraryScrapeRequest,
@@ -138,6 +140,16 @@ export class ApiClient {
         "Content-Type": "application/json"
       },
       method: "PUT"
+    });
+  }
+
+  public runMetaTubeDiagnostics(request: RunMetaTubeDiagnosticsRequest): Promise<RunMetaTubeDiagnosticsResponse> {
+    return this.request<RunMetaTubeDiagnosticsResponse>("/api/settings/meta-tube/diagnostics", {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST"
     });
   }
 

@@ -12,6 +12,9 @@ import type {
   GetSettingsResponse,
   GetBootstrapResponse,
   GetLibraryVideosResponse,
+  RunMetaTubeDiagnosticsRequest,
+  RunMetaTubeDiagnosticsResponse,
+  SettingsChangedEventDto,
   UpdateSettingsRequest,
   LibraryChangedEventDto,
   LibraryListItemDto,
@@ -58,6 +61,8 @@ interface RendererState {
   route: AppRoute;
   routeDataLoading: boolean;
   scanPathDrafts: Record<string, string>;
+  settingsDiagnostics: RunMetaTubeDiagnosticsResponse | null;
+  settingsDiagnosticsRunning: boolean;
   settings: GetSettingsResponse | null;
   settingsAction: SettingsActionState | null;
   settingsDraft: UpdateSettingsRequest | null;
@@ -87,6 +92,8 @@ export class HomePageController {
     route: { kind: "home" },
     routeDataLoading: false,
     scanPathDrafts: {},
+    settingsDiagnostics: null,
+    settingsDiagnosticsRunning: false,
     settings: null,
     settingsAction: null,
     settingsDraft: null,
@@ -231,7 +238,11 @@ export class HomePageController {
         draft.playback = { ...playback, useSystemDefaultFallback: target.checked };
       }
 
-      this.state = { ...this.state, settingsDraft: draft };
+      this.state = {
+        ...this.state,
+        settingsDiagnostics: group === "metaTube" ? null : this.state.settingsDiagnostics,
+        settingsDraft: draft,
+      };
       return;
     }
 
@@ -321,6 +332,9 @@ export class HomePageController {
         return;
       case "reset-settings":
         await this.resetSettings();
+        return;
+      case "run-meta-tube-diagnostics":
+        await this.runMetaTubeDiagnostics();
         return;
       case "play-video":
         await this.playVideo(videoId);
@@ -479,6 +493,43 @@ export class HomePageController {
     }
   }
 
+  private async runMetaTubeDiagnostics(): Promise<void> {
+    if (!this.apiClient) return;
+    const draft = this.getSettingsDraft();
+    const request: RunMetaTubeDiagnosticsRequest = {
+      requestTimeoutSeconds: draft.metaTube?.requestTimeoutSeconds,
+      serverUrl: draft.metaTube?.serverUrl,
+    };
+
+    this.state = {
+      ...this.state,
+      inlineError: null,
+      infoMessage: null,
+      settingsDiagnosticsRunning: true,
+    };
+    this.render();
+
+    try {
+      const response = await this.apiClient.runMetaTubeDiagnostics(request);
+      this.state = {
+        ...this.state,
+        infoMessage: response.success
+          ? "MetaTube 诊断已完成。"
+          : "MetaTube 诊断已完成，但发现异常。",
+        settingsDiagnostics: response,
+        settingsDiagnosticsRunning: false,
+      };
+      this.render();
+    } catch (error) {
+      this.state = {
+        ...this.state,
+        inlineError: this.toUserMessage(error),
+        settingsDiagnosticsRunning: false,
+      };
+      this.render();
+    }
+  }
+
   private async playVideo(videoId: string): Promise<void> {
     if (!this.apiClient || !videoId) return;
     this.state = { ...this.state, inlineError: null, infoMessage: null, videoAction: { kind: "play", videoId } };
@@ -613,6 +664,7 @@ export class HomePageController {
     this.eventSource.onopen = () => this.setWorkerWarning(null);
     this.eventSource.onerror = () => this.setWorkerWarning("Worker 事件流已断开，可手动刷新。");
     this.eventSource.addEventListener("library.changed", (event) => void this.handleLibraryChanged(event));
+    this.eventSource.addEventListener("settings.changed", (event) => this.handleSettingsChanged(event));
     this.eventSource.addEventListener("task.summary.changed", (event) => this.handleTaskSummaryChanged(event));
     this.eventSource.addEventListener("task.created", () => void this.refreshAllDataInBackground());
     this.eventSource.addEventListener("task.completed", () => void this.refreshAllDataInBackground());
@@ -641,6 +693,30 @@ export class HomePageController {
     const envelope = parseWorkerEventEnvelope<TaskSummaryChangedEventDto>((event as MessageEvent<string>).data);
     if (!envelope || !this.state.bootstrap) return;
     this.state = { ...this.state, bootstrap: { ...this.state.bootstrap, taskSummary: envelope.data.summary } };
+    this.render();
+  }
+
+  private handleSettingsChanged(event: Event): void {
+    const envelope = parseWorkerEventEnvelope<SettingsChangedEventDto>((event as MessageEvent<string>).data);
+    if (!envelope) {
+      this.setWorkerWarning("Worker 推送了无法识别的设置变更事件。");
+      return;
+    }
+
+    const nextSettings = envelope.data.settings;
+    const currentSettings = this.state.settings ?? createDefaultSettingsResponse();
+    const currentDraft = this.getSettingsDraft();
+    const keepDraft = this.state.route.kind === "settings" && isSettingsDirty(currentDraft, currentSettings);
+    this.state = {
+      ...this.state,
+      infoMessage: this.state.route.kind === "settings"
+        ? keepDraft
+          ? "检测到外部设置更新，当前表单保留未保存修改。"
+          : "设置已同步到最新持久化值。"
+        : this.state.infoMessage,
+      settings: nextSettings,
+      settingsDraft: keepDraft ? this.state.settingsDraft : createSettingsDraft(nextSettings),
+    };
     this.render();
   }
 
@@ -737,6 +813,8 @@ export class HomePageController {
     if (this.state.route.kind === "settings") {
       return renderSettingsRoute({
         currentGroup: this.state.route.group,
+        diagnostics: this.state.settingsDiagnostics,
+        diagnosticsRunning: this.state.settingsDiagnosticsRunning,
         routeDataLoading: this.state.routeDataLoading,
         settings: this.state.settings,
         draft: this.getSettingsDraft(),
@@ -784,19 +862,21 @@ function renderVideoRoute(args: { routeDataLoading: boolean; video: VideoDetailD
 
 function renderSettingsRoute(args: {
   currentGroup: SettingsRouteGroup;
+  diagnostics: RunMetaTubeDiagnosticsResponse | null;
+  diagnosticsRunning: boolean;
   draft: UpdateSettingsRequest;
   routeDataLoading: boolean;
   settings: GetSettingsResponse | null;
   settingsAction: SettingsActionState | null;
 }): string {
-  const { currentGroup, draft, routeDataLoading, settings, settingsAction } = args;
+  const { currentGroup, diagnostics, diagnosticsRunning, draft, routeDataLoading, settings, settingsAction } = args;
   if (routeDataLoading && !settings) return renderRouteLoading("正在加载设置...");
   const snapshot = settings ?? createDefaultSettingsResponse();
   const dirty = isSettingsDirty(draft, snapshot);
   const saving = settingsAction?.kind === "save";
   const resetting = settingsAction?.kind === "reset";
 
-  return `<section class="metric-grid">${metric("语言", snapshot.general.currentLanguage, "当前真实落库的通用设置")}${metric("MetaTube", snapshot.metaTube.serverUrl || "未配置", "抓取链直接读取此地址")}${metric("播放路径", snapshot.playback.playerPath || "系统默认", "播放链优先读取这里")}${metric("默认回退", snapshot.playback.useSystemDefaultFallback ? "开启" : "关闭", "控制是否回退系统播放器")}</section><section class="settings-layout"><aside class="surface-card settings-group-nav"><div class="section-header"><div><span class="eyebrow">Groups</span><h2>设置分组</h2></div></div>${renderSettingsGroupLink("general", currentGroup, "General", "语言与调试")}${renderSettingsGroupLink("metaTube", currentGroup, "MetaTube", "抓取服务地址与超时")}${renderSettingsGroupLink("playback", currentGroup, "Playback", "播放器路径与回退策略")}</aside><section class="surface-card settings-form-surface"><div class="section-header"><div><span class="eyebrow">Settings</span><h2>${escapeHtml(settingsGroupTitle(currentGroup))}</h2></div><div class="section-meta">${escapeHtml(settingsGroupDescription(currentGroup))}</div></div>${renderSettingsGroupForm(currentGroup, draft)}<div class="settings-save-bar"><div><div class="note-label">表单状态</div><div class="note-value">${dirty ? "有未保存修改" : "已与当前持久化值一致"}</div></div><div class="header-actions"><button class="ghost-button" data-action="reset-settings" ${saving || resetting ? "disabled" : ""}>${resetting ? "恢复中..." : "恢复默认"}</button><button class="primary-button" data-action="save-settings" ${(!dirty || saving || resetting) ? "disabled" : ""}>${saving ? "保存中..." : "保存设置"}</button></div></div></section></section>`;
+  return `<section class="metric-grid">${metric("语言", snapshot.general.currentLanguage, "当前真实落库的通用设置")}${metric("MetaTube", snapshot.metaTube.serverUrl || "未配置", "抓取链直接读取此地址")}${metric("播放路径", snapshot.playback.playerPath || "系统默认", "播放链优先读取这里")}${metric("默认回退", snapshot.playback.useSystemDefaultFallback ? "开启" : "关闭", "控制是否回退系统播放器")}</section><section class="settings-layout"><aside class="surface-card settings-group-nav"><div class="section-header"><div><span class="eyebrow">Groups</span><h2>设置分组</h2></div></div>${renderSettingsGroupLink("general", currentGroup, "General", "语言与调试")}${renderSettingsGroupLink("metaTube", currentGroup, "MetaTube", "抓取服务地址与超时")}${renderSettingsGroupLink("playback", currentGroup, "Playback", "播放器路径与回退策略")}</aside><section class="surface-card settings-form-surface"><div class="section-header"><div><span class="eyebrow">Settings</span><h2>${escapeHtml(settingsGroupTitle(currentGroup))}</h2></div><div class="section-meta">${escapeHtml(settingsGroupDescription(currentGroup))}</div></div>${renderSettingsGroupForm(currentGroup, draft)}${currentGroup === "metaTube" ? renderMetaTubeDiagnosticsPanel(draft.metaTube ?? snapshot.metaTube, diagnostics, diagnosticsRunning) : ""}<div class="settings-save-bar"><div><div class="note-label">表单状态</div><div class="note-value">${dirty ? "有未保存修改" : "已与当前持久化值一致"}</div></div><div class="header-actions"><button class="ghost-button" data-action="reset-settings" ${saving || resetting || diagnosticsRunning ? "disabled" : ""}>${resetting ? "恢复中..." : "恢复默认"}</button><button class="primary-button" data-action="save-settings" ${(!dirty || saving || resetting || diagnosticsRunning) ? "disabled" : ""}>${saving ? "保存中..." : "保存设置"}</button></div></div></section></section>`;
 }
 
 function renderVideoResults(response: GetLibraryVideosResponse | undefined, draft: LibraryVideoRouteQuery): string {
@@ -809,13 +889,30 @@ function renderSettingsGroupLink(group: SettingsRouteGroup, currentGroup: Settin
   return `<a class="nav-link ${group === currentGroup ? "active" : ""}" href="${toHash({ kind: "settings", group })}"><span>${escapeHtml(title)}</span><small>${escapeHtml(note)}</small></a>`;
 }
 
+function renderMetaTubeDiagnosticsPanel(
+  metaTube: { requestTimeoutSeconds: number; serverUrl: string; },
+  diagnostics: RunMetaTubeDiagnosticsResponse | null,
+  diagnosticsRunning: boolean,
+): string {
+  const statusClass = diagnostics?.success ? "status-ok" : "status-error";
+  const statusLabel = diagnostics ? (diagnostics.success ? "通过" : "异常") : "未执行";
+  const summary = diagnostics?.summary ?? "点击“执行诊断”后，将检查根地址、providers、测试番号搜索和详情链路。";
+  const targetUrl = diagnostics?.serverUrl || metaTube.serverUrl || "未配置";
+  const timeout = diagnostics?.timeoutSeconds ?? metaTube.requestTimeoutSeconds;
+  const resultBlock = diagnostics
+    ? `<div class="diagnostics-summary-grid"><div class="worker-note"><div class="note-label">状态</div><div class="note-value ${statusClass}" data-settings-diagnostics-status="${diagnostics.success ? "success" : "failure"}">${statusLabel}</div><div class="footer-hint" data-settings-diagnostics-summary>${escapeHtml(summary)}</div></div><div class="worker-note"><div class="note-label">目标地址</div><div class="note-value">${escapeHtml(targetUrl)}</div><div class="footer-hint">超时 ${timeout} 秒</div></div><div class="worker-note"><div class="note-label">providers</div><div class="note-value">movie ${diagnostics.movieProviderCount} / actor ${diagnostics.actorProviderCount}</div><div class="footer-hint">搜索结果 ${diagnostics.searchResultCount} 条</div></div>${diagnostics.matchedProvider || diagnostics.detailTitle ? `<div class="worker-note"><div class="note-label">首条命中</div><div class="note-value">${escapeHtml(diagnostics.detailTitle || diagnostics.testVideoId)}</div><div class="footer-hint">${escapeHtml([diagnostics.matchedProvider, diagnostics.matchedMovieId].filter(Boolean).join(" / ") || "无详情")}</div></div>` : ""}<div class="worker-note diagnostics-log-panel"><div class="note-label">诊断步骤</div><ol class="diagnostics-log-list">${diagnostics.steps.map((step, index) => `<li data-settings-diagnostics-step="${index}">${escapeHtml(step)}</li>`).join("")}</ol></div></div>`
+    : `<div class="empty-card"><h3>诊断尚未执行</h3><p>当前会使用表单中的 MetaTube 地址和超时配置发起诊断，不需要先保存。</p></div>`;
+
+  return `<section class="settings-diagnostics-block"><div class="section-header"><div><span class="eyebrow">Diagnostics</span><h2>MetaTube diagnostics</h2></div><div class="header-actions"><button class="ghost-button" data-action="run-meta-tube-diagnostics" ${diagnosticsRunning ? "disabled" : ""}>${diagnosticsRunning ? "诊断中..." : "执行诊断"}</button></div></div><div class="inline-note">默认会用测试番号 <strong>${escapeHtml(diagnostics?.testVideoId ?? "IPX-001")}</strong> 校验搜索与详情链路。</div>${resultBlock}</section>`;
+}
+
 function renderSettingsGroupForm(group: SettingsRouteGroup, draft: UpdateSettingsRequest): string {
   if (group === "general") {
     return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">当前语言</span><select class="select-field" data-settings-group="general" data-settings-field="currentLanguage">${option("zh-CN", draft.general?.currentLanguage ?? "zh-CN", "简体中文")}${option("en-US", draft.general?.currentLanguage ?? "zh-CN", "English")}${option("ja-JP", draft.general?.currentLanguage ?? "zh-CN", "日本語")}</select><span class="inline-note">第一轮直接持久化 WindowConfig.Settings.CurrentLanguage。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="general" data-settings-field="debug" ${draft.general?.debug ? "checked" : ""} /><div><strong>开启调试模式</strong><div class="inline-note">保存后写回 WindowConfig.Settings.Debug。</div></div></label></div>`;
   }
 
   if (group === "metaTube") {
-    return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">MetaTube 服务地址</span><input class="text-field" type="text" data-settings-group="metaTube" data-settings-field="serverUrl" value="${escapeHtml(draft.metaTube?.serverUrl ?? "")}" placeholder="https://metatube-server.hf.space" /><span class="inline-note">抓取链直接读取 MetaTubeConfig.ServerUrl。</span></label><label class="field-stack"><span class="field-label">请求超时（秒）</span><input class="text-field" type="number" min="15" max="300" data-settings-group="metaTube" data-settings-field="requestTimeoutSeconds" value="${draft.metaTube?.requestTimeoutSeconds ?? 60}" /><span class="inline-note">当前限制为 15 到 300 秒。</span></label></div>`;
+    return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">MetaTube 服务地址</span><input class="text-field" type="text" data-settings-group="metaTube" data-settings-field="serverUrl" value="${escapeHtml(draft.metaTube?.serverUrl ?? "")}" placeholder="https://metatube-server.hf.space" /><span class="inline-note">抓取链直接读取 MetaTubeConfig.ServerUrl。</span></label><label class="field-stack"><span class="field-label">请求超时（秒）</span><input class="text-field" type="number" min="15" max="300" data-settings-group="metaTube" data-settings-field="requestTimeoutSeconds" value="${draft.metaTube?.requestTimeoutSeconds ?? 60}" /><span class="inline-note">当前限制为 15 到 300 秒，诊断会优先使用当前表单里的值。</span></label></div>`;
   }
 
   return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">自定义播放器路径</span><input class="text-field" type="text" data-settings-group="playback" data-settings-field="playerPath" value="${escapeHtml(draft.playback?.playerPath ?? "")}" placeholder="留空则依赖系统默认播放器" /><span class="inline-note">播放链优先使用 WindowConfig.Settings.VideoPlayerPath。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="playback" data-settings-field="useSystemDefaultFallback" ${draft.playback?.useSystemDefaultFallback ? "checked" : ""} /><div><strong>允许回退系统默认播放器</strong><div class="inline-note">关闭后若未配置自定义播放器，将阻止播放请求。</div></div></label></div>`;

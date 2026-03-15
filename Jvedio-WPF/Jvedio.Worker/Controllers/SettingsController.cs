@@ -25,4 +25,16 @@ public sealed class SettingsController : ControllerBase
         var response = settingsService.UpdateSettings(request ?? new UpdateSettingsRequest());
         return ApiResponse<UpdateSettingsResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
+
+    [HttpPost("meta-tube/diagnostics")]
+    public async Task<ActionResult<ApiResponse<RunMetaTubeDiagnosticsResponse>>> RunMetaTubeDiagnosticsAsync(
+        [FromBody] RunMetaTubeDiagnosticsRequest? request,
+        [FromServices] SettingsService settingsService,
+        CancellationToken cancellationToken)
+    {
+        var response = await settingsService.RunMetaTubeDiagnosticsAsync(
+            request ?? new RunMetaTubeDiagnosticsRequest(),
+            cancellationToken);
+        return ApiResponse<RunMetaTubeDiagnosticsResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
 }

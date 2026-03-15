@@ -115,7 +115,10 @@
   - `Playback.UseSystemDefaultFallback`
 - 当前已完成代码接线：
   - Worker 已接入 `GET /api/settings` 与 `PUT /api/settings`
+  - Worker 已接入 `POST /api/settings/meta-tube/diagnostics`
   - Settings 路由壳已支持分组切换、表单态、保存反馈和恢复默认
+  - Settings 页已支持 MetaTube diagnostics 输出
+  - renderer 已消费 `settings.changed`，可实时同步持久化设置并保留未保存草稿
   - 播放链已消费 `UseSystemDefaultFallback`
   - 已新增 `electron/` `npm run regression:settings`
 - 当前已完成验证：

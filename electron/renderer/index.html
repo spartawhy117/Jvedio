@@ -723,6 +723,31 @@
         border-top: 1px solid var(--border);
       }
 
+      .settings-diagnostics-block {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+      }
+
+      .diagnostics-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .diagnostics-log-panel {
+        grid-column: 1 / -1;
+      }
+
+      .diagnostics-log-list {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        display: grid;
+        gap: 6px;
+      }
+
       .video-result-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

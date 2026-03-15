@@ -122,8 +122,10 @@
   - 设置值回读
   - 保存
   - 恢复默认
-- 第一轮暂不进入：
   - MetaTube 诊断
+- 第一轮补充完成：
+  - MetaTube 诊断
+  - `settings.changed` 的 renderer 实时消费
 - 本批不进入：
   - 复杂迁移向导
   - 首启配置流程

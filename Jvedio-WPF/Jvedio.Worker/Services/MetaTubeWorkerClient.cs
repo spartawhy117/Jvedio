@@ -29,8 +29,18 @@ public sealed class MetaTubeWorkerClient
 
     public async Task WarmupAsync(CancellationToken cancellationToken)
     {
-        await GetAsync<Dictionary<string, object>>("/", cancellationToken);
-        await GetAsync<MetaTubeProvidersResponse>("/v1/providers", cancellationToken);
+        await GetServiceDocumentAsync(cancellationToken);
+        await GetProvidersAsync(cancellationToken);
+    }
+
+    public Task<Dictionary<string, object>?> GetServiceDocumentAsync(CancellationToken cancellationToken)
+    {
+        return GetAsync<Dictionary<string, object>>("/", cancellationToken);
+    }
+
+    public Task<MetaTubeProvidersResponse?> GetProvidersAsync(CancellationToken cancellationToken)
+    {
+        return GetAsync<MetaTubeProvidersResponse>("/v1/providers", cancellationToken);
     }
 
     public async Task<IReadOnlyList<MetaTubeMovieSearchResult>> SearchMovieAsync(string vid, CancellationToken cancellationToken)

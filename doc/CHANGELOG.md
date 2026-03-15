@@ -10,6 +10,9 @@
 - 新增 `Jvedio-WPF/Jvedio.Worker/Services/SettingsService.cs` 与 `Controllers/SettingsController.cs`，将设置读取、保存、恢复默认统一收口到 Worker；保存后会发布 `settings.changed` 事件，并让播放链直接消费新的播放器回退策略。
 - 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 Settings 路由壳、分组切换、表单态、保存反馈和恢复默认。
 - 新增 `electron/main/testing/settingsRegression.ts` 与 `electron/` `npm run regression:settings`，通过隔离的 sqlite 配置副本验证设置读取、保存和恢复默认三条最小主链路。
+- 继续收口设置线：新增 `POST /api/settings/meta-tube/diagnostics`，允许 Settings 页直接使用当前表单中的 MetaTube 地址与超时配置执行根地址、providers、测试番号搜索与详情诊断。
+- 更新 renderer 设置页，新增 MetaTube diagnostics 面板，并接入 `settings.changed` 事件消费；当设置被外部更新时，页面会同步最新持久化值，同时保留当前未保存草稿。
+- 扩展 `electron/main/testing/settingsRegression.ts`，新增本地 MetaTube stub 服务，稳定覆盖 MetaTube diagnostics 成功链路以及 `settings.changed` 的 dirty 草稿保护。
 - 完成第三批“影片展示和播放”主链路：新增 `GET /api/libraries/{libraryId}/videos`、`GET /api/videos/{videoId}`、`POST /api/videos/{videoId}/play`，并补齐 `Jvedio.Contracts/Libraries` 与 `Jvedio.Contracts/Videos` 下的影片列表、详情、播放可用性、播放写回相关 DTO。
 - 新增 `Jvedio-WPF/Jvedio.Worker/Services/VideoService.cs` 与 `Controllers/VideosController.cs`，打通库内影片结果集查询、基础筛选/排序、影片详情读取、外部播放器调用和 `metadata.ViewDate` 播放写回；同时在 `LibrariesController.cs` 接入库内影片列表端点。
 - 更新 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，使 Library 页具备影片结果集展示、筛选、排序、刷新、详情路由壳和播放调用入口。

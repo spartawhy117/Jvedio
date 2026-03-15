@@ -7,21 +7,25 @@ namespace Jvedio.Worker.Services;
 
 public sealed class SettingsService
 {
+    private const string DefaultDiagnosticsVideoId = "IPX-001";
     private const string MetaTubeConfigName = "MetaTubeConfig";
     private const int MaxTimeoutSeconds = 300;
     private const int MinTimeoutSeconds = 15;
     private const string SettingsConfigName = "WindowConfig.Settings";
 
     private readonly ConfigStoreService configStoreService;
+    private readonly ILoggerFactory loggerFactory;
     private readonly ILogger<SettingsService> logger;
     private readonly WorkerEventStreamBroker workerEventStreamBroker;
 
     public SettingsService(
         ConfigStoreService configStoreService,
+        ILoggerFactory loggerFactory,
         ILogger<SettingsService> logger,
         WorkerEventStreamBroker workerEventStreamBroker)
     {
         this.configStoreService = configStoreService;
+        this.loggerFactory = loggerFactory;
         this.logger = logger;
         this.workerEventStreamBroker = workerEventStreamBroker;
     }
@@ -77,6 +81,104 @@ public sealed class SettingsService
             Settings = snapshot,
             UpdatedAtUtc = occurredAtUtc,
         };
+    }
+
+    public async Task<RunMetaTubeDiagnosticsResponse> RunMetaTubeDiagnosticsAsync(
+        RunMetaTubeDiagnosticsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var snapshot = BuildSettingsSnapshot();
+        var serverUrl = NormalizeString(request.ServerUrl);
+        if (string.IsNullOrWhiteSpace(serverUrl))
+        {
+            serverUrl = snapshot.MetaTube.ServerUrl;
+        }
+
+        var timeoutSeconds = Math.Clamp(
+            request.RequestTimeoutSeconds ?? snapshot.MetaTube.RequestTimeoutSeconds,
+            MinTimeoutSeconds,
+            MaxTimeoutSeconds);
+        var testVideoId = NormalizeLanguage(request.TestVideoId, DefaultDiagnosticsVideoId);
+        var response = new RunMetaTubeDiagnosticsResponse
+        {
+            CompletedAtUtc = DateTimeOffset.UtcNow,
+            ServerUrl = serverUrl,
+            Steps = new List<string>(),
+            TestVideoId = testVideoId,
+            TimeoutSeconds = timeoutSeconds,
+        };
+
+        response.Steps.Add($"目标地址：{(string.IsNullOrWhiteSpace(serverUrl) ? "未配置" : serverUrl)}");
+        response.Steps.Add($"请求超时：{timeoutSeconds} 秒");
+
+        if (string.IsNullOrWhiteSpace(serverUrl))
+        {
+            response.Success = false;
+            response.Summary = "MetaTube 服务地址为空，无法执行诊断。";
+            response.Steps.Add("请先填写或保存 MetaTube 服务地址。");
+            return response;
+        }
+
+        try
+        {
+            var client = new MetaTubeWorkerClient(
+                serverUrl,
+                timeoutSeconds,
+                loggerFactory.CreateLogger<MetaTubeWorkerClient>());
+
+            response.Steps.Add("开始探测根地址。");
+            await client.GetServiceDocumentAsync(cancellationToken);
+            response.Steps.Add("根地址响应成功。");
+
+            response.Steps.Add("开始读取 providers。");
+            var providers = await client.GetProvidersAsync(cancellationToken) ?? new MetaTubeProvidersResponse();
+            response.ActorProviderCount = providers.ActorProviders.Count;
+            response.MovieProviderCount = providers.MovieProviders.Count;
+            response.Steps.Add($"providers 读取成功：movie={response.MovieProviderCount}，actor={response.ActorProviderCount}。");
+
+            response.Steps.Add($"开始搜索测试番号：{testVideoId}。");
+            var searchResults = await client.SearchMovieAsync(testVideoId, cancellationToken);
+            response.SearchResultCount = searchResults.Count;
+            response.Steps.Add($"影片搜索返回 {response.SearchResultCount} 条结果。");
+
+            var firstResult = searchResults.FirstOrDefault();
+            if (firstResult is null)
+            {
+                response.Success = false;
+                response.Summary = $"MetaTube 可访问，但测试番号 {testVideoId} 未返回结果。";
+                return response;
+            }
+
+            response.MatchedMovieId = firstResult.Id;
+            response.MatchedProvider = firstResult.Provider;
+            response.Steps.Add($"首条命中：provider={firstResult.Provider}，id={firstResult.Id}，number={firstResult.Number}。");
+
+            if (!string.IsNullOrWhiteSpace(firstResult.Provider) && !string.IsNullOrWhiteSpace(firstResult.Id))
+            {
+                response.Steps.Add("开始读取首条命中的详情。");
+                var detail = await client.GetMovieInfoAsync(firstResult.Provider, firstResult.Id, cancellationToken);
+                response.DetailTitle = detail?.Title ?? string.Empty;
+                response.Steps.Add(string.IsNullOrWhiteSpace(response.DetailTitle)
+                    ? "详情接口返回成功，但标题为空。"
+                    : $"详情读取成功：{response.DetailTitle}");
+            }
+
+            response.Success = true;
+            response.Summary = "MetaTube 诊断通过，根地址、providers 和影片搜索链路均可用。";
+            return response;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[Worker-Settings] MetaTube diagnostics failed. serverUrl={ServerUrl}", serverUrl);
+            response.Success = false;
+            response.Summary = $"MetaTube 诊断失败：{ex.Message}";
+            response.Steps.Add($"诊断失败：{ex.Message}");
+            return response;
+        }
+        finally
+        {
+            response.CompletedAtUtc = DateTimeOffset.UtcNow;
+        }
     }
 
     private GetSettingsResponse BuildSettingsSnapshot()

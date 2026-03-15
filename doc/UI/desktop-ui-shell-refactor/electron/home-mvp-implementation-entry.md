@@ -506,6 +506,7 @@ Jvedio.Contracts/
 - 本步目标：
   - `GET /api/settings`
   - `PUT /api/settings`
+  - `POST /api/settings/meta-tube/diagnostics`
   - Settings 路由壳
   - 表单态
   - 保存反馈
@@ -522,6 +523,8 @@ Jvedio.Contracts/
   - Settings 页面已支持 `General / MetaTube / Playback` 三个分组
   - 设置保存后可直接回读
   - 恢复默认已接通
+  - MetaTube diagnostics 已接通根地址、providers、搜索和详情检查
+  - renderer 已消费 `settings.changed`，可同步持久化设置并保留未保存草稿
   - 播放链已消费 `Playback.UseSystemDefaultFallback`
   - 已新增 `electron/` `npm run regression:settings`
 - 当前验证：

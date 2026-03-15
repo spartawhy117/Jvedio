@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环均已完成实现和验证：Settings 路由壳、设置读取/保存/恢复默认和 `regression:settings` 已接通；下一步进入设置消费扩展或演员页。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证：Settings 路由壳、设置读取/保存/恢复默认、MetaTube diagnostics、`settings.changed` renderer 消费和 `regression:settings` 已接通；下一步建议进入演员页。
 
 ## Latest Progress
 
@@ -112,17 +112,18 @@
   - Electron renderer 已新增 Settings 路由壳、分组切换、表单态、保存反馈与恢复默认
   - 播放链已消费 `Playback.UseSystemDefaultFallback`
   - 已新增 `electron/` `npm run regression:settings`
+- 已完成设置线补充收口：
+  - Worker 已新增 `POST /api/settings/meta-tube/diagnostics`
+  - Settings 页已新增 MetaTube diagnostics 面板，可直接诊断当前表单中的服务地址与超时值
+  - renderer 已消费 `settings.changed`，外部设置更新时可同步快照并保留当前未保存草稿
+  - `electron/` `npm run regression:settings` 已覆盖读取、保存、MetaTube diagnostics、`settings.changed` 和恢复默认
 
 ## Next Recommended Work
 
-1. 继续做设置消费扩展：
-   - 让抓取链显式消费更多 Settings 页上的 MetaTube 配置
-   - 评估是否补 `POST /api/settings/meta-tube/diagnostics`
-   - 视需要补 `settings.changed` 的 renderer 端消费
-2. 或者转入演员页：
+1. 进入演员页：
    - 先补演员列表 / 详情 / 关联影片的 Worker 接口
    - 再接演员页路由壳与聚焦回归
-3. 若继续留在设置线：
+2. 若继续留在设置线做增强：
    - 评估补 General 主题项、Data 只读信息区
    - 再决定是否扩为完整 Settings 分组
 

@@ -230,6 +230,34 @@ export interface UpdateSettingsResponse {
   updatedAtUtc: string;
 }
 
+export interface RunMetaTubeDiagnosticsRequest {
+  requestTimeoutSeconds?: number;
+  serverUrl?: string;
+  testVideoId?: string;
+}
+
+export interface RunMetaTubeDiagnosticsResponse {
+  actorProviderCount: number;
+  completedAtUtc: string;
+  detailTitle: string;
+  matchedMovieId: string;
+  matchedProvider: string;
+  movieProviderCount: number;
+  searchResultCount: number;
+  serverUrl: string;
+  steps: readonly string[];
+  success: boolean;
+  summary: string;
+  testVideoId: string;
+  timeoutSeconds: number;
+}
+
+export interface SettingsChangedEventDto {
+  action: string;
+  occurredAtUtc: string;
+  settings: GetSettingsResponse;
+}
+
 export interface VideoAssetStateDto {
   exists: boolean;
   path: string;
