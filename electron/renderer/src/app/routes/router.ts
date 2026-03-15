@@ -22,6 +22,7 @@ export type SettingsRouteGroup = "basic" | "picture" | "scanImport" | "network" 
 export type AppRoute =
   | { kind: "home" }
   | { kind: "category"; name: string; query: LibraryVideoRouteQuery }
+  | { kind: "series"; name: string; query: LibraryVideoRouteQuery }
   | { kind: "favorites"; query: LibraryVideoRouteQuery }
   | { kind: "actors"; query: ActorsRouteQuery }
   | { kind: "actor"; actorId: string; query: ActorsRouteQuery }
@@ -44,6 +45,10 @@ export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto
   }
 
   if (route.kind === "category") {
+    return route;
+  }
+
+  if (route.kind === "series") {
     return route;
   }
 
@@ -87,6 +92,14 @@ export function parseRoute(hash: string): AppRoute {
   if (routePath === "/categories" || routePath === "/categories/") {
     return {
       kind: "category",
+      name: parseSmartGroupName(queryText),
+      query: parseLibraryVideoRouteQuery(queryText),
+    };
+  }
+
+  if (routePath === "/series" || routePath === "/series/") {
+    return {
+      kind: "series",
       name: parseSmartGroupName(queryText),
       query: parseLibraryVideoRouteQuery(queryText),
     };
@@ -152,6 +165,18 @@ export function toHash(route: AppRoute): string {
     return queryString.length > 0
       ? `#/categories?${queryString}`
       : "#/categories";
+  }
+
+  if (route.kind === "series") {
+    const searchParams = new URLSearchParams(buildLibraryVideoRouteQuery(route.query));
+    if (route.name.trim().length > 0) {
+      searchParams.set("name", route.name.trim());
+    }
+
+    const queryString = searchParams.toString();
+    return queryString.length > 0
+      ? `#/series?${queryString}`
+      : "#/series";
   }
 
   if (route.kind === "favorites") {

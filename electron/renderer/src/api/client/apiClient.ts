@@ -153,6 +153,27 @@ export class ApiClient {
     return this.request<GetVideoGroupVideosResponse>(`/api/videos/categories/${encodeURIComponent(categoryName)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`);
   }
 
+  public getSeriesGroups(): Promise<GetVideoGroupsResponse> {
+    return this.request<GetVideoGroupsResponse>("/api/videos/series");
+  }
+
+  public getSeriesVideos(seriesName: string, request: GetVideoGroupVideosRequest): Promise<GetVideoGroupVideosResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+    if (request.missingSidecarOnly) {
+      searchParams.set("missingSidecarOnly", "true");
+    }
+
+    const queryString = searchParams.toString();
+    return this.request<GetVideoGroupVideosResponse>(`/api/videos/series/${encodeURIComponent(seriesName)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`);
+  }
+
   public getActors(request: GetActorsRequest): Promise<GetActorsResponse> {
     const searchParams = new URLSearchParams();
     if (request.keyword.trim().length > 0) {

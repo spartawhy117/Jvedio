@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页，以及智能分类第一项“类别”均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前剩余执行顺序已推进为：`1. 智能分类（系列）`。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页，以及智能分类两项“类别 / 系列”均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前这组 1~4 收尾后，下一步建议切到任务反馈的“全局活动条”收口。
 
 ## Latest Progress
 
@@ -153,6 +153,11 @@
   - renderer 已新增 `#/categories` 一级路由、主壳导航入口、类别列表、类别内影片结果集，以及关键字筛选、排序、刷新
   - 影片详情页已补齐 `Categories -> Video Detail -> Categories` 返回链路
   - 已新增 `electron/` `npm run regression:categories` 与 `electron/main/testing/categoriesRegression.ts`
+- 已完成智能分类第二项“系列”：
+  - Worker 已新增 `GET /api/videos/series` 与 `GET /api/videos/series/{seriesName}/videos`
+  - renderer 已新增 `#/series` 一级路由、主壳导航入口、系列列表、系列内影片结果集，以及关键字筛选、排序、刷新
+  - 影片详情页已补齐 `Series -> Video Detail -> Series` 返回链路
+  - 已新增 `electron/` `npm run regression:series` 与 `electron/main/testing/seriesRegression.ts`
 - 已冻结后续任务状态交互：
   - 不在本轮引入独立任务中心页面
   - 扫描与抓取状态以“库页内联 + 全局活动条 + Home 摘要”承接
@@ -160,12 +165,12 @@
 
 ## Next Recommended Work
 
-1. 智能分类 / 系列：
-   - 复用已落地的 grouped query DTO 与视频结果集渲染
-   - 补 `#/series` 一级路由、系列列表、系列内影片结果集和返回链路
-2. 继续维持任务反馈策略：
-   - 不引入独立任务中心页面
-   - 继续按“库页内联 + 全局活动条 + Home 摘要”承接扫描与抓取状态
+1. 收口全局活动条：
+   - 继续保持“不引入独立任务中心页面”
+   - 把当前已存在的任务摘要 / 库页内联状态补成跨页面可见的全局活动条
+2. 统一任务提示文案与跳转：
+   - 让活动条能稳定指向当前运行中的库工作台
+   - 保持 Home 摘要、库页内联、全局活动条三处状态文案一致
 
 ## Validation Steps
 
@@ -218,6 +223,12 @@
   - 关键字筛选、排序、刷新
   - 从 Categories 下钻到影片详情
   - 从影片详情返回 Categories 并保留筛选 / 排序状态
+- `electron/` `npm run regression:series` 已通过，覆盖：
+  - Series 一级路由与系列列表展示
+  - 系列切换后的影片结果集
+  - 关键字筛选、排序、刷新
+  - 从 Series 下钻到影片详情
+  - 从影片详情返回 Series 并保留筛选 / 排序状态
 - `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建。
 - `electron/` `npm run regression:actors` 已通过，覆盖：
   - Actors 路由壳

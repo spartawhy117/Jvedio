@@ -10,6 +10,7 @@ import { prepareBatch3RegressionEnvironment, runBatch3Regression } from "../test
 import { prepareC3RegressionEnvironment, runC3Regression } from "../testing/c3Regression";
 import { prepareDRegressionEnvironment, runDRegression } from "../testing/dRegression";
 import { prepareFavoritesRegressionEnvironment, runFavoritesRegression } from "../testing/favoritesRegression";
+import { prepareSeriesRegressionEnvironment, runSeriesRegression } from "../testing/seriesRegression";
 import { prepareSettingsRegressionEnvironment, runSettingsRegression } from "../testing/settingsRegression";
 import { WorkerProcessController } from "../worker/workerProcess";
 
@@ -21,6 +22,7 @@ async function bootstrap(): Promise<void> {
   const c3RegressionEnvironment = await prepareC3RegressionEnvironment(electronRoot);
   const dRegressionEnvironment = await prepareDRegressionEnvironment(electronRoot);
   const favoritesRegressionEnvironment = await prepareFavoritesRegressionEnvironment(electronRoot);
+  const seriesRegressionEnvironment = await prepareSeriesRegressionEnvironment(electronRoot);
   const settingsRegressionEnvironment = await prepareSettingsRegressionEnvironment(electronRoot);
   const workerController = new WorkerProcessController(electronRoot);
 
@@ -79,6 +81,13 @@ async function bootstrap(): Promise<void> {
 
   if (favoritesRegressionEnvironment) {
     const success = await runFavoritesRegression(mainWindow, favoritesRegressionEnvironment);
+    await workerController.stop();
+    app.exit(success ? 0 : 1);
+    return;
+  }
+
+  if (seriesRegressionEnvironment) {
+    const success = await runSeriesRegression(mainWindow, seriesRegressionEnvironment);
     await workerController.stop();
     app.exit(success ? 0 : 1);
     return;

@@ -37,6 +37,24 @@ public sealed class VideosController : ControllerBase
         return ApiResponse<GetVideoGroupVideosResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
 
+    [HttpGet("series")]
+    public ActionResult<ApiResponse<GetVideoGroupsResponse>> GetSeries(
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.GetSeriesGroups();
+        return ApiResponse<GetVideoGroupsResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    [HttpGet("series/{seriesName}/videos")]
+    public ActionResult<ApiResponse<GetVideoGroupVideosResponse>> GetSeriesVideos(
+        string seriesName,
+        [FromQuery] GetVideoGroupVideosRequest request,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.GetSeriesVideos(seriesName, request);
+        return ApiResponse<GetVideoGroupVideosResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
     [HttpGet("{videoId}")]
     public ActionResult<ApiResponse<GetVideoDetailResponse>> GetVideo(
         string videoId,

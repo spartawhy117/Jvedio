@@ -59,6 +59,7 @@ interface LibraryActionState { kind: LibraryActionKind; libraryId: string; }
 interface ActorsActionState { kind: "refresh"; }
 interface CategoryActionState { kind: "refresh"; }
 interface FavoritesActionState { kind: "refresh"; }
+interface SeriesActionState { kind: "refresh"; }
 interface SettingsActionState { kind: "reset" | "save"; }
 interface VideoActionState { kind: "play"; videoId: string; }
 
@@ -87,6 +88,10 @@ interface RendererState {
   route: AppRoute;
   routeDataLoading: boolean;
   scanPathDrafts: Record<string, string>;
+  seriesAction: SeriesActionState | null;
+  seriesGroups: GetVideoGroupsResponse | null;
+  seriesQueryDraft: LibraryVideoRouteQuery;
+  seriesVideos: GetVideoGroupVideosResponse | null;
   settingsDiagnostics: RunMetaTubeDiagnosticsResponse | null;
   settingsDiagnosticsRunning: boolean;
   settings: GetSettingsResponse | null;
@@ -130,6 +135,10 @@ export class HomePageController {
     route: { kind: "home" },
     routeDataLoading: false,
     scanPathDrafts: {},
+    seriesAction: null,
+    seriesGroups: null,
+    seriesQueryDraft: createDefaultLibraryVideoRouteQuery(),
+    seriesVideos: null,
     settingsDiagnostics: null,
     settingsDiagnosticsRunning: false,
     settings: null,
@@ -207,6 +216,10 @@ export class HomePageController {
         route,
         routeDataLoading: route.kind !== "home",
         scanPathDrafts: syncScanPathDrafts(this.state.scanPathDrafts, bootstrap.libraries),
+        seriesAction: null,
+        seriesGroups: route.kind === "series" ? this.state.seriesGroups : null,
+        seriesQueryDraft: syncSeriesQueryDraft(this.state.seriesQueryDraft, route),
+        seriesVideos: route.kind === "series" ? this.state.seriesVideos : null,
         settingsAction: route.kind === "settings" ? this.state.settingsAction : null,
         settingsDraft: route.kind === "settings" ? this.state.settingsDraft : null,
         tasks: tasks.tasks,
@@ -253,6 +266,10 @@ export class HomePageController {
       libraryVideoDrafts: syncLibraryVideoDrafts(this.state.libraryVideoDrafts, route),
       route,
       routeDataLoading: route.kind !== "home",
+      seriesAction: route.kind === "series" ? this.state.seriesAction : null,
+      seriesGroups: route.kind === "series" && previousRoute.kind === "series" ? this.state.seriesGroups : null,
+      seriesQueryDraft: syncSeriesQueryDraft(this.state.seriesQueryDraft, route),
+      seriesVideos: route.kind === "series" && previousRoute.kind === "series" ? this.state.seriesVideos : null,
       settingsAction: route.kind === "settings" ? this.state.settingsAction : null,
       settingsDraft: route.kind === "settings" && previousRoute.kind === "settings" ? this.state.settingsDraft : null,
     };
@@ -363,6 +380,37 @@ export class HomePageController {
       return;
     }
 
+    if (target instanceof HTMLInputElement && target.dataset.seriesQueryField === "keyword") {
+      this.state = {
+        ...this.state,
+        seriesQueryDraft: {
+          ...this.state.seriesQueryDraft,
+          keyword: target.value,
+          pageIndex: 0,
+        },
+      };
+      return;
+    }
+
+    if (target instanceof HTMLElement && target.dataset.seriesQueryField) {
+      const current = cloneQuery(this.state.seriesQueryDraft);
+      if (target instanceof HTMLInputElement && target.dataset.seriesQueryField === "missingSidecarOnly") {
+        current.missingSidecarOnly = target.checked;
+      }
+      if (target instanceof HTMLSelectElement && target.dataset.seriesQueryField === "sortBy") {
+        current.sortBy = target.value;
+      }
+      if (target instanceof HTMLSelectElement && target.dataset.seriesQueryField === "sortOrder") {
+        current.sortOrder = target.value === "asc" ? "asc" : "desc";
+      }
+      current.pageIndex = 0;
+      this.state = {
+        ...this.state,
+        seriesQueryDraft: current,
+      };
+      return;
+    }
+
     if (target instanceof HTMLElement && target.dataset.favoritesQueryField) {
       const current = cloneQuery(this.state.favoritesQueryDraft);
       if (target instanceof HTMLInputElement && target.dataset.favoritesQueryField === "missingSidecarOnly") {
@@ -451,6 +499,9 @@ export class HomePageController {
       case "navigate-categories":
         window.location.hash = toHash({ kind: "category", name: this.state.route.kind === "category" ? this.state.route.name : "", query: this.state.categoryQueryDraft });
         return;
+      case "navigate-series":
+        window.location.hash = toHash({ kind: "series", name: this.state.route.kind === "series" ? this.state.route.name : "", query: this.state.seriesQueryDraft });
+        return;
       case "navigate-favorites":
         window.location.hash = toHash({ kind: "favorites", query: this.state.favoritesQueryDraft });
         return;
@@ -502,6 +553,18 @@ export class HomePageController {
       }
       case "refresh-categories":
         await this.refreshCategories();
+        return;
+      case "apply-series-query":
+        window.location.hash = toHash({ kind: "series", name: this.state.route.kind === "series" ? this.state.route.name : "", query: this.state.seriesQueryDraft });
+        return;
+      case "reset-series-query": {
+        const query = createDefaultLibraryVideoRouteQuery();
+        this.state = { ...this.state, seriesQueryDraft: query };
+        window.location.hash = toHash({ kind: "series", name: this.state.route.kind === "series" ? this.state.route.name : "", query });
+        return;
+      }
+      case "refresh-series":
+        await this.refreshSeries();
         return;
       case "apply-favorites-query":
         window.location.hash = toHash({ kind: "favorites", query: this.state.favoritesQueryDraft });
@@ -677,6 +740,14 @@ export class HomePageController {
     this.render();
   }
 
+  private async refreshSeries(): Promise<void> {
+    this.state = { ...this.state, seriesAction: { kind: "refresh" }, inlineError: null, infoMessage: null };
+    this.render();
+    await this.loadRouteData(true, "已刷新系列结果集。");
+    this.state = { ...this.state, seriesAction: null };
+    this.render();
+  }
+
   private async refreshFavorites(): Promise<void> {
     this.state = { ...this.state, favoritesAction: { kind: "refresh" }, inlineError: null, infoMessage: null };
     this.render();
@@ -826,6 +897,11 @@ export class HomePageController {
         return;
       }
 
+      if (route.kind === "series") {
+        await this.loadSeriesRouteData(route, version, infoMessage);
+        return;
+      }
+
       if (route.kind === "favorites") {
         await this.loadFavoritesRouteData(version, infoMessage);
         return;
@@ -932,6 +1008,34 @@ export class HomePageController {
       inlineError: null,
       infoMessage: infoMessage ?? this.state.infoMessage,
       routeDataLoading: false,
+      videoDetail: null,
+    };
+    this.render();
+  }
+
+  private async loadSeriesRouteData(
+    route: Extract<AppRoute, { kind: "series"; }>,
+    version = this.routeLoadVersion,
+    infoMessage?: string,
+  ): Promise<void> {
+    if (!this.apiClient) return;
+
+    const seriesGroups = await this.apiClient.getSeriesGroups();
+    if (version !== this.routeLoadVersion) return;
+
+    const seriesVideos = route.name.trim().length > 0
+      ? await this.apiClient.getSeriesVideos(route.name, route.query)
+      : null;
+    if (version !== this.routeLoadVersion) return;
+
+    this.state = {
+      ...this.state,
+      inlineError: null,
+      infoMessage: infoMessage ?? this.state.infoMessage,
+      routeDataLoading: false,
+      seriesAction: null,
+      seriesGroups,
+      seriesVideos,
       videoDetail: null,
     };
     this.render();
@@ -1134,6 +1238,8 @@ export class HomePageController {
       ? "媒体库总览"
       : this.state.route.kind === "category"
         ? (this.state.route.name.trim().length > 0 ? `类别 · ${this.state.route.name}` : "类别")
+      : this.state.route.kind === "series"
+        ? (this.state.route.name.trim().length > 0 ? `系列 · ${this.state.route.name}` : "系列")
       : this.state.route.kind === "favorites"
         ? "收藏夹"
       : this.state.route.kind === "actors"
@@ -1150,6 +1256,8 @@ export class HomePageController {
       ? "Home"
       : this.state.route.kind === "category"
         ? "Categories"
+      : this.state.route.kind === "series"
+        ? "Series"
       : this.state.route.kind === "favorites"
         ? "Favorites"
       : this.state.route.kind === "actors"
@@ -1170,12 +1278,12 @@ export class HomePageController {
         <aside class="shell-sidebar">
           <div class="sidebar-header"><span class="brand-mark">JV</span><div><div class="brand-title">Jvedio Desktop</div><div class="brand-subtitle">Batch 6 / Smart Lists</div></div></div>
           <button class="primary-button wide-button" data-action="open-create-dialog">新建媒体库</button>
-          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${this.state.route.kind === "favorites" ? "active" : ""}" href="${toHash({ kind: "favorites", query: this.state.favoritesQueryDraft })}"><span>Favorites</span><small>${this.state.favorites?.totalCount ?? 0} items</small></a><a class="nav-link ${this.state.route.kind === "category" ? "active" : ""}" href="${toHash({ kind: "category", name: this.state.route.kind === "category" ? this.state.route.name : "", query: this.state.categoryQueryDraft })}"><span>Categories</span><small>${this.state.categoryGroups?.totalCount ?? 0} groups</small></a><a class="nav-link ${isActorsFamilyRoute(this.state.route) ? "active" : ""}" href="${toHash({ kind: "actors", query: this.state.actorsQueryDraft })}"><span>Actors</span><small>${this.state.actors?.totalCount ?? 0} cast</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "basic" })}"><span>Settings</span><small>6 groups</small></a></nav>
+          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${this.state.route.kind === "favorites" ? "active" : ""}" href="${toHash({ kind: "favorites", query: this.state.favoritesQueryDraft })}"><span>Favorites</span><small>${this.state.favorites?.totalCount ?? 0} items</small></a><a class="nav-link ${this.state.route.kind === "category" ? "active" : ""}" href="${toHash({ kind: "category", name: this.state.route.kind === "category" ? this.state.route.name : "", query: this.state.categoryQueryDraft })}"><span>Categories</span><small>${this.state.categoryGroups?.totalCount ?? 0} groups</small></a><a class="nav-link ${this.state.route.kind === "series" ? "active" : ""}" href="${toHash({ kind: "series", name: this.state.route.kind === "series" ? this.state.route.name : "", query: this.state.seriesQueryDraft })}"><span>Series</span><small>${this.state.seriesGroups?.totalCount ?? 0} groups</small></a><a class="nav-link ${isActorsFamilyRoute(this.state.route) ? "active" : ""}" href="${toHash({ kind: "actors", query: this.state.actorsQueryDraft })}"><span>Actors</span><small>${this.state.actors?.totalCount ?? 0} cast</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "basic" })}"><span>Settings</span><small>6 groups</small></a></nav>
           <section class="nav-section"><div class="nav-section-label">Libraries</div>${renderNav(libraries, this.state.route)}</section>
           <section class="sidebar-footer"><div class="footer-card"><div class="footer-label">Worker</div><div class="footer-value ${worker.healthy ? "status-ok" : "status-error"}">${escapeHtml(worker.status)}</div><div class="footer-hint">${escapeHtml(bootstrap?.app.version ?? this.state.appVersion)}</div></div></section>
         </aside>
         <section class="shell-content">
-          <header class="content-header"><div><span class="eyebrow">${eyebrow}</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(routeDescription(this.state.route.kind))}</p></div><div class="header-actions"><button class="ghost-button" data-action="refresh-home">刷新</button>${this.state.route.kind === "actor" ? `<button class="ghost-button" data-action="navigate-back-to" data-hash="${escapeHtml(toHash({ kind: "actors", query: this.state.actorsQueryDraft }))}">返回演员列表</button>` : ""}${this.state.route.kind === "category" || this.state.route.kind === "favorites" || this.state.route.kind === "library" || this.state.route.kind === "settings" || this.state.route.kind === "actors" || this.state.route.kind === "actor" ? `<button class="ghost-button" data-action="navigate-home">返回 Home</button>` : ""}${this.state.route.kind === "video" && this.state.route.backTo ? `<button class="ghost-button" data-action="navigate-back-to" data-hash="${escapeHtml(this.state.route.backTo)}">${escapeHtml(backToLabel)}</button>` : ""}${this.state.route.kind === "video" && this.state.videoDetail ? `<button class="ghost-button" data-action="navigate-library" data-library-id="${escapeHtml(this.state.videoDetail.libraryId)}">返回媒体库</button>` : ""}</div></header>
+          <header class="content-header"><div><span class="eyebrow">${eyebrow}</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(routeDescription(this.state.route.kind))}</p></div><div class="header-actions"><button class="ghost-button" data-action="refresh-home">刷新</button>${this.state.route.kind === "actor" ? `<button class="ghost-button" data-action="navigate-back-to" data-hash="${escapeHtml(toHash({ kind: "actors", query: this.state.actorsQueryDraft }))}">返回演员列表</button>` : ""}${this.state.route.kind === "category" || this.state.route.kind === "series" || this.state.route.kind === "favorites" || this.state.route.kind === "library" || this.state.route.kind === "settings" || this.state.route.kind === "actors" || this.state.route.kind === "actor" ? `<button class="ghost-button" data-action="navigate-home">返回 Home</button>` : ""}${this.state.route.kind === "video" && this.state.route.backTo ? `<button class="ghost-button" data-action="navigate-back-to" data-hash="${escapeHtml(this.state.route.backTo)}">${escapeHtml(backToLabel)}</button>` : ""}${this.state.route.kind === "video" && this.state.videoDetail ? `<button class="ghost-button" data-action="navigate-library" data-library-id="${escapeHtml(this.state.videoDetail.libraryId)}">返回媒体库</button>` : ""}</div></header>
           ${this.state.workerWarning ? `<div class="page-banner warning-banner">${escapeHtml(this.state.workerWarning)}</div>` : ""}
           ${this.state.inlineError ? `<div class="page-banner error-banner">${escapeHtml(this.state.inlineError)}</div>` : ""}
           ${this.state.infoMessage ? `<div class="page-banner info-banner">${escapeHtml(this.state.infoMessage)}</div>` : ""}
@@ -1196,6 +1304,17 @@ export class HomePageController {
         categoryVideos: this.state.categoryVideos,
         currentQuery: this.state.categoryQueryDraft,
         routeDataLoading: this.state.routeDataLoading,
+        worker,
+      });
+    }
+    if (this.state.route.kind === "series") {
+      return renderSeriesRoute({
+        currentQuery: this.state.seriesQueryDraft,
+        routeDataLoading: this.state.routeDataLoading,
+        seriesAction: this.state.seriesAction,
+        seriesGroups: this.state.seriesGroups,
+        seriesName: this.state.route.name,
+        seriesVideos: this.state.seriesVideos,
         worker,
       });
     }
@@ -1310,6 +1429,31 @@ function renderCategoryRoute(args: {
   return `<section class="metric-grid">${metric("类别数", String(categoryGroups?.totalCount ?? 0), "来自 /api/videos/categories 聚合结果")}${metric("当前类别", selectedGroup?.name || "未选择", "左侧列表与右侧结果集共享同一路由")}${metric("当前关键字", keywordSummary, "类别页复用统一影片筛选模型")}${metric("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout"><aside class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Category Groups</span><h2>类别列表</h2></div><div class="section-meta">${categoryGroups ? `${categoryGroups.totalCount} groups` : "等待加载"}</div></div>${routeDataLoading && !categoryGroups ? renderRouteLoading("正在拉取类别聚合结果...") : renderCategoryGroups(categoryGroups, categoryName, currentQuery)}${selectedGroup ? `<div class="worker-note"><div class="note-label">当前类别</div><div class="note-value">${escapeHtml(selectedGroup.name)}</div><div class="footer-hint">${selectedGroup.videoCount} 部影片 · 最近扫描 ${escapeHtml(selectedGroup.lastScanAt ? formatDate(selectedGroup.lastScanAt) : "未记录")}</div></div>` : `<div class="worker-note"><div class="note-label">使用说明</div><div class="footer-hint">当前列表按作品数降序排列，便于先浏览大类聚合。</div></div>`}</aside><section class="surface-card video-results-surface"><div class="section-header"><div><span class="eyebrow">Category Videos</span><h2>${escapeHtml(selectedGroup?.name || "类别结果集")}</h2></div><div class="section-meta">${selectedGroup ? `${selectedGroup.videoCount} items` : "请先选择类别"}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-category-query-field="keyword" value="${escapeHtml(currentQuery.keyword)}" placeholder="按标题、VID 或路径筛选当前类别" /><select class="select-field" data-category-query-field="sortBy">${option("lastScanDate", currentQuery.sortBy, "最近扫描")}${option("title", currentQuery.sortBy, "标题")}${option("vid", currentQuery.sortBy, "VID")}${option("releaseDate", currentQuery.sortBy, "发行日期")}${option("lastPlayedAt", currentQuery.sortBy, "最近播放")}${option("viewCount", currentQuery.sortBy, "播放次数")}</select><select class="select-field" data-category-query-field="sortOrder">${option("desc", currentQuery.sortOrder, "降序")}${option("asc", currentQuery.sortOrder, "升序")}</select><label class="toggle-chip"><input type="checkbox" data-category-query-field="missingSidecarOnly" ${currentQuery.missingSidecarOnly ? "checked" : ""}/><span>仅看缺 sidecar</span></label><button class="primary-button" data-action="apply-category-query" ${!categoryName.trim() ? "disabled" : ""}>应用筛选</button><button class="ghost-button" data-action="reset-category-query">重置</button><button class="ghost-button" data-action="refresh-categories" ${refreshing ? "disabled" : ""}>${refreshing ? "刷新中..." : "刷新结果"}</button></div>${resultsBlock}</section></section>`;
 }
 
+function renderSeriesRoute(args: {
+  currentQuery: LibraryVideoRouteQuery;
+  routeDataLoading: boolean;
+  seriesAction: SeriesActionState | null;
+  seriesGroups: GetVideoGroupsResponse | null;
+  seriesName: string;
+  seriesVideos: GetVideoGroupVideosResponse | null;
+  worker: WorkerStatusDto;
+}): string {
+  const { currentQuery, routeDataLoading, seriesAction, seriesGroups, seriesName, seriesVideos, worker } = args;
+  const refreshing = seriesAction?.kind === "refresh";
+  const keywordSummary = currentQuery.keyword.trim().length > 0 ? currentQuery.keyword.trim() : "未设置";
+  const selectedGroup = seriesGroups?.items.find((item) => item.name.localeCompare(seriesName, undefined, { sensitivity: "accent" }) === 0) ?? null;
+  const backToHash = seriesName.trim().length > 0
+    ? toHash({ kind: "series", name: seriesName, query: currentQuery })
+    : null;
+  const resultsBlock = !seriesName.trim()
+    ? `<div class="empty-card"><h3>请选择系列</h3><p>从左侧系列列表选择一项后，即可查看对应影片结果集。</p></div>`
+    : routeDataLoading && !seriesVideos
+      ? renderRouteLoading("正在拉取当前系列影片结果集...")
+      : renderVideoResults(seriesVideos, currentQuery, backToHash, `系列“${seriesName}”下暂无影片。`);
+
+  return `<section class="metric-grid">${metric("系列数", String(seriesGroups?.totalCount ?? 0), "来自 /api/videos/series 聚合结果")}${metric("当前系列", selectedGroup?.name || "未选择", "左侧列表与右侧结果集共享同一路由")}${metric("当前关键字", keywordSummary, "系列页复用统一影片筛选模型")}${metric("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout"><aside class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Series Groups</span><h2>系列列表</h2></div><div class="section-meta">${seriesGroups ? `${seriesGroups.totalCount} groups` : "等待加载"}</div></div>${routeDataLoading && !seriesGroups ? renderRouteLoading("正在拉取系列聚合结果...") : renderSeriesGroups(seriesGroups, seriesName, currentQuery)}${selectedGroup ? `<div class="worker-note"><div class="note-label">当前系列</div><div class="note-value">${escapeHtml(selectedGroup.name)}</div><div class="footer-hint">${selectedGroup.videoCount} 部影片 · 最近扫描 ${escapeHtml(selectedGroup.lastScanAt ? formatDate(selectedGroup.lastScanAt) : "未记录")}</div></div>` : `<div class="worker-note"><div class="note-label">使用说明</div><div class="footer-hint">当前列表按作品数降序排列，便于先浏览主系列聚合。</div></div>`}</aside><section class="surface-card video-results-surface"><div class="section-header"><div><span class="eyebrow">Series Videos</span><h2>${escapeHtml(selectedGroup?.name || "系列结果集")}</h2></div><div class="section-meta">${selectedGroup ? `${selectedGroup.videoCount} items` : "请先选择系列"}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-series-query-field="keyword" value="${escapeHtml(currentQuery.keyword)}" placeholder="按标题、VID 或路径筛选当前系列" /><select class="select-field" data-series-query-field="sortBy">${option("lastScanDate", currentQuery.sortBy, "最近扫描")}${option("title", currentQuery.sortBy, "标题")}${option("vid", currentQuery.sortBy, "VID")}${option("releaseDate", currentQuery.sortBy, "发行日期")}${option("lastPlayedAt", currentQuery.sortBy, "最近播放")}${option("viewCount", currentQuery.sortBy, "播放次数")}</select><select class="select-field" data-series-query-field="sortOrder">${option("desc", currentQuery.sortOrder, "降序")}${option("asc", currentQuery.sortOrder, "升序")}</select><label class="toggle-chip"><input type="checkbox" data-series-query-field="missingSidecarOnly" ${currentQuery.missingSidecarOnly ? "checked" : ""}/><span>仅看缺 sidecar</span></label><button class="primary-button" data-action="apply-series-query" ${!seriesName.trim() ? "disabled" : ""}>应用筛选</button><button class="ghost-button" data-action="reset-series-query">重置</button><button class="ghost-button" data-action="refresh-series" ${refreshing ? "disabled" : ""}>${refreshing ? "刷新中..." : "刷新结果"}</button></div>${resultsBlock}</section></section>`;
+}
+
 function renderActorsRoute(args: {
   actors: GetActorsResponse | null;
   actorsAction: ActorsActionState | null;
@@ -1355,6 +1499,22 @@ function renderCategoryGroups(
   }
 
   return `<div class="settings-group-nav">${response.items.map((item) => `<a class="nav-link ${item.name === currentName ? "active" : ""}" data-category-group-name="${escapeHtml(item.name)}" href="${toHash({ kind: "category", name: item.name, query })}"><span>${escapeHtml(item.name)}</span><small>${item.videoCount} items</small></a>`).join("")}</div>`;
+}
+
+function renderSeriesGroups(
+  response: GetVideoGroupsResponse | null,
+  currentName: string,
+  query: LibraryVideoRouteQuery,
+): string {
+  if (!response) {
+    return `<div class="empty-card compact-empty"><h3>系列尚未加载</h3><p>稍后将展示 Worker 聚合出的系列列表。</p></div>`;
+  }
+
+  if (response.items.length === 0) {
+    return `<div class="empty-card compact-empty"><h3>暂无系列</h3><p>当前还没有写回系列数据，请先完成抓取。</p></div>`;
+  }
+
+  return `<div class="settings-group-nav">${response.items.map((item) => `<a class="nav-link ${item.name === currentName ? "active" : ""}" data-series-group-name="${escapeHtml(item.name)}" href="${toHash({ kind: "series", name: item.name, query })}"><span>${escapeHtml(item.name)}</span><small>${item.videoCount} items</small></a>`).join("")}</div>`;
 }
 
 function renderLibraryRoute(args: { draft: LibraryVideoRouteQuery; library: LibraryListItemDto; pendingAction: LibraryActionKind | null; response: GetLibraryVideosResponse | undefined; routeDataLoading: boolean; runningTask: WorkerTaskDto | null; scanPathDraft: string; summary: TaskSummaryDto; tasks: readonly WorkerTaskDto[]; worker: WorkerStatusDto; }): string {
@@ -1542,7 +1702,7 @@ function asset(label: string, exists: boolean): string { return `<span class="as
 function option(value: string, current: string, label: string): string { return `<option value="${escapeHtml(value)}" ${value === current ? "selected" : ""}>${escapeHtml(label)}</option>`; }
 function renderRouteLoading(message: string): string { return `<section class="loading-shell"><div class="loading-card"><span class="eyebrow">Loading</span><h2>正在同步路由数据</h2><p>${escapeHtml(message)}</p></div></section>`; }
 function renderLoading(): string { return `<section class="loading-shell"><div class="loading-card"><span class="eyebrow">Loading</span><h2>正在加载桌面壳数据</h2><p>读取 bootstrap、libraries、tasks 和当前路由所需的数据。</p></div></section>`; }
-function routeDescription(kind: AppRoute["kind"]): string { return kind === "home" ? "当前壳层已覆盖库列表、任务摘要和设置入口。" : kind === "category" ? "这里承载智能分类里的类别聚合结果，并复用统一影片详情和播放链路。" : kind === "favorites" ? "这里承接收藏聚合结果，并复用统一影片详情和播放链路。" : kind === "actors" ? "这里承载演员聚合结果、筛选排序和分页。" : kind === "actor" ? "这里承载演员头部信息、关联影片和到影片详情的返回链路。" : kind === "library" ? "这里同时承载扫描/抓取工作台和影片结果集。" : kind === "settings" ? "第四批聚焦真正落库且能被播放/抓取链消费的设置项。" : "基础详情、播放调用和播放写回已在这一页打通。"; }
+function routeDescription(kind: AppRoute["kind"]): string { return kind === "home" ? "当前壳层已覆盖库列表、任务摘要和设置入口。" : kind === "category" ? "这里承载智能分类里的类别聚合结果，并复用统一影片详情和播放链路。" : kind === "series" ? "这里承载智能分类里的系列聚合结果，并复用统一影片详情和播放链路。" : kind === "favorites" ? "这里承接收藏聚合结果，并复用统一影片详情和播放链路。" : kind === "actors" ? "这里承载演员聚合结果、筛选排序和分页。" : kind === "actor" ? "这里承载演员头部信息、关联影片和到影片详情的返回链路。" : kind === "library" ? "这里同时承载扫描/抓取工作台和影片结果集。" : kind === "settings" ? "第四批聚焦真正落库且能被播放/抓取链消费的设置项。" : "基础详情、播放调用和播放写回已在这一页打通。"; }
 function cloneActorsQuery(query: ActorsRouteQuery): ActorsRouteQuery { return { keyword: query.keyword, pageIndex: query.pageIndex, pageSize: query.pageSize, sortBy: query.sortBy, sortOrder: query.sortOrder }; }
 function cloneQuery(query: LibraryVideoRouteQuery): LibraryVideoRouteQuery { return { keyword: query.keyword, missingSidecarOnly: query.missingSidecarOnly, pageIndex: query.pageIndex, pageSize: query.pageSize, sortBy: query.sortBy, sortOrder: query.sortOrder }; }
 function createDefaultSettingsResponse(): GetSettingsResponse { return { general: { currentLanguage: "zh-CN", debug: false }, metaTube: { requestTimeoutSeconds: 60, serverUrl: "" }, playback: { playerPath: "", useSystemDefaultFallback: true } }; }
@@ -1554,6 +1714,7 @@ function settingsGroupTitle(group: SettingsRouteGroup): string { return group ==
 function settingsGroupDescription(group: SettingsRouteGroup): string { return group === "basic" ? "语言、状态和播放器基础设置。" : group === "picture" ? "图片缓存、主图策略和固定路径说明。" : group === "scanImport" ? "扫描、导入和基础索引开关。" : group === "network" ? "网络请求和代理相关设置承载。" : group === "library" ? "索引与库维护动作的页签壳。" : "抓取服务地址、超时和诊断。"; }
 function toSettingsGroup(value: string | undefined): SettingsRouteGroup { return value === "picture" || value === "scanImport" || value === "network" || value === "library" || value === "metaTube" ? value : "basic"; }
 function syncCategoryQueryDraft(current: LibraryVideoRouteQuery, route: AppRoute): LibraryVideoRouteQuery { return route.kind === "category" ? cloneQuery(route.query) : current; }
+function syncSeriesQueryDraft(current: LibraryVideoRouteQuery, route: AppRoute): LibraryVideoRouteQuery { return route.kind === "series" ? cloneQuery(route.query) : current; }
 function syncFavoritesQueryDraft(current: LibraryVideoRouteQuery, route: AppRoute): LibraryVideoRouteQuery { return route.kind === "favorites" ? cloneQuery(route.query) : current; }
 function syncActorsQueryDraft(current: ActorsRouteQuery, route: AppRoute): ActorsRouteQuery { return isActorsFamilyRoute(route) ? cloneActorsQuery(route.query) : current; }
 function isActorsFamilyRoute(route: AppRoute): route is Extract<AppRoute, { kind: "actors" | "actor"; }> { return route.kind === "actors" || route.kind === "actor"; }
@@ -1575,6 +1736,8 @@ function describeBackToAction(hash: string | null): string {
   const route = parseRoute(hash);
   return route.kind === "category"
     ? "返回类别"
+    : route.kind === "series"
+      ? "返回系列"
     : route.kind === "favorites"
     ? "返回 Favorites"
     : route.kind === "actors" || route.kind === "actor"

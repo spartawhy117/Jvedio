@@ -93,6 +93,34 @@ public sealed class VideoService
         };
     }
 
+    public GetVideoGroupsResponse GetSeriesGroups()
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var groups = LoadVideoGroups(connection, static record => record.Series);
+
+        return new GetVideoGroupsResponse
+        {
+            Items = groups,
+            TotalCount = groups.Count,
+        };
+    }
+
+    public GetVideoGroupVideosResponse GetSeriesVideos(string seriesName, GetVideoGroupVideosRequest request)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var videos = LoadVideosByGroup(connection, static record => record.Series, seriesName);
+        var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly);
+        var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
+
+        return new GetVideoGroupVideosResponse
+        {
+            Items = pagedResult.Items,
+            PageIndex = pagedResult.PageIndex,
+            PageSize = pagedResult.PageSize,
+            TotalCount = pagedResult.TotalCount,
+        };
+    }
+
     public GetVideoDetailResponse GetVideoDetail(string videoId)
     {
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
