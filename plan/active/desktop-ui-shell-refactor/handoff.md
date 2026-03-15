@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 B：renderer / 页面规格 / contracts 冻结收尾。
+- 阶段 B 完成：准备进入阶段 C 的 Home MVP 实现准备。
 
 ## Latest Progress
 
@@ -29,6 +29,7 @@
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录推进到文件级骨架和 feature 边界。
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker API 的请求/响应、任务模型、错误流和 SSE 订阅模型。
 - 已完成五个页面文档与 renderer 组件边界对齐，页面规格已补齐 section、页面状态、API 依赖和分批实现边界。
+- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts、事件、任务 payload 和错误码前缀。
 - 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
 - 现有根目录 UI 文档已标注 Electron 规格为当前主入口，旧 WPF 线稿不再作为默认实施路线。
 
@@ -44,14 +45,16 @@
 - 路径 C：
   - 先做 Electron 壳层与 localhost 通路 Spike
 
-1. 执行路径 A 的第 2 步，基于 `worker-api-spec.md` 冻结 contracts 目录和 DTO 命名规则：
-   - bootstrap
-   - libraries
-   - videos
-   - actors
-   - settings
-   - tasks
-2. 页面规格与 contracts 同步完成后，再进入阶段 C 的 Home 库管理最小闭环实现。
+1. 执行路径 A 的第 3 步，准备阶段 C 的 Home 库管理最小闭环实现：
+   - Home 页库列表
+   - 新建库
+   - 删除库
+   - 左侧库导航同步
+   - bootstrap / libraries / tasks 摘要读取
+2. 开工前补一份实现入口文档：
+   - Electron 工程骨架范围
+   - Worker 宿主范围
+   - 首批 contracts 落地顺序
 
 ## Validation Steps
 
@@ -63,6 +66,7 @@
 - `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md` 存在且能直接指导页面落地拆分。
 - `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md` 存在且能直接指导 renderer 建目录。
 - `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md` 存在且能直接指导 contracts 冻结。
+- `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md` 存在且能直接指导 `Jvedio.Contracts` 建目录。
 - Release 构建通过。
 
 ## Blockers And Caveats

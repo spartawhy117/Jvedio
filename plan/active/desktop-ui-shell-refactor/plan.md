@@ -240,6 +240,20 @@
     - event payload 名称
     - 错误码前缀
 
+### 第 2 步当前结果
+
+- 已完成。
+- 冻结文档：
+  - `worker-api-spec.md`
+  - `contracts-naming.md`
+- 已冻结范围：
+  - `bootstrap`
+  - `libraries`
+  - `videos`
+  - `actors`
+  - `settings`
+  - `tasks`
+
 ### 第 3 步：准备第一批实现入口
 
 - 目标：
@@ -255,6 +269,14 @@
   - 抓取
   - 影片详情
   - Settings 全量接入
+
+### 第 3 步推荐输出
+
+- 新增实现入口文档，明确：
+  - Electron main / preload / renderer 的首批工程范围
+  - Worker 宿主与 localhost API 的首批工程范围
+  - `Jvedio.Contracts`、`Jvedio.Worker`、renderer 三边的首批落地顺序
+  - Home MVP 的 done 定义与验证顺序
 
 ## 下一步完成标准
 

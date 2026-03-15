@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts 的 DTO 命名、task payload 命名、event payload 命名与错误码前缀，并将其作为未来 `Jvedio.Contracts` 的首批目录输入。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-home.md`、`page-library.md`、`page-actors.md`、`page-video-detail.md`、`page-settings.md`，使五个页面规格与 `renderer-architecture.md` 对齐，补齐页面级组件、section 结构、页面状态、API 依赖和分批实现边界。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 与 `doc/UI/desktop-ui-shell-refactor/electron/validation-flow.md`，新增“方案路径”与推荐下一步，明确当前推荐先完成页面规格和 contracts 冻结，再进入 Home 库管理最小闭环实现。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录从粗粒度页面草图细化到 `app / api / features / components / hooks / styles / types / utils` 的真实文件级骨架，并明确 Home、Library、Actors、Video Detail、Settings 的组件拆分边界。

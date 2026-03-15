@@ -11,7 +11,8 @@
 5. 页面文档
 6. `backend-bridge.md`
 7. `worker-api-spec.md`
-8. `validation-flow.md`
+8. `contracts-naming.md`
+9. `validation-flow.md`
 
 目录说明：
 
@@ -37,6 +38,8 @@
   - Electron 与 Worker 的职责边界、接口分组和事件流
 - `worker-api-spec.md`
   - Worker API 的请求/响应、任务模型、错误流和 SSE 细化草案
+- `contracts-naming.md`
+  - `Jvedio.Contracts` 的首批 DTO、事件、任务 payload 和错误码前缀冻结草案
 - `validation-flow.md`
   - 分批验证流程
 

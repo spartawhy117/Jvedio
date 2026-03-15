@@ -5,6 +5,7 @@
 - 把现有“端点清单”推进到“可开始定义 contracts”的粒度。
 - 先固定请求/响应、异步任务、错误流和事件订阅模型，再进入代码实现。
 - 保持 Worker 只服务本机 Electron renderer，不引入远程服务语义。
+- 具体 DTO 命名与错误码前缀以 `contracts-naming.md` 为准。
 
 ## 通信约束
 
@@ -510,6 +511,7 @@
 - renderer 只保留一个全局 SSE 连接
 - `open-folder` 这类短操作不做任务化
 - Settings 诊断接口单独成端点，不混进通用保存接口
+- DTO、任务 payload 和错误码前缀已单独冻结到 `contracts-naming.md`
 
 ## 仍保留的开放问题
 
