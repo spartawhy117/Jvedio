@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已收口到“库页内联 + 全局活动条 + Home 摘要”，下一步进入受影响 Electron 聚焦回归与 Release 构建的稳定化清扫。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，这一轮既定 1~4 与稳定化清扫均已完成。
 
 ## Latest Progress
 
@@ -168,22 +168,19 @@
   - Home 与 Library 间可通过活动条直接跳回目标库工作台
   - 库页内联任务提示、活动条文案与 Home 摘要已统一到同一套任务文案语义
   - 已新增 `electron/` `npm run regression:activity` 与 `electron/main/testing/activityRegression.ts`
+- 已完成稳定化清扫：
+  - `batch3Regression.ts` 已修正 `#/videos/{videoId}?backTo=...` 场景下的 `videoId` 提取逻辑，避免把查询串误并入详情 API 请求
+  - renderer Home / Library 任务摘要 note 已暴露原始 `data-last-updated-utc`，使 `task.summary.changed` 回归校验稳定可判
+  - 当前受影响回归矩阵与 Release 构建已再次全绿
 
 ## Next Recommended Work
 
-1. 跑完整受影响 Electron 聚焦回归矩阵：
-   - `regression:c3`
-   - `regression:d`
-   - `regression:batch3`
-   - `regression:settings`
-   - `regression:actors`
-   - `regression:favorites`
-   - `regression:categories`
-   - `regression:series`
-   - `regression:activity`
-2. 重新执行 Release 构建并修复所有回归失败：
-   - 对失败项逐个修复并最小回归
-   - 清空当前 Electron 路线已完成功能的稳定性债务
+1. 为下一批产品工作重新冻结范围：
+   - 当前 1~4 与相关收尾项已经全部完成
+   - 下一步需要重新定义新的功能批次，而不是继续在当前批次里追加范围
+2. 如果继续沿 Electron 线推进，优先考虑新的用户可见增量：
+   - 更细的任务失败详情与重试入口
+   - Home / Library / Favorites / Categories / Series 的视觉收口与交互一致性打磨
 
 ## Validation Steps
 
@@ -230,6 +227,17 @@
   - 全局活动条跨页面保留当前任务提示
   - 活动条可跳回目标库工作台
   - 扫描完成后活动条 active 状态收口
+- 最新稳定化验证已通过：
+  - `electron/` `npm run regression:c3`
+  - `electron/` `npm run regression:d`
+  - `electron/` `npm run regression:batch3`
+  - `electron/` `npm run regression:settings`
+  - `electron/` `npm run regression:actors`
+  - `electron/` `npm run regression:favorites`
+  - `electron/` `npm run regression:categories`
+  - `electron/` `npm run regression:series`
+  - `electron/` `npm run regression:activity`
+  - `Jvedio-WPF/Jvedio.sln` `Release` 构建
 - `electron/` `npm run regression:favorites` 已通过，覆盖：
   - Favorites 一级路由与结果集展示
   - 关键字筛选、排序、刷新

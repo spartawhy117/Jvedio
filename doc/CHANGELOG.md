@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 完成 Electron 稳定化修复：`electron/main/testing/batch3Regression.ts` 已改为从 `location.hash` 稳定拆出 `videoId`，避免 `#/videos/{videoId}?backTo=...` 场景把查询串误拼进 `GET /api/videos/{videoId}`，恢复第三批播放写回回归。
+- 更新 `electron/renderer/src/features/home/useHomePageData.ts`，为 Home 与 Library 的任务摘要 note 补充原始 `data-last-updated-utc` 标记，稳定支持 `task.summary.changed` 回归对摘要刷新时间的判定。
 - 收口任务反馈的全局活动条：更新 `electron/renderer/src/features/home/useHomePageData.ts`，在主内容区头部新增跨页面可见的活动条，统一展示当前运行或最近失败任务的库名、状态、进度、阶段，并提供跳回目标库工作台与刷新任务入口。
 - 更新 `electron/renderer/index.html`，新增全局活动条、活动状态胶囊和移动端响应式布局样式，使“库页内联 + 全局活动条 + Home 摘要”成为当前固定任务反馈形态，不再引入独立任务中心页面。
 - 新增 `electron/main/testing/activityRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:activity`，通过隔离 sqlite 副本和 18 个样例影片稳定覆盖活动条出现、跨页面保留、跳回库工作台与任务结束后收口。

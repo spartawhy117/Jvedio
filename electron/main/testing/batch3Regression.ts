@@ -328,10 +328,12 @@ export async function runBatch3Regression(
   if (!playCall.passed) return false;
 
   const playbackWriteback = await captureCheck("播放写回", async () => {
-    const snapshot = await executeInRenderer<{ hash: string }>(mainWindow, `(() => ({ hash: location.hash }))()`);
-    const videoId = snapshot.hash.replace(/^#\/videos\//, '').trim();
+    const hash = await executeInRenderer<string>(mainWindow, `(() => location.hash || "")()`);
+    const trimmedHash = hash.replace(/^#/, "");
+    const [routePath] = trimmedHash.split("?");
+    const videoId = routePath.replace(/^\/videos\//, "").trim();
     if (!videoId) {
-      throw new Error(`当前详情路由缺少 videoId: ${snapshot.hash}`);
+      throw new Error(`当前详情路由缺少 videoId: ${hash}`);
     }
 
     const workerBaseUrl = await getWorkerBaseUrl(mainWindow);
