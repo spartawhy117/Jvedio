@@ -142,6 +142,9 @@
 - 更新 `electron/renderer/src/features/home/useHomePageData.ts`，将演员详情从列表抽屉切换为右侧内容区独立页，保留 Actors 列表筛选 / 排序 / 分页状态，并打通 `Actors -> Actor Detail -> Video Detail` 返回链路。
 - 更新 `electron/main/testing/actorsRegression.ts`，将最后一段回归从抽屉验证改为独立演员详情页、关联影片下钻和返回演员详情的闭环验证。
 - 更新 `plan/active/desktop-ui-shell-refactor/` 相关文档，确认演员详情页已完成，下一步进入 Settings 第二轮页签对齐。
+- 更新 `electron/renderer/src/app/routes/router.ts` 与 `electron/renderer/src/features/home/useHomePageData.ts`，将 Settings 导航扩展为 `Basic / Picture / Scan & Import / Network / Library / MetaTube` 6 个页签，并把真正落库的 General / Playback 项收拢到 `Basic` 页签。
+- 更新 `electron/main/testing/settingsRegression.ts`，新增 6 页签校验，并保持读取、保存、MetaTube diagnostics、`settings.changed` 与恢复默认的最小主链路回归。
+- 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-settings.md` 与 `plan/active/desktop-ui-shell-refactor/` 文档，确认 Settings 第二轮页签对齐已完成，下一步进入 Favorites。
 
 ## [2026-03-15]
 

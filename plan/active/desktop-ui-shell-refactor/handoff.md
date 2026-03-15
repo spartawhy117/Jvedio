@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员页当前已完成第三轮收口：Actors 路由壳、列表结果集、筛选排序、演员详情头部消费、头像真实路径解析 / 占位策略、结果分页和扩展排序，以及右侧内容区独立演员详情页、`Actors -> Actor Detail -> Video Detail` 返回链路均已接通。后续执行顺序已冻结为：`1. Settings 第二轮页签对齐`、`2. Favorites`、`3. 智能分类（类别）`、`4. 智能分类（系列）`。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐，以及演员页第三轮收口均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。后续执行顺序已冻结为：`1. Favorites`、`2. 智能分类（类别）`、`3. 智能分类（系列）`。
 
 ## Latest Progress
 
@@ -117,6 +117,11 @@
   - Settings 页已新增 MetaTube diagnostics 面板，可直接诊断当前表单中的服务地址与超时值
   - renderer 已消费 `settings.changed`，外部设置更新时可同步快照并保留当前未保存草稿
   - `electron/` `npm run regression:settings` 已覆盖读取、保存、MetaTube diagnostics、`settings.changed` 和恢复默认
+- 已完成 Settings 第二轮页签对齐：
+  - renderer 已将 Settings 导航扩展为 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`
+  - `Basic` 页签现已承接语言、调试、播放器路径和系统默认回退策略
+  - `Picture / Scan & Import / Network / Library` 页签已按当前 WPF 设置页的已有开关 / 输入项补齐结构化承载
+  - `regression:settings` 已补充 6 页签校验，并继续覆盖读取、保存、MetaTube diagnostics、`settings.changed` 和恢复默认
 - 已完成演员线 Worker 查询接口第一轮：
   - Worker 已新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`
   - 已新增 `Jvedio.Contracts/Actors` 下的演员列表、详情、关联影片 DTO
@@ -143,17 +148,13 @@
 
 ## Next Recommended Work
 
-1. Settings 第二轮：
-   - 页签数量与当前既有设置页保持一致
-   - 每个页签按当前已有开关 / 输入项呈现
-   - 本轮不做细节打磨，优先保证结构对齐和可访问
-2. Favorites：
+1. Favorites：
    - 先补最小路由壳、结果集和与统一影片卡片的衔接
    - 复用现有播放、详情和返回链路
-3. 智能分类 / 类别：
+2. 智能分类 / 类别：
    - 先补类别路由、列表和结果集
    - 保持最小闭环：跳转到影片详情并复用现有返回链路
-4. 智能分类 / 系列：
+3. 智能分类 / 系列：
    - 在类别页稳定后接系列页
    - 继续复用统一影片卡片和影片详情返回链路
 
@@ -192,7 +193,10 @@
   - 播放写回
 - `electron/` `npm run regression:settings` 已通过，覆盖：
   - 设置读取
+  - 6 个页签可访问
   - 设置保存
+  - MetaTube diagnostics
+  - `settings.changed`
   - 恢复默认
 - `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建。
 - `electron/` `npm run regression:actors` 已通过，覆盖：

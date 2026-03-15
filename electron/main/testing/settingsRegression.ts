@@ -69,12 +69,12 @@ export async function runSettingsRegression(
     );
 
     const readCheck = await captureCheck("设置读取", async () => {
-      await navigateToSettings(mainWindow, "general");
+      await navigateToSettings(mainWindow, "basic");
       await waitForCondition(
         mainWindow,
         `
           (() => {
-            const language = document.querySelector('[data-settings-group="general"][data-settings-field="currentLanguage"]');
+            const language = document.querySelector('[data-settings-group="basic"][data-settings-field="currentLanguage"]');
             return location.hash.startsWith('#/settings') && language instanceof HTMLSelectElement;
           })()
         `,
@@ -89,8 +89,8 @@ export async function runSettingsRegression(
         mainWindow,
         `
           (() => ({
-            debugChecked: Boolean(document.querySelector('[data-settings-group="general"][data-settings-field="debug"]')?.checked),
-            language: document.querySelector('[data-settings-group="general"][data-settings-field="currentLanguage"]')?.value ?? '',
+            debugChecked: Boolean(document.querySelector('[data-settings-group="basic"][data-settings-field="debug"]')?.checked),
+            language: document.querySelector('[data-settings-group="basic"][data-settings-field="currentLanguage"]')?.value ?? '',
           }))()
         `,
       );
@@ -99,24 +99,38 @@ export async function runSettingsRegression(
         throw new Error("设置页未回读当前语言。");
       }
 
-      return `language=${snapshot.language}, debug=${snapshot.debugChecked}`;
+      const tabCount = await executeInRenderer<number>(
+        mainWindow,
+        `(() => document.querySelectorAll('.settings-group-nav .nav-link').length)()`,
+      );
+      if (tabCount !== 6) {
+        throw new Error(`设置页签数量不符合预期: ${tabCount}`);
+      }
+
+      return `language=${snapshot.language}, debug=${snapshot.debugChecked}, tabs=${tabCount}`;
     });
     environment.checks.push(readCheck);
     logCheckResult(readCheck);
     if (!readCheck.passed) return false;
 
     const saveCheck = await captureCheck("设置保存", async () => {
-      await updateSettingsGroup(mainWindow, "general", `
+      await updateSettingsGroup(mainWindow, "basic", `
         (() => {
-          const language = document.querySelector('[data-settings-group="general"][data-settings-field="currentLanguage"]');
-          const debug = document.querySelector('[data-settings-group="general"][data-settings-field="debug"]');
-          if (!(language instanceof HTMLSelectElement) || !(debug instanceof HTMLInputElement)) {
-            throw new Error("General 表单控件不完整。");
+          const language = document.querySelector('[data-settings-group="basic"][data-settings-field="currentLanguage"]');
+          const debug = document.querySelector('[data-settings-group="basic"][data-settings-field="debug"]');
+          const playerPath = document.querySelector('[data-settings-group="basic"][data-settings-field="playerPath"]');
+          const fallback = document.querySelector('[data-settings-group="basic"][data-settings-field="useSystemDefaultFallback"]');
+          if (!(language instanceof HTMLSelectElement) || !(debug instanceof HTMLInputElement) || !(playerPath instanceof HTMLInputElement) || !(fallback instanceof HTMLInputElement)) {
+            throw new Error("Basic 表单控件不完整。");
           }
           language.value = 'en-US';
           language.dispatchEvent(new Event('change', { bubbles: true }));
           debug.checked = true;
           debug.dispatchEvent(new Event('input', { bubbles: true }));
+          playerPath.value = 'C:\\\\SettingsRegression\\\\player.exe';
+          playerPath.dispatchEvent(new Event('input', { bubbles: true }));
+          fallback.checked = false;
+          fallback.dispatchEvent(new Event('input', { bubbles: true }));
         })()
       `);
 
@@ -131,20 +145,6 @@ export async function runSettingsRegression(
           serverUrl.dispatchEvent(new Event('input', { bubbles: true }));
           timeout.value = '90';
           timeout.dispatchEvent(new Event('input', { bubbles: true }));
-        })()
-      `);
-
-      await updateSettingsGroup(mainWindow, "playback", `
-        (() => {
-          const playerPath = document.querySelector('[data-settings-group="playback"][data-settings-field="playerPath"]');
-          const fallback = document.querySelector('[data-settings-group="playback"][data-settings-field="useSystemDefaultFallback"]');
-          if (!(playerPath instanceof HTMLInputElement) || !(fallback instanceof HTMLInputElement)) {
-            throw new Error("Playback 表单控件不完整。");
-          }
-          playerPath.value = 'C:\\\\SettingsRegression\\\\player.exe';
-          playerPath.dispatchEvent(new Event('input', { bubbles: true }));
-          fallback.checked = false;
-          fallback.dispatchEvent(new Event('input', { bubbles: true }));
         })()
       `);
 
@@ -171,7 +171,7 @@ export async function runSettingsRegression(
         throw new Error(`设置保存后回读值不符合预期: ${JSON.stringify(settings)}`);
       }
 
-      return "已保存 General / MetaTube / Playback 设置";
+      return "已保存 Basic / MetaTube 设置";
     });
     environment.checks.push(saveCheck);
     logCheckResult(saveCheck);
@@ -221,12 +221,12 @@ export async function runSettingsRegression(
     if (!diagnosticsCheck.passed) return false;
 
     const settingsChangedCheck = await captureCheck("settings.changed 消费", async () => {
-      await navigateToSettings(mainWindow, "general");
+      await navigateToSettings(mainWindow, "basic");
       await executeInRenderer(
         mainWindow,
         `
           (() => {
-            const language = document.querySelector('[data-settings-group="general"][data-settings-field="currentLanguage"]');
+            const language = document.querySelector('[data-settings-group="basic"][data-settings-field="currentLanguage"]');
             if (!(language instanceof HTMLSelectElement)) throw new Error("未找到语言选择框。");
             language.value = 'zh-CN';
             language.dispatchEvent(new Event('change', { bubbles: true }));
@@ -264,7 +264,7 @@ export async function runSettingsRegression(
         mainWindow,
         `
           (() => ({
-            draftLanguage: document.querySelector('[data-settings-group="general"][data-settings-field="currentLanguage"]')?.value ?? '',
+            draftLanguage: document.querySelector('[data-settings-group="basic"][data-settings-field="currentLanguage"]')?.value ?? '',
             persistedLanguage: document.querySelector('.metric-card strong')?.textContent?.trim() ?? '',
           }))()
         `,
@@ -314,11 +314,11 @@ export async function runSettingsRegression(
   }
 }
 
-async function navigateToSettings(mainWindow: BrowserWindow, group: "general" | "metaTube" | "playback"): Promise<void> {
+async function navigateToSettings(mainWindow: BrowserWindow, group: "basic" | "picture" | "scanImport" | "network" | "library" | "metaTube"): Promise<void> {
   try {
     await executeInRenderer(
       mainWindow,
-      `(() => { location.hash = ${JSON.stringify(group === "general" ? "#/settings" : `#/settings?group=${group}`)}; return true; })()`,
+      `(() => { location.hash = ${JSON.stringify(group === "basic" ? "#/settings" : `#/settings?group=${group}`)}; return true; })()`,
     );
   } catch (error) {
     const snapshot = await executeInRenderer<{
@@ -351,7 +351,7 @@ async function navigateToSettings(mainWindow: BrowserWindow, group: "general" | 
   );
 }
 
-async function updateSettingsGroup(mainWindow: BrowserWindow, group: "general" | "metaTube" | "playback", expression: string): Promise<void> {
+async function updateSettingsGroup(mainWindow: BrowserWindow, group: "basic" | "picture" | "scanImport" | "network" | "library" | "metaTube", expression: string): Promise<void> {
   await navigateToSettings(mainWindow, group);
   await executeInRenderer(mainWindow, expression);
 }

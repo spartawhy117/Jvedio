@@ -31,11 +31,12 @@
   - 页面组件：
     - `SettingsGroupList.tsx`
   - 分组：
-    - General
-    - Libraries
+    - Basic
+    - Picture
+    - Scan & Import
+    - Network
+    - Library
     - MetaTube
-    - Playback
-    - Data
 - 表单区
   - 页面组件：
     - `SettingsSectionForm.tsx`
@@ -82,30 +83,35 @@
 
 ## 重点设置项
 
-- General
+- Basic
   - 语言
-  - 主题
-- Libraries
-  - 默认扫描目录
+  - 调试开关
+  - 视频播放器路径
+  - 播放回退策略
+- Picture
+  - 图片缓存
+  - 主图模式
+  - 固定路径说明
+- Scan & Import
   - 扫描行为
+  - 导入阈值
+  - 基础索引开关
+- Network
+  - 网络超时
+  - 代理与证书相关设置承载
+- Library
+  - 索引维护入口承载
 - MetaTube
   - 服务地址
   - 测试番号
   - 连接与诊断
-- Playback
-  - 视频播放器路径
-  - 播放回退策略
-- Data
-  - cache
-  - sidecar
-  - 日志入口
 
 ## 第四阶段规则
 
 - 第一批真正接线的设置分组优先为：
-  - General
+  - Basic
   - MetaTube
-  - Playback
+- 其余页签先完成结构对齐和现有控件承载，不在这一轮扩展新的 Worker 落库面。
 - 保留保存、应用、恢复默认语义。
 - 不新增首启主题/语言向导。
 
@@ -126,6 +132,10 @@
 - 第一轮补充完成：
   - MetaTube 诊断
   - `settings.changed` 的 renderer 实时消费
+- 第二轮补充完成：
+  - 6 个页签对齐当前 WPF 可见设置页
+  - `Basic / MetaTube` 继续接真实保存链
+  - 其余页签先提供结构化控件承载
 - 本批不进入：
   - 复杂迁移向导
   - 首启配置流程

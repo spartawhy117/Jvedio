@@ -17,7 +17,7 @@ export interface ActorsRouteQuery {
   sortOrder: "asc" | "desc";
 }
 
-export type SettingsRouteGroup = "general" | "metaTube" | "playback";
+export type SettingsRouteGroup = "basic" | "picture" | "scanImport" | "network" | "library" | "metaTube";
 
 export type AppRoute =
   | { kind: "home" }
@@ -151,7 +151,7 @@ export function toHash(route: AppRoute): string {
   }
 
   if (route.kind === "settings") {
-    return route.group === "general"
+    return route.group === "basic"
       ? "#/settings"
       : `#/settings?group=${encodeURIComponent(route.group)}`;
   }
@@ -263,7 +263,11 @@ function buildActorsRouteQuery(query: ActorsRouteQuery): string {
 }
 
 function parseSettingsGroup(value: string | null): SettingsRouteGroup {
-  return value === "metaTube" || value === "playback" ? value : "general";
+  if (value === "picture" || value === "scanImport" || value === "network" || value === "library" || value === "metaTube") {
+    return value;
+  }
+
+  return "basic";
 }
 
 function parseLegacyActorId(queryText: string): string {

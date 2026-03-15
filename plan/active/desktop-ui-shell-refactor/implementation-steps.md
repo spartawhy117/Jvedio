@@ -142,6 +142,10 @@
 - Exit condition:
   - 页签数量对齐，已有开关有可见承载，本轮不做细节打磨。
 
+当前状态：
+
+- 已完成。Electron Settings 已扩展到 `Basic / Picture / Scan & Import / Network / Library / MetaTube` 6 个页签；真正落库项仍集中在 `Basic / MetaTube`。
+
 ## Step 10. Implement Favorites page
 
 - Goal:

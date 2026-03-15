@@ -246,10 +246,10 @@ export class HomePageController {
       const playback = draft.playback ?? defaults.playback;
       const group = target.dataset.settingsGroup;
       const field = target.dataset.settingsField;
-      if (group === "general" && target instanceof HTMLSelectElement && field === "currentLanguage") {
+      if (group === "basic" && target instanceof HTMLSelectElement && field === "currentLanguage") {
         draft.general = { ...general, currentLanguage: target.value };
       }
-      if (group === "general" && target instanceof HTMLInputElement && field === "debug") {
+      if (group === "basic" && target instanceof HTMLInputElement && field === "debug") {
         draft.general = { ...general, debug: target.checked };
       }
       if (group === "metaTube" && target instanceof HTMLInputElement && field === "serverUrl") {
@@ -258,10 +258,10 @@ export class HomePageController {
       if (group === "metaTube" && target instanceof HTMLInputElement && field === "requestTimeoutSeconds") {
         draft.metaTube = { ...metaTube, requestTimeoutSeconds: Number.parseInt(target.value || "0", 10) || 0 };
       }
-      if (group === "playback" && target instanceof HTMLInputElement && field === "playerPath") {
+      if (group === "basic" && target instanceof HTMLInputElement && field === "playerPath") {
         draft.playback = { ...playback, playerPath: target.value };
       }
-      if (group === "playback" && target instanceof HTMLInputElement && field === "useSystemDefaultFallback") {
+      if (group === "basic" && target instanceof HTMLInputElement && field === "useSystemDefaultFallback") {
         draft.playback = { ...playback, useSystemDefaultFallback: target.checked };
       }
 
@@ -961,7 +961,7 @@ export class HomePageController {
         <aside class="shell-sidebar">
           <div class="sidebar-header"><span class="brand-mark">JV</span><div><div class="brand-title">Jvedio Desktop</div><div class="brand-subtitle">Batch 5 / Actors</div></div></div>
           <button class="primary-button wide-button" data-action="open-create-dialog">新建媒体库</button>
-          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${isActorsFamilyRoute(this.state.route) ? "active" : ""}" href="${toHash({ kind: "actors", query: this.state.actorsQueryDraft })}"><span>Actors</span><small>${this.state.actors?.totalCount ?? 0} cast</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "general" })}"><span>Settings</span><small>3 groups</small></a></nav>
+          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${isActorsFamilyRoute(this.state.route) ? "active" : ""}" href="${toHash({ kind: "actors", query: this.state.actorsQueryDraft })}"><span>Actors</span><small>${this.state.actors?.totalCount ?? 0} cast</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "basic" })}"><span>Settings</span><small>6 groups</small></a></nav>
           <section class="nav-section"><div class="nav-section-label">Libraries</div>${renderNav(libraries, this.state.route)}</section>
           <section class="sidebar-footer"><div class="footer-card"><div class="footer-label">Worker</div><div class="footer-value ${worker.healthy ? "status-ok" : "status-error"}">${escapeHtml(worker.status)}</div><div class="footer-hint">${escapeHtml(bootstrap?.app.version ?? this.state.appVersion)}</div></div></section>
         </aside>
@@ -1101,8 +1101,9 @@ function renderSettingsRoute(args: {
   const dirty = isSettingsDirty(draft, snapshot);
   const saving = settingsAction?.kind === "save";
   const resetting = settingsAction?.kind === "reset";
+  const structureOnly = currentGroup === "picture" || currentGroup === "scanImport" || currentGroup === "network" || currentGroup === "library";
 
-  return `<section class="metric-grid">${metric("语言", snapshot.general.currentLanguage, "当前真实落库的通用设置")}${metric("MetaTube", snapshot.metaTube.serverUrl || "未配置", "抓取链直接读取此地址")}${metric("播放路径", snapshot.playback.playerPath || "系统默认", "播放链优先读取这里")}${metric("默认回退", snapshot.playback.useSystemDefaultFallback ? "开启" : "关闭", "控制是否回退系统播放器")}</section><section class="settings-layout"><aside class="surface-card settings-group-nav"><div class="section-header"><div><span class="eyebrow">Groups</span><h2>设置分组</h2></div></div>${renderSettingsGroupLink("general", currentGroup, "General", "语言与调试")}${renderSettingsGroupLink("metaTube", currentGroup, "MetaTube", "抓取服务地址与超时")}${renderSettingsGroupLink("playback", currentGroup, "Playback", "播放器路径与回退策略")}</aside><section class="surface-card settings-form-surface"><div class="section-header"><div><span class="eyebrow">Settings</span><h2>${escapeHtml(settingsGroupTitle(currentGroup))}</h2></div><div class="section-meta">${escapeHtml(settingsGroupDescription(currentGroup))}</div></div>${renderSettingsGroupForm(currentGroup, draft)}${currentGroup === "metaTube" ? renderMetaTubeDiagnosticsPanel(draft.metaTube ?? snapshot.metaTube, diagnostics, diagnosticsRunning) : ""}<div class="settings-save-bar"><div><div class="note-label">表单状态</div><div class="note-value">${dirty ? "有未保存修改" : "已与当前持久化值一致"}</div></div><div class="header-actions"><button class="ghost-button" data-action="reset-settings" ${saving || resetting || diagnosticsRunning ? "disabled" : ""}>${resetting ? "恢复中..." : "恢复默认"}</button><button class="primary-button" data-action="save-settings" ${(!dirty || saving || resetting || diagnosticsRunning) ? "disabled" : ""}>${saving ? "保存中..." : "保存设置"}</button></div></div></section></section>`;
+  return `<section class="metric-grid">${metric("语言", snapshot.general.currentLanguage, "当前真实落库的通用设置")}${metric("MetaTube", snapshot.metaTube.serverUrl || "未配置", "抓取链直接读取此地址")}${metric("播放路径", snapshot.playback.playerPath || "系统默认", "播放链优先读取这里")}${metric("默认回退", snapshot.playback.useSystemDefaultFallback ? "开启" : "关闭", "控制是否回退系统播放器")}</section><section class="settings-layout"><aside class="surface-card settings-group-nav"><div class="section-header"><div><span class="eyebrow">Groups</span><h2>设置分组</h2></div></div>${renderSettingsGroupLink("basic", currentGroup, "Basic", "语言、状态与播放")}${renderSettingsGroupLink("picture", currentGroup, "Picture", "图片与缓存")}${renderSettingsGroupLink("scanImport", currentGroup, "Scan & Import", "扫描与导入")}${renderSettingsGroupLink("network", currentGroup, "Network", "网络与代理")}${renderSettingsGroupLink("library", currentGroup, "Library", "索引与库维护")}${renderSettingsGroupLink("metaTube", currentGroup, "MetaTube", "抓取服务与诊断")}</aside><section class="surface-card settings-form-surface"><div class="section-header"><div><span class="eyebrow">Settings</span><h2>${escapeHtml(settingsGroupTitle(currentGroup))}</h2></div><div class="section-meta">${escapeHtml(settingsGroupDescription(currentGroup))}</div></div>${renderSettingsGroupForm(currentGroup, draft)}${currentGroup === "metaTube" ? renderMetaTubeDiagnosticsPanel(draft.metaTube ?? snapshot.metaTube, diagnostics, diagnosticsRunning) : ""}<div class="settings-save-bar"><div><div class="note-label">表单状态</div><div class="note-value">${structureOnly ? "当前页签为结构对齐视图" : dirty ? "有未保存修改" : "已与当前持久化值一致"}</div><div class="footer-hint">${structureOnly ? "这一轮先对齐现有设置页页签和控件承载，真正已接线的保存仍集中在 Basic / MetaTube。" : "保存与恢复默认仍会作用于当前已落库的设置项。"}</div></div><div class="header-actions"><button class="ghost-button" data-action="reset-settings" ${saving || resetting || diagnosticsRunning ? "disabled" : ""}>${resetting ? "恢复中..." : "恢复默认"}</button><button class="primary-button" data-action="save-settings" ${(!dirty || saving || resetting || diagnosticsRunning) ? "disabled" : ""}>${saving ? "保存中..." : "保存设置"}</button></div></div></section></section>`;
 }
 
 function renderVideoResults(response: GetLibraryVideosResponse | undefined, draft: LibraryVideoRouteQuery): string {
@@ -1199,15 +1200,31 @@ function renderMetaTubeDiagnosticsPanel(
 }
 
 function renderSettingsGroupForm(group: SettingsRouteGroup, draft: UpdateSettingsRequest): string {
-  if (group === "general") {
-    return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">当前语言</span><select class="select-field" data-settings-group="general" data-settings-field="currentLanguage">${option("zh-CN", draft.general?.currentLanguage ?? "zh-CN", "简体中文")}${option("en-US", draft.general?.currentLanguage ?? "zh-CN", "English")}${option("ja-JP", draft.general?.currentLanguage ?? "zh-CN", "日本語")}</select><span class="inline-note">第一轮直接持久化 WindowConfig.Settings.CurrentLanguage。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="general" data-settings-field="debug" ${draft.general?.debug ? "checked" : ""} /><div><strong>开启调试模式</strong><div class="inline-note">保存后写回 WindowConfig.Settings.Debug。</div></div></label></div>`;
+  if (group === "basic") {
+    return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">当前语言</span><select class="select-field" data-settings-group="basic" data-settings-field="currentLanguage">${option("zh-CN", draft.general?.currentLanguage ?? "zh-CN", "简体中文")}${option("en-US", draft.general?.currentLanguage ?? "zh-CN", "English")}${option("ja-JP", draft.general?.currentLanguage ?? "zh-CN", "日本語")}</select><span class="inline-note">对应 WPF Basic 页签中的语言设置，当前会真实写回持久化配置。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="basic" data-settings-field="debug" ${draft.general?.debug ? "checked" : ""} /><div><strong>开启调试模式</strong><div class="inline-note">保存后写回 WindowConfig.Settings.Debug。</div></div></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>关闭到任务栏</strong><div class="inline-note">当前仅对齐旧设置页开关位置，后续再接实际消费。</div></div></label><label class="field-stack"><span class="field-label">自定义播放器路径</span><input class="text-field" type="text" data-settings-group="basic" data-settings-field="playerPath" value="${escapeHtml(draft.playback?.playerPath ?? "")}" placeholder="留空则依赖系统默认播放器" /><span class="inline-note">对应 WPF Basic 页签中的播放设置，当前会真实写回持久化配置。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="basic" data-settings-field="useSystemDefaultFallback" ${draft.playback?.useSystemDefaultFallback ? "checked" : ""} /><div><strong>允许回退系统默认播放器</strong><div class="inline-note">关闭后若未配置自定义播放器，将阻止播放请求。</div></div></label></div>`;
+  }
+
+  if (group === "picture") {
+    return `<div class="settings-form-grid"><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>无图时使用截图</strong><div class="inline-note">对齐 WPF Picture 页签，当前先做展示承载。</div></div></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>主图自动拉伸</strong><div class="inline-note">对应 MainImageAutoMode，后续再接真实消费。</div></div></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>启用图片缓存</strong><div class="inline-note">对应旧设置页缓存开关，当前仅做结构对齐。</div></div></label><label class="field-stack"><span class="field-label">缓存过期时间（分钟）</span><input class="text-field" type="number" value="60" disabled /><span class="inline-note">旧设置页使用滑块控制，这一轮先保留输入承载。</span></label><div class="worker-note"><div class="note-label">固定路径说明</div><div class="footer-hint">图片与 sidecar 已收敛为固定规则，不再提供自定义目录设置。</div></div></div>`;
+  }
+
+  if (group === "scanImport") {
+    return `<div class="settings-form-grid"><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>扫描时提取 VID</strong><div class="inline-note">对应旧扫描页 FetchVID，当前只做 UI 对齐。</div></div></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>扫描后自动载入数据</strong><div class="inline-note">对应旧扫描页 LoadDataAfterScan。</div></div></label><label class="field-stack"><span class="field-label">最小文件大小（MB）</span><input class="text-field" type="number" value="300" disabled /><span class="inline-note">扫描阈值仍由现有配置链控制，这一轮不新增落库面。</span></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>建立路径存在索引</strong><div class="inline-note">对应旧扫描页 DataExistsIndexAfterScan。</div></div></label></div>`;
+  }
+
+  if (group === "network") {
+    return `<div class="settings-form-grid"><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>忽略证书错误</strong><div class="inline-note">对应旧 Network 页签，当前先保留控件承载。</div></div></label><label class="field-stack"><span class="field-label">请求超时（秒）</span><input class="text-field" type="number" value="60" disabled /><span class="inline-note">WPF 页签中的全局网络超时，本轮先不扩展 Worker 落库面。</span></label><label class="field-stack"><span class="field-label">代理模式</span><select class="select-field" disabled>${option("none", "none", "不使用代理")}${option("system", "none", "系统代理")}${option("custom", "none", "自定义代理")}</select><span class="inline-note">代理能力仍沿用现有桌面主程序配置链。</span></label></div>`;
+  }
+
+  if (group === "library") {
+    return `<div class="settings-form-grid"><div class="worker-note"><div class="note-label">索引维护</div><div class="footer-hint">当前 WPF Library 页签主要承载可播放索引、图片索引和扫描库维护动作。这一轮先补齐结构，不把重动作直接搬进 Electron。</div></div><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>启用可播放索引</strong><div class="inline-note">后续如需要再补独立动作入口和任务反馈。</div></div></label><label class="toggle-card"><input type="checkbox" checked disabled /><div><strong>启用图片存在索引</strong><div class="inline-note">当前仅做页签和开关承载。</div></div></label></div>`;
   }
 
   if (group === "metaTube") {
     return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">MetaTube 服务地址</span><input class="text-field" type="text" data-settings-group="metaTube" data-settings-field="serverUrl" value="${escapeHtml(draft.metaTube?.serverUrl ?? "")}" placeholder="https://metatube-server.hf.space" /><span class="inline-note">抓取链直接读取 MetaTubeConfig.ServerUrl。</span></label><label class="field-stack"><span class="field-label">请求超时（秒）</span><input class="text-field" type="number" min="15" max="300" data-settings-group="metaTube" data-settings-field="requestTimeoutSeconds" value="${draft.metaTube?.requestTimeoutSeconds ?? 60}" /><span class="inline-note">当前限制为 15 到 300 秒，诊断会优先使用当前表单里的值。</span></label></div>`;
   }
 
-  return `<div class="settings-form-grid"><label class="field-stack"><span class="field-label">自定义播放器路径</span><input class="text-field" type="text" data-settings-group="playback" data-settings-field="playerPath" value="${escapeHtml(draft.playback?.playerPath ?? "")}" placeholder="留空则依赖系统默认播放器" /><span class="inline-note">播放链优先使用 WindowConfig.Settings.VideoPlayerPath。</span></label><label class="toggle-card"><input type="checkbox" data-settings-group="playback" data-settings-field="useSystemDefaultFallback" ${draft.playback?.useSystemDefaultFallback ? "checked" : ""} /><div><strong>允许回退系统默认播放器</strong><div class="inline-note">关闭后若未配置自定义播放器，将阻止播放请求。</div></div></label></div>`;
+  return `<div class="empty-card"><h3>未定义的设置分组</h3><p>当前分组未匹配到具体设置内容。</p></div>`;
 }
 
 function renderLibraryCard(library: LibraryListItemDto, tasks: readonly WorkerTaskDto[]): string {
@@ -1236,9 +1253,9 @@ function createDefaultActorVideosRequest(): GetActorVideosRequest { return { key
 function createSettingsDraft(settings: GetSettingsResponse): UpdateSettingsRequest { return { general: { ...settings.general }, metaTube: { ...settings.metaTube }, playback: { ...settings.playback }, resetToDefaults: false }; }
 function cloneSettingsDraft(draft: UpdateSettingsRequest): UpdateSettingsRequest { return { general: draft.general ? { ...draft.general } : undefined, metaTube: draft.metaTube ? { ...draft.metaTube } : undefined, playback: draft.playback ? { ...draft.playback } : undefined, resetToDefaults: draft.resetToDefaults }; }
 function isSettingsDirty(draft: UpdateSettingsRequest, settings: GetSettingsResponse): boolean { return (draft.general?.currentLanguage ?? "") !== settings.general.currentLanguage || Boolean(draft.general?.debug) !== settings.general.debug || (draft.metaTube?.serverUrl ?? "") !== settings.metaTube.serverUrl || Number(draft.metaTube?.requestTimeoutSeconds ?? 0) !== settings.metaTube.requestTimeoutSeconds || (draft.playback?.playerPath ?? "") !== settings.playback.playerPath || Boolean(draft.playback?.useSystemDefaultFallback) !== settings.playback.useSystemDefaultFallback; }
-function settingsGroupTitle(group: SettingsRouteGroup): string { return group === "general" ? "General" : group === "metaTube" ? "MetaTube" : "Playback"; }
-function settingsGroupDescription(group: SettingsRouteGroup): string { return group === "general" ? "语言与调试开关。" : group === "metaTube" ? "抓取服务地址和请求超时。" : "播放器路径和系统默认回退策略。"; }
-function toSettingsGroup(value: string | undefined): SettingsRouteGroup { return value === "metaTube" || value === "playback" ? value : "general"; }
+function settingsGroupTitle(group: SettingsRouteGroup): string { return group === "basic" ? "Basic" : group === "picture" ? "Picture" : group === "scanImport" ? "Scan & Import" : group === "network" ? "Network" : group === "library" ? "Library" : "MetaTube"; }
+function settingsGroupDescription(group: SettingsRouteGroup): string { return group === "basic" ? "语言、状态和播放器基础设置。" : group === "picture" ? "图片缓存、主图策略和固定路径说明。" : group === "scanImport" ? "扫描、导入和基础索引开关。" : group === "network" ? "网络请求和代理相关设置承载。" : group === "library" ? "索引与库维护动作的页签壳。" : "抓取服务地址、超时和诊断。"; }
+function toSettingsGroup(value: string | undefined): SettingsRouteGroup { return value === "picture" || value === "scanImport" || value === "network" || value === "library" || value === "metaTube" ? value : "basic"; }
 function syncActorsQueryDraft(current: ActorsRouteQuery, route: AppRoute): ActorsRouteQuery { return isActorsFamilyRoute(route) ? cloneActorsQuery(route.query) : current; }
 function isActorsFamilyRoute(route: AppRoute): route is Extract<AppRoute, { kind: "actors" | "actor"; }> { return route.kind === "actors" || route.kind === "actor"; }
 function syncLibraryVideoDrafts(current: Record<string, LibraryVideoRouteQuery>, route: AppRoute): Record<string, LibraryVideoRouteQuery> { return route.kind === "library" ? { ...current, [route.libraryId]: cloneQuery(route.query) } : current; }
