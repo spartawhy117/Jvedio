@@ -76,11 +76,11 @@
   - Worker 已接入库扫描目录保存、扫描任务编排、MetaTube 抓取与 sidecar 写出
   - Library 页面已支持扫描目录编辑、触发扫描、触发抓取和当前库任务状态回传
   - 已新增 `electron/` `npm run regression:d` 聚焦回归入口
-- 当前待执行验证：
-  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+- 当前已完成验证：
   - `electron/` `npm run build`
   - `electron/` `npm run smoke`
   - `electron/` `npm run regression:d`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
 ## 第三批：影片展示和播放
 
@@ -88,6 +88,17 @@
 - Detail 页展示详情
 - 播放调用成功
 - 播放写回成功
+- 当前已完成代码接线：
+  - Worker 已接入 `GET /api/libraries/{libraryId}/videos`
+  - Worker 已接入 `GET /api/videos/{videoId}` 与 `POST /api/videos/{videoId}/play`
+  - Library 页已支持影片结果集展示、关键字筛选、排序、刷新和详情跳转
+  - Video Detail 路由壳已支持基础播放调用与播放写回反馈
+  - 已新增 `electron/` `npm run regression:batch3`
+- 当前已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:batch3`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
 ## 第四批：设置页面
 

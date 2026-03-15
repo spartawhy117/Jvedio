@@ -69,6 +69,16 @@ public sealed class LibrariesController : ControllerBase
         return ApiResponse<UpdateLibraryResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
 
+    [HttpGet("{libraryId}/videos")]
+    public ActionResult<ApiResponse<GetLibraryVideosResponse>> GetLibraryVideos(
+        string libraryId,
+        [FromQuery] GetLibraryVideosRequest request,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.GetLibraryVideos(libraryId, request);
+        return ApiResponse<GetLibraryVideosResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
     [HttpPost("{libraryId}/scan")]
     public ActionResult<ApiResponse<StartLibraryScanResponse>> StartScan(
         string libraryId,

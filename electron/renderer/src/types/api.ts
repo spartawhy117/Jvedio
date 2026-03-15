@@ -107,6 +107,43 @@ export interface UpdateLibraryResponse {
   updatedAtUtc: string;
 }
 
+export interface GetLibraryVideosRequest {
+  keyword: string;
+  missingSidecarOnly: boolean;
+  pageIndex: number;
+  pageSize: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface VideoListItemDto {
+  displayTitle: string;
+  durationSeconds: number;
+  hasFanart: boolean;
+  hasMissingAssets: boolean;
+  hasNfo: boolean;
+  hasPoster: boolean;
+  hasThumb: boolean;
+  libraryId: string;
+  lastPlayedAt: string | null;
+  lastScanAt: string | null;
+  path: string;
+  rating: number;
+  releaseDate: string | null;
+  title: string;
+  vid: string;
+  videoId: string;
+  viewCount: number;
+}
+
+export interface GetLibraryVideosResponse {
+  availableViewModes: readonly string[];
+  items: readonly VideoListItemDto[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface DeleteLibraryResponse {
   libraryId: string;
   deletedAtUtc: string;
@@ -157,4 +194,71 @@ export interface StartLibraryScrapeResponse {
 export interface GetTasksResponse {
   summary: TaskSummaryDto;
   tasks: readonly WorkerTaskDto[];
+}
+
+export interface VideoAssetStateDto {
+  exists: boolean;
+  path: string;
+}
+
+export interface SidecarStateDto {
+  fanart: VideoAssetStateDto;
+  hasMissingAssets: boolean;
+  nfo: VideoAssetStateDto;
+  poster: VideoAssetStateDto;
+  thumb: VideoAssetStateDto;
+}
+
+export interface VideoActorDto {
+  actorId: string | null;
+  avatarPath: string | null;
+  name: string;
+}
+
+export interface PlaybackAvailabilityDto {
+  canPlay: boolean;
+  playerPath: string | null;
+  usesSystemDefault: boolean;
+}
+
+export interface VideoDetailDto {
+  actors: readonly VideoActorDto[];
+  director: string;
+  displayTitle: string;
+  durationSeconds: number;
+  lastPlayedAt: string | null;
+  lastScanAt: string | null;
+  libraryId: string;
+  libraryName: string;
+  outline: string;
+  path: string;
+  playback: PlaybackAvailabilityDto;
+  plot: string;
+  rating: number;
+  releaseDate: string | null;
+  series: string;
+  sidecars: SidecarStateDto;
+  studio: string;
+  title: string;
+  vid: string;
+  videoId: string;
+  viewCount: number;
+  webUrl: string;
+}
+
+export interface GetVideoDetailResponse {
+  video: VideoDetailDto | null;
+}
+
+export interface PlayVideoRequest {
+  playerProfile: string;
+  resume: boolean;
+}
+
+export interface PlayVideoResponse {
+  launchedAtUtc: string;
+  lastPlayedAt: string | null;
+  usedPlayerPath: string | null;
+  usedSystemDefault: boolean;
+  videoId: string;
 }

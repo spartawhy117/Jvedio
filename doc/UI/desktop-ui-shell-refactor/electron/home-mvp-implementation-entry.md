@@ -475,10 +475,31 @@ Jvedio.Contracts/
   - Library 路由已升级为库工作台，支持扫描目录保存、触发扫描、触发抓取和当前库任务列表
   - 已新增 `electron/` `npm run regression:d`，使用临时 sqlite 副本和临时媒体目录验证阶段 D 主链路
 - 当前待验证：
-  - `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj`
-  - `electron/` `npm run build`
-  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
-  - `electron/` `npm run regression:d`
+  - 已通过 `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj`
+  - 已通过 `electron/` `npm run build`
+  - 已通过 `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+  - 已通过 `electron/` `npm run regression:d`
+
+### 第三批：影片展示和播放
+
+- 本步目标：
+  - `GET /api/libraries/{libraryId}/videos`
+  - Library 页影片结果集展示
+  - 基础筛选、排序、刷新
+  - 视频详情路由壳
+  - 播放调用
+  - 播放写回
+- 当前结果：
+  - Worker 已新增 `LibrariesController.GetLibraryVideos()`、`VideosController` 与 `VideoService`
+  - Worker 已能返回库内影片结果集、视频详情并执行基础播放调用与播放写回
+  - Library 路由已支持影片结果集、筛选、排序、刷新和详情跳转
+  - Video Detail 路由壳已支持播放按钮和播放反馈
+  - 已新增 `electron/` `npm run regression:batch3`
+- 当前验证：
+  - 已通过 `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj -c Release`
+  - 已通过 `electron/` `npm run build`
+  - 已通过 `electron/` `npm run smoke`
+  - 已通过 `electron/` `npm run regression:batch3`
 
 ## 当前风险
 

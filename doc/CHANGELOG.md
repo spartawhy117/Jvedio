@@ -6,6 +6,11 @@
 ## [未发布]
 
 ### 已变更
+- 完成第三批“影片展示和播放”主链路：新增 `GET /api/libraries/{libraryId}/videos`、`GET /api/videos/{videoId}`、`POST /api/videos/{videoId}/play`，并补齐 `Jvedio.Contracts/Libraries` 与 `Jvedio.Contracts/Videos` 下的影片列表、详情、播放可用性、播放写回相关 DTO。
+- 新增 `Jvedio-WPF/Jvedio.Worker/Services/VideoService.cs` 与 `Controllers/VideosController.cs`，打通库内影片结果集查询、基础筛选/排序、影片详情读取、外部播放器调用和 `metadata.ViewDate` 播放写回；同时在 `LibrariesController.cs` 接入库内影片列表端点。
+- 更新 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，使 Library 页具备影片结果集展示、筛选、排序、刷新、详情路由壳和播放调用入口。
+- 新增 `electron/main/testing/batch3Regression.ts`、`npm run regression:batch3`，通过临时 sqlite 副本、临时媒体目录和假播放器脚本聚焦验证第三批的列表展示、筛选排序、详情跳转、播放调用与播放写回。
+- 更新 `plan/active/desktop-ui-shell-refactor/handoff.md`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将当前阶段状态推进到“第三批已完成，下一步进入第四批设置页面”。
 - 完成阶段 `C-4` 事件与错误收口：为 `Jvedio.Worker` 新增 `GET /api/events`、`WorkerEventStreamBroker`、`WorkerEventEnvelopeDto`、`TaskSummaryChangedEvent`，并发布 `worker.ready`、`library.changed`、`task.summary.changed` 三类事件，使 Home MVP 具备最小 SSE 事件流。
 - 更新 `Jvedio-WPF/Jvedio.Worker/Services/LibraryService.cs` 与 `TaskSummarySnapshotService.cs`，在库新建/删除后同步广播 `library.changed` 与任务摘要变更事件，收口 Home 页的库列表与任务摘要刷新链路。
 - 更新 `electron/renderer/src/api/client/apiClient.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，在 renderer 侧建立全局单 `EventSource` 订阅、消费 `library.changed` 和 `task.summary.changed`，并将 Worker 未就绪、请求失败、事件流断开统一映射为更明确的用户反馈。

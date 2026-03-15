@@ -6,7 +6,12 @@ import type {
   DeleteLibraryResponse,
   GetBootstrapResponse,
   GetLibrariesResponse,
+  GetLibraryVideosRequest,
+  GetLibraryVideosResponse,
   GetTasksResponse,
+  GetVideoDetailResponse,
+  PlayVideoRequest,
+  PlayVideoResponse,
   StartLibraryScanRequest,
   StartLibraryScanResponse,
   StartLibraryScrapeRequest,
@@ -77,6 +82,24 @@ export class ApiClient {
     });
   }
 
+  public getLibraryVideos(libraryId: string, request: GetLibraryVideosRequest): Promise<GetLibraryVideosResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+    if (request.missingSidecarOnly) {
+      searchParams.set("missingSidecarOnly", "true");
+    }
+
+    const queryString = searchParams.toString();
+    const path = `/api/libraries/${encodeURIComponent(libraryId)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`;
+    return this.request<GetLibraryVideosResponse>(path);
+  }
+
   public startLibraryScan(libraryId: string, request: StartLibraryScanRequest): Promise<StartLibraryScanResponse> {
     return this.request<StartLibraryScanResponse>(`/api/libraries/${encodeURIComponent(libraryId)}/scan`, {
       body: JSON.stringify(request),
@@ -99,6 +122,20 @@ export class ApiClient {
 
   public getTasks(): Promise<GetTasksResponse> {
     return this.request<GetTasksResponse>("/api/tasks");
+  }
+
+  public getVideoDetail(videoId: string): Promise<GetVideoDetailResponse> {
+    return this.request<GetVideoDetailResponse>(`/api/videos/${encodeURIComponent(videoId)}`);
+  }
+
+  public playVideo(videoId: string, request: PlayVideoRequest): Promise<PlayVideoResponse> {
+    return this.request<PlayVideoResponse>(`/api/videos/${encodeURIComponent(videoId)}/play`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST"
+    });
   }
 
   public getEventStreamUrl(eventStreamPath: string): string {

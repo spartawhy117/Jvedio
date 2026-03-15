@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `D` 已完成代码实现：库默认扫描目录读取与保存、扫描触发、扫描任务状态回传、MetaTube 抓取与 sidecar 最小闭环均已接入；当前待开始阶段 D 构建与聚焦回归验证。
+- 第二批阶段 `D` 与第三批“影片展示和播放”均已完成实现和验证：Library 页影片结果集、基础筛选/排序/刷新、视频详情路由壳、播放调用和播放写回已经接通；下一步进入第四批设置页面。
 
 ## Latest Progress
 
@@ -87,20 +87,33 @@
 - 已完成阶段 D 当前静态验证：
   - `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj`
   - `electron/` `npm run build`
+- 已完成第三批“影片展示和播放”：
+  - Worker 新增 `GET /api/libraries/{libraryId}/videos`
+  - Worker 新增 `GET /api/videos/{videoId}` 与 `POST /api/videos/{videoId}/play`
+  - Worker 新增 `VideoService`，支持库内影片查询、详情、外部播放器调用和播放写回
+  - Library 页面已支持影片结果集展示、关键字筛选、排序、刷新、详情跳转
+  - Video Detail 路由壳已接通，并可触发基础播放调用
+  - 已新增 `electron/` `npm run regression:batch3` 与 `electron/main/testing/batch3Regression.ts`
+- 已完成最新验证：
+  - `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj -c Release`
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:d`
+  - `electron/` `npm run regression:batch3`
 
 ## Next Recommended Work
 
-1. 开始阶段 D 验证：
-   - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
-   - `electron/` `npm run build`
-   - `electron/` `npm run smoke`
-   - `electron/` `npm run regression:d`
-2. 若阶段 D 聚焦回归通过：
-   - 评估是否补跑 `electron/` `npm run regression:c3`
-   - 根据结果决定进入下一批影片列表 / 播放链路，还是先做问题回修
-3. 若阶段 D 聚焦回归失败：
-   - 优先修复扫描目录保存、扫描任务状态回传、MetaTube 抓取和 sidecar 缺陷
-   - 再重新执行阶段 D 聚焦回归
+1. 进入第四批“设置页面”：
+   - 先补 `settings` bootstrap / 查询 / 保存接口
+   - 在 Electron renderer 接设置页路由壳、表单态和保存反馈
+   - 明确哪些设置在第一轮必须真实落库，哪些先做只读或占位
+2. 为第四批补聚焦回归：
+   - 新增设置读取
+   - 新增设置保存
+   - 新增恢复默认或取消回滚的最小校验
+3. 第四批完成后：
+   - 评估是否补跑 `electron/` `npm run regression:c3`、`regression:d`、`regression:batch3`
+   - 再决定是否进入演员页或设置项消费链路
 
 ## Validation Steps
 
@@ -124,12 +137,17 @@
 - `C-3` renderer Home 闭环代码已落地，可通过 Home 页加载、库列表渲染、新建/删除对话框和 Library 路由壳串起最小 UI 链路。
 - `Jvedio-WPF/Jvedio.sln` 已再次通过 `Release` 构建。
 - `electron/` `npm run regression:c3` 已通过，覆盖 Home 首屏加载、新建库、删除库、左侧导航同步、库路由跳转、`library.changed` 事件驱动同步、任务摘要刷新与 Worker 未就绪错误反馈。
-- 阶段 D 代码已落地，待验证：
+- `electron/` `npm run regression:d` 已通过，覆盖：
   - 库默认扫描目录读取与保存
   - 扫描触发
   - 扫描任务状态回传
   - MetaTube 抓取与 sidecar 输出
-  - `electron/` `npm run regression:d`
+- `electron/` `npm run regression:batch3` 已通过，覆盖：
+  - 库内影片结果集展示
+  - 基础筛选、排序、刷新
+  - 视频详情路由壳
+  - 播放调用
+  - 播放写回
 
 ## Blockers And Caveats
 
