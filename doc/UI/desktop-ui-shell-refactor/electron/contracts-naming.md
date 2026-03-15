@@ -194,6 +194,8 @@ Jvedio.Contracts/
 - `GetActorsRequest`
 - `GetActorsResponse`
 - `ActorListItemDto`
+- `GetActorDetailResponse`
+- `ActorDetailDto`
 - `GetActorVideosRequest`
 - `GetActorVideosResponse`
 - `ActorVideoListItemDto`
@@ -205,6 +207,7 @@ Jvedio.Contracts/
 ### 错误码前缀
 
 - `actor.query.`
+- `actor.detail.`
 - `actor.video-query.`
 
 ## Settings
@@ -306,6 +309,8 @@ Jvedio.Contracts/
 - `GET /api/actors`
   - `GetActorsRequest`
   - `GetActorsResponse`
+- `GET /api/actors/{actorId}`
+  - `GetActorDetailResponse`
 - `GET /api/actors/{actorId}/videos`
   - `GetActorVideosRequest`
   - `GetActorVideosResponse`

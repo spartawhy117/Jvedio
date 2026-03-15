@@ -81,6 +81,8 @@
 
 - `GET /api/actors`
   - 获取演员聚合结果
+- `GET /api/actors/{actorId}`
+  - 获取演员详情、关联库统计与头部信息
 - `GET /api/actors/{actorId}/videos`
   - 获取演员关联影片
 - `GET /api/events`

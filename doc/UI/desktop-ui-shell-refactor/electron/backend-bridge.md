@@ -38,6 +38,8 @@
 - `/api/videos/{id}/refresh-metadata`
 - `/api/videos/{id}/open-folder`
 - `/api/actors`
+- `/api/actors/{id}`
+- `/api/actors/{id}/videos`
 - `/api/settings`
 - `/api/tasks`
 - `/api/events`

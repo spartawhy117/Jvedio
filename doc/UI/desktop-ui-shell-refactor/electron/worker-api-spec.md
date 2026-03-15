@@ -322,12 +322,53 @@
 - `pageIndex`
 - `pageSize`
 
+返回项建议包含：
+
+- `actorId`
+- `name`
+- `avatarPath`
+- `videoCount`
+- `libraryCount`
+- `lastPlayedAt`
+- `lastScanAt`
+- `webType`
+- `webUrl`
+
+### `GET /api/actors/{actorId}`
+
+用途：
+
+- 获取演员详情头部信息
+- 返回演员所属库统计与基础资料
+
+返回项建议包含：
+
+- `actorId`
+- `name`
+- `avatarPath`
+- `videoCount`
+- `libraryCount`
+- `libraryIds`
+- `libraryNames`
+- `lastPlayedAt`
+- `lastScanAt`
+- `webType`
+- `webUrl`
+
 ### `GET /api/actors/{actorId}/videos`
 
 用途：
 
 - 演员关联影片列表
 - 为抽屉或二级结果区服务
+
+查询参数建议：
+
+- `keyword`
+- `sortBy`
+- `sortOrder`
+- `pageIndex`
+- `pageSize`
 
 ### `GET /api/settings`
 
@@ -493,6 +534,7 @@
   - `POST /api/libraries/{libraryId}/scrape`
 - Actors
   - `GET /api/actors`
+  - `GET /api/actors/{actorId}`
   - `GET /api/actors/{actorId}/videos`
 - Video Detail
   - `GET /api/videos/{videoId}`

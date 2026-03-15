@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 补齐演员线第一轮 Worker 查询接口：新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并在 `Jvedio-WPF/Jvedio.Contracts/Actors/` 下新增演员列表、详情、关联影片 DTO。
+- 新增 `Jvedio-WPF/Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`，打通 `actor_info`、`metadata_to_actor`、`metadata`、`metadata_video` 的聚合查询，支持演员关键字筛选、分页、排序、详情读取和关联影片查询。
+- 更新 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`、`contracts-naming.md`、`backend-bridge.md`、`page-actors.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，将演员详情端点、DTO 命名和下一步 renderer 工作面同步到当前规格。
 - 完成第四批“设置页面”最小闭环：新增 `GET /api/settings` 与 `PUT /api/settings`，冻结第一轮真正落库的设置项为 `General.CurrentLanguage/Debug`、`MetaTube.ServerUrl/RequestTimeoutSeconds`、`Playback.PlayerPath/UseSystemDefaultFallback`。
 - 新增 `Jvedio-WPF/Jvedio.Worker/Services/SettingsService.cs` 与 `Controllers/SettingsController.cs`，将设置读取、保存、恢复默认统一收口到 Worker；保存后会发布 `settings.changed` 事件，并让播放链直接消费新的播放器回退策略。
 - 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 Settings 路由壳、分组切换、表单态、保存反馈和恢复默认。

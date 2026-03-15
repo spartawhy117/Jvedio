@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证：Settings 路由壳、设置读取/保存/恢复默认、MetaTube diagnostics、`settings.changed` renderer 消费和 `regression:settings` 已接通；下一步建议进入演员页。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员线的 Worker 查询接口第一轮也已补齐：`GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos` 已落地。下一步建议进入演员页 renderer 闭环与聚焦回归。
 
 ## Latest Progress
 
@@ -117,12 +117,17 @@
   - Settings 页已新增 MetaTube diagnostics 面板，可直接诊断当前表单中的服务地址与超时值
   - renderer 已消费 `settings.changed`，外部设置更新时可同步快照并保留当前未保存草稿
   - `electron/` `npm run regression:settings` 已覆盖读取、保存、MetaTube diagnostics、`settings.changed` 和恢复默认
+- 已完成演员线 Worker 查询接口第一轮：
+  - Worker 已新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`
+  - 已新增 `Jvedio.Contracts/Actors` 下的演员列表、详情、关联影片 DTO
+  - 已新增 `Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`
+  - 当前演员头像字段暂统一返回空，待后续梳理 sqlite `ActorID` 与正式头像缓存命名映射后再补稳定路径解析
 
 ## Next Recommended Work
 
-1. 进入演员页：
-   - 先补演员列表 / 详情 / 关联影片的 Worker 接口
-   - 再接演员页路由壳与聚焦回归
+1. 继续进入演员页：
+   - 先接演员页路由壳、列表结果集、基础筛选排序和关联影片下钻
+   - 再补演员详情头部消费与 `regression:actors`
 2. 若继续留在设置线做增强：
    - 评估补 General 主题项、Data 只读信息区
    - 再决定是否扩为完整 Settings 分组
@@ -164,6 +169,7 @@
   - 设置读取
   - 设置保存
   - 恢复默认
+- `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建；若需继续推进演员页，下一步应补 renderer 与聚焦回归。
 
 ## Blockers And Caveats
 
