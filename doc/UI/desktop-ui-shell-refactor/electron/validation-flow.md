@@ -16,6 +16,11 @@
 
 ## 第一批：库的新建和删除
 
+- 先确认 `home-mvp-implementation-entry.md` 已冻结首批工程范围
+- 先确认 Home MVP 仅覆盖：
+  - bootstrap
+  - libraries
+  - tasks summary
 - Home 页新建库
 - Home 页删除库
 - 左侧导航同步

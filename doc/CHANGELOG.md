@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、Contracts / Worker / Electron / renderer 的落地顺序，以及 Home MVP 的 done 定义与验证顺序，使下一轮可以直接按文档开工。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts 的 DTO 命名、task payload 命名、event payload 命名与错误码前缀，并将其作为未来 `Jvedio.Contracts` 的首批目录输入。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-home.md`、`page-library.md`、`page-actors.md`、`page-video-detail.md`、`page-settings.md`，使五个页面规格与 `renderer-architecture.md` 对齐，补齐页面级组件、section 结构、页面状态、API 依赖和分批实现边界。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 与 `doc/UI/desktop-ui-shell-refactor/electron/validation-flow.md`，新增“方案路径”与推荐下一步，明确当前推荐先完成页面规格和 contracts 冻结，再进入 Home 库管理最小闭环实现。

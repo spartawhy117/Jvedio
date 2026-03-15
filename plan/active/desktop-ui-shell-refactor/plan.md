@@ -278,11 +278,29 @@
   - `Jvedio.Contracts`、`Jvedio.Worker`、renderer 三边的首批落地顺序
   - Home MVP 的 done 定义与验证顺序
 
+### 第 3 步当前结果
+
+- 已完成。
+- 冻结文档：
+  - `home-mvp-implementation-entry.md`
+- 已冻结内容：
+  - Electron main / preload / renderer 的首批工程范围
+  - Worker 宿主与 localhost API 的首批接口范围
+  - `Jvedio.Contracts` 的首批落地文件清单
+  - Home MVP 的 done 定义与验证顺序
+
+## 进入阶段 C 前的推荐动作
+
+- 先创建实现分支与工程骨架。
+- 先落 contracts，再落 Worker 最小接口，再接 Electron 壳层，最后接 Home renderer。
+- 严格把范围限制在 Home MVP，不提前触碰扫描 / 抓取 / Settings / Video Detail。
+
 ## 下一步完成标准
 
 - 五个页面文档已按 renderer 组件边界重写到可实现粒度。
 - Worker contracts 命名已冻结到可创建代码目录的粒度。
 - `handoff.md` 中的 Next Recommended Work 已切换为第一批实现准备项。
+- `home-mvp-implementation-entry.md` 已可直接指导阶段 C 开工。
 - 验证文档已新增“文档冻结完成后再进入阶段 C”的检查点。
 
 ## 风险与约束
