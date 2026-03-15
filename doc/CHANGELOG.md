@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 完成阶段 `C-3` renderer Home 闭环：新增 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`app/navigation/useLibraryNavItems.ts`、`features/home/` 与 `types/api.ts`，在 renderer 侧落地 Worker API 调用、hash 路由、动态左侧库导航、Home 控制器和新建/删除库对话框。
+- 重写 `electron/renderer/index.html` 与 `electron/renderer/src/main.ts`，将原最小 smoke 页面替换为 Home MVP 壳层、库列表、任务摘要、Library 路由壳、结构化错误提示和响应式布局。
+- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 已实现并完成构建验证，下一步先做聚焦功能回归，再进入 `C-4`”。
 - 完成阶段 `C-1` 工程骨架落地：新增 `Jvedio-WPF/Jvedio.Contracts` 与 `Jvedio-WPF/Jvedio.Worker`，并在根目录新增 `electron/` 的 `main / preload / renderer` 最小工程骨架；同时将两个新 .NET 工程接入 `Jvedio-WPF/Jvedio.sln`。
 - 为 `Jvedio.Worker` 落地 localhost 宿主健康检查和 `JVEDIO_WORKER_READY` 启动信号，为 Electron 主进程落地 Worker 拉起、ready 探测、IPC bridge 和最小 smoke 验证页面。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将 active feature 状态推进到“`C-1` 已完成，下一步进入 `C-2`”。

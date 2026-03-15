@@ -12,7 +12,7 @@
   - 保留当前 C# 业务能力，未来拆成 `Jvedio.Core`、`Jvedio.Worker`、`Jvedio.Contracts`。
 - 当前阶段：
   - 已进入阶段 C 代码实现。
-  - `C-1`、`C-2` 已完成，当前准备进入 `C-3` renderer Home 闭环。
+  - `C-1`、`C-2`、`C-3` 已完成，当前建议先做 `C-3` 聚焦回归，再进入 `C-4`。
 
 ## 文档结构决策
 
@@ -198,6 +198,20 @@
   - 左侧导航实时同步
   - 打开库可进入 Library 路由壳
 
+#### 阶段 C-3 当前结果
+
+- 已落地：
+  - renderer 侧 `api/client`、`app/routes`、`app/navigation`、`features/home`、`types/api` 首批实现
+  - `HomePageController`、新建库对话框、删除库对话框与库列表卡片
+  - 动态左侧库导航、`#/home` 与 `#/libraries/{libraryId}` 路由壳
+  - 基于 `WorkerApiError` 的 UI 错误提示与操作完成反馈
+- 已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+- 下一步：
+  - 先做 Home 页聚焦回归，再进入 `C-4` 事件与错误收口
+
 #### 阶段 C-4：事件与错误收口
 
 - 目标：
@@ -291,102 +305,48 @@
 
 - 当前推荐采用 `路径 A`。
 - 原因：
-  - renderer 目录和 Worker API 刚冻结，如果此时继续补页面组件命名和 contracts 命名，下一轮实现可以直接按稳定骨架推进。
-  - Home 第一批实现会依赖 libraries、tasks、bootstrap 三组 contracts，先冻结命名能减少实现时的跨层重命名。
+  - `C-3` 已完成代码落地，但库管理闭环还缺一轮聚焦功能走查，先回归能把问题限制在 Home 页范围内。
+  - 等 `C-3` 回归稳定后再进入 `C-4`，能避免把 SSE、任务刷新和错误流问题叠加到现有 UI 交互问题上。
 
 ## 下一步执行方案
 
-### 第 1 步：补齐页面规格与 renderer 对齐
+### 第 1 步：执行 `C-3` 聚焦回归
 
 - 目标：
-  - 让页面文档中的 section、组件名、数据依赖与 `renderer-architecture.md` 完全对齐
-- 覆盖文档：
-  - `page-home.md`
-  - `page-library.md`
-  - `page-actors.md`
-  - `page-video-detail.md`
-  - `page-settings.md`
-- 产出要求：
-  - 每个页面都明确：
-    - 页面级组件
-    - section 结构
-    - 页面状态
-    - 依赖 API
-    - 第一批 / 第二批实现边界
-
-### 第 2 步：冻结 contracts 与 DTO 命名
-
-- 目标：
-  - 为未来 `Jvedio.Contracts` 建立首批稳定命名
-- 覆盖范围：
-  - `bootstrap`
-  - `libraries`
-  - `videos`
-  - `actors`
-  - `settings`
-  - `tasks`
-- 产出要求：
-  - 每组接口明确：
-    - request 名称
-    - response 名称
-    - task payload 名称
-    - event payload 名称
-    - 错误码前缀
-
-### 第 2 步当前结果
-
-- 已完成。
-- 冻结文档：
-  - `worker-api-spec.md`
-  - `contracts-naming.md`
-- 已冻结范围：
-  - `bootstrap`
-  - `libraries`
-  - `videos`
-  - `actors`
-  - `settings`
-  - `tasks`
-
-### 第 3 步：准备第一批实现入口
-
-- 目标：
-  - 在不扩散范围的前提下，确定真正开工的最小闭环
-- 闭环范围：
-  - Home 页库列表
+  - 在当前实现边界内确认 Home 最小闭环可用，再决定是否直接推进 `C-4`
+- 检查项：
+  - Home 首屏加载
   - 新建库
   - 删除库
-  - 左侧库导航同步
-  - bootstrap + libraries + tasks 摘要读取
-- 明确不进入：
-  - 扫描
-  - 抓取
-  - 影片详情
-  - Settings 全量接入
+  - 左侧导航同步
+  - 打开库路由跳转
+  - 删除当前库后的路由回退与提示消息
 
-### 第 3 步推荐输出
+### 第 2 步：进入 `C-4` 事件与错误收口
 
-- 新增实现入口文档，明确：
-  - Electron main / preload / renderer 的首批工程范围
-  - Worker 宿主与 localhost API 的首批工程范围
-  - `Jvedio.Contracts`、`Jvedio.Worker`、renderer 三边的首批落地顺序
-  - Home MVP 的 done 定义与验证顺序
+- 目标：
+  - 为 Home MVP 补齐最小事件流和更完整的异常反馈
+- 覆盖范围：
+  - `GET /api/events`
+  - `library.changed`
+  - 任务摘要刷新
+  - Worker 未就绪错误处理
 
-### 第 3 步当前结果
+### 第 3 步：补阶段 C 整体回归
 
-- 已完成。
-- 冻结文档：
-  - `home-mvp-implementation-entry.md`
-- 已冻结内容：
-  - Electron main / preload / renderer 的首批工程范围
-  - Worker 宿主与 localhost API 的首批接口范围
-  - `Jvedio.Contracts` 的首批落地文件清单
-  - Home MVP 的 done 定义与验证顺序
+- 目标：
+  - 在 `C-4` 落地后补一次阶段 C 的端到端回归
+- 覆盖范围：
+  - 同步接口
+  - Home 页面闭环
+  - 事件流
+  - 错误流
 
 ## 阶段 C 当前推荐动作
 
-- `C-1`、`C-2` 已完成，不再回头调整骨架或同步接口范围。
-- 当前进入 `C-3`，严格只做 Home 页面、对话框、导航同步和基础路由壳。
-- 在 `C-3` 完成前，不提前触碰扫描 / 抓取 / Settings / Video Detail。
+- `C-1`、`C-2`、`C-3` 已完成，不再回头调整骨架、同步接口或 Home 基础路由壳范围。
+- 当前先做 `C-3` 聚焦回归，确认库管理 UI 闭环没有阻塞项。
+- 回归通过后进入 `C-4`，仍不提前触碰扫描 / 抓取 / Settings / Video Detail。
 
 ## 阶段 C 测试策略
 
@@ -417,11 +377,10 @@
 
 ## 下一步完成标准
 
-- 五个页面文档已按 renderer 组件边界重写到可实现粒度。
-- Worker contracts 命名已冻结到可创建代码目录的粒度。
-- `handoff.md` 中的 Next Recommended Work 已切换为第一批实现准备项。
-- `home-mvp-implementation-entry.md` 已可直接指导阶段 C 开工。
-- 验证文档已新增“文档冻结完成后再进入阶段 C”的检查点。
+- `C-3` 聚焦回归已完成，Home 首屏、建库、删库、导航同步和路由跳转结果明确。
+- `C-4` 已补齐 `GET /api/events`、`library.changed`、任务摘要刷新和 Worker 未就绪错误处理。
+- `handoff.md`、`plan.md`、`plan.json` 与验证文档中的阶段状态保持一致。
+- 阶段 C 的整体回归范围和进入条件已收敛清楚。
 
 ## 风险与约束
 

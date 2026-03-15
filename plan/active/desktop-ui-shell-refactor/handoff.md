@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `C-2` 已完成：Worker 同步接口已落地并完成接口级验证，下一步进入 `C-3` renderer Home 闭环。
+- 阶段 `C-3` 已完成：renderer Home 最小闭环已落地并通过构建、冒烟与 Release 构建验证；下一步先做 Home 聚焦回归，再进入 `C-4` 事件与错误收口。
 
 ## Latest Progress
 
@@ -49,36 +49,45 @@
   - 创建测试库后已成功回删
   - sqlite 当前状态已回到单库初始状态
 - `electron/` 再次通过 `npm run smoke`，确认 Electron 主进程仍可拉起 Worker 并等待 ready 健康探测。
+- 已完成 `C-3` renderer Home 闭环：
+  - 新增 renderer 侧 `api client / router / library nav / home controller` 最小实现
+  - Home 已能加载 `bootstrap / libraries / tasks summary`
+  - 新建库 / 删除库已接入 UI 对话框与反馈提示
+  - 左侧导航已按真实库清单动态同步
+  - `#/libraries/{libraryId}` 基础路由壳已打通
+- 已完成 `C-3` 工程级验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `Jvedio-WPF/Jvedio.sln` `Release` 构建
+- `C-3` 的聚焦功能回归尚未单独自动化，下一步应先完成人工走查后再进入 `C-4`。
 
 ## Next Recommended Work
 
 ### 方案路径
 
 - 路径 A：
-  - 先补齐页面文档与 contracts，再进入第一批实现
+  - 先做 `C-3` 聚焦回归，再进入 `C-4`
   - 推荐
 - 路径 B：
-  - 直接开始 Home 最小实现，缺什么补什么
+  - 直接继续 `C-4`，最后再集中回归
 - 路径 C：
-  - 先做 Electron 壳层与 localhost 通路 Spike
+  - 先补 Electron E2E，再恢复功能开发
 
-1. 进入 `阶段 C-3`，实现 renderer Home 最小闭环：
-   - `AppShell`
-   - `HomePage`
-   - `useHomePageData`
-   - `CreateLibraryDialog`
-   - `DeleteLibraryDialog`
-   - `useLibraryNavItems`
-2. `C-3` 完成后立即做功能回归：
+1. 先做 `C-3` 聚焦功能回归：
    - Home 首屏加载
    - 新建库 / 删除库
    - 左侧导航同步
    - 库路由跳转
-3. 再进入 `阶段 C-4`：
+   - 错误提示与删除后路由回退
+2. 回归无阻塞后进入 `阶段 C-4`：
    - `GET /api/events`
    - `library.changed`
    - 任务摘要刷新
    - 结构化错误收口
+3. `C-4` 完成后做阶段 C 整体回归：
+   - 事件流
+   - 错误流
+   - Home MVP 端到端闭环
 
 ## Validation Steps
 
@@ -99,6 +108,8 @@
 - `npm run smoke` 已验证 Electron 主进程可以拉起 `Jvedio.Worker` 并等待 ready 健康探测通过。
 - Worker 接口人工验证通过：`GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks`。
 - 测试库创建后已成功回删，`app_databases` 当前恢复为单条 `Jav` 记录。
+- `C-3` renderer Home 闭环代码已落地，可通过 Home 页加载、库列表渲染、新建/删除对话框和 Library 路由壳串起最小 UI 链路。
+- `Jvedio-WPF/Jvedio.sln` 已再次通过 `Release` 构建。
 
 ## Blockers And Caveats
 

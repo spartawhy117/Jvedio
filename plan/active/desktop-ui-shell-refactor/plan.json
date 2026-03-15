@@ -106,7 +106,7 @@
       "dependencies": [
         "c2-home-mvp-worker-sync-apis"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "c4-home-mvp-events-and-errors",

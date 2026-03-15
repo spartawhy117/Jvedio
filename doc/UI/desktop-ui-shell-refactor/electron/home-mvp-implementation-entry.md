@@ -308,7 +308,8 @@ Jvedio.Contracts/
   - 创建测试库后已成功回删，sqlite 恢复原状
   - `npm run smoke`
 - 当前结论：
-  - `C-2` 已完成，可进入 `C-3` renderer Home 闭环。
+  - `C-3` 已完成代码落地与工程级验证。
+  - 下一步建议先做 Home 聚焦回归，再进入 `C-4`。
 
 ### C-3：renderer Home 闭环
 
@@ -322,6 +323,16 @@ Jvedio.Contracts/
 - 本步结束要求：
   - 新建 / 删除库可从 UI 走通
   - 左侧导航同步
+- 当前结果：
+  - 已落地 `apiClient`、hash 路由、动态左侧库导航和 `HomePageController`
+  - 已落地 Home 指标卡、库列表、新建库对话框、删除库对话框和 Library 路由壳
+  - 已接入基于 `WorkerApiError` 的错误提示与操作完成反馈
+- 已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+- 当前待补：
+  - Home 首屏、新建库、删除库、导航同步、路由跳转的聚焦人工回归
 
 ### C-4：事件与错误收口
 
@@ -413,6 +424,8 @@ Jvedio.Contracts/
 - 删除库
 - 左侧导航同步
 - 打开库路由跳转
+- 当前状态：
+  - `C-3` 代码已完成，以上交互仍需单独执行聚焦人工回归
 
 ### 第 4 轮：事件与错误验证
 

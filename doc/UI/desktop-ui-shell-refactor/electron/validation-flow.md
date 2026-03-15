@@ -41,10 +41,16 @@
   - `DELETE /api/libraries/{libraryId}`
   - `GET /api/tasks`
   - 创建测试库后已成功回删，sqlite 当前恢复原状
-- Home 页新建库
-- Home 页删除库
-- 左侧导航同步
-- 数据持久化正确
+- `C-3` 当前已完成实现与工程级验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+- `C-3` 下一步聚焦回归：
+  - Home 页新建库
+  - Home 页删除库
+  - 左侧导航同步
+  - 库路由跳转
+  - 删除当前库后的路由回退与提示消息
 
 ## 第二批：扫描路径、扫描和拉取
 
