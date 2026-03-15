@@ -1,4 +1,5 @@
 using Jvedio.Worker.Hosting;
+using Jvedio.Worker.Middleware;
 using Jvedio.Worker.Services;
 
 using Microsoft.AspNetCore.Hosting;
@@ -12,17 +13,26 @@ if (string.IsNullOrWhiteSpace(builder.Configuration[WebHostDefaults.ServerUrlsKe
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<WorkerRuntimeState>();
+builder.Services.AddSingleton<WorkerPathResolver>();
+builder.Services.AddSingleton<SqliteConnectionFactory>();
+builder.Services.AddSingleton<ConfigStoreService>();
+builder.Services.AddSingleton<WorkerStorageBootstrapper>();
+builder.Services.AddSingleton<LibraryService>();
+builder.Services.AddSingleton<AppBootstrapService>();
 builder.Services.AddSingleton<TaskSummarySnapshotService>();
 builder.Services.AddHostedService<WorkerReadySignalHostedService>();
 
 var app = builder.Build();
 
+app.Services.GetRequiredService<WorkerStorageBootstrapper>().EnsureInitialized();
+
+app.UseMiddleware<ApiExceptionMiddleware>();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok(new
 {
-    stage = "C-1",
+    stage = "C-2",
     service = "Jvedio.Worker",
-    status = "skeleton-ready",
+    status = "home-mvp-api-ready",
 }));
 
 app.Run();

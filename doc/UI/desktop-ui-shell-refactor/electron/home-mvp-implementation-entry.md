@@ -289,6 +289,27 @@ Jvedio.Contracts/
   - 接口可单独验证
   - create / delete 持久化正确
 
+#### C-2 当前结果
+
+- 已落地：
+  - `GET /api/app/bootstrap`
+  - `GET /api/libraries`
+  - `POST /api/libraries`
+  - `DELETE /api/libraries/{libraryId}`
+  - `GET /api/tasks`
+- 已补齐：
+  - 统一 envelope 的时间戳与结构化错误字段
+  - Worker 侧 sqlite 读写服务
+  - 共享 WPF Release 数据目录的路径解析
+  - Electron 启动 Worker 时的 `JVEDIO_APP_BASE_DIR` 注入
+- 已完成验证：
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+  - Worker 接口人工验证
+  - 创建测试库后已成功回删，sqlite 恢复原状
+  - `npm run smoke`
+- 当前结论：
+  - `C-2` 已完成，可进入 `C-3` renderer Home 闭环。
+
 ### C-3：renderer Home 闭环
 
 - 先接：
@@ -383,6 +404,7 @@ Jvedio.Contracts/
 - `POST /api/libraries`
 - `DELETE /api/libraries/{libraryId}`
 - `GET /api/tasks`
+- 创建测试库后应回删，并确认 `app_databases` / `WindowConfig.Main.CurrentDBId` / `WindowConfig.Settings.DefaultDBID` 状态恢复。
 
 ### 第 3 轮：页面闭环验证
 

@@ -12,7 +12,7 @@
   - 保留当前 C# 业务能力，未来拆成 `Jvedio.Core`、`Jvedio.Worker`、`Jvedio.Contracts`。
 - 当前阶段：
   - 已进入阶段 C 代码实现。
-  - `C-1` 已完成，当前准备进入 `C-2` Worker 同步接口闭环。
+  - `C-1`、`C-2` 已完成，当前准备进入 `C-3` renderer Home 闭环。
 
 ## 文档结构决策
 
@@ -160,6 +160,26 @@
   - 接口可独立调用
   - 新建 / 删除库数据持久化正确
   - 错误返回满足 `contracts-naming.md`
+
+#### 阶段 C-2 当前结果
+
+- 已落地：
+  - `Jvedio.Worker` 的 `App / Libraries / Tasks` 三组同步控制器
+  - 共享 WPF Release 数据目录的路径解析与 sqlite 连接工厂
+  - `app_configs` / `app_databases` 的 Worker 侧读写服务
+  - Home MVP 所需的 bootstrap、库列表、建库、删库、任务摘要接口
+- 已完成验证：
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+  - Worker 接口人工验证通过：
+    - `GET /api/app/bootstrap`
+    - `GET /api/libraries`
+    - `POST /api/libraries`
+    - `DELETE /api/libraries/{libraryId}`
+    - `GET /api/tasks`
+  - 创建测试库后已成功回删，sqlite 当前恢复为单库初始状态
+  - `electron/` `npm run smoke` 再次通过
+- 下一步：
+  - 进入 `C-3`，打通 renderer Home 页面、对话框和左侧库导航联动
 
 #### 阶段 C-3：renderer Home 闭环
 
@@ -364,9 +384,9 @@
 
 ## 阶段 C 当前推荐动作
 
-- `C-1` 已完成，不再重复调整工程骨架。
-- 进入 `C-2` 时继续严格按 `bootstrap / libraries / tasks summary` 范围推进。
-- 先打通 Worker 同步接口，再接 renderer Home，不提前触碰扫描 / 抓取 / Settings / Video Detail。
+- `C-1`、`C-2` 已完成，不再回头调整骨架或同步接口范围。
+- 当前进入 `C-3`，严格只做 Home 页面、对话框、导航同步和基础路由壳。
+- 在 `C-3` 完成前，不提前触碰扫描 / 抓取 / Settings / Video Detail。
 
 ## 阶段 C 测试策略
 
@@ -408,7 +428,7 @@
 - 当前根目录旧 UI 文档仍存在，后续实施时必须明确以 `electron/` 子目录为准。
 - `WindowStartUp` 仍承载库管理逻辑，后续 Home 页迁移必须依赖现有实现梳理。
 - 参考项目 `fntv-electron` 与 `jellyfin-web` 已拉取到本地，但只能按既定边界做结构参考，不能误当现成工程模板。
-- 本轮变更仅限文档，不修改生产代码，不新增实现工程。
+- 当前已完成 `C-2` 的 Worker 接口实现；后续 renderer 接线必须继续复用同一套 contracts 和共享 sqlite 数据目录。
 
 ## 验证要求
 

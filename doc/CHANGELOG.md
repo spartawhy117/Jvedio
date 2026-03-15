@@ -100,6 +100,16 @@
 - 修正测试文档中的输出路径表述，明确区分 `Jvedio.Test` 的 suite 输出目录（`config/<suite>/output/`）与主程序 `Jvedio.exe` 的内置调试输出目录（`data/<user>/log/test/<VID>/`）。
 - 已删除旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md`，当前测试文档统一以 `test-targets.md`、`test-plan.md`、`test-current-suite.md` 为准。
 
+## [2026-03-15]
+
+### 已变更
+- 新增 `Jvedio-WPF/Jvedio.Worker/Services/ConfigStoreService.cs`、`LibraryService.cs`、`AppBootstrapService.cs`，为 Electron Home MVP 落地共享 sqlite 数据目录上的配置读取、媒体库读写与 bootstrap 聚合能力。
+- 新增 `Jvedio-WPF/Jvedio.Worker/Controllers/AppController.cs`、`LibrariesController.cs`、`TasksController.cs`，并补齐 `HealthController.cs` 的 Worker 健康字段，完成 `GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks` 五个 `C-2` 同步接口。
+- 新增 `Jvedio-WPF/Jvedio.Worker/Middleware/ApiExceptionMiddleware.cs`、`WorkerApiException.cs`、`SqliteConnectionFactory.cs`、`WorkerPathResolver.cs`、`WorkerStorageBootstrapper.cs`，统一 Worker 错误包裹、路径解析和 sqlite 初始化逻辑。
+- 扩展 `Jvedio-WPF/Jvedio.Contracts` 的 Home MVP contracts，补齐统一响应时间戳、结构化错误字段、Worker 状态字段以及库列表 / 建库请求的首批扩展字段。
+- 更新 `electron/main/worker/workerProcess.ts`，在 Electron 拉起 Worker 时显式注入 `JVEDIO_APP_BASE_DIR`，确保 Worker 复用 WPF Release 的 `app_datas.sqlite` 与 `app_configs.sqlite`。
+- 更新 `plan/active/desktop-ui-shell-refactor/` 与 `doc/UI/desktop-ui-shell-refactor/electron/` 相关文档，将阶段状态同步到 `C-2` 已完成、`C-3` 待开始。
+
 ## [2026-03-07]
 
 ### 已变更

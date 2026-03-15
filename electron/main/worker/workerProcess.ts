@@ -11,12 +11,14 @@ const WORKER_START_TIMEOUT_MS = 20000;
 
 export class WorkerProcessController {
   private readonly electronRoot: string;
+  private readonly sharedAppBaseDir: string;
   private readonly workerProjectDirectory: string;
   private baseUrl = "";
   private childProcess: WorkerChildProcess | null = null;
 
   public constructor(electronRoot: string) {
     this.electronRoot = electronRoot;
+    this.sharedAppBaseDir = resolveSharedAppBaseDir(electronRoot);
     this.workerProjectDirectory = path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio.Worker");
   }
 
@@ -31,6 +33,10 @@ export class WorkerProcessController {
 
     const childProcess = spawn("dotnet", [workerDllPath, "--urls", baseUrl], {
       cwd: this.workerProjectDirectory,
+      env: {
+        ...process.env,
+        JVEDIO_APP_BASE_DIR: this.sharedAppBaseDir
+      },
       stdio: ["ignore", "pipe", "pipe"]
     });
 
@@ -80,6 +86,25 @@ function resolveWorkerDllPath(electronRoot: string): string {
   }
 
   throw new Error("Jvedio.Worker.dll was not found. Build Jvedio.Worker before starting Electron.");
+}
+
+function resolveSharedAppBaseDir(electronRoot: string): string {
+  const overridePath = process.env.JVEDIO_APP_BASE_DIR;
+  if (overridePath && fs.existsSync(path.join(overridePath, "Jvedio.exe"))) {
+    return overridePath;
+  }
+
+  const candidates = [
+    path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio", "bin", "Release"),
+    path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio", "bin", "Debug")
+  ];
+
+  const existingCandidate = candidates.find((candidate) => fs.existsSync(path.join(candidate, "Jvedio.exe")));
+  if (existingCandidate) {
+    return existingCandidate;
+  }
+
+  throw new Error("Jvedio.exe was not found. Build the WPF app before starting Electron.");
 }
 
 async function getAvailablePort(): Promise<number> {

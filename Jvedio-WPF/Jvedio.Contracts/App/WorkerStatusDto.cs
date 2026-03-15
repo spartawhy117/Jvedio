@@ -7,4 +7,8 @@ public sealed class WorkerStatusDto
     public string BaseUrl { get; set; } = string.Empty;
 
     public DateTimeOffset StartedAtUtc { get; set; }
+
+    public bool Healthy { get; set; }
+
+    public string EventStreamPath { get; set; } = "/api/events";
 }

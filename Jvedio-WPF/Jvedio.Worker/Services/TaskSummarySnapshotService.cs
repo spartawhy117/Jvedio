@@ -8,6 +8,10 @@ public sealed class TaskSummarySnapshotService
     {
         return new TaskSummaryDto
         {
+            RunningCount = 0,
+            QueuedCount = 0,
+            FailedCount = 0,
+            CompletedTodayCount = 0,
             LastUpdatedUtc = DateTimeOffset.UtcNow,
         };
     }

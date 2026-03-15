@@ -98,7 +98,7 @@
       "dependencies": [
         "c1-home-mvp-skeleton"
       ],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "c3-home-mvp-renderer-flow",

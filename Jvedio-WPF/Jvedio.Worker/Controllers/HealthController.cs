@@ -24,6 +24,8 @@ public sealed class HealthController : ControllerBase
             Status = runtimeState.IsReady ? "ready" : "starting",
             BaseUrl = runtimeState.BaseUrl,
             StartedAtUtc = runtimeState.StartedAtUtc,
+            Healthy = runtimeState.IsReady,
+            EventStreamPath = "/api/events",
         };
 
         return ApiResponse<WorkerStatusDto>.FromData(status, HttpContext.TraceIdentifier);

@@ -5,4 +5,6 @@ public sealed class CreateLibraryRequest
     public string Name { get; set; } = string.Empty;
 
     public string Path { get; set; } = string.Empty;
+
+    public IReadOnlyList<string> ScanPaths { get; set; } = Array.Empty<string>();
 }

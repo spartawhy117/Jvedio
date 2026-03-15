@@ -34,6 +34,13 @@
   - `Jvedio-WPF/Jvedio.sln` Release 构建通过
   - `electron/` `npm run build` 通过
   - `electron/` `npm run smoke` 通过，Electron 已确认可拉起 Worker 并等待 ready 健康探测
+- `C-2` 当前已完成验证：
+  - `GET /api/app/bootstrap`
+  - `GET /api/libraries`
+  - `POST /api/libraries`
+  - `DELETE /api/libraries/{libraryId}`
+  - `GET /api/tasks`
+  - 创建测试库后已成功回删，sqlite 当前恢复原状
 - Home 页新建库
 - Home 页删除库
 - 左侧导航同步

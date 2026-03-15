@@ -6,6 +6,8 @@ public sealed class ApiResponse<TData>
 
     public string RequestId { get; set; } = string.Empty;
 
+    public DateTimeOffset Timestamp { get; set; }
+
     public TData? Data { get; set; }
 
     public ApiErrorDto? Error { get; set; }
@@ -16,6 +18,7 @@ public sealed class ApiResponse<TData>
         {
             Success = true,
             RequestId = requestId,
+            Timestamp = DateTimeOffset.UtcNow,
             Data = data,
         };
     }
@@ -26,6 +29,7 @@ public sealed class ApiResponse<TData>
         {
             Success = false,
             RequestId = requestId,
+            Timestamp = DateTimeOffset.UtcNow,
             Error = error,
         };
     }

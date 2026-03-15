@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `C-1` 已完成：工程骨架与启动链路已落地，下一步进入 `C-2` Worker 同步接口实现。
+- 阶段 `C-2` 已完成：Worker 同步接口已落地并完成接口级验证，下一步进入 `C-3` renderer Home 闭环。
 
 ## Latest Progress
 
@@ -37,6 +37,18 @@
 - 已新增 `Jvedio-WPF/Jvedio.Worker`，落地 localhost 宿主骨架、健康检查端点和 `JVEDIO_WORKER_READY` 启动信号。
 - 已新增根目录 `electron/` 工程骨架，落地 `main / preload / renderer` 三段最小启动链路，并通过 IPC 向 renderer 注入 Worker base URL。
 - 已完成 `Release` 构建、`npm run build` 和 `npm run smoke`，确认 Electron 能拉起 Worker 并完成 ready 健康探测。
+- 已完成 `C-2` Worker 同步接口闭环：
+  - `GET /api/app/bootstrap`
+  - `GET /api/libraries`
+  - `POST /api/libraries`
+  - `DELETE /api/libraries/{libraryId}`
+  - `GET /api/tasks`
+- Worker 已复用 WPF Release 数据目录，当前通过 `JVEDIO_APP_BASE_DIR` 与路径探测共享 `app_datas.sqlite` / `app_configs.sqlite`。
+- 已完成接口级验证：
+  - `bootstrap / libraries / create / delete / tasks` 全部可调用
+  - 创建测试库后已成功回删
+  - sqlite 当前状态已回到单库初始状态
+- `electron/` 再次通过 `npm run smoke`，确认 Electron 主进程仍可拉起 Worker 并等待 ready 健康探测。
 
 ## Next Recommended Work
 
@@ -50,16 +62,23 @@
 - 路径 C：
   - 先做 Electron 壳层与 localhost 通路 Spike
 
-1. 进入 `阶段 C-2`，先实现 Worker 同步接口：
-   - `GET /api/app/bootstrap`
-   - `GET /api/libraries`
-   - `POST /api/libraries`
-   - `DELETE /api/libraries/{libraryId}`
-   - `GET /api/tasks`
-2. `C-2` 完成后立刻做接口级验证，不等待 renderer 接线。
-3. 再进入 `阶段 C-3` 到 `阶段 C-4`：
-   - renderer Home 闭环
-   - 事件与错误收口
+1. 进入 `阶段 C-3`，实现 renderer Home 最小闭环：
+   - `AppShell`
+   - `HomePage`
+   - `useHomePageData`
+   - `CreateLibraryDialog`
+   - `DeleteLibraryDialog`
+   - `useLibraryNavItems`
+2. `C-3` 完成后立即做功能回归：
+   - Home 首屏加载
+   - 新建库 / 删除库
+   - 左侧导航同步
+   - 库路由跳转
+3. 再进入 `阶段 C-4`：
+   - `GET /api/events`
+   - `library.changed`
+   - 任务摘要刷新
+   - 结构化错误收口
 
 ## Validation Steps
 
@@ -78,6 +97,8 @@
 - `Jvedio.Contracts` 与 `Jvedio.Worker` 已加入 `Jvedio-WPF/Jvedio.sln` 并可成功构建。
 - `electron/` 已可通过 `npm run build` 完成 TypeScript 构建。
 - `npm run smoke` 已验证 Electron 主进程可以拉起 `Jvedio.Worker` 并等待 ready 健康探测通过。
+- Worker 接口人工验证通过：`GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks`。
+- 测试库创建后已成功回删，`app_databases` 当前恢复为单条 `Jav` 记录。
 
 ## Blockers And Caveats
 
