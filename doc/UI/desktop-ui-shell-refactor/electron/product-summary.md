@@ -44,8 +44,10 @@
 
 ## 参考来源
 
-- 主参考：
+- 壳层参考：
   - `QiaoKes/fntv-electron`
+- 页面实现参考：
+  - `jellyfin/jellyfin-web`
 - 辅助参考：
   - 现有 `doc/UI/new/` WPF 线稿历史稿
   - 现有 `doc/UI/old/` 旧界面截图

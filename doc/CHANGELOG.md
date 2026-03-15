@@ -6,6 +6,11 @@
 ## [未发布]
 
 ### 已变更
+- 拉取本地参考仓库 `D:\study\Proj\jellyfin-web`，并基于提交 `e6fe869a3b94fef35811bcd8ea4a9c0a713979b6` 完成首轮结构审计，新增 `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md`，明确其适合作为页面结构、列表/详情页组织和页面级数据 hook 分层参考。
+- 新增 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，将 `fntv-electron` 与 `jellyfin-web` 整合为“双参考源”策略，并细化 Jvedio 的 Home、Library、Actors、Video Detail、Settings 五个核心页面的可落地重构方案。
+- 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`doc/UI/desktop-ui-shell-refactor/electron/product-summary.md`、`doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，把参考源职责重新划分为“桌面壳参考”和“页面实现参考”。
+- 拉取本地参考仓库 `D:\study\Proj\fntv-electron`，并基于提交 `4eb63089687abaa733c1f85783630b1da391178d` 完成首轮结构审计，新增 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-audit.md` 记录其架构形态、可借鉴边界与禁止照搬项。
+- 更新 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md`、`doc/UI/desktop-ui-shell-refactor/electron/README.md` 和 `plan/active/desktop-ui-shell-refactor/handoff.md`，明确 `fntv-electron` 只适合作为桌面壳与桌面交互参考，不作为 Jvedio 本地页面实现模板。
 - 完成桌面 UI 首批线稿产出：生成 Home、Favorites、Actors、Settings 和导航/图标语义图，并将 `.png` 与 `.excalidraw` 文件统一导出到 `doc/UI/new/`，便于后续直接截图评审和继续微调。
 - 更新 `AGENTS.md` 的收尾校验规则：如果本轮仅为文档/纯内容调整，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则允许跳过 `Jvedio.Test` 集成测试，但仍需完成 Release 构建并说明原因。
 - 收紧 `doc/UI/desktop-ui-shell-refactor/` 的绘图约束，补齐首页/设置页线稿说明、设置页分组展示规则、主题 token 使用规则，以及首批输出命名与验证要求，降低后续线稿图生成歧义。
