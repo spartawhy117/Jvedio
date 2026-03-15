@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 收口 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性：`electron/renderer/src/features/home/useHomePageData.ts` 现在为这五个页面补上统一的结果摘要条、筛选上下文说明、缺资源影片提示，以及关键字输入回车直接应用筛选的统一手势。
+- 更新 `electron/renderer/index.html`，新增 `collection-summary-strip`、`summary-pill`、缺资源影片卡片高亮和结果说明样式，使 Home 的入口摘要、Library 工作台、Favorites、Categories、Series 的结果集视觉语义收敛到同一套层级。
 - 补齐任务失败详情与重试入口：`Jvedio-WPF/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。
 - 更新 `electron/renderer/src/features/home/useHomePageData.ts` 与新增 `TaskDetailDialog.ts`，使 Home / Library 任务卡片在失败态展示错误摘要、失败详情入口和重试按钮；失败详情弹窗会展示任务时间线、阶段、失败原因和重试来源，库页内联任务与全局活动条共用同一套重试状态反馈。
 - 更新 `electron/renderer/index.html`，补充失败任务卡片、任务动作区、任务详情弹窗和失败块样式，保证“库页内联 + 全局活动条 + Home 摘要”形态下的失败态布局可读且在移动端可收缩。

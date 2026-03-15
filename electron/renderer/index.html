@@ -472,6 +472,61 @@
         margin-top: 20px;
       }
 
+      .collection-summary-strip,
+      .collection-summary-pills {
+        display: flex;
+        gap: 12px;
+      }
+
+      .collection-summary-strip {
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(111, 209, 255, 0.12);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .collection-summary-strip.compact-strip {
+        margin-top: 20px;
+      }
+
+      .collection-summary-copy {
+        display: grid;
+        gap: 8px;
+        max-width: 520px;
+      }
+
+      .collection-summary-title {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .collection-summary-pills {
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .summary-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #dbe9fb;
+        font-size: 13px;
+      }
+
+      .summary-link-pill {
+        color: var(--accent);
+        border: 1px solid rgba(111, 209, 255, 0.16);
+      }
+
       .action-row {
         display: flex;
         flex-wrap: wrap;
@@ -976,6 +1031,10 @@
         background: linear-gradient(180deg, rgba(13, 24, 39, 0.96), rgba(11, 19, 32, 0.82));
       }
 
+      .video-result-card.has-gaps {
+        border-color: rgba(255, 193, 94, 0.24);
+      }
+
       .actor-result-card {
         display: flex;
         flex-direction: column;
@@ -1127,6 +1186,11 @@
         color: var(--text-muted);
       }
 
+      .video-card-note {
+        color: #cfe7ff;
+        line-height: 1.65;
+      }
+
       .detail-row {
         display: grid;
         gap: 6px;
@@ -1203,6 +1267,7 @@
         .content-header,
         .global-activity-bar,
         .global-activity-copy,
+        .collection-summary-strip,
         .section-header,
         .modal-header,
         .library-card-head,

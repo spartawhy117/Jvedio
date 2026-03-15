@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，并已补上失败任务详情与重试入口；当前下一步进入 `Home / Library / Favorites / Categories / Series` 的视觉和交互一致性收口。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，并已补上失败任务详情与重试入口、以及 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性收口；当前下一步进入最终受影响测试复扫与问题修复。
 
 ## Latest Progress
 
@@ -179,16 +179,20 @@
   - renderer 已新增任务详情弹窗，展示任务时间线、阶段、失败原因和重试来源
   - 已新增 `electron/` `npm run regression:tasks` 与 `electron/main/testing/tasksRegression.ts`
   - `regression:tasks` 当前通过“无有效扫描目录 -> 失败详情 -> 修复目录 -> 详情页重试 -> 重试成功”隔离闭环稳定验证
+- 已完成 `Home / Library / Favorites / Categories / Series` 视觉与交互一致性收口：
+  - renderer 已为这五个页面新增统一的结果摘要条、筛选上下文说明和结果说明样式
+  - Library / Favorites / Categories / Series 的关键字输入现已统一支持回车直接应用筛选
+  - 缺少 sidecar 或图片资源的影片卡片会以统一视觉高亮，便于快速识别资源缺口
+  - Home 已新增统一入口摘要，明确 Favorites / Categories / Series / Actors / Settings 的切换关系
+  - 当前已通过 `electron/` `npm run regression:favorites`、`npm run regression:categories`、`npm run regression:series`、`npm run regression:activity`、`npm run regression:tasks` 与 `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
 ## Next Recommended Work
 
-1. 继续执行现有排期中的下一项：
-   - Home / Library / Favorites / Categories / Series 的视觉收口与交互一致性打磨
-2. 视觉收口完成后再做当前受影响 Electron 聚焦回归与 Release 构建复扫：
-   - `electron/` `npm run regression:tasks`
-   - `electron/` `npm run regression:activity`
-   - 其余受影响页面聚焦回归
+1. 进入最终受影响测试复扫：
+   - 当前已完成的 Electron 聚焦回归逐项重跑
    - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+2. 如果复扫发现问题，直接在当前主线上修复并单独提交：
+   - 优先处理构建失败、回归失败和明显行为回退
 
 ## Validation Steps
 
