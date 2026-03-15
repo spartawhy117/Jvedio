@@ -97,11 +97,64 @@ export interface CreateLibraryResponse {
   createdAtUtc: string;
 }
 
+export interface UpdateLibraryRequest {
+  name?: string;
+  scanPaths: readonly string[];
+}
+
+export interface UpdateLibraryResponse {
+  library: LibraryListItemDto;
+  updatedAtUtc: string;
+}
+
 export interface DeleteLibraryResponse {
   libraryId: string;
   deletedAtUtc: string;
 }
 
+export interface StartLibraryScanRequest {
+  forceRescan: boolean;
+  organizeBeforeScan: boolean;
+  paths: readonly string[];
+}
+
+export interface StartLibraryScrapeRequest {
+  downloadActorAvatars: boolean;
+  forceRefreshMetadata: boolean;
+  mode: string;
+  videoIds: readonly string[];
+  writeSidecars: boolean;
+}
+
+export interface WorkerTaskDto {
+  completedAtUtc: string | null;
+  createdAtUtc: string;
+  errorMessage: string | null;
+  id: string;
+  libraryId: string | null;
+  libraryName: string | null;
+  percent: number;
+  progressCurrent: number;
+  progressTotal: number;
+  stage: string;
+  startedAtUtc: string | null;
+  status: string;
+  summary: string;
+  type: string;
+  updatedAtUtc: string;
+}
+
+export interface StartLibraryScanResponse {
+  acceptedAtUtc: string;
+  task: WorkerTaskDto;
+}
+
+export interface StartLibraryScrapeResponse {
+  acceptedAtUtc: string;
+  task: WorkerTaskDto;
+}
+
 export interface GetTasksResponse {
   summary: TaskSummaryDto;
+  tasks: readonly WorkerTaskDto[];
 }

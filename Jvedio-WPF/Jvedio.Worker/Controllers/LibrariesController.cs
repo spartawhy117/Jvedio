@@ -52,4 +52,52 @@ public sealed class LibrariesController : ControllerBase
 
         return ApiResponse<DeleteLibraryResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
+
+    [HttpPut("{libraryId}")]
+    public ActionResult<ApiResponse<UpdateLibraryResponse>> UpdateLibrary(
+        string libraryId,
+        [FromBody] UpdateLibraryRequest request,
+        [FromServices] LibraryService libraryService)
+    {
+        var library = libraryService.UpdateLibrary(libraryId, request);
+        var response = new UpdateLibraryResponse
+        {
+            Library = library,
+            UpdatedAtUtc = DateTimeOffset.UtcNow,
+        };
+
+        return ApiResponse<UpdateLibraryResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    [HttpPost("{libraryId}/scan")]
+    public ActionResult<ApiResponse<StartLibraryScanResponse>> StartScan(
+        string libraryId,
+        [FromBody] StartLibraryScanRequest request,
+        [FromServices] LibraryTaskOrchestratorService libraryTaskOrchestratorService)
+    {
+        var task = libraryTaskOrchestratorService.StartScanTask(libraryId, request);
+        var response = new StartLibraryScanResponse
+        {
+            AcceptedAtUtc = DateTimeOffset.UtcNow,
+            Task = task,
+        };
+
+        return Accepted(ApiResponse<StartLibraryScanResponse>.FromData(response, HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("{libraryId}/scrape")]
+    public ActionResult<ApiResponse<StartLibraryScrapeResponse>> StartScrape(
+        string libraryId,
+        [FromBody] StartLibraryScrapeRequest request,
+        [FromServices] LibraryTaskOrchestratorService libraryTaskOrchestratorService)
+    {
+        var task = libraryTaskOrchestratorService.StartScrapeTask(libraryId, request);
+        var response = new StartLibraryScrapeResponse
+        {
+            AcceptedAtUtc = DateTimeOffset.UtcNow,
+            Task = task,
+        };
+
+        return Accepted(ApiResponse<StartLibraryScrapeResponse>.FromData(response, HttpContext.TraceIdentifier));
+    }
 }

@@ -27,6 +27,7 @@ public sealed class LibraryService
     private readonly ILogger<LibraryService> logger;
     private readonly SqliteConnectionFactory sqliteConnectionFactory;
     private readonly TaskSummarySnapshotService taskSummarySnapshotService;
+    private readonly WorkerTaskRegistryService workerTaskRegistryService;
     private readonly WorkerEventStreamBroker workerEventStreamBroker;
 
     public LibraryService(
@@ -34,12 +35,14 @@ public sealed class LibraryService
         ILogger<LibraryService> logger,
         SqliteConnectionFactory sqliteConnectionFactory,
         TaskSummarySnapshotService taskSummarySnapshotService,
+        WorkerTaskRegistryService workerTaskRegistryService,
         WorkerEventStreamBroker workerEventStreamBroker)
     {
         this.configStoreService = configStoreService;
         this.logger = logger;
         this.sqliteConnectionFactory = sqliteConnectionFactory;
         this.taskSummarySnapshotService = taskSummarySnapshotService;
+        this.workerTaskRegistryService = workerTaskRegistryService;
         this.workerEventStreamBroker = workerEventStreamBroker;
     }
 
@@ -49,7 +52,7 @@ public sealed class LibraryService
         using var command = connection.CreateCommand();
         command.CommandText =
             """
-            SELECT DBId, Name, Count, IFNULL(ScanPath, ''), IFNULL(Hide, 0)
+            SELECT DBId, Name, Count, IFNULL(ScanPath, ''), IFNULL(Hide, 0), IFNULL(ExtraInfo, '')
             FROM app_databases
             WHERE DataType = $dataType
               AND IFNULL(Name, '') <> ''
@@ -63,16 +66,18 @@ public sealed class LibraryService
         while (reader.Read())
         {
             var scanPaths = ParseScanPaths(reader.GetString(3));
+            var extraInfo = ParseObject(reader.GetString(5));
+            var libraryId = reader.GetInt64(0).ToString();
             libraries.Add(new LibraryListItemDto
             {
-                LibraryId = reader.GetInt64(0).ToString(),
+                LibraryId = libraryId,
                 Name = reader.GetString(1),
                 Path = scanPaths.FirstOrDefault() ?? string.Empty,
                 ScanPaths = scanPaths,
                 VideoCount = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2)),
-                LastScanAt = null,
-                LastScrapeAt = null,
-                HasRunningTask = false,
+                LastScanAt = ReadString(extraInfo, "lastScanAt"),
+                LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
+                HasRunningTask = workerTaskRegistryService.HasRunningTask(libraryId),
             });
         }
 
@@ -120,10 +125,91 @@ public sealed class LibraryService
             VideoCount = 0,
             LastScanAt = null,
             LastScrapeAt = null,
-            HasRunningTask = false,
+            HasRunningTask = workerTaskRegistryService.HasRunningTask(insertedId.ToString()),
         };
         PublishLibraryChanged("created", createdLibrary);
         return createdLibrary;
+    }
+
+    public LibraryListItemDto? GetLibrary(string libraryId)
+    {
+        if (!long.TryParse(libraryId, out var parsedId) || parsedId <= 0)
+        {
+            return null;
+        }
+
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = GetLibraryRecord(connection, parsedId);
+        if (record is null)
+        {
+            return null;
+        }
+
+        return ToLibraryListItem(record.Value);
+    }
+
+    public LibraryListItemDto UpdateLibrary(string libraryId, UpdateLibraryRequest request)
+    {
+        if (!long.TryParse(libraryId, out var parsedId) || parsedId <= 0)
+        {
+            throw CreateException(
+                StatusCodes.Status404NotFound,
+                "library.update.not_found",
+                $"Library {libraryId} was not found.",
+                "媒体库不存在。");
+        }
+
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var existingLibrary = GetLibraryRecord(connection, parsedId);
+        if (existingLibrary is null)
+        {
+            throw CreateException(
+                StatusCodes.Status404NotFound,
+                "library.update.not_found",
+                $"Library {libraryId} was not found.",
+                "媒体库不存在。");
+        }
+
+        var nextName = string.IsNullOrWhiteSpace(request.Name) ? existingLibrary.Value.Name : request.Name.Trim();
+        var nextScanPaths = NormalizeScanPaths(new CreateLibraryRequest
+        {
+            Name = nextName,
+            ScanPaths = request.ScanPaths,
+        });
+
+        if (!string.Equals(existingLibrary.Value.Name, nextName, StringComparison.OrdinalIgnoreCase))
+        {
+            EnsureLibraryNameNotExists(connection, nextName);
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE app_databases
+            SET Name = $name,
+                ScanPath = $scanPath,
+                UpdateDate = STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+            WHERE DBId = $libraryId;
+            """;
+        command.Parameters.AddWithValue("$libraryId", parsedId);
+        command.Parameters.AddWithValue("$name", nextName);
+        command.Parameters.AddWithValue("$scanPath", SerializeScanPaths(nextScanPaths));
+        command.ExecuteNonQuery();
+
+        var updated = new LibraryListItemDto
+        {
+            LibraryId = parsedId.ToString(),
+            Name = nextName,
+            Path = nextScanPaths.FirstOrDefault() ?? string.Empty,
+            ScanPaths = nextScanPaths,
+            VideoCount = existingLibrary.Value.VideoCount,
+            LastScanAt = existingLibrary.Value.LastScanAt,
+            LastScrapeAt = existingLibrary.Value.LastScrapeAt,
+            HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
+        };
+
+        PublishLibraryChanged("updated", updated);
+        return updated;
     }
 
     public void DeleteLibrary(string libraryId)
@@ -178,10 +264,79 @@ public sealed class LibraryService
                 Path = library.Value.Path,
                 ScanPaths = library.Value.ScanPaths,
                 VideoCount = library.Value.VideoCount,
-                LastScanAt = null,
-                LastScrapeAt = null,
-                HasRunningTask = false,
+                LastScanAt = library.Value.LastScanAt,
+                LastScrapeAt = library.Value.LastScrapeAt,
+                HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
             });
+    }
+
+    public LibraryListItemDto RefreshLibraryState(string libraryId, string action, DateTimeOffset? lastScanAtUtc = null, DateTimeOffset? lastScrapeAtUtc = null)
+    {
+        if (!long.TryParse(libraryId, out var parsedId) || parsedId <= 0)
+        {
+            throw CreateException(
+                StatusCodes.Status404NotFound,
+                "library.refresh.not_found",
+                $"Library {libraryId} was not found.",
+                "媒体库不存在。");
+        }
+
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var library = GetLibraryRecord(connection, parsedId);
+        if (library is null)
+        {
+            throw CreateException(
+                StatusCodes.Status404NotFound,
+                "library.refresh.not_found",
+                $"Library {libraryId} was not found.",
+                "媒体库不存在。");
+        }
+
+        var videoCount = GetLibraryVideoCount(connection, parsedId);
+        var extraInfo = new JsonObject();
+        if (!string.IsNullOrWhiteSpace(library.Value.ExtraInfo))
+        {
+            extraInfo = ParseObject(library.Value.ExtraInfo);
+        }
+
+        if (lastScanAtUtc.HasValue)
+        {
+            extraInfo["lastScanAt"] = lastScanAtUtc.Value.ToString("O");
+        }
+
+        if (lastScrapeAtUtc.HasValue)
+        {
+            extraInfo["lastScrapeAt"] = lastScrapeAtUtc.Value.ToString("O");
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE app_databases
+            SET Count = $count,
+                ExtraInfo = $extraInfo,
+                UpdateDate = STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+            WHERE DBId = $libraryId;
+            """;
+        command.Parameters.AddWithValue("$count", videoCount);
+        command.Parameters.AddWithValue("$extraInfo", extraInfo.ToJsonString());
+        command.Parameters.AddWithValue("$libraryId", parsedId);
+        command.ExecuteNonQuery();
+
+        var libraryDto = new LibraryListItemDto
+        {
+            LibraryId = parsedId.ToString(),
+            Name = library.Value.Name,
+            Path = library.Value.Path,
+            ScanPaths = library.Value.ScanPaths,
+            VideoCount = videoCount,
+            LastScanAt = ReadString(extraInfo, "lastScanAt"),
+            LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
+            HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
+        };
+
+        PublishLibraryChanged(action, libraryDto);
+        return libraryDto;
     }
 
     private static WorkerApiException CreateException(
@@ -288,7 +443,7 @@ public sealed class LibraryService
         using var command = connection.CreateCommand();
         command.CommandText =
             """
-            SELECT DBId, Name, DataType, IFNULL(Count, 0), IFNULL(ScanPath, '')
+            SELECT DBId, Name, DataType, IFNULL(Count, 0), IFNULL(ScanPath, ''), IFNULL(ExtraInfo, '')
             FROM app_databases
             WHERE DBId = $libraryId
             LIMIT 1;
@@ -306,7 +461,33 @@ public sealed class LibraryService
             reader.GetString(1),
             reader.IsDBNull(2) ? VideoDataType : Convert.ToInt64(reader.GetValue(2)),
             reader.IsDBNull(3) ? 0 : Convert.ToInt32(reader.GetValue(3)),
-            ParseScanPaths(reader.GetString(4)));
+            ParseScanPaths(reader.GetString(4)),
+            reader.IsDBNull(5) ? string.Empty : reader.GetString(5));
+    }
+
+    private static JsonObject ParseObject(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return new JsonObject();
+        }
+
+        return JsonNode.Parse(value) as JsonObject ?? new JsonObject();
+    }
+
+    private static string? ReadString(JsonObject document, string propertyName)
+    {
+        if (!document.TryGetPropertyValue(propertyName, out var node) || node is null)
+        {
+            return null;
+        }
+
+        if (node is JsonValue value && value.TryGetValue<string>(out var stringValue) && !string.IsNullOrWhiteSpace(stringValue))
+        {
+            return stringValue;
+        }
+
+        return null;
     }
 
     private void DeleteLibraryRows(SqliteConnection connection, SqliteTransaction transaction, long libraryId, long dataType)
@@ -428,6 +609,37 @@ public sealed class LibraryService
         return result is null || result == DBNull.Value ? 0 : Convert.ToInt64(result);
     }
 
+    private int GetLibraryVideoCount(SqliteConnection connection, long libraryId)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT COUNT(1)
+            FROM metadata
+            WHERE DBId = $libraryId
+              AND DataType = $dataType;
+            """;
+        command.Parameters.AddWithValue("$libraryId", libraryId);
+        command.Parameters.AddWithValue("$dataType", VideoDataType);
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    private LibraryListItemDto ToLibraryListItem(LibraryRecord record)
+    {
+        var extraInfo = ParseObject(record.ExtraInfo);
+        return new LibraryListItemDto
+        {
+            LibraryId = record.Id.ToString(),
+            Name = record.Name,
+            Path = record.Path,
+            ScanPaths = record.ScanPaths,
+            VideoCount = record.VideoCount,
+            LastScanAt = ReadString(extraInfo, "lastScanAt"),
+            LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
+            HasRunningTask = workerTaskRegistryService.HasRunningTask(record.Id.ToString()),
+        };
+    }
+
     private void PublishLibraryChanged(string action, LibraryListItemDto library)
     {
         workerEventStreamBroker.Publish(
@@ -449,8 +661,13 @@ public sealed class LibraryService
         string Name,
         long DataType,
         int VideoCount,
-        IReadOnlyList<string> ScanPaths)
+        IReadOnlyList<string> ScanPaths,
+        string ExtraInfo)
     {
         public string Path => ScanPaths.FirstOrDefault() ?? string.Empty;
+
+        public string? LastScanAt => ReadString(ParseObject(ExtraInfo), "lastScanAt");
+
+        public string? LastScrapeAt => ReadString(ParseObject(ExtraInfo), "lastScrapeAt");
     }
 }

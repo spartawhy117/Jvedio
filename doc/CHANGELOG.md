@@ -10,6 +10,9 @@
 - 更新 `Jvedio-WPF/Jvedio.Worker/Services/LibraryService.cs` 与 `TaskSummarySnapshotService.cs`，在库新建/删除后同步广播 `library.changed` 与任务摘要变更事件，收口 Home 页的库列表与任务摘要刷新链路。
 - 更新 `electron/renderer/src/api/client/apiClient.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，在 renderer 侧建立全局单 `EventSource` 订阅、消费 `library.changed` 和 `task.summary.changed`，并将 Worker 未就绪、请求失败、事件流断开统一映射为更明确的用户反馈。
 - 扩展 `electron/main/testing/c3Regression.ts`，在现有阶段 C 回归脚本中补充 `library.changed` 事件驱动同步、任务摘要刷新、Worker 未就绪错误反馈三项校验，继续沿用临时 sqlite 副本避免污染真实数据。
+- 完成阶段 `D` 的扫描与抓取最小闭环：扩展 `Jvedio.Worker` 的库更新、扫描、抓取与单任务查询接口，新增内存任务注册表、库扫描服务、MetaTube 抓取服务，以及 sidecar / NFO / 演员头像写出能力。
+- 将 `electron/renderer/src/features/home/useHomePageData.ts` 从库路由壳升级为库工作台，支持默认扫描目录读取与保存、触发扫描、触发抓取、显示当前库任务状态，并在 Home 与 Library 视图中回填任务列表。
+- 新增 `electron/main/testing/dRegression.ts` 与 `electron/` `npm run regression:d`，使用临时 sqlite 副本和临时媒体目录聚焦验证阶段 D 的扫描目录保存、扫描触发、任务状态回传与 sidecar 输出。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-4` 与阶段 C 聚焦回归已完成，下一步进入阶段 D”。
 - 新增 `electron/` `npm run regression:c3` 与 `electron/main/testing/c3Regression.ts`，通过临时 `sqlite` 副本自动验证 Home 首屏加载、新建库、删除库、左侧导航同步和库路由跳转，避免污染当前真实库数据。
 - 修复 renderer 原生 ES module 导入缺少 `.js` 扩展的问题，解决 Electron 文件页加载时 Home 页面空白、`C-3` 首屏无法渲染的实际缺陷。

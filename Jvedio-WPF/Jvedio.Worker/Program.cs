@@ -18,7 +18,11 @@ builder.Services.AddSingleton<SqliteConnectionFactory>();
 builder.Services.AddSingleton<ConfigStoreService>();
 builder.Services.AddSingleton<WorkerStorageBootstrapper>();
 builder.Services.AddSingleton<WorkerEventStreamBroker>();
+builder.Services.AddSingleton<WorkerTaskRegistryService>();
 builder.Services.AddSingleton<LibraryService>();
+builder.Services.AddSingleton<LibraryTaskOrchestratorService>();
+builder.Services.AddSingleton<LibraryScanService>();
+builder.Services.AddSingleton<LibraryScrapeService>();
 builder.Services.AddSingleton<AppBootstrapService>();
 builder.Services.AddSingleton<TaskSummarySnapshotService>();
 builder.Services.AddHostedService<WorkerReadySignalHostedService>();
@@ -31,9 +35,9 @@ app.UseMiddleware<ApiExceptionMiddleware>();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok(new
 {
-    stage = "C-4",
+    stage = "D",
     service = "Jvedio.Worker",
-    status = "home-mvp-events-ready",
+    status = "scan-scrape-minimal-loop-ready",
 }));
 
 app.Run();

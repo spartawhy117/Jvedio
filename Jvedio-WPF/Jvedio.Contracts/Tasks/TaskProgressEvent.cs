@@ -1,8 +1,8 @@
 namespace Jvedio.Contracts.Tasks;
 
-public sealed class TaskFailedEvent
+public sealed class TaskProgressEvent
 {
-    public DateTimeOffset FailedAtUtc { get; set; }
+    public DateTimeOffset OccurredAtUtc { get; set; }
 
     public WorkerTaskDto Task { get; set; } = new();
 }

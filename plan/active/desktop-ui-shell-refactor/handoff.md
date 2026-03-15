@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `C-4` 已完成：Home MVP 的事件流与错误收口已落地，阶段 C 聚焦回归已通过；下一步进入阶段 D 的扫描与抓取闭环。
+- 阶段 `D` 已完成代码实现：库默认扫描目录读取与保存、扫描触发、扫描任务状态回传、MetaTube 抓取与 sidecar 最小闭环均已接入；当前待开始阶段 D 构建与聚焦回归验证。
 
 ## Latest Progress
 
@@ -79,32 +79,28 @@
   - `electron/` `npm run smoke`
   - `electron/` `npm run regression:c3`
   - `Jvedio-WPF/Jvedio.sln` `Release` 构建
+- 已完成 `阶段 D` 首轮代码落地：
+  - Worker 新增 `PUT /api/libraries/{libraryId}`、`POST /api/libraries/{libraryId}/scan`、`POST /api/libraries/{libraryId}/scrape`、`GET /api/tasks/{taskId}`
+  - Worker 已新增内存任务注册表、扫描编排服务、MetaTube 抓取服务、sidecar/NFO/演员头像写出能力
+  - Library 页面已从路由壳升级为库工作台，支持扫描目录保存、触发扫描、触发抓取、查看当前库任务状态
+  - 已新增 `electron/` `npm run regression:d` 与 `electron/main/testing/dRegression.ts`，用于阶段 D 的聚焦回归
+- 已完成阶段 D 当前静态验证：
+  - `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj`
+  - `electron/` `npm run build`
 
 ## Next Recommended Work
 
-### 方案路径
-
-- 路径 A：
-  - 直接进入阶段 D
-  - 推荐
-- 路径 B：
-  - 先补 Electron E2E，再进入阶段 D
-- 路径 C：
-  - 先扩 Home 页面视觉细节，再回头补扫描与抓取闭环
-
-1. 进入 `阶段 D`：
-   - 库默认扫描目录读取与保存
-   - 扫描触发
-   - MetaTube 抓取最小闭环
-   - sidecar 与任务状态反馈
-2. 为阶段 D 设计新的聚焦回归：
-   - 扫描目录配置
-   - 扫描任务触发
-   - 任务状态刷新
-   - sidecar 输出校验
-3. 如需继续收紧回归，再补 Electron 侧更稳定的 E2E 包装：
-   - 保留临时 sqlite 副本策略
-   - 继续沿用现有 `regression:c3` 作为阶段 C 稳定回归入口
+1. 开始阶段 D 验证：
+   - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+   - `electron/` `npm run build`
+   - `electron/` `npm run smoke`
+   - `electron/` `npm run regression:d`
+2. 若阶段 D 聚焦回归通过：
+   - 评估是否补跑 `electron/` `npm run regression:c3`
+   - 根据结果决定进入下一批影片列表 / 播放链路，还是先做问题回修
+3. 若阶段 D 聚焦回归失败：
+   - 优先修复扫描目录保存、扫描任务状态回传、MetaTube 抓取和 sidecar 缺陷
+   - 再重新执行阶段 D 聚焦回归
 
 ## Validation Steps
 
@@ -128,6 +124,12 @@
 - `C-3` renderer Home 闭环代码已落地，可通过 Home 页加载、库列表渲染、新建/删除对话框和 Library 路由壳串起最小 UI 链路。
 - `Jvedio-WPF/Jvedio.sln` 已再次通过 `Release` 构建。
 - `electron/` `npm run regression:c3` 已通过，覆盖 Home 首屏加载、新建库、删除库、左侧导航同步、库路由跳转、`library.changed` 事件驱动同步、任务摘要刷新与 Worker 未就绪错误反馈。
+- 阶段 D 代码已落地，待验证：
+  - 库默认扫描目录读取与保存
+  - 扫描触发
+  - 扫描任务状态回传
+  - MetaTube 抓取与 sidecar 输出
+  - `electron/` `npm run regression:d`
 
 ## Blockers And Caveats
 

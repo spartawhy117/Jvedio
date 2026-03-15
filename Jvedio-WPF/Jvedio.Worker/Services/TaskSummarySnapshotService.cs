@@ -38,6 +38,18 @@ public sealed class TaskSummarySnapshotService
         }
     }
 
+    public void SetCurrent(TaskSummaryDto summary)
+    {
+        lock (gate)
+        {
+            current = Clone(summary ?? CreateDefault());
+            if (current.LastUpdatedUtc == default)
+            {
+                current.LastUpdatedUtc = DateTimeOffset.UtcNow;
+            }
+        }
+    }
+
     private static TaskSummaryDto Clone(TaskSummaryDto source)
     {
         return new TaskSummaryDto

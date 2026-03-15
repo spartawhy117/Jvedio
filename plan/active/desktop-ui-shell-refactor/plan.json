@@ -115,6 +115,30 @@
         "c3-home-mvp-renderer-flow"
       ],
       "status": "completed"
+    },
+    {
+      "id": "d1-library-scan-and-scrape-loop",
+      "content": "Stage D-1: Implement library scan path save, scan trigger, task feedback, and MetaTube sidecar loop",
+      "dependencies": [
+        "c4-home-mvp-events-and-errors"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "d2-stage-d-focused-regression",
+      "content": "Stage D-2: Add focused regression for scan path save, scan trigger, task status, and sidecar outputs",
+      "dependencies": [
+        "d1-library-scan-and-scrape-loop"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "d3-stage-d-validation",
+      "content": "Stage D-3: Run Release build and Stage D regression before moving to the next page batch",
+      "dependencies": [
+        "d2-stage-d-focused-regression"
+      ],
+      "status": "pending"
     }
   ],
   "openQuestions": [

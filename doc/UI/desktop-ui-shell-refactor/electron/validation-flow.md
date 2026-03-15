@@ -72,6 +72,15 @@
 - 整理与 MetaTube 抓取闭环
 - sidecar 输出正确
 - 任务状态可见
+- 当前已完成代码接线：
+  - Worker 已接入库扫描目录保存、扫描任务编排、MetaTube 抓取与 sidecar 写出
+  - Library 页面已支持扫描目录编辑、触发扫描、触发抓取和当前库任务状态回传
+  - 已新增 `electron/` `npm run regression:d` 聚焦回归入口
+- 当前待执行验证：
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:d`
 
 ## 第三批：影片展示和播放
 

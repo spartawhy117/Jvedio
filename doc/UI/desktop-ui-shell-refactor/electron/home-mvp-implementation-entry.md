@@ -462,6 +462,24 @@ Jvedio.Contracts/
     - 任务摘要刷新
     - Worker 未就绪 warning banner 反馈
 
+### D：扫描与抓取最小闭环
+
+- 本步目标：
+  - 库默认扫描目录读取与保存
+  - 触发扫描
+  - 扫描任务状态回传
+  - MetaTube 抓取与 sidecar 最小闭环
+- 当前结果：
+  - Worker 已新增库更新接口、扫描接口、抓取接口和单任务查询接口
+  - Worker 已新增内存任务注册表、库扫描服务、MetaTube 抓取服务和 sidecar 写出能力
+  - Library 路由已升级为库工作台，支持扫描目录保存、触发扫描、触发抓取和当前库任务列表
+  - 已新增 `electron/` `npm run regression:d`，使用临时 sqlite 副本和临时媒体目录验证阶段 D 主链路
+- 当前待验证：
+  - `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj`
+  - `electron/` `npm run build`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+  - `electron/` `npm run regression:d`
+
 ## 当前风险
 
 - `WindowStartUp` 的既有库管理逻辑可能夹带 UI 依赖，迁移为 Worker 服务时需要先拆纯业务层。

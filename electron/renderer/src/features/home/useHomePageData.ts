@@ -3,12 +3,14 @@ import { useLibraryNavItems } from "../../app/navigation/useLibraryNavItems.js";
 import { ensureRoute, toHash, type AppRoute } from "../../app/routes/router.js";
 import type {
   GetBootstrapResponse,
+  GetTasksResponse,
   LibraryChangedEventDto,
   LibraryListItemDto,
   TaskSummaryDto,
   TaskSummaryChangedEventDto,
   WorkerEventEnvelopeDto,
-  WorkerStatusDto
+  WorkerStatusDto,
+  WorkerTaskDto,
 } from "../../types/api.js";
 import { renderCreateLibraryDialog } from "./CreateLibraryDialog.js";
 import { renderDeleteLibraryDialog } from "./DeleteLibraryDialog.js";
@@ -44,16 +46,26 @@ type ModalState =
       pending: boolean;
     };
 
+type LibraryActionKind = "save" | "scan" | "scrape";
+
+interface LibraryActionState {
+  kind: LibraryActionKind;
+  libraryId: string;
+}
+
 interface RendererState {
   appVersion: string;
   bootstrap: GetBootstrapResponse | null;
   inlineError: string | null;
   infoMessage: string | null;
+  libraryAction: LibraryActionState | null;
   loading: boolean;
   modal: ModalState;
   route: AppRoute;
-  workerWarning: string | null;
+  scanPathDrafts: Record<string, string>;
+  tasks: readonly WorkerTaskDto[];
   workerBaseUrl: string;
+  workerWarning: string | null;
 }
 
 export class HomePageController {
@@ -66,17 +78,23 @@ export class HomePageController {
     bootstrap: null,
     inlineError: null,
     infoMessage: null,
+    libraryAction: null,
     loading: true,
     modal: null,
     route: { kind: "home" },
-    workerWarning: null,
+    scanPathDrafts: {},
+    tasks: [],
     workerBaseUrl: "",
+    workerWarning: null,
   };
 
   public constructor(rootElement: HTMLElement) {
     this.rootElement = rootElement;
     this.rootElement.addEventListener("click", (event) => {
       void this.handleClick(event);
+    });
+    this.rootElement.addEventListener("input", (event) => {
+      this.handleInput(event);
     });
     this.rootElement.addEventListener("submit", (event) => {
       void this.handleSubmit(event);
@@ -100,7 +118,7 @@ export class HomePageController {
 
     const [appVersion, workerBaseUrl] = await Promise.all([
       window.jvedioApp.getAppVersion(),
-      window.jvedioWorker.getWorkerBaseUrl()
+      window.jvedioWorker.getWorkerBaseUrl(),
     ]);
 
     this.state = {
@@ -122,12 +140,16 @@ export class HomePageController {
       ...this.state,
       infoMessage: options?.infoMessage ?? null,
       inlineError: null,
+      libraryAction: null,
       loading: true,
     };
     this.render();
 
     try {
-      const bootstrap = await this.apiClient.getBootstrap();
+      const [bootstrap, tasksResponse] = await Promise.all([
+        this.apiClient.getBootstrap(),
+        this.apiClient.getTasks(),
+      ]);
       const route = ensureRoute(window.location.hash || bootstrap.shell.startRoute, bootstrap.libraries);
 
       if (toHash(route) !== (window.location.hash || "#/home")) {
@@ -136,10 +158,15 @@ export class HomePageController {
 
       this.state = {
         ...this.state,
-        bootstrap,
+        bootstrap: {
+          ...bootstrap,
+          taskSummary: tasksResponse.summary,
+        },
         inlineError: null,
         loading: false,
         route,
+        scanPathDrafts: syncScanPathDrafts(this.state.scanPathDrafts, bootstrap.libraries),
+        tasks: tasksResponse.tasks,
         workerWarning: null,
       };
       this.ensureEventStream(bootstrap.worker.eventStreamPath);
@@ -150,7 +177,9 @@ export class HomePageController {
         bootstrap: null,
         infoMessage: null,
         inlineError: this.toUserMessage(error),
+        libraryAction: null,
         loading: false,
+        tasks: [],
         workerWarning: null,
       };
     }
@@ -163,6 +192,26 @@ export class HomePageController {
     this.state = {
       ...this.state,
       route: ensureRoute(window.location.hash, libraries),
+    };
+  }
+
+  private handleInput(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (!(target instanceof HTMLTextAreaElement) || target.name !== "library-scan-paths") {
+      return;
+    }
+
+    const libraryId = target.dataset.libraryId ?? "";
+    if (!libraryId) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      scanPathDrafts: {
+        ...this.state.scanPathDrafts,
+        [libraryId]: target.value,
+      },
     };
   }
 
@@ -215,11 +264,21 @@ export class HomePageController {
       case "refresh-home":
         await this.reloadHomeData();
         break;
-      case "confirm-delete-library": {
-        const libraryId = actionElement.dataset.libraryId ?? "";
-        await this.deleteLibrary(libraryId);
+      case "refresh-library-tasks":
+        await this.refreshAllDataInBackground();
         break;
-      }
+      case "save-library-scan-paths":
+        await this.saveLibraryScanPaths(actionElement.dataset.libraryId ?? "");
+        break;
+      case "start-library-scan":
+        await this.startLibraryScan(actionElement.dataset.libraryId ?? "");
+        break;
+      case "start-library-scrape":
+        await this.startLibraryScrape(actionElement.dataset.libraryId ?? "");
+        break;
+      case "confirm-delete-library":
+        await this.deleteLibrary(actionElement.dataset.libraryId ?? "");
+        break;
       default:
         break;
     }
@@ -235,10 +294,7 @@ export class HomePageController {
     const formData = new FormData(form);
     const name = String(formData.get("name") ?? "").trim();
     const scanPath = String(formData.get("scanPath") ?? "").trim();
-    const scanPaths = scanPath
-      .split(/\r?\n/)
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0);
+    const scanPaths = normalizeScanPaths(scanPath);
 
     this.state = {
       ...this.state,
@@ -298,7 +354,7 @@ export class HomePageController {
         window.location.hash = "#/home";
       }
       await this.reloadHomeData({
-        infoMessage: deletedLibrary ? `媒体库“${deletedLibrary.name}”已删除。` : "媒体库已删除。"
+        infoMessage: deletedLibrary ? `媒体库“${deletedLibrary.name}”已删除。` : "媒体库已删除。",
       });
     } catch (error) {
       if (this.state.modal?.kind !== "delete") {
@@ -317,13 +373,140 @@ export class HomePageController {
     }
   }
 
-  private closeModal(clearMessage = true): void {
+  private async saveLibraryScanPaths(libraryId: string): Promise<void> {
+    if (!this.apiClient) {
+      return;
+    }
+
+    const library = this.findLibrary(libraryId);
+    if (!library) {
+      return;
+    }
+
+    const scanPathText = this.getScanPathDraft(library);
+    const scanPaths = normalizeScanPaths(scanPathText);
     this.state = {
       ...this.state,
-      modal: null,
-      ...(clearMessage ? { infoMessage: null } : {}),
+      infoMessage: null,
+      inlineError: null,
+      libraryAction: {
+        kind: "save",
+        libraryId,
+      },
+      scanPathDrafts: {
+        ...this.state.scanPathDrafts,
+        [libraryId]: scanPathText,
+      },
     };
     this.render();
+
+    try {
+      await this.apiClient.updateLibrary(libraryId, {
+        name: library.name,
+        scanPaths,
+      });
+      this.state = {
+        ...this.state,
+        scanPathDrafts: {
+          ...this.state.scanPathDrafts,
+          [libraryId]: scanPaths.join("\n"),
+        },
+      };
+      await this.reloadHomeData({ infoMessage: `已保存“${library.name}”的扫描目录。` });
+    } catch (error) {
+      this.state = {
+        ...this.state,
+        inlineError: this.toUserMessage(error),
+        libraryAction: null,
+      };
+      this.render();
+    }
+  }
+
+  private async startLibraryScan(libraryId: string): Promise<void> {
+    if (!this.apiClient) {
+      return;
+    }
+
+    const library = this.findLibrary(libraryId);
+    if (!library) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      infoMessage: null,
+      inlineError: null,
+      libraryAction: {
+        kind: "scan",
+        libraryId,
+      },
+    };
+    this.render();
+
+    try {
+      const response = await this.apiClient.startLibraryScan(libraryId, {
+        forceRescan: false,
+        organizeBeforeScan: true,
+        paths: normalizeScanPaths(this.getScanPathDraft(library)),
+      });
+      await this.reloadHomeData({
+        infoMessage: `已启动扫描任务 ${response.task.id}。`,
+      });
+    } catch (error) {
+      this.state = {
+        ...this.state,
+        inlineError: this.toUserMessage(error),
+        libraryAction: null,
+      };
+      this.render();
+    }
+  }
+
+  private async startLibraryScrape(libraryId: string): Promise<void> {
+    if (!this.apiClient) {
+      return;
+    }
+
+    const library = this.findLibrary(libraryId);
+    if (!library) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      infoMessage: null,
+      inlineError: null,
+      libraryAction: {
+        kind: "scrape",
+        libraryId,
+      },
+    };
+    this.render();
+
+    try {
+      const response = await this.apiClient.startLibraryScrape(libraryId, {
+        downloadActorAvatars: true,
+        forceRefreshMetadata: false,
+        mode: "missing-only",
+        videoIds: [],
+        writeSidecars: true,
+      });
+      await this.reloadHomeData({
+        infoMessage: `已启动抓取任务 ${response.task.id}。`,
+      });
+    } catch (error) {
+      this.state = {
+        ...this.state,
+        inlineError: this.toUserMessage(error),
+        libraryAction: null,
+      };
+      this.render();
+    }
+  }
+
+  private getScanPathDraft(library: LibraryListItemDto): string {
+    return this.state.scanPathDrafts[library.libraryId] ?? library.scanPaths.join("\n");
   }
 
   private findLibrary(libraryId: string): LibraryListItemDto | undefined {
@@ -336,7 +519,7 @@ export class HomePageController {
     }
 
     if (typeof EventSource === "undefined") {
-      this.setWorkerWarning("当前运行环境不支持 Worker 事件流，任务摘要和库导航需要手动刷新。");
+      this.setWorkerWarning("当前运行环境不支持 Worker 事件流，任务状态和库状态需要手动刷新。");
       return;
     }
 
@@ -356,7 +539,7 @@ export class HomePageController {
     };
 
     eventSource.onerror = () => {
-      this.setWorkerWarning("Worker 事件流已断开，库导航和任务摘要可能不是最新状态，可手动刷新。");
+      this.setWorkerWarning("Worker 事件流已断开，库状态与任务状态可能不是最新数据，可手动刷新。");
     };
 
     eventSource.addEventListener("library.changed", (event) => {
@@ -366,13 +549,16 @@ export class HomePageController {
       void this.handleTaskSummaryChangedEvent(event);
     });
     eventSource.addEventListener("task.created", () => {
-      void this.refreshTaskSummaryInBackground();
+      void this.refreshAllDataInBackground();
     });
     eventSource.addEventListener("task.completed", () => {
-      void this.refreshTaskSummaryInBackground();
+      void this.refreshAllDataInBackground();
     });
     eventSource.addEventListener("task.failed", () => {
-      void this.refreshTaskSummaryInBackground();
+      void this.refreshAllDataInBackground();
+    });
+    eventSource.addEventListener("task.progress", () => {
+      void this.refreshTasksInBackground();
     });
   }
 
@@ -438,37 +624,67 @@ export class HomePageController {
 
       this.state = {
         ...this.state,
-        bootstrap,
+        bootstrap: {
+          ...bootstrap,
+          taskSummary: this.state.bootstrap?.taskSummary ?? bootstrap.taskSummary,
+        },
         inlineError: null,
+        libraryAction: null,
         route,
+        scanPathDrafts: syncScanPathDrafts(this.state.scanPathDrafts, bootstrap.libraries),
         workerWarning: null,
       };
-      this.ensureEventStream(bootstrap.worker.eventStreamPath);
       this.render();
     } catch (error) {
       this.setWorkerWarning(this.toBackgroundWarningMessage(error));
     }
   }
 
-  private async refreshTaskSummaryInBackground(): Promise<void> {
+  private async refreshTasksInBackground(): Promise<void> {
     if (!this.apiClient || !this.state.bootstrap) {
       return;
     }
 
     try {
       const response = await this.apiClient.getTasks();
-      this.state = {
-        ...this.state,
-        bootstrap: {
-          ...this.state.bootstrap,
-          taskSummary: response.summary,
-        },
-        workerWarning: null,
-      };
-      this.render();
+      this.applyTasksResponse(response);
+      this.setWorkerWarning(null);
     } catch (error) {
       this.setWorkerWarning(this.toBackgroundWarningMessage(error));
     }
+  }
+
+  private async refreshAllDataInBackground(): Promise<void> {
+    await Promise.all([
+      this.refreshBootstrapInBackground(),
+      this.refreshTasksInBackground(),
+    ]);
+  }
+
+  private applyTasksResponse(response: GetTasksResponse): void {
+    if (!this.state.bootstrap) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      bootstrap: {
+        ...this.state.bootstrap,
+        taskSummary: response.summary,
+      },
+      libraryAction: null,
+      tasks: response.tasks,
+    };
+    this.render();
+  }
+
+  private closeModal(clearMessage = true): void {
+    this.state = {
+      ...this.state,
+      modal: null,
+      ...(clearMessage ? { infoMessage: null } : {}),
+    };
+    this.render();
   }
 
   private setWorkerWarning(message: string | null): void {
@@ -496,8 +712,7 @@ export class HomePageController {
   }
 
   private toBackgroundWarningMessage(error: unknown): string {
-    const userMessage = this.toUserMessage(error);
-    return `${userMessage} 当前已保留上一次成功加载的数据。`;
+    return `${this.toUserMessage(error)} 当前已保留上一次成功加载的数据。`;
   }
 
   private render(): void {
@@ -523,7 +738,7 @@ export class HomePageController {
             <span class="brand-mark">JV</span>
             <div>
               <div class="brand-title">Jvedio Desktop</div>
-              <div class="brand-subtitle">Home MVP / Stage C-3</div>
+              <div class="brand-subtitle">Stage D / Scan + Scrape Loop</div>
             </div>
           </div>
           <button class="primary-button wide-button" data-action="open-create-dialog">新建媒体库</button>
@@ -559,8 +774,8 @@ export class HomePageController {
               <h1>${currentRoute.kind === "home" ? "媒体库总览" : escapeHtml(selectedLibrary?.name ?? "媒体库")}</h1>
               <p>
                 ${currentRoute.kind === "home"
-                  ? "当前阶段已打通 Worker 同步接口，这里开始承接 Home 页面、导航和库管理交互。"
-                  : "Library 路由壳已接通。下一阶段会在这里补齐影片列表、筛选和扫描抓取入口。"}
+                  ? "当前阶段优先收口扫描目录、扫描触发、任务状态回传和 MetaTube 最小抓取闭环。"
+                  : "这里已接入扫描目录保存、扫描/抓取入口和任务状态列表，可直接验证 Stage D 主链路。"}
               </p>
             </div>
             <div class="header-actions">
@@ -586,11 +801,74 @@ export class HomePageController {
   ): string {
     if (this.state.route.kind === "library") {
       return selectedLibrary
-        ? renderLibraryRoute(selectedLibrary, taskSummary, worker)
+        ? this.renderLibraryRoute(selectedLibrary, taskSummary, worker)
         : `<div class="page-banner error-banner">当前媒体库不存在，已回退到 Home。</div>`;
     }
 
-    return renderHomePage(libraries, taskSummary, worker);
+    return renderHomePage(libraries, taskSummary, worker, this.state.tasks);
+  }
+
+  private renderLibraryRoute(library: LibraryListItemDto, taskSummary: TaskSummaryDto, worker: WorkerStatusDto): string {
+    const libraryTasks = this.state.tasks.filter((task) => task.libraryId === library.libraryId);
+    const pendingAction = this.state.libraryAction?.libraryId === library.libraryId
+      ? this.state.libraryAction.kind
+      : null;
+    const hasRunningTask = libraryTasks.some((task) => isActiveTask(task));
+    const runningTask = libraryTasks.find((task) => isActiveTask(task)) ?? null;
+
+    return `
+      <section class="metric-grid">
+        ${renderMetricCard("影片数", String(library.videoCount), "来自 sqlite 中该库的 metadata 计数")}
+        ${renderMetricCard("库内任务", String(libraryTasks.length), "显示当前库最近的扫描/抓取任务")}
+        ${renderMetricCard("最近扫描", library.lastScanAt ? formatDateTime(library.lastScanAt) : "未记录", "完成扫描后由 Worker 回写")}
+        ${renderMetricCard("最近抓取", library.lastScrapeAt ? formatDateTime(library.lastScrapeAt) : "未记录", "完成抓取后写入库状态")}
+      </section>
+      <section class="split-layout">
+        <div class="surface-card library-workbench">
+          <div class="section-header">
+            <div>
+              <span class="eyebrow">Library Workbench</span>
+              <h2>${escapeHtml(library.name)}</h2>
+            </div>
+            <button class="danger-button" data-action="open-delete-dialog" data-library-id="${escapeHtml(library.libraryId)}">删除媒体库</button>
+          </div>
+          <p class="route-copy">Worker 已支持读取和保存默认扫描目录，并可直接发起扫描与 MetaTube 最小抓取链路。</p>
+          <div class="library-detail-grid">
+            <div class="detail-card"><span>Library ID</span><strong>${escapeHtml(library.libraryId)}</strong></div>
+            <div class="detail-card"><span>主路径</span><strong>${escapeHtml(library.path || "未配置")}</strong></div>
+            <div class="detail-card"><span>运行中任务</span><strong>${hasRunningTask ? "Yes" : "No"}</strong></div>
+            <div class="detail-card"><span>Worker</span><strong>${worker.healthy ? "Ready" : "Unavailable"}</strong></div>
+          </div>
+          <div class="scan-path-editor">
+            <label class="field-label" for="library-scan-paths-${escapeHtml(library.libraryId)}">默认扫描目录</label>
+            <textarea id="library-scan-paths-${escapeHtml(library.libraryId)}" class="scan-path-textarea" name="library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}" placeholder="每行一个目录">${escapeHtml(this.getScanPathDraft(library))}</textarea>
+            <div class="inline-note">保存后会写回库默认扫描目录。执行扫描时会优先使用这里的路径。</div>
+          </div>
+          <div class="action-row">
+            <button class="primary-button" data-action="save-library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}" ${pendingAction === "save" ? "disabled" : ""}>${pendingAction === "save" ? "保存中..." : "保存扫描目录"}</button>
+            <button class="ghost-button" data-action="start-library-scan" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scan" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scan" ? "扫描启动中..." : "触发扫描"}</button>
+            <button class="ghost-button" data-action="start-library-scrape" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scrape" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scrape" ? "抓取启动中..." : "触发抓取"}</button>
+            <button class="ghost-button" data-action="refresh-library-tasks">刷新任务</button>
+          </div>
+          ${runningTask ? `<div class="page-banner info-banner">当前任务：${escapeHtml(formatTaskHeadline(runningTask))}</div>` : ""}
+        </div>
+        <div class="surface-card side-stack">
+          <div class="section-header">
+            <div>
+              <span class="eyebrow">Task Feed</span>
+              <h2>当前库任务</h2>
+            </div>
+          </div>
+          ${libraryTasks.length > 0
+            ? `<div class="task-feed">${libraryTasks.slice(0, 8).map(renderTaskCard).join("")}</div>`
+            : `<div class="empty-card compact-empty"><h3>当前还没有任务</h3><p>先保存扫描目录，再触发扫描或抓取，就可以在这里看到任务状态回传。</p></div>`}
+          <div class="worker-note">
+            <div class="note-label">摘要刷新</div>
+            <div class="note-value">${formatDateTime(taskSummary.lastUpdatedUtc)}</div>
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   private renderModal(libraries: readonly LibraryListItemDto[]): string {
@@ -609,20 +887,21 @@ export class HomePageController {
     }
 
     const library = libraries.find((item) => item.libraryId === modal.libraryId);
-    if (!library) {
-      return "";
-    }
-
-    return renderDeleteLibraryDialog(library, modal.errorMessage, modal.pending);
+    return library ? renderDeleteLibraryDialog(library, modal.errorMessage, modal.pending) : "";
   }
 }
 
-function renderHomePage(libraries: readonly LibraryListItemDto[], taskSummary: TaskSummaryDto, worker: WorkerStatusDto): string {
+function renderHomePage(
+  libraries: readonly LibraryListItemDto[],
+  taskSummary: TaskSummaryDto,
+  worker: WorkerStatusDto,
+  tasks: readonly WorkerTaskDto[],
+): string {
   return `
     <section class="metric-grid">
       ${renderMetricCard("媒体库", String(libraries.length), "Home 与左导航共享同一份库清单")}
-      ${renderMetricCard("运行中任务", String(taskSummary.runningCount), "当前任务抽屉尚未接线，先展示摘要")}
-      ${renderMetricCard("今日完成", String(taskSummary.completedTodayCount), "后续由 SSE 与任务中心刷新")}
+      ${renderMetricCard("运行中任务", String(taskSummary.runningCount), "包含扫描与抓取任务")}
+      ${renderMetricCard("今日完成", String(taskSummary.completedTodayCount), "由 SSE 与 /api/tasks 刷新")}
       ${renderMetricCard("Worker", worker.healthy ? "Healthy" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}
     </section>
     <section class="split-layout">
@@ -635,10 +914,10 @@ function renderHomePage(libraries: readonly LibraryListItemDto[], taskSummary: T
           <button class="ghost-button" data-action="open-create-dialog">添加媒体库</button>
         </div>
         ${libraries.length > 0
-          ? `<div class="library-grid">${libraries.map(renderLibraryCard).join("")}</div>`
+          ? `<div class="library-grid">${libraries.map((library) => renderLibraryCard(library, tasks)).join("")}</div>`
           : `<div class="empty-card">
               <h3>还没有媒体库</h3>
-              <p>先创建一个库，后续 C-4 再接入 SSE，让 Home 与侧栏自动刷新。</p>
+              <p>先创建一个库，接着在库页配置扫描目录并触发扫描/抓取链路。</p>
               <button class="primary-button" data-action="open-create-dialog">创建第一个媒体库</button>
             </div>`}
       </div>
@@ -655,60 +934,14 @@ function renderHomePage(libraries: readonly LibraryListItemDto[], taskSummary: T
           ${renderSummaryRow("失败", taskSummary.failedCount)}
           ${renderSummaryRow("今日完成", taskSummary.completedTodayCount)}
         </div>
+        <div class="task-feed home-task-feed">
+          ${tasks.length > 0
+            ? tasks.slice(0, 5).map(renderTaskCard).join("")
+            : `<div class="empty-task-feed">当前还没有任务记录。</div>`}
+        </div>
         <div class="worker-note" data-last-updated-utc="${escapeHtml(taskSummary.lastUpdatedUtc)}">
           <div class="note-label">最近刷新</div>
           <div class="note-value">${formatDateTime(taskSummary.lastUpdatedUtc)}</div>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function renderLibraryRoute(library: LibraryListItemDto, taskSummary: TaskSummaryDto, worker: WorkerStatusDto): string {
-  const scanPaths = library.scanPaths.length > 0
-    ? library.scanPaths.map((path) => `<li>${escapeHtml(path)}</li>`).join("")
-    : "<li>未配置扫描目录</li>";
-
-  return `
-    <section class="metric-grid">
-      ${renderMetricCard("影片数", String(library.videoCount), "当前来自 app_databases.Count")}
-      ${renderMetricCard("运行中任务", String(taskSummary.runningCount), "下一阶段会关联到当前库")}
-      ${renderMetricCard("抓取时间", library.lastScrapeAt ? formatDateTime(library.lastScrapeAt) : "未记录", "C-4 后再做事件刷新")}
-      ${renderMetricCard("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}
-    </section>
-    <section class="split-layout single-column">
-      <div class="surface-card">
-        <div class="section-header">
-          <div>
-            <span class="eyebrow">Library Route</span>
-            <h2>${escapeHtml(library.name)}</h2>
-          </div>
-          <button class="danger-button" data-action="open-delete-dialog" data-library-id="${escapeHtml(library.libraryId)}">删除媒体库</button>
-        </div>
-        <p class="route-copy">
-          C-3 先完成路由壳、导航同步和 Home 列表交互。影片列表、筛选、扫描与抓取入口会在下一批阶段继续补齐。
-        </p>
-        <div class="library-detail-grid">
-          <div class="detail-card">
-            <span>Library ID</span>
-            <strong>${escapeHtml(library.libraryId)}</strong>
-          </div>
-          <div class="detail-card">
-            <span>主路径</span>
-            <strong>${escapeHtml(library.path || "未配置")}</strong>
-          </div>
-          <div class="detail-card">
-            <span>扫描路径数量</span>
-            <strong>${library.scanPaths.length}</strong>
-          </div>
-          <div class="detail-card">
-            <span>运行中任务</span>
-            <strong>${library.hasRunningTask ? "Yes" : "No"}</strong>
-          </div>
-        </div>
-        <div class="scan-path-panel">
-          <div class="scan-path-title">扫描目录</div>
-          <ul>${scanPaths}</ul>
         </div>
       </div>
     </section>
@@ -734,10 +967,11 @@ function renderSummaryRow(label: string, value: number): string {
   `;
 }
 
-function renderLibraryCard(library: LibraryListItemDto): string {
+function renderLibraryCard(library: LibraryListItemDto, tasks: readonly WorkerTaskDto[]): string {
   const scanPathMarkup = library.scanPaths.length > 0
     ? library.scanPaths.slice(0, 2).map((path) => `<span class="path-badge">${escapeHtml(path)}</span>`).join("")
     : `<span class="path-badge muted-badge">未配置扫描目录</span>`;
+  const activeTask = tasks.find((task) => task.libraryId === library.libraryId && isActiveTask(task));
 
   return `
     <article class="library-card">
@@ -747,9 +981,36 @@ function renderLibraryCard(library: LibraryListItemDto): string {
       </div>
       <div class="library-stat">${library.videoCount} videos</div>
       <div class="path-list">${scanPathMarkup}</div>
+      ${activeTask ? `<div class="task-chip">${escapeHtml(formatTaskHeadline(activeTask))}</div>` : ""}
       <div class="library-card-actions">
-        <a href="#/libraries/${escapeHtml(library.libraryId)}" class="ghost-link">打开库路由</a>
+        <a href="#/libraries/${escapeHtml(library.libraryId)}" class="ghost-link">打开库工作台</a>
       </div>
+    </article>
+  `;
+}
+
+function renderTaskCard(task: WorkerTaskDto): string {
+  const progress = task.progressTotal > 0
+    ? `${task.progressCurrent}/${task.progressTotal}`
+    : task.percent > 0
+      ? `${task.percent}%`
+      : "等待中";
+
+  return `
+    <article class="task-card ${escapeHtml(task.status)}">
+      <div class="task-card-head">
+        <strong>${escapeHtml(task.libraryName ?? task.libraryId ?? "全局任务")}</strong>
+        <span>${escapeHtml(formatTaskStatus(task.status))}</span>
+      </div>
+      <div class="task-card-title">${escapeHtml(task.type)}</div>
+      <div class="task-card-summary">${escapeHtml(task.summary)}</div>
+      <div class="task-card-meta">
+        <span>${escapeHtml(task.stage)}</span>
+        <span>${escapeHtml(progress)}</span>
+        <span>${task.percent}%</span>
+      </div>
+      <div class="task-card-time">${escapeHtml(formatDateTime(task.updatedAtUtc))}</div>
+      ${task.errorMessage ? `<div class="task-error">${escapeHtml(task.errorMessage)}</div>` : ""}
     </article>
   `;
 }
@@ -759,11 +1020,63 @@ function renderLoadingState(): string {
     <section class="loading-shell">
       <div class="loading-card">
         <span class="eyebrow">Loading</span>
-        <h2>正在加载 Home MVP 数据</h2>
-        <p>读取 bootstrap、libraries 与 tasks summary，准备初始化左导航和路由壳。</p>
+        <h2>正在加载 Stage D 数据</h2>
+        <p>读取 bootstrap、libraries 与 tasks，准备初始化库工作台和任务状态回传。</p>
       </div>
     </section>
   `;
+}
+
+function syncScanPathDrafts(
+  currentDrafts: Record<string, string>,
+  libraries: readonly LibraryListItemDto[],
+): Record<string, string> {
+  const nextDrafts: Record<string, string> = {};
+  for (const library of libraries) {
+    nextDrafts[library.libraryId] = currentDrafts[library.libraryId] ?? library.scanPaths.join("\n");
+  }
+
+  return nextDrafts;
+}
+
+function normalizeScanPaths(scanPathText: string): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of scanPathText.split(/\r?\n/).map((value) => value.trim()).filter((value) => value.length > 0)) {
+    const key = item.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(item);
+  }
+
+  return result;
+}
+
+function isActiveTask(task: WorkerTaskDto): boolean {
+  return task.status === "queued" || task.status === "running";
+}
+
+function formatTaskHeadline(task: WorkerTaskDto): string {
+  const progress = task.progressTotal > 0 ? ` ${task.progressCurrent}/${task.progressTotal}` : "";
+  return `${formatTaskStatus(task.status)} · ${task.type} · ${task.percent}%${progress}`;
+}
+
+function formatTaskStatus(status: string): string {
+  switch (status) {
+    case "queued":
+      return "排队中";
+    case "running":
+      return "运行中";
+    case "succeeded":
+      return "已完成";
+    case "failed":
+      return "失败";
+    default:
+      return status;
+  }
 }
 
 function formatDateTime(value: string): string {
@@ -778,7 +1091,7 @@ function formatDateTime(value: string): string {
 
   return new Intl.DateTimeFormat("zh-CN", {
     dateStyle: "medium",
-    timeStyle: "short"
+    timeStyle: "short",
   }).format(date);
 }
 

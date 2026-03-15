@@ -5,11 +5,13 @@ import { registerAppLifecycle } from "./appLifecycle";
 import { createMainWindow } from "./createMainWindow";
 import { configureTray } from "../shell/tray";
 import { prepareC3RegressionEnvironment, runC3Regression } from "../testing/c3Regression";
+import { prepareDRegressionEnvironment, runDRegression } from "../testing/dRegression";
 import { WorkerProcessController } from "../worker/workerProcess";
 
 async function bootstrap(): Promise<void> {
   const electronRoot = path.resolve(__dirname, "../../..");
   const c3RegressionEnvironment = await prepareC3RegressionEnvironment(electronRoot);
+  const dRegressionEnvironment = await prepareDRegressionEnvironment(electronRoot);
   const workerController = new WorkerProcessController(electronRoot);
 
   registerAppLifecycle(workerController);
@@ -24,6 +26,17 @@ async function bootstrap(): Promise<void> {
 
   if (c3RegressionEnvironment) {
     const success = await runC3Regression(mainWindow, c3RegressionEnvironment, {
+      stopWorker: async () => {
+        await workerController.stop();
+      }
+    });
+    await workerController.stop();
+    app.exit(success ? 0 : 1);
+    return;
+  }
+
+  if (dRegressionEnvironment) {
+    const success = await runDRegression(mainWindow, dRegressionEnvironment, {
       stopWorker: async () => {
         await workerController.stop();
       }

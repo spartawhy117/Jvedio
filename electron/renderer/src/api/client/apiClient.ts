@@ -6,7 +6,13 @@ import type {
   DeleteLibraryResponse,
   GetBootstrapResponse,
   GetLibrariesResponse,
-  GetTasksResponse
+  GetTasksResponse,
+  StartLibraryScanRequest,
+  StartLibraryScanResponse,
+  StartLibraryScrapeRequest,
+  StartLibraryScrapeResponse,
+  UpdateLibraryRequest,
+  UpdateLibraryResponse
 } from "../../types/api.js";
 
 export class WorkerApiError extends Error {
@@ -58,6 +64,36 @@ export class ApiClient {
   public deleteLibrary(libraryId: string): Promise<DeleteLibraryResponse> {
     return this.request<DeleteLibraryResponse>(`/api/libraries/${encodeURIComponent(libraryId)}`, {
       method: "DELETE"
+    });
+  }
+
+  public updateLibrary(libraryId: string, request: UpdateLibraryRequest): Promise<UpdateLibraryResponse> {
+    return this.request<UpdateLibraryResponse>(`/api/libraries/${encodeURIComponent(libraryId)}`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "PUT"
+    });
+  }
+
+  public startLibraryScan(libraryId: string, request: StartLibraryScanRequest): Promise<StartLibraryScanResponse> {
+    return this.request<StartLibraryScanResponse>(`/api/libraries/${encodeURIComponent(libraryId)}/scan`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST"
+    });
+  }
+
+  public startLibraryScrape(libraryId: string, request: StartLibraryScrapeRequest): Promise<StartLibraryScrapeResponse> {
+    return this.request<StartLibraryScrapeResponse>(`/api/libraries/${encodeURIComponent(libraryId)}/scrape`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST"
     });
   }
 
