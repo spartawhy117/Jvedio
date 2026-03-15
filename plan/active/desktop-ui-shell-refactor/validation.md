@@ -1,70 +1,68 @@
 # Desktop UI Shell Refactor Validation Matrix
 
-## Documentation phase
+## 阶段 A：方案与参考资产落地
 
-- Confirm `plan/active/desktop-ui-shell-refactor/` is the only active feature directory.
-- Confirm `doc/UI/desktop-ui-shell-refactor/` includes:
+- 确认 `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
+- 确认 `handoff.md` 能独立说明当前状态。
+- 确认 `doc/UI/desktop-ui-shell-refactor/electron/` 已包含：
   - `README.md`
-  - `references.md`
+  - `product-summary.md`
   - `information-architecture.md`
-  - page spec docs
-  - `theme-spec.md`
-  - `icon-config-spec.md`
-  - `drawing-output-guide.md`
-- Confirm `doc/UI/old/` remains unchanged as the baseline screenshot set.
+  - `page-home.md`
+  - `page-library.md`
+  - `page-actors.md`
+  - `page-video-detail.md`
+  - `page-settings.md`
+  - `backend-bridge.md`
+  - `validation-flow.md`
+- 确认 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 已明确：
+  - 借鉴范围
+  - 非目标范围
+  - 许可证与复用约束
+- 确认 `doc/UI/old/` 未被覆盖。
+- 确认 `doc/UI/new/` 被明确标记为 WPF 线稿历史参考。
 
-## Drawing phase
+## 第一批：库的新建和删除
 
-- Shared shell wireframe matches the documented fixed-width left rail, adaptive right content area, `智能分类`, and title-area settings entry.
-- Home page wireframe matches the documented media-library management list layout.
-- Favorites page wireframe matches the documented no-search, sorting, and bottom-right paging rules.
-- Actors page wireframe matches the documented search, sorting, fixed avatar size, and card-content rules.
-- Library content page wireframe matches the documented `VID / 名称 / 发布时间` sorting and 50-item paging rhythm.
-- Settings page wireframe matches the documented standalone window and left-navigation layout.
-- Both Light and Dark mockups use the documented token rules.
-- Navigation icons and action icons align with the semantic keys in `icon-config-spec.md`.
-- The navigation and icon semantic diagram is exported with the documented first-batch naming rules.
+- Home 页能创建新库。
+- Home 页能删除库。
+- 左侧库导航随增删即时同步。
+- Home 列表随增删即时同步。
+- 数据库记录变化正确。
+- 错误场景有可见反馈且日志可定位。
 
-## Implementation phase
+## 第二批：库默认扫描目录、扫描和拉取能力
 
-### Startup and shell
+- 能为库设置默认扫描目录。
+- 保存后重新进入页面能正确回读。
+- 能启动扫描任务。
+- 命中影片时完成整理、MetaTube 抓取和 sidecar 输出。
+- 未命中影片保持原位并进入报告。
+- 任务中心显示进度、成功数、失败数和失败原因。
+- 库页刷新后能看到新结果。
 
-- App opens directly into the main shell home page.
-- No daily workflow depends on the old startup window.
-- Empty-library state renders correctly.
+## 第三批：影片展示和播放能力
 
-### Home page library management
+- 库页能展示影片列表或卡片。
+- 影片详情页能展示基础信息、演员、图片和路径。
+- 点击播放后走当前播放链。
+- 已配置播放器路径时使用指定播放器。
+- 未配置时回退系统默认播放器。
+- 播放写回能力正常。
 
-- Create library works.
-- Rename library works.
-- Delete library works.
-- Hide/show library works.
-- Set library cover works.
-- Open selected library works.
+## 第四批：设置页面功能完好
 
-### Main pages
-
-- Home page renders the library management list and top actions.
-- Favorites page renders favorites correctly.
-- Actors page renders actor aggregation correctly.
-- Library page opens the selected library content.
-- Genre and Series pages open correctly from the left navigation.
-
-### Settings
-
-- Settings opens from the shared shell title-area `设置` entry.
-- Language selector exposes only `中文` and `English`.
-- Theme selector exposes only `Light` and `Dark`.
-- Save, Apply, and Restore Default all work.
-
-### Theme and icon packaging
-
-- Light theme renders correctly.
-- Dark theme renders correctly.
-- All semantic icons resolve and display.
-- Build output contains the required icon resources.
+- 从主壳打开设置成功。
+- 各分组页面可访问。
+- 当前值显示正确。
+- 保存、应用、恢复默认正常。
+- 视频播放器路径、MetaTube 配置、扫描导入设置可被业务实际消费。
+- 版本检查入口存在且可手动触发。
+- 第一阶段 UI 仅公开：
+  - `中文 / English`
+  - `Light / Dark`
 
 ## Build validation
 
-- Release build succeeds after documentation and later implementation changes.
-- No resource-path or project-file regression is introduced by icon or theme asset additions.
+- Release build succeeds after documentation changes.
+- 本轮仅文档变更，未跑 `Jvedio.Test` 集成测试。

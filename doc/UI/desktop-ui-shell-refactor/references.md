@@ -1,28 +1,31 @@
 # External References
 
-## Main visual references
+当前 Electron 路线的参考入口已迁移到：
 
-- `fntv-electron`
-  - used for: desktop shell rhythm, dark layout balance, simple left navigation, compact top-right actions
-  - not used for: direct code reuse, direct asset reuse, brand reuse, icon copying
+- [fntv-electron-notes.md](D:\study\Proj\Jvedio\doc\UI\desktop-ui-shell-refactor\reference\fntv-electron-notes.md)
+
+本文件保留为旧入口兼容说明。
+
+## 当前有效参考层
+
+- `QiaoKes/fntv-electron`
+  - 用于：桌面壳风格、导航组织、页面内容密度、桌面交互感
+  - 不用于：代码复用、资源复用、品牌复用、播放器增强能力照搬
 - WeChat desktop settings
-  - used for: standalone settings window structure, left navigation, card-style settings groups, Light/Dark tonal references
+  - 用于：设置页的致密分组与左导航节奏
 
-## Reuse policy
+## 复用约束
 
-- Visual language may be referenced.
-- Information architecture may be referenced and adapted.
-- Direct copying of code, stylesheets, packaged icons, screenshots, or brand assets is not allowed in this feature.
+- 只允许参考视觉语言和产品结构。
+- 不允许直接复制代码、样式、图标、截图或品牌资源。
+- `fntv-electron` 视为只读参考项目。
 
-## License note
+## 本地参考来源
 
-- `fntv-electron` is GPL-licensed.
-- For this project, treat it as a read-only design reference rather than a source of reusable implementation assets.
-
-## Local reference sources
-
-- Before-refactor screenshots:
+- 旧界面基线：
   - [doc/UI/old](D:\study\Proj\Jvedio\doc\UI\old)
-- Current implementation references:
+- WPF 线稿历史参考：
+  - [doc/UI/new](D:\study\Proj\Jvedio\doc\UI\new)
+- 当前实现说明：
   - [doc/modules/03-main-ui.md](D:\study\Proj\Jvedio\doc\modules\03-main-ui.md)
   - [doc/modules/11-style-theme.md](D:\study\Proj\Jvedio\doc\modules\11-style-theme.md)

@@ -1,130 +1,174 @@
 ## 用户需求
 
 - 功能目标：
-  - 在不改动代码实现的前提下，先把桌面 UI 重构 feature 的规划、页面规格、测试方案、图标配置流程和实施步骤持久化。
-  - 为后续绘图 MCP 接入后的线框图和效果图生成提供稳定文档基础。
-- 业务背景：
-  - 当前 UI 结构仍保留旧启动页选库逻辑，主窗口与设置窗口的导航结构不适合新的桌面壳层设计。
-  - 用户已确认首页要以“媒体库管理”而不是“封面拼贴展示”为主。
-  - 语言与主题策略已经收敛，不再需要独立首启语言/主题选择页。
-- 约束条件：
-  - 本轮只落地文档，不实施 UI 代码。
-  - `doc/modules/03-main-ui.md` 与 `doc/modules/11-style-theme.md` 暂时只保留当前实现说明。
-  - `doc/UI/old/` 作为重构前基线截图保留，不覆盖。
-  - 仅维护一个 active feature。
+  - 将当前 UI 重构规划从 WPF 线稿路线切换为 `Electron 前端 + C# Worker + localhost API` 路线。
+  - 在不改动生产代码的前提下，先把方案文档、进度跟踪文档、验证流程和参考说明完整落地。
+  - 让后续新会话优先读取 `handoff.md` 即可恢复上下文，减少 token 消耗。
+- 前端方向：
+  - 参考 `QiaoKes/fntv-electron` 的桌面壳、导航、页面内容组织与桌面交互方式。
+  - 不把多账户、远程访问、MPV 深度能力作为第一阶段目标。
+  - 保留 `Actors` 作为左侧一级导航重点页面。
+- 后端方向：
+  - 保留当前 C# 业务能力，未来拆成 `Jvedio.Core`、`Jvedio.Worker`、`Jvedio.Contracts`。
+- 当前阶段：
+  - 只做文档与跟踪体系落地，不进入代码实现。
 
-## 核心需求分析
+## 文档结构决策
 
-- 目标范围：
-  - 建立新的 active feature 目录与稳定 UI 文档目录。
-  - 固定主窗口、首页、收藏、演员、媒体库页、分类页、设置页的信息架构。
-  - 固定 `Light / Dark` 两套主题和 `中文 / English` 两种语言的产品约束。
-  - 固定图标资源目录、manifest 和 WPF 资源承接流程。
-  - 明确后续绘图、实施、验证的执行顺序。
-- 非目标：
-  - 不在本轮重写 `Window_Main.xaml`、`Window_Settings.xaml` 或旧启动页代码。
-  - 不重做播放页、托盘页、外围弹窗和非核心窗口。
-  - 不直接复用 `fntv-electron` 的代码或图像资源。
-- 受影响区域：
-  - `plan/active/desktop-ui-shell-refactor/`
-  - `doc/UI/desktop-ui-shell-refactor/`
-  - `plan/active/` 目录状态管理
+- `plan/active/desktop-ui-shell-refactor/`
+  - 管进度、阶段、决策、验证矩阵、会话接力。
+- `doc/UI/desktop-ui-shell-refactor/electron/`
+  - 管 Electron 稳定规格。
+- `doc/UI/desktop-ui-shell-refactor/reference/`
+  - 管参考项目说明和借鉴边界。
+- `doc/UI/old/`
+  - 保留为旧界面基线。
+- `doc/UI/new/`
+  - 作为 WPF 线稿历史参考保留，不再作为默认实施输入。
 
-## 技术方案
+## 产品定义
 
-- 现有系统关系：
-  - 当前主窗口逻辑集中在 `Window_Main` 与 `VieModel_Main`。
-  - 媒体库管理动作当前主要挂在旧启动页 `WindowStartUp` 上。
-  - 现有设置窗口使用顶部 `TabControl` 结构，后续需要改成左侧导航。
-  - 项目已引用 `FontAwesome.WPF`，可作为图标过渡层。
-- 关键实现思路：
-  - 把本次 UI 重构先分成“规划文档”和“稳定设计资产”两层。
-  - 规划文档放在 `plan/active/desktop-ui-shell-refactor/`，用于持续迭代。
-  - 稳定设计资产放在 `doc/UI/desktop-ui-shell-refactor/`，用于绘图和实施对照。
-  - 图标配置流程统一走“资源目录 + manifest + IconResources.xaml”。
-  - 首次运行语言/主题不再单独弹窗，统一收入口设置页。
-- 数据流或模块协作：
-  - 首页媒体库管理页将承接旧启动页媒体库 CRUD 和打开动作。
-  - 左侧导航固定驱动主窗口内容区切换。
-  - 设置页单独承载语言与主题切换。
-  - 绘图 MCP 接入后，先以页面规格和主题文档为输入生成线框图和效果稿。
+### 前端目标
 
-## 任务拆解
+- 使用 Electron 构建新的桌面主壳。
+- 主壳采用固定左导航 + 自适应右内容区。
+- 左侧导航第一阶段固定为：
+  - Home
+  - Favorites
+  - Actors
+  - 智能分类
+    - 类别
+    - 系列
+  - Libraries
+- 设置作为壳层入口，不作为内容区常驻一级页面。
+- Home 承接旧 `WindowStartUp` 的库管理能力。
+- Library 承接库内容浏览、扫描和抓取入口。
+- Video Detail 承接影片详情和播放入口。
+- Settings 承接现有配置能力。
 
-1. 清理 `plan/active/` 中的空历史目录，只保留当前 UI feature。
-2. 建立 `plan/active/desktop-ui-shell-refactor/` 的计划文档骨架。
-3. 建立 `doc/UI/desktop-ui-shell-refactor/` 的设计文档骨架与绘图输出目录。
-4. 固定页面树、导航树、主题策略、语言策略和图标配置流程。
-5. 形成后续绘图输入文档和实施步骤文档。
-6. 通过 Release 构建做一次仓库级验证，确认文档调整没有引入路径或工程干扰。
+### `fntv-electron` 参考边界
 
-## 当前进展更新
+- 参考：
+  - 桌面主壳风格
+  - 页面内容密度
+  - Web 前端页面组织
+  - 桌面交互感
+- 不参考：
+  - 多账户管理
+  - 远程访问
+  - MPV 深度增强
+  - 弹幕、智能跳过、硬解专项能力
+  - 跨平台分发目标
+  - 任何代码、图像、品牌资产的直接复用
 
-- 已完成共享主框架与页面级内容区的文档拆分。
-- 已输出当前 Light 方向线稿：
-  - shared main shell
-  - Home content
-  - Favorites content
-  - Actors content
-  - Library content
-  - Settings window
-  - Library Editor window
-- 当前进入“按页面细化 UI 和对应功能文档”的阶段。
-- 下一步不建议直接写 WPF 代码，先继续把各页面的交互和字段规则收敛到稳定文档。
+### 后端目标
 
-## 风险与未决问题
+- 保留当前实现来源：
+  - MetaTube 抓取
+  - 扫描和整理
+  - SQLite
+  - sidecar 输出
+  - 图片与演员头像缓存
+  - 设置读写
+  - 播放记录写回
+  - 外部播放器调用
+- 后续拆分方向：
+  - `Jvedio.Core`
+  - `Jvedio.Worker`
+  - `Jvedio.Contracts`
+- 通信模型：
+  - Electron 主进程后台拉起 Worker
+  - Worker 仅监听 `127.0.0.1`
+  - 前端通过 localhost API + `SSE` 获取数据和任务状态
+  - 不做远程服务化
 
-- 风险：
-  - 如果没有先固定页面职责，后续绘图稿和实施会反复返工。
-  - 如果图标流程不先定下来，实施时容易出现目录命名、资源打包和主题适配分裂。
-  - 如果继续让多个 feature 目录同时处于 active，会影响 handoff 和后续执行入口的一致性。
-- 未决问题：
-  - 待用户安装绘图 MCP 后，再决定绘图输出工具链和文件命名细节是否需要追加约束。
-  - 若后续图标从字体图标切换为 SVG 资源，是否增加生成脚本留待实施阶段再定。
+### 播放能力定义
 
-## 验证方式
+- 第三批验证中的播放能力继续沿用当前模式：
+  - 优先使用已配置的视频播放器路径
+  - 未配置时回退系统默认播放器
+  - 播放成功后写回观看时间或最近播放状态
+- 本期不定义内嵌播放器。
 
-- 功能验证：
-  - `plan/active/desktop-ui-shell-refactor/` 成为唯一 active feature。
-  - `doc/UI/desktop-ui-shell-refactor/` 能完整承载页面规格、主题规格、图标规格和绘图说明。
-  - 语言与主题约束在文档中无歧义。
-  - 图标 manifest 方案在文档中具备可执行性。
-- 测试或构建验证：
-  - 重新生成 Release，确认文档整理不会影响工程构建。
-  - UI 专项测试矩阵写入 feature 专属 `validation.md`，不提前污染全局测试文档。
+## 分阶段路线图
 
-## 方案路径
+### 阶段 A：方案文档与参考资产落地
 
-### 路径 A
-- 适用场景：先完成文档、绘图、评审，再开始实施。
-- 优点：
-  - 结构清晰
-  - 返工成本低
-  - 与当前用户决策节奏一致
-- 代价：
-  - 实际 UI 代码改造延后
-- 风险：
-  - 如果文档写得太粗，后续绘图仍会缺决策
+- 重写 active feature 文档为 Electron 路线。
+- 建立 `electron/` 子目录文档层。
+- 建立 `reference/` 参考说明层。
+- 统一标记旧 WPF 线稿为历史参考。
 
-### 路径 B
-- 适用场景：边写文档边直接实现 UI
-- 优点：
-  - 可以更快看到真实界面
-- 代价：
-  - 容易边做边改
-  - 绘图阶段意义下降
-- 风险：
-  - 设计、实现和验证混在一起，回滚成本高
+### 阶段 B：前端页面与 Worker API 草案
 
-推荐路径：路径 A
+- 细化页面规格：
+  - Home
+  - Library
+  - Actors
+  - Video Detail
+  - Settings
+- 输出 Worker API 草案与事件流说明。
+- 输出 Electron E2E 与 Worker 集成测试草案。
+
+### 阶段 C：实现第一批
+
+- 目标：
+  - 库的新建和删除。
+- 重点：
+  - Home 页库管理最小闭环
+  - 左侧库导航联动
+  - 数据持久化与错误反馈
+
+### 阶段 D：实现第二批
+
+- 目标：
+  - 库默认扫描目录、扫描和抓取闭环。
+- 重点：
+  - 扫描路径保存
+  - MetaTube 命中和整理
+  - sidecar 和任务状态反馈
+
+### 阶段 E：实现第三批
+
+- 目标：
+  - 影片展示和播放。
+- 重点：
+  - 库页、详情页、Actors 聚合页
+  - 外部播放器链路
+  - 播放状态写回
+
+### 阶段 F：实现第四批
+
+- 目标：
+  - 设置页面功能完好。
+- 重点：
+  - 设置入口
+  - 现有设置能力接入
+  - 配置保存、回读、恢复默认
+
+## 风险与约束
+
+- 当前根目录旧 UI 文档仍存在，后续实施时必须明确以 `electron/` 子目录为准。
+- `WindowStartUp` 仍承载库管理逻辑，后续 Home 页迁移必须依赖现有实现梳理。
+- 参考项目 `fntv-electron` 尚未拉取到本地；本轮只完成文档落地。
+- 本轮变更仅限文档，不修改生产代码，不新增实现工程。
+
+## 验证要求
+
+- `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
+- `handoff.md` 可独立说明当前状态。
+- `doc/UI/desktop-ui-shell-refactor/electron/` 文档完整。
+- `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 明确区分借鉴与非目标。
+- Release 构建通过。
+- 本轮仅文档变更，不跑 `Jvedio.Test` 集成测试。
 
 ## 用户确认状态
 
 - 当前状态：approved
 - 是否批准执行：true
 - 已确认 feature slug：`desktop-ui-shell-refactor`
-- 已确认首页策略：媒体库管理 list，而不是拼贴式库展示
-- 已确认设置策略：独立设置窗口
-- 已确认语言策略：仅 `中文 / English`
-- 已确认主题策略：仅 `Light / Dark`
-- 已确认当前阶段：只做文档与绘图准备，不实施 UI 代码
+- 已确认前端参考源：`QiaoKes/fntv-electron`
+- 已确认文档组织：`plan + doc` 双层结构
+- 已确认 `Actors` 为左侧一级导航重点页面
+- 已确认播放策略：继续沿用外部播放器
+- 已确认当前阶段：只做文档落地，不做代码改造

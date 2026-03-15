@@ -1,8 +1,9 @@
 # Open Questions
 
-No blocking product questions are currently open.
+当前没有阻塞第一大步文档落地的产品问题。
 
-Future implementation-stage questions may be added here if the team decides to:
+后续进入实施前待确认的问题：
 
-- automate `icon-manifest.json` to `IconResources.xaml` generation, or
-- add a non-blocking script that validates icon semantic keys against existing XAML usage.
+- `fntv-electron` 拉取到本地后，是否需要增加页面截图对照索引。
+- Worker API 最终采用固定端口还是启动时动态端口。
+- Electron 前端第一期是否直接引入独立任务中心页面，还是先以内嵌任务面板承接。

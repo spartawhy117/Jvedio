@@ -1,69 +1,70 @@
 {
   "id": "desktop-ui-shell-refactor",
-  "name": "Desktop UI Shell Refactor",
-  "overview": "Persist the desktop UI refactor planning docs and pre-drawing specifications before implementation.",
+  "name": "Jvedio Electron Desktop Refactor",
+  "overview": "Switch the active UI refactor track from WPF wireframe delivery to Electron front-end planning with a C# Worker backend, and persist the documentation plus tracking system before implementation.",
   "status": "approved",
   "hasConfirmed": true,
   "parts": [
-    "req",
-    "tech",
-    "todos",
     "handoff",
+    "plan",
     "validation",
-    "design-docs"
+    "implementation-steps",
+    "electron-docs",
+    "reference-notes"
   ],
   "feature": {
     "slug": "desktop-ui-shell-refactor",
-    "title": "Desktop UI Shell Refactor"
+    "title": "Jvedio Electron Desktop Refactor"
   },
-  "content": "Home becomes a media-library management page, settings stay separate, language and theme options are intentionally narrowed for v1, and drawing outputs will be generated later into doc/UI/desktop-ui-shell-refactor/ after a drawing MCP is installed.",
+  "content": "The new active route keeps Home as media-library management, adds Actors as a first-class left-nav page, keeps Settings as a shell entry, reuses the current C# scan/scrape/database/playback capabilities through a future Worker process, and treats fntv-electron as a shell-and-page reference only.",
   "todolist": [
     {
-      "id": "cleanup-active-state",
-      "content": "Keep only desktop-ui-shell-refactor under plan/active and archive the empty completed placeholders",
+      "id": "rewrite-active-docs",
+      "content": "Rewrite the active feature handoff, plan, validation, and implementation documents for the Electron route",
       "dependencies": [],
       "status": "completed"
     },
     {
-      "id": "persist-feature-docs",
-      "content": "Create the planning, validation, handoff, and implementation docs under plan/active/desktop-ui-shell-refactor",
+      "id": "add-electron-specs",
+      "content": "Add stable Electron product and page specification docs under doc/UI/desktop-ui-shell-refactor/electron",
       "dependencies": [
-        "cleanup-active-state"
+        "rewrite-active-docs"
       ],
       "status": "completed"
     },
     {
-      "id": "persist-ui-specs",
-      "content": "Create stable UI specification docs under doc/UI/desktop-ui-shell-refactor",
+      "id": "add-reference-notes",
+      "content": "Add fntv-electron reference notes and mark old WPF wireframes as historical references",
       "dependencies": [
-        "persist-feature-docs"
+        "add-electron-specs"
       ],
       "status": "completed"
     },
     {
-      "id": "drawing-phase",
-      "content": "Generate wireframes and mockups after a drawing MCP is available",
+      "id": "pull-reference-repo",
+      "content": "Clone D:/study/Proj/fntv-electron and enrich the reference notes with local source observations",
       "dependencies": [
-        "persist-ui-specs"
+        "add-reference-notes"
       ],
       "status": "pending"
     },
     {
-      "id": "implementation-phase",
-      "content": "Implement the WPF UI refactor after the drawings are reviewed and locked",
+      "id": "freeze-api-and-page-draft",
+      "content": "Freeze the Worker API draft, page flows, and test strategy before code implementation",
       "dependencies": [
-        "drawing-phase"
+        "pull-reference-repo"
       ],
       "status": "pending"
     }
   ],
   "openQuestions": [
-    "Whether the icon pipeline should later add a generator that converts manifest entries into IconResources.xaml automatically."
+    "Whether the future Worker should use a fixed localhost port or a runtime-selected port.",
+    "Whether a dedicated task center page should ship in the first Electron implementation batch."
   ],
   "optionPaths": [
     {
       "id": "path-a",
-      "label": "Document and draw first",
+      "label": "Plan and document first",
       "recommended": true,
       "status": "selected"
     }
