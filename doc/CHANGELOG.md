@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 收口任务反馈的全局活动条：更新 `electron/renderer/src/features/home/useHomePageData.ts`，在主内容区头部新增跨页面可见的活动条，统一展示当前运行或最近失败任务的库名、状态、进度、阶段，并提供跳回目标库工作台与刷新任务入口。
+- 更新 `electron/renderer/index.html`，新增全局活动条、活动状态胶囊和移动端响应式布局样式，使“库页内联 + 全局活动条 + Home 摘要”成为当前固定任务反馈形态，不再引入独立任务中心页面。
+- 新增 `electron/main/testing/activityRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:activity`，通过隔离 sqlite 副本和 18 个样例影片稳定覆盖活动条出现、跨页面保留、跳回库工作台与任务结束后收口。
 - 完成智能分类第二项“系列”：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/series`、`GET /api/videos/series/{seriesName}/videos`，复用 grouped query DTO 查询 `metadata_video.Series` 聚合结果集。
 - 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/series` 一级路由、主壳导航入口、系列列表、系列内影片结果集，以及关键字筛选、排序、刷新；同时把影片详情页的 `backTo` 返回链路补齐到 Series。
 - 新增 `electron/main/testing/seriesRegression.ts` 与 `electron/` `npm run regression:series`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `metadata_video.Series`，稳定覆盖 Series 路由壳、系列列表、结果集、筛选排序刷新，以及 `Series -> Video Detail -> Series` 返回链路。

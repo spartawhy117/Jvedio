@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页，以及智能分类两项“类别 / 系列”均已完成实现与验证。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前这组 1~4 收尾后，下一步建议切到任务反馈的“全局活动条”收口。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已收口到“库页内联 + 全局活动条 + Home 摘要”，下一步进入受影响 Electron 聚焦回归与 Release 构建的稳定化清扫。
 
 ## Latest Progress
 
@@ -162,15 +162,28 @@
   - 不在本轮引入独立任务中心页面
   - 扫描与抓取状态以“库页内联 + 全局活动条 + Home 摘要”承接
   - 独立任务中心保留为后续可选增强项，不进入当前 1~4 执行序列
+- 已完成任务反馈收口：
+  - renderer 已在主内容区头部新增跨页面可见的全局活动条
+  - 当前活动条会优先聚焦正在运行的扫描 / 抓取任务，并显示库名、状态、进度与阶段
+  - Home 与 Library 间可通过活动条直接跳回目标库工作台
+  - 库页内联任务提示、活动条文案与 Home 摘要已统一到同一套任务文案语义
+  - 已新增 `electron/` `npm run regression:activity` 与 `electron/main/testing/activityRegression.ts`
 
 ## Next Recommended Work
 
-1. 收口全局活动条：
-   - 继续保持“不引入独立任务中心页面”
-   - 把当前已存在的任务摘要 / 库页内联状态补成跨页面可见的全局活动条
-2. 统一任务提示文案与跳转：
-   - 让活动条能稳定指向当前运行中的库工作台
-   - 保持 Home 摘要、库页内联、全局活动条三处状态文案一致
+1. 跑完整受影响 Electron 聚焦回归矩阵：
+   - `regression:c3`
+   - `regression:d`
+   - `regression:batch3`
+   - `regression:settings`
+   - `regression:actors`
+   - `regression:favorites`
+   - `regression:categories`
+   - `regression:series`
+   - `regression:activity`
+2. 重新执行 Release 构建并修复所有回归失败：
+   - 对失败项逐个修复并最小回归
+   - 清空当前 Electron 路线已完成功能的稳定性债务
 
 ## Validation Steps
 
@@ -212,6 +225,11 @@
   - MetaTube diagnostics
   - `settings.changed`
   - 恢复默认
+- `electron/` `npm run regression:activity` 已落地，覆盖：
+  - 全局活动条在库页随扫描任务出现
+  - 全局活动条跨页面保留当前任务提示
+  - 活动条可跳回目标库工作台
+  - 扫描完成后活动条 active 状态收口
 - `electron/` `npm run regression:favorites` 已通过，覆盖：
   - Favorites 一级路由与结果集展示
   - 关键字筛选、排序、刷新

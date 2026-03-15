@@ -1,6 +1,7 @@
 import { app, ipcMain } from "electron";
 import path from "node:path";
 
+import { prepareActivityRegressionEnvironment, runActivityRegression } from "../testing/activityRegression";
 import { prepareActorsRegressionEnvironment, runActorsRegression } from "../testing/actorsRegression";
 import { prepareCategoriesRegressionEnvironment, runCategoriesRegression } from "../testing/categoriesRegression";
 import { registerAppLifecycle } from "./appLifecycle";
@@ -16,6 +17,7 @@ import { WorkerProcessController } from "../worker/workerProcess";
 
 async function bootstrap(): Promise<void> {
   const electronRoot = path.resolve(__dirname, "../../..");
+  const activityRegressionEnvironment = await prepareActivityRegressionEnvironment(electronRoot);
   const actorsRegressionEnvironment = await prepareActorsRegressionEnvironment(electronRoot);
   const categoriesRegressionEnvironment = await prepareCategoriesRegressionEnvironment(electronRoot);
   const batch3RegressionEnvironment = await prepareBatch3RegressionEnvironment(electronRoot);
@@ -35,6 +37,13 @@ async function bootstrap(): Promise<void> {
 
   configureTray();
   const mainWindow = await createMainWindow(electronRoot);
+
+  if (activityRegressionEnvironment) {
+    const success = await runActivityRegression(mainWindow, activityRegressionEnvironment);
+    await workerController.stop();
+    app.exit(success ? 0 : 1);
+    return;
+  }
 
   if (actorsRegressionEnvironment) {
     const success = await runActorsRegression(mainWindow, actorsRegressionEnvironment);

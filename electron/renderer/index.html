@@ -416,6 +416,80 @@
         margin-top: -6px;
       }
 
+      .global-activity-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin: -2px 0 18px;
+        padding: 18px 20px;
+        border-radius: 22px;
+        border: 1px solid rgba(111, 209, 255, 0.18);
+        background: linear-gradient(135deg, rgba(16, 34, 56, 0.94), rgba(8, 18, 30, 0.88));
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+      }
+
+      .global-activity-bar.failed {
+        border-color: rgba(255, 121, 113, 0.24);
+        background: linear-gradient(135deg, rgba(55, 18, 24, 0.94), rgba(18, 10, 17, 0.9));
+      }
+
+      .global-activity-copy,
+      .global-activity-actions,
+      .global-activity-meta,
+      .global-activity-summary-grid {
+        display: flex;
+        gap: 12px;
+      }
+
+      .global-activity-copy {
+        flex: 1 1 auto;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .global-activity-copy h2 {
+        margin: 10px 0 0;
+        font-size: 24px;
+        line-height: 1.1;
+      }
+
+      .global-activity-copy p {
+        margin: 10px 0 0;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      .global-activity-meta {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-left: 16px;
+      }
+
+      .activity-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #d7e4f8;
+        font-size: 13px;
+      }
+
+      .global-activity-actions {
+        flex: 0 0 auto;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .global-activity-summary-grid {
+        color: var(--text-muted);
+        font-size: 13px;
+        flex-wrap: wrap;
+      }
+
       .error-banner,
       .inline-error {
         background: rgba(255, 121, 113, 0.14);
@@ -1021,6 +1095,8 @@
         }
 
         .content-header,
+        .global-activity-bar,
+        .global-activity-copy,
         .section-header,
         .modal-header,
         .library-card-head,
@@ -1031,11 +1107,13 @@
         }
 
         .header-actions,
+        .global-activity-actions,
         .modal-actions {
           width: 100%;
         }
 
         .header-actions .ghost-button,
+        .global-activity-actions .ghost-button,
         .modal-actions .ghost-button,
         .modal-actions .danger-button,
         .modal-actions .primary-button {

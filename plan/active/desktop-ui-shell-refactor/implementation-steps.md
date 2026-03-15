@@ -199,3 +199,7 @@
   - 受影响的 Electron 回归 + Release 构建。
 - Exit condition:
   - 后台任务统一通过“库页内联 + 全局活动条 + Home 摘要”呈现。
+
+当前状态：
+
+- 已完成。未引入独立任务中心页面；renderer 已补齐跨页面全局活动条、统一任务文案与回到库工作台跳转，并新增 `regression:activity` 聚焦回归。

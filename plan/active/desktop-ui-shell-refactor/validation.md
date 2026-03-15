@@ -42,6 +42,7 @@
 - 全局活动条能在任务运行时提示当前库与进度。
 - Home 摘要能反映任务总数与最近状态。
 - 库页刷新后能看到新结果。
+- 不引入独立任务中心页面时，全局活动条仍能跨页面显示当前任务并跳回目标库工作台。
 
 ## 第三批：影片展示和播放能力
 
@@ -100,5 +101,6 @@
 ## Build validation
 
 - 运行受影响的 Electron 聚焦回归。
+- 当前应包含 `npm run regression:activity`，用于覆盖全局活动条出现、跨页面保留、跳回库工作台与完成后收口。
 - Release build succeeds after code and documentation changes.
 - 本轮未跑 `Jvedio.Test` 集成测试；当前改动集中在 Electron renderer / regression 与文档。
