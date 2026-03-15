@@ -9,9 +9,12 @@ export interface LibraryVideoRouteQuery {
   sortOrder: "asc" | "desc";
 }
 
+export type SettingsRouteGroup = "general" | "metaTube" | "playback";
+
 export type AppRoute =
   | { kind: "home" }
   | { kind: "library"; libraryId: string; query: LibraryVideoRouteQuery }
+  | { kind: "settings"; group: SettingsRouteGroup }
   | { kind: "video"; videoId: string };
 
 export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto[]): AppRoute {
@@ -21,6 +24,10 @@ export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto
   }
 
   if (route.kind === "video") {
+    return route;
+  }
+
+  if (route.kind === "settings") {
     return route;
   }
 
@@ -49,6 +56,13 @@ export function parseRoute(hash: string): AppRoute {
     }
   }
 
+  if (routePath === "/settings" || routePath === "/settings/") {
+    return {
+      kind: "settings",
+      group: parseSettingsGroup(new URLSearchParams(queryText).get("group")),
+    };
+  }
+
   return { kind: "home" };
 }
 
@@ -62,6 +76,12 @@ export function toHash(route: AppRoute): string {
 
   if (route.kind === "video") {
     return `#/videos/${route.videoId}`;
+  }
+
+  if (route.kind === "settings") {
+    return route.group === "general"
+      ? "#/settings"
+      : `#/settings?group=${encodeURIComponent(route.group)}`;
   }
 
   return "#/home";
@@ -119,4 +139,8 @@ function buildLibraryVideoRouteQuery(query: LibraryVideoRouteQuery): string {
   }
 
   return searchParams.toString();
+}
+
+function parseSettingsGroup(value: string | null): SettingsRouteGroup {
+  return value === "metaTube" || value === "playback" ? value : "general";
 }

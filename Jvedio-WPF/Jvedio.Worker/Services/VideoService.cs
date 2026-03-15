@@ -134,6 +134,7 @@ public sealed class VideoService
         }
 
         var configuredPlayerPath = ResolvePlayerPath();
+        var useSystemDefaultFallback = ResolveUseSystemDefaultFallback();
         var launchedAtUtc = DateTimeOffset.UtcNow;
         var lastPlayedAt = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss");
         var usedSystemDefault = true;
@@ -147,10 +148,23 @@ public sealed class VideoService
                 usedSystemDefault = false;
                 usedPlayerPath = configuredPlayerPath;
             }
+            else if (!useSystemDefaultFallback)
+            {
+                throw CreateException(
+                    StatusCodes.Status422UnprocessableEntity,
+                    "video.play.player_missing",
+                    $"Video player path is empty and system fallback is disabled for video {videoId}.",
+                    "未配置自定义播放器，且已关闭系统默认播放器回退。",
+                    new { videoId });
+            }
             else
             {
                 StartProcess(record.Value.Path, null, Path.GetDirectoryName(record.Value.Path));
             }
+        }
+        catch (WorkerApiException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -367,12 +381,13 @@ public sealed class VideoService
     {
         var configuredPlayerPath = ResolvePlayerPath();
         var hasConfiguredPlayer = !string.IsNullOrWhiteSpace(configuredPlayerPath) && File.Exists(configuredPlayerPath);
+        var useSystemDefaultFallback = ResolveUseSystemDefaultFallback();
 
         return new PlaybackAvailabilityDto
         {
-            CanPlay = File.Exists(videoPath),
+            CanPlay = File.Exists(videoPath) && (hasConfiguredPlayer || useSystemDefaultFallback),
             PlayerPath = hasConfiguredPlayer ? configuredPlayerPath : null,
-            UsesSystemDefault = !hasConfiguredPlayer,
+            UsesSystemDefault = !hasConfiguredPlayer && useSystemDefaultFallback,
         };
     }
 
@@ -386,6 +401,17 @@ public sealed class VideoService
 
         var settings = configStoreService.LoadConfigObject(SettingsConfigName);
         return configStoreService.ReadString(settings, "VideoPlayerPath");
+    }
+
+    private bool ResolveUseSystemDefaultFallback()
+    {
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JVEDIO_VIDEO_PLAYER_PATH")))
+        {
+            return true;
+        }
+
+        var settings = configStoreService.LoadConfigObject(SettingsConfigName);
+        return configStoreService.ReadBoolean(settings, "UseSystemDefaultFallback", true);
     }
 
     private static SidecarStateDto BuildSidecarState(string videoPath, string vid)

@@ -23,6 +23,7 @@ builder.Services.AddSingleton<LibraryService>();
 builder.Services.AddSingleton<LibraryTaskOrchestratorService>();
 builder.Services.AddSingleton<LibraryScanService>();
 builder.Services.AddSingleton<LibraryScrapeService>();
+builder.Services.AddSingleton<SettingsService>();
 builder.Services.AddSingleton<VideoService>();
 builder.Services.AddSingleton<AppBootstrapService>();
 builder.Services.AddSingleton<TaskSummarySnapshotService>();

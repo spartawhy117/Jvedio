@@ -196,6 +196,40 @@ export interface GetTasksResponse {
   tasks: readonly WorkerTaskDto[];
 }
 
+export interface GeneralSettingsDto {
+  currentLanguage: string;
+  debug: boolean;
+}
+
+export interface MetaTubeSettingsDto {
+  requestTimeoutSeconds: number;
+  serverUrl: string;
+}
+
+export interface PlaybackSettingsDto {
+  playerPath: string;
+  useSystemDefaultFallback: boolean;
+}
+
+export interface GetSettingsResponse {
+  general: GeneralSettingsDto;
+  metaTube: MetaTubeSettingsDto;
+  playback: PlaybackSettingsDto;
+}
+
+export interface UpdateSettingsRequest {
+  general?: GeneralSettingsDto;
+  metaTube?: MetaTubeSettingsDto;
+  playback?: PlaybackSettingsDto;
+  resetToDefaults: boolean;
+}
+
+export interface UpdateSettingsResponse {
+  resetToDefaultsApplied: boolean;
+  settings: GetSettingsResponse;
+  updatedAtUtc: string;
+}
+
 export interface VideoAssetStateDto {
   exists: boolean;
   path: string;

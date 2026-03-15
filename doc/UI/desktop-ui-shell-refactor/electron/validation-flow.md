@@ -106,6 +106,25 @@
 - 设置值展示正确
 - 保存、应用、恢复默认正确
 - 配置能被业务消费
+- 当前第一轮已冻结真实落库项：
+  - `General.CurrentLanguage`
+  - `General.Debug`
+  - `MetaTube.ServerUrl`
+  - `MetaTube.RequestTimeoutSeconds`
+  - `Playback.PlayerPath`
+  - `Playback.UseSystemDefaultFallback`
+- 当前已完成代码接线：
+  - Worker 已接入 `GET /api/settings` 与 `PUT /api/settings`
+  - Settings 路由壳已支持分组切换、表单态、保存反馈和恢复默认
+  - 播放链已消费 `UseSystemDefaultFallback`
+  - 已新增 `electron/` `npm run regression:settings`
+- 当前已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:d`
+  - `electron/` `npm run regression:batch3`
+  - `electron/` `npm run regression:settings`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
 ## 验证方式建议
 

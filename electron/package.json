@@ -11,6 +11,7 @@
     "regression:batch3": "npm run build && electron . --regression-batch3",
     "regression:c3": "npm run build && electron . --regression-c3",
     "regression:d": "npm run build && electron . --regression-d",
+    "regression:settings": "npm run build && electron . --regression-settings",
     "start": "npm run build && electron .",
     "smoke": "npm run build && electron . --smoke"
   },

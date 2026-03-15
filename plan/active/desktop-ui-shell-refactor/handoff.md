@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D` 与第三批“影片展示和播放”均已完成实现和验证：Library 页影片结果集、基础筛选/排序/刷新、视频详情路由壳、播放调用和播放写回已经接通；下一步进入第四批设置页面。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环均已完成实现和验证：Settings 路由壳、设置读取/保存/恢复默认和 `regression:settings` 已接通；下一步进入设置消费扩展或演员页。
 
 ## Latest Progress
 
@@ -100,20 +100,31 @@
   - `electron/` `npm run smoke`
   - `electron/` `npm run regression:d`
   - `electron/` `npm run regression:batch3`
+- 已完成第四批“设置页面”第一轮最小闭环：
+  - Worker 新增 `GET /api/settings` 与 `PUT /api/settings`
+  - Worker 新增 `SettingsService`，冻结首轮真落库项：
+    - `General.CurrentLanguage`
+    - `General.Debug`
+    - `MetaTube.ServerUrl`
+    - `MetaTube.RequestTimeoutSeconds`
+    - `Playback.PlayerPath`
+    - `Playback.UseSystemDefaultFallback`
+  - Electron renderer 已新增 Settings 路由壳、分组切换、表单态、保存反馈与恢复默认
+  - 播放链已消费 `Playback.UseSystemDefaultFallback`
+  - 已新增 `electron/` `npm run regression:settings`
 
 ## Next Recommended Work
 
-1. 进入第四批“设置页面”：
-   - 先补 `settings` bootstrap / 查询 / 保存接口
-   - 在 Electron renderer 接设置页路由壳、表单态和保存反馈
-   - 明确哪些设置在第一轮必须真实落库，哪些先做只读或占位
-2. 为第四批补聚焦回归：
-   - 新增设置读取
-   - 新增设置保存
-   - 新增恢复默认或取消回滚的最小校验
-3. 第四批完成后：
-   - 评估是否补跑 `electron/` `npm run regression:c3`、`regression:d`、`regression:batch3`
-   - 再决定是否进入演员页或设置项消费链路
+1. 继续做设置消费扩展：
+   - 让抓取链显式消费更多 Settings 页上的 MetaTube 配置
+   - 评估是否补 `POST /api/settings/meta-tube/diagnostics`
+   - 视需要补 `settings.changed` 的 renderer 端消费
+2. 或者转入演员页：
+   - 先补演员列表 / 详情 / 关联影片的 Worker 接口
+   - 再接演员页路由壳与聚焦回归
+3. 若继续留在设置线：
+   - 评估补 General 主题项、Data 只读信息区
+   - 再决定是否扩为完整 Settings 分组
 
 ## Validation Steps
 
@@ -148,6 +159,10 @@
   - 视频详情路由壳
   - 播放调用
   - 播放写回
+- `electron/` `npm run regression:settings` 已通过，覆盖：
+  - 设置读取
+  - 设置保存
+  - 恢复默认
 
 ## Blockers And Caveats
 

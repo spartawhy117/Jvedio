@@ -8,6 +8,7 @@ import type {
   GetLibrariesResponse,
   GetLibraryVideosRequest,
   GetLibraryVideosResponse,
+  GetSettingsResponse,
   GetTasksResponse,
   GetVideoDetailResponse,
   PlayVideoRequest,
@@ -17,7 +18,9 @@ import type {
   StartLibraryScrapeRequest,
   StartLibraryScrapeResponse,
   UpdateLibraryRequest,
-  UpdateLibraryResponse
+  UpdateLibraryResponse,
+  UpdateSettingsRequest,
+  UpdateSettingsResponse
 } from "../../types/api.js";
 
 export class WorkerApiError extends Error {
@@ -122,6 +125,20 @@ export class ApiClient {
 
   public getTasks(): Promise<GetTasksResponse> {
     return this.request<GetTasksResponse>("/api/tasks");
+  }
+
+  public getSettings(): Promise<GetSettingsResponse> {
+    return this.request<GetSettingsResponse>("/api/settings");
+  }
+
+  public updateSettings(request: UpdateSettingsRequest): Promise<UpdateSettingsResponse> {
+    return this.request<UpdateSettingsResponse>("/api/settings", {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "PUT"
+    });
   }
 
   public getVideoDetail(videoId: string): Promise<GetVideoDetailResponse> {

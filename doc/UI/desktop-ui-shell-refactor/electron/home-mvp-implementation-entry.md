@@ -501,6 +501,35 @@ Jvedio.Contracts/
   - 已通过 `electron/` `npm run smoke`
   - 已通过 `electron/` `npm run regression:batch3`
 
+### 第四批：设置页面第一轮最小闭环
+
+- 本步目标：
+  - `GET /api/settings`
+  - `PUT /api/settings`
+  - Settings 路由壳
+  - 表单态
+  - 保存反馈
+  - 恢复默认
+- 第一轮冻结的真实落库项：
+  - `General.CurrentLanguage`
+  - `General.Debug`
+  - `MetaTube.ServerUrl`
+  - `MetaTube.RequestTimeoutSeconds`
+  - `Playback.PlayerPath`
+  - `Playback.UseSystemDefaultFallback`
+- 当前结果：
+  - Worker 已新增 `SettingsController` 与 `SettingsService`
+  - Settings 页面已支持 `General / MetaTube / Playback` 三个分组
+  - 设置保存后可直接回读
+  - 恢复默认已接通
+  - 播放链已消费 `Playback.UseSystemDefaultFallback`
+  - 已新增 `electron/` `npm run regression:settings`
+- 当前验证：
+  - 已通过 `dotnet build Jvedio-WPF/Jvedio.Worker/Jvedio.Worker.csproj -c Release`
+  - 已通过 `electron/` `npm run build`
+  - 已通过 `electron/` `npm run smoke`
+  - 已通过 `electron/` `npm run regression:settings`
+
 ## 当前风险
 
 - `WindowStartUp` 的既有库管理逻辑可能夹带 UI 依赖，迁移为 Worker 服务时需要先拆纯业务层。
