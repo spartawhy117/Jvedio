@@ -146,6 +146,123 @@
   - 现有设置能力接入
   - 配置保存、回读、恢复默认
 
+## 方案路径
+
+### 路径 A：先冻结页面文档与 contracts，再进入第一批实现
+
+- 适用场景：
+  - 希望下一轮开始就能直接建工程骨架，不再反复改目录和接口名
+- 执行顺序：
+  - 对齐五个页面文档与 renderer 组件命名
+  - 冻结 Worker contracts / DTO 命名
+  - 再进入 Home 最小闭环实现
+- 优点：
+  - 返工最少
+  - 便于后续拆分 `Jvedio.Contracts`
+  - 便于多人或跨会话并行推进
+- 风险：
+  - 会再多花一轮文档收敛时间
+- 结论：
+  - 推荐
+
+### 路径 B：直接开始 Home 页最小实现，边写边修规格
+
+- 适用场景：
+  - 目标是尽快看到 Electron 壳层和 Home 页初版跑起来
+- 执行顺序：
+  - 直接建 renderer / Electron / Worker 空工程
+  - 只围绕 Home 页建最小接口
+  - 缺什么再补文档
+- 优点：
+  - 见效快
+  - 更容易验证技术链路
+- 风险：
+  - 目录和 contracts 容易在第二批扫描闭环时返工
+  - 页面文档与实现命名可能继续漂移
+
+### 路径 C：先做技术 Spike，只验证壳层与 localhost 通路
+
+- 适用场景：
+  - 主要担心 Electron main / preload / Worker 生命周期与 localhost 通讯稳定性
+- 执行顺序：
+  - 先建壳层
+  - 只打通 `/api/app/bootstrap` 与 `/api/events`
+  - 业务页面后置
+- 优点：
+  - 能最快验证技术可行性
+- 风险：
+  - 不能直接沉淀业务页面闭环
+  - 会把 Home / Library 的业务问题继续后移
+
+## 推荐下一步
+
+- 当前推荐采用 `路径 A`。
+- 原因：
+  - renderer 目录和 Worker API 刚冻结，如果此时继续补页面组件命名和 contracts 命名，下一轮实现可以直接按稳定骨架推进。
+  - Home 第一批实现会依赖 libraries、tasks、bootstrap 三组 contracts，先冻结命名能减少实现时的跨层重命名。
+
+## 下一步执行方案
+
+### 第 1 步：补齐页面规格与 renderer 对齐
+
+- 目标：
+  - 让页面文档中的 section、组件名、数据依赖与 `renderer-architecture.md` 完全对齐
+- 覆盖文档：
+  - `page-home.md`
+  - `page-library.md`
+  - `page-actors.md`
+  - `page-video-detail.md`
+  - `page-settings.md`
+- 产出要求：
+  - 每个页面都明确：
+    - 页面级组件
+    - section 结构
+    - 页面状态
+    - 依赖 API
+    - 第一批 / 第二批实现边界
+
+### 第 2 步：冻结 contracts 与 DTO 命名
+
+- 目标：
+  - 为未来 `Jvedio.Contracts` 建立首批稳定命名
+- 覆盖范围：
+  - `bootstrap`
+  - `libraries`
+  - `videos`
+  - `actors`
+  - `settings`
+  - `tasks`
+- 产出要求：
+  - 每组接口明确：
+    - request 名称
+    - response 名称
+    - task payload 名称
+    - event payload 名称
+    - 错误码前缀
+
+### 第 3 步：准备第一批实现入口
+
+- 目标：
+  - 在不扩散范围的前提下，确定真正开工的最小闭环
+- 闭环范围：
+  - Home 页库列表
+  - 新建库
+  - 删除库
+  - 左侧库导航同步
+  - bootstrap + libraries + tasks 摘要读取
+- 明确不进入：
+  - 扫描
+  - 抓取
+  - 影片详情
+  - Settings 全量接入
+
+## 下一步完成标准
+
+- 五个页面文档已按 renderer 组件边界重写到可实现粒度。
+- Worker contracts 命名已冻结到可创建代码目录的粒度。
+- `handoff.md` 中的 Next Recommended Work 已切换为第一批实现准备项。
+- 验证文档已新增“文档冻结完成后再进入阶段 C”的检查点。
+
 ## 风险与约束
 
 - 当前根目录旧 UI 文档仍存在，后续实施时必须明确以 `electron/` 子目录为准。

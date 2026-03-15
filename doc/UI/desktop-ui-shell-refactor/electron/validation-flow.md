@@ -6,6 +6,13 @@
 - 确认 handoff 文档可独立恢复上下文
 - 确认 Electron 文档层和 reference 文档层完整
 
+## 阶段 B：页面规格与 contracts 冻结
+
+- 五个页面文档已和 `renderer-architecture.md` 对齐
+- Worker API 已细化到 request / response / task / event 粒度
+- 已明确推荐方案路径，并冻结本轮推荐为“先补文档再进入实现”
+- `plan.md`、`plan.json`、`handoff.md` 的下一步状态一致
+
 ## 第一批：库的新建和删除
 
 - Home 页新建库

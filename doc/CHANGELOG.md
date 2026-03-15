@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-home.md`、`page-library.md`、`page-actors.md`、`page-video-detail.md`、`page-settings.md`，使五个页面规格与 `renderer-architecture.md` 对齐，补齐页面级组件、section 结构、页面状态、API 依赖和分批实现边界。
+- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 与 `doc/UI/desktop-ui-shell-refactor/electron/validation-flow.md`，新增“方案路径”与推荐下一步，明确当前推荐先完成页面规格和 contracts 冻结，再进入 Home 库管理最小闭环实现。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录从粗粒度页面草图细化到 `app / api / features / components / hooks / styles / types / utils` 的真实文件级骨架，并明确 Home、Library、Actors、Video Detail、Settings 的组件拆分边界。
 - 新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker 的统一响应 envelope、长任务模型、错误流、SSE 事件名以及 libraries / videos / actors / settings / tasks 端点的请求与返回结构。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`product-summary.md`、`frontend-page-rebuild-plan.md`、`backend-bridge.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`、`plan.md`、`plan.json`，把这轮 renderer / Worker API 规格纳入 active feature 主线，并同步推进阶段状态。

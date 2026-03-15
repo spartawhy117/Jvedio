@@ -57,6 +57,31 @@
         "pull-reference-repo"
       ],
       "status": "completed"
+    },
+    {
+      "id": "align-page-docs-to-renderer",
+      "content": "Align page specs with the renderer component and section boundaries before implementation",
+      "dependencies": [
+        "freeze-api-and-page-draft"
+      ],
+      "status": "completed"
+    },
+    {
+      "id": "freeze-contract-naming",
+      "content": "Freeze contract groups, DTO naming, task payload naming, and error code prefixes",
+      "dependencies": [
+        "freeze-api-and-page-draft"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "prepare-home-mvp-implementation",
+      "content": "Prepare the first implementation batch for Home library CRUD and left navigation sync",
+      "dependencies": [
+        "align-page-docs-to-renderer",
+        "freeze-contract-naming"
+      ],
+      "status": "pending"
     }
   ],
   "openQuestions": [

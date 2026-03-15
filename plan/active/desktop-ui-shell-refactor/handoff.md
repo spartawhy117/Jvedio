@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 B：renderer 目录与 Worker API 草案冻结。
+- 阶段 B：renderer / 页面规格 / contracts 冻结收尾。
 
 ## Latest Progress
 
@@ -28,25 +28,30 @@
 - 已产出 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，明确 `fntv-electron` 与 `jellyfin-web` 的双参考分工。
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录推进到文件级骨架和 feature 边界。
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker API 的请求/响应、任务模型、错误流和 SSE 订阅模型。
+- 已完成五个页面文档与 renderer 组件边界对齐，页面规格已补齐 section、页面状态、API 依赖和分批实现边界。
 - 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
 - 现有根目录 UI 文档已标注 Electron 规格为当前主入口，旧 WPF 线稿不再作为默认实施路线。
 
 ## Next Recommended Work
 
-1. 对照新的 renderer 目录草案，补齐页面文档中的组件命名与 section 边界：
-   - Home
-   - Library
-   - Actors
-   - Video Detail
-   - Settings
-2. 基于 `worker-api-spec.md` 开始冻结 contracts 目录和 DTO 命名规则：
+### 方案路径
+
+- 路径 A：
+  - 先补齐页面文档与 contracts，再进入第一批实现
+  - 推荐
+- 路径 B：
+  - 直接开始 Home 最小实现，缺什么补什么
+- 路径 C：
+  - 先做 Electron 壳层与 localhost 通路 Spike
+
+1. 执行路径 A 的第 2 步，基于 `worker-api-spec.md` 冻结 contracts 目录和 DTO 命名规则：
    - bootstrap
    - libraries
    - videos
    - actors
    - settings
    - tasks
-3. 再进入第二大步：库管理能力实现。
+2. 页面规格与 contracts 同步完成后，再进入阶段 C 的 Home 库管理最小闭环实现。
 
 ## Validation Steps
 
