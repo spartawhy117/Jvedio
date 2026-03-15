@@ -160,6 +160,34 @@ export interface GetFavoriteVideosResponse {
   totalCount: number;
 }
 
+export interface VideoGroupListItemDto {
+  lastPlayedAt: string;
+  lastScanAt: string;
+  name: string;
+  videoCount: number;
+}
+
+export interface GetVideoGroupsResponse {
+  items: readonly VideoGroupListItemDto[];
+  totalCount: number;
+}
+
+export interface GetVideoGroupVideosRequest {
+  keyword: string;
+  missingSidecarOnly: boolean;
+  pageIndex: number;
+  pageSize: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface GetVideoGroupVideosResponse {
+  items: readonly VideoListItemDto[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface GetActorsRequest {
   keyword: string;
   pageIndex: number;

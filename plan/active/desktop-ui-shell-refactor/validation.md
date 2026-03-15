@@ -79,6 +79,15 @@
 - 从 Favorites 进入影片详情时会写入稳定 `backTo` 返回态。
 - 影片详情页能返回 Favorites，并保留当时的筛选/排序状态。
 
+## 第七批：智能分类 / 类别
+
+- 主壳左侧一级导航可进入 `#/categories`。
+- 类别页能展示基于 `metadata.Genre` 聚合出的类别列表。
+- 类别页支持切换类别并展示对应影片结果集。
+- 类别页支持关键字筛选、排序、刷新。
+- 从 Categories 进入影片详情时会写入稳定 `backTo` 返回态。
+- 影片详情页能返回 Categories，并保留当时的筛选/排序状态。
+
 ## Build validation
 
 - 运行受影响的 Electron 聚焦回归。

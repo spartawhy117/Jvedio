@@ -180,6 +180,11 @@
 - Exit condition:
   - 类别页和系列页都具备路由、列表、结果集和影片详情跳转。
 
+当前状态：
+
+- 类别已完成。Electron 已新增 `#/categories` 一级路由、类别列表、类别内影片结果集、筛选排序刷新，以及 `Categories -> Video Detail -> Categories` 返回链路；Worker 已补齐 `GET /api/videos/categories` 与 `GET /api/videos/categories/{categoryName}/videos`。
+- 系列待完成。下一步直接复用当前 grouped query DTO、影片卡片和 `backTo` 返回链路收口到 `#/series`。
+
 ## Cross-cutting rule. Task feedback stays embedded
 
 - Goal:

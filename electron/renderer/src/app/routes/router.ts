@@ -21,6 +21,7 @@ export type SettingsRouteGroup = "basic" | "picture" | "scanImport" | "network" 
 
 export type AppRoute =
   | { kind: "home" }
+  | { kind: "category"; name: string; query: LibraryVideoRouteQuery }
   | { kind: "favorites"; query: LibraryVideoRouteQuery }
   | { kind: "actors"; query: ActorsRouteQuery }
   | { kind: "actor"; actorId: string; query: ActorsRouteQuery }
@@ -39,6 +40,10 @@ export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto
   }
 
   if (route.kind === "favorites") {
+    return route;
+  }
+
+  if (route.kind === "category") {
     return route;
   }
 
@@ -75,6 +80,14 @@ export function parseRoute(hash: string): AppRoute {
   if (routePath === "/favorites" || routePath === "/favorites/") {
     return {
       kind: "favorites",
+      query: parseLibraryVideoRouteQuery(queryText),
+    };
+  }
+
+  if (routePath === "/categories" || routePath === "/categories/") {
+    return {
+      kind: "category",
+      name: parseSmartGroupName(queryText),
       query: parseLibraryVideoRouteQuery(queryText),
     };
   }
@@ -129,6 +142,18 @@ export function parseRoute(hash: string): AppRoute {
 }
 
 export function toHash(route: AppRoute): string {
+  if (route.kind === "category") {
+    const searchParams = new URLSearchParams(buildLibraryVideoRouteQuery(route.query));
+    if (route.name.trim().length > 0) {
+      searchParams.set("name", route.name.trim());
+    }
+
+    const queryString = searchParams.toString();
+    return queryString.length > 0
+      ? `#/categories?${queryString}`
+      : "#/categories";
+  }
+
   if (route.kind === "favorites") {
     const queryString = buildLibraryVideoRouteQuery(route.query);
     return queryString.length > 0
@@ -279,6 +304,10 @@ function buildActorsRouteQuery(query: ActorsRouteQuery): string {
   }
 
   return searchParams.toString();
+}
+
+function parseSmartGroupName(queryText: string): string {
+  return new URLSearchParams(queryText).get("name")?.trim() ?? "";
 }
 
 function parseSettingsGroup(value: string | null): SettingsRouteGroup {

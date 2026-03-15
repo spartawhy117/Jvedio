@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 完成智能分类第一项“类别”：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/categories`、`GET /api/videos/categories/{categoryName}/videos`，并在 `Jvedio.Contracts/Videos/`、`electron/renderer/src/types/api.ts` 与 `api/client/apiClient.ts` 补齐 grouped query DTO 与请求封装。
+- 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/categories` 一级路由、主壳导航入口、类别列表、类别内影片结果集，以及关键字筛选、排序、刷新；同时把影片详情页的 `backTo` 返回链路扩展为 Categories / Favorites / Actors / Library 通用闭环。
+- 新增 `electron/main/testing/categoriesRegression.ts` 与 `electron/` `npm run regression:categories`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `metadata.Genre`，稳定覆盖 Categories 路由壳、类别列表、结果集、筛选排序刷新，以及 `Categories -> Video Detail -> Categories` 返回链路。
 - 完成 Favorites 一级聚合页：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/favorites`，基于 `metadata.FavoriteCount` 返回收藏结果集；同时在 `Jvedio.Contracts/Videos/`、`electron/renderer/src/types/api.ts` 与 `api/client/apiClient.ts` 补齐 Favorites 请求/响应 DTO。
 - 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/favorites` 一级路由、主壳导航入口、Favorites 结果集展示、关键字筛选、排序、刷新，并将影片详情页的 `backTo` 返回按钮收口为 Favorites / Actors / Library 通用链路。
 - 新增 `electron/main/testing/favoritesRegression.ts` 与 `electron/` `npm run regression:favorites`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `FavoriteCount`，稳定覆盖 Favorites 路由壳、结果集、筛选排序刷新，以及 `Favorites -> Video Detail -> Favorites` 返回链路。

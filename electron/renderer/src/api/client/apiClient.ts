@@ -15,6 +15,9 @@ import type {
   GetLibrariesResponse,
   GetLibraryVideosRequest,
   GetLibraryVideosResponse,
+  GetVideoGroupsResponse,
+  GetVideoGroupVideosRequest,
+  GetVideoGroupVideosResponse,
   GetSettingsResponse,
   GetTasksResponse,
   GetVideoDetailResponse,
@@ -127,6 +130,27 @@ export class ApiClient {
 
     const queryString = searchParams.toString();
     return this.request<GetFavoriteVideosResponse>(`/api/videos/favorites${queryString.length > 0 ? `?${queryString}` : ""}`);
+  }
+
+  public getCategoryGroups(): Promise<GetVideoGroupsResponse> {
+    return this.request<GetVideoGroupsResponse>("/api/videos/categories");
+  }
+
+  public getCategoryVideos(categoryName: string, request: GetVideoGroupVideosRequest): Promise<GetVideoGroupVideosResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+    if (request.missingSidecarOnly) {
+      searchParams.set("missingSidecarOnly", "true");
+    }
+
+    const queryString = searchParams.toString();
+    return this.request<GetVideoGroupVideosResponse>(`/api/videos/categories/${encodeURIComponent(categoryName)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`);
   }
 
   public getActors(request: GetActorsRequest): Promise<GetActorsResponse> {

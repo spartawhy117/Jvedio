@@ -65,6 +65,34 @@ public sealed class VideoService
         };
     }
 
+    public GetVideoGroupsResponse GetCategoryGroups()
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var groups = LoadVideoGroups(connection, static record => record.Genre);
+
+        return new GetVideoGroupsResponse
+        {
+            Items = groups,
+            TotalCount = groups.Count,
+        };
+    }
+
+    public GetVideoGroupVideosResponse GetCategoryVideos(string categoryName, GetVideoGroupVideosRequest request)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var videos = LoadVideosByGroup(connection, static record => record.Genre, categoryName);
+        var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly);
+        var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
+
+        return new GetVideoGroupVideosResponse
+        {
+            Items = pagedResult.Items,
+            PageIndex = pagedResult.PageIndex,
+            PageSize = pagedResult.PageSize,
+            TotalCount = pagedResult.TotalCount,
+        };
+    }
+
     public GetVideoDetailResponse GetVideoDetail(string videoId)
     {
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
@@ -338,6 +366,142 @@ public sealed class VideoService
         return result;
     }
 
+    private List<VideoGroupListItemDto> LoadVideoGroups(
+        SqliteConnection connection,
+        Func<VideoGroupRecord, string> selector)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT IFNULL(metadata.Genre, ''),
+                   IFNULL(metadata_video.Series, ''),
+                   IFNULL(metadata.ViewDate, ''),
+                   IFNULL(metadata.LastScanDate, '')
+            FROM metadata
+            INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
+            WHERE metadata.DataType = 0;
+            """;
+
+        var groups = new Dictionary<string, VideoGroupAccumulator>(StringComparer.OrdinalIgnoreCase);
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var record = new VideoGroupRecord(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3));
+
+            foreach (var item in SplitGroupValues(selector(record)))
+            {
+                if (!groups.TryGetValue(item, out var accumulator))
+                {
+                    accumulator = new VideoGroupAccumulator(item);
+                    groups[item] = accumulator;
+                }
+
+                accumulator.VideoCount += 1;
+                if (string.CompareOrdinal(record.LastPlayedAt, accumulator.LastPlayedAt) > 0)
+                {
+                    accumulator.LastPlayedAt = record.LastPlayedAt;
+                }
+                if (string.CompareOrdinal(record.LastScanAt, accumulator.LastScanAt) > 0)
+                {
+                    accumulator.LastScanAt = record.LastScanAt;
+                }
+            }
+        }
+
+        return groups.Values
+            .OrderByDescending(group => group.VideoCount)
+            .ThenBy(group => group.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(group => new VideoGroupListItemDto
+            {
+                LastPlayedAt = group.LastPlayedAt,
+                LastScanAt = group.LastScanAt,
+                Name = group.Name,
+                VideoCount = group.VideoCount,
+            })
+            .ToList();
+    }
+
+    private List<VideoListItemDto> LoadVideosByGroup(
+        SqliteConnection connection,
+        Func<VideoGroupRecord, string> selector,
+        string groupName)
+    {
+        var normalizedGroupName = groupName?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(normalizedGroupName))
+        {
+            return new List<VideoListItemDto>();
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT metadata.DataID,
+                   metadata.DBId,
+                   IFNULL(metadata.Title, ''),
+                   IFNULL(metadata.Path, ''),
+                   IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(metadata.LastScanDate, ''),
+                   IFNULL(metadata.ViewDate, ''),
+                   IFNULL(metadata.ViewCount, 0),
+                   IFNULL(metadata.Rating, 0),
+                   IFNULL(metadata.Genre, ''),
+                   IFNULL(metadata_video.VID, ''),
+                   IFNULL(metadata_video.Duration, 0),
+                   IFNULL(metadata_video.Series, '')
+            FROM metadata
+            INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
+            WHERE metadata.DataType = 0
+            ORDER BY metadata.DataID DESC;
+            """;
+
+        var result = new List<VideoListItemDto>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var record = new VideoGroupRecord(
+                reader.GetString(9),
+                reader.GetString(12),
+                reader.GetString(6),
+                reader.GetString(5));
+
+            if (!SplitGroupValues(selector(record)).Any(item => string.Equals(item, normalizedGroupName, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            var dataId = reader.GetInt64(0);
+            var path = reader.GetString(3);
+            var vid = reader.GetString(10);
+            var sidecars = BuildSidecarState(path, vid);
+            result.Add(new VideoListItemDto
+            {
+                DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
+                DurationSeconds = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
+                HasFanart = sidecars.Fanart.Exists,
+                HasMissingAssets = sidecars.HasMissingAssets,
+                HasNfo = sidecars.Nfo.Exists,
+                HasPoster = sidecars.Poster.Exists,
+                HasThumb = sidecars.Thumb.Exists,
+                LibraryId = reader.GetInt64(1).ToString(),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                Path = path,
+                ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
+                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Title = reader.GetString(2),
+                Vid = vid,
+                VideoId = dataId.ToString(),
+                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+            });
+        }
+
+        return result;
+    }
+
     private static List<VideoListItemDto> ApplyVideoFilters(
         IEnumerable<VideoListItemDto> videos,
         string? keyword,
@@ -362,6 +526,15 @@ public sealed class VideoService
         }
 
         return result;
+    }
+
+    private static IEnumerable<string> SplitGroupValues(string? value)
+    {
+        return (value ?? string.Empty)
+            .Split(new[] { ';', '|', ',', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(item => item.Trim())
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
     }
 
     private static PagedVideoResult BuildPagedResult(
@@ -658,4 +831,26 @@ public sealed class VideoService
         int PageIndex,
         int PageSize,
         int TotalCount);
+
+    private sealed class VideoGroupAccumulator
+    {
+        public VideoGroupAccumulator(string name)
+        {
+            Name = name;
+        }
+
+        public string LastPlayedAt { get; set; } = string.Empty;
+
+        public string LastScanAt { get; set; } = string.Empty;
+
+        public string Name { get; }
+
+        public int VideoCount { get; set; }
+    }
+
+    private readonly record struct VideoGroupRecord(
+        string Genre,
+        string Series,
+        string LastPlayedAt,
+        string LastScanAt);
 }
