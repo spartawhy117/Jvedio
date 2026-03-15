@@ -123,6 +123,10 @@
 - Exit condition:
   - `Actors -> Actor Detail -> Video Detail` 稳定可回归，且不需要新窗口。
 
+当前状态：
+
+- 已完成。Actors 列表现已跳转到 `#/actors/{actorId}`，影片详情可通过 `backTo` 返回演员详情。
+
 ## Step 9. Align settings tabs to current shell scope
 
 - Goal:

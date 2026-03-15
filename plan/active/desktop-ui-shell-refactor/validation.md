@@ -62,7 +62,16 @@
 - 当前既有开关 / 输入项都能在对应页签中找到承载。
 - 本轮允许样式与布局保持粗粒度一致，不要求细致打磨。
 
+## 第五批：演员详情独立页
+
+- Actors 列表点击后进入 `#/actors/{actorId}`，不再依赖抽屉。
+- 演员详情页能展示头部信息、媒体库聚合信息和关联影片。
+- 从演员详情进入影片详情时会写入稳定返回态。
+- 影片详情页能返回演员详情，同时保留返回媒体库入口。
+- 列表筛选、排序和分页状态在演员详情往返过程中不丢失。
+
 ## Build validation
 
-- Release build succeeds after documentation changes.
-- 本轮仅文档变更，未跑 `Jvedio.Test` 集成测试。
+- 运行受影响的 Electron 聚焦回归。
+- Release build succeeds after code and documentation changes.
+- 本轮未跑 `Jvedio.Test` 集成测试；当前改动集中在 Electron renderer / regression 与文档。

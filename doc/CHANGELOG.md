@@ -135,6 +135,14 @@
 - 修正测试文档中的输出路径表述，明确区分 `Jvedio.Test` 的 suite 输出目录（`config/<suite>/output/`）与主程序 `Jvedio.exe` 的内置调试输出目录（`data/<user>/log/test/<VID>/`）。
 - 已删除旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md`，当前测试文档统一以 `test-targets.md`、`test-plan.md`、`test-current-suite.md` 为准。
 
+## [2026-03-16]
+
+### 已变更
+- 更新 `electron/renderer/src/app/routes/router.ts`，新增独立演员详情路由 `#/actors/{actorId}`，并为影片详情路由补充可序列化的 `backTo` 返回态。
+- 更新 `electron/renderer/src/features/home/useHomePageData.ts`，将演员详情从列表抽屉切换为右侧内容区独立页，保留 Actors 列表筛选 / 排序 / 分页状态，并打通 `Actors -> Actor Detail -> Video Detail` 返回链路。
+- 更新 `electron/main/testing/actorsRegression.ts`，将最后一段回归从抽屉验证改为独立演员详情页、关联影片下钻和返回演员详情的闭环验证。
+- 更新 `plan/active/desktop-ui-shell-refactor/` 相关文档，确认演员详情页已完成，下一步进入 Settings 第二轮页签对齐。
+
 ## [2026-03-15]
 
 ### 已变更

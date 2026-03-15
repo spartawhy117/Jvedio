@@ -386,7 +386,7 @@ export async function runActorsRegression(
   logCheckResult(paginationAndExtendedSort);
   if (!paginationAndExtendedSort.passed) return false;
 
-  const drawerAndDetail = await captureCheck("关联影片抽屉与演员详情头部消费", async () => {
+  const actorDetailRoute = await captureCheck("演员详情页与影片返回链路", async () => {
     await executeInRenderer(
       mainWindow,
       `
@@ -417,10 +417,90 @@ export async function runActorsRegression(
       mainWindow,
       `
         (() => {
-          const button = Array.from(document.querySelectorAll('[data-action="open-actor-drawer"]'))
-            .find((item) => item.textContent?.includes('查看') && item.closest('[data-actor-card-id]')?.textContent?.includes('Actor Alpha'));
+          const link = Array.from(document.querySelectorAll('[data-actor-card-id] a.ghost-link'))
+            .find((item) => item.textContent?.includes('查看详情') && item.closest('[data-actor-card-id]')?.textContent?.includes('Actor Alpha'));
+          if (!(link instanceof HTMLAnchorElement)) {
+            throw new Error("未找到 Actor Alpha 的详情入口。");
+          }
+
+          link.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const detailName = document.querySelector('[data-actor-detail-name]')?.textContent?.trim() ?? '';
+          const relatedVideos = document.querySelectorAll('[data-actor-video-id]').length;
+          const sourceLink = Array.from(document.querySelectorAll('.surface-card a.ghost-link'))
+            .find((item) => item.textContent?.includes('MetaTube'));
+          return location.hash.startsWith('#/actors/')
+            && detailName === 'Actor Alpha'
+            && relatedVideos === 2
+            && (document.body.innerText ?? '').includes('Actors 列表')
+            && sourceLink instanceof HTMLAnchorElement
+            && sourceLink.href === 'https://actors.example/alpha';
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "演员详情页未正确展示头部信息或关联影片。",
+    );
+
+    const snapshot = await executeInRenderer<{
+      detailName: string;
+      hash: string;
+      relatedVideos: number;
+    }>(
+      mainWindow,
+      `
+        (() => ({
+          detailName: document.querySelector('[data-actor-detail-name]')?.textContent?.trim() ?? '',
+          hash: location.hash,
+          relatedVideos: document.querySelectorAll('[data-actor-video-id]').length,
+        }))()
+      `,
+    );
+
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const link = document.querySelector('[data-actor-video-id] .video-result-title');
+          if (!(link instanceof HTMLAnchorElement)) {
+            throw new Error("未找到演员详情页中的关联影片入口。");
+          }
+
+          link.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const header = document.querySelector('.content-header h1')?.textContent?.trim() ?? '';
+          const actorBackButton = document.querySelector('[data-action="navigate-back-to"]');
+          return location.hash.startsWith('#/videos/')
+            && location.hash.includes('backTo=')
+            && header.length > 0
+            && actorBackButton instanceof HTMLElement
+            && actorBackButton.textContent?.includes('返回演员');
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "从演员详情进入影片详情后，返回演员链路未建立。",
+    );
+
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const button = document.querySelector('[data-action="navigate-back-to"]');
           if (!(button instanceof HTMLElement)) {
-            throw new Error("未找到 Actor Alpha 的抽屉入口。");
+            throw new Error("未找到影片详情页的返回演员按钮。");
           }
 
           button.click();
@@ -432,41 +512,21 @@ export async function runActorsRegression(
       mainWindow,
       `
         (() => {
-          const drawerName = document.querySelector('[data-actor-drawer-name]')?.textContent?.trim() ?? '';
-          const relatedVideos = document.querySelectorAll('[data-actor-video-id]').length;
-          const sourceLink = document.querySelector('.actor-drawer-surface .ghost-link');
-          return location.hash.includes('actorId=')
-            && drawerName === 'Actor Alpha'
-            && relatedVideos === 2
-            && (document.body.innerText ?? '').includes('媒体库数')
-            && sourceLink instanceof HTMLAnchorElement
-            && sourceLink.href === 'https://actors.example/alpha';
+          const detailName = document.querySelector('[data-actor-detail-name]')?.textContent?.trim() ?? '';
+          return location.hash.startsWith('#/actors/')
+            && detailName === 'Actor Alpha'
+            && document.querySelectorAll('[data-actor-video-id]').length === 2;
         })()
       `,
       RENDERER_WAIT_TIMEOUT_MS,
-      "演员抽屉未正确展示详情头部或关联影片。",
+      "从影片详情返回演员详情后，页面未恢复。",
     );
 
-    const snapshot = await executeInRenderer<{
-      drawerName: string;
-      hash: string;
-      relatedVideos: number;
-    }>(
-      mainWindow,
-      `
-        (() => ({
-          drawerName: document.querySelector('[data-actor-drawer-name]')?.textContent?.trim() ?? '',
-          hash: location.hash,
-          relatedVideos: document.querySelectorAll('[data-actor-video-id]').length,
-        }))()
-      `,
-    );
-
-    return `drawer=${snapshot.drawerName}, videos=${snapshot.relatedVideos}, hash=${snapshot.hash}`;
+    return `detail=${snapshot.detailName}, videos=${snapshot.relatedVideos}, hash=${snapshot.hash}`;
   });
-  environment.checks.push(drawerAndDetail);
-  logCheckResult(drawerAndDetail);
-  return drawerAndDetail.passed;
+  environment.checks.push(actorDetailRoute);
+  logCheckResult(actorDetailRoute);
+  return actorDetailRoute.passed;
 }
 
 async function seedActorRows(appBaseDir: string, libraryId: string): Promise<void> {

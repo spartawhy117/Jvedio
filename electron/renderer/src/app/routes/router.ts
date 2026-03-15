@@ -10,7 +10,6 @@ export interface LibraryVideoRouteQuery {
 }
 
 export interface ActorsRouteQuery {
-  actorId: string;
   keyword: string;
   pageIndex: number;
   pageSize: number;
@@ -23,9 +22,10 @@ export type SettingsRouteGroup = "general" | "metaTube" | "playback";
 export type AppRoute =
   | { kind: "home" }
   | { kind: "actors"; query: ActorsRouteQuery }
+  | { kind: "actor"; actorId: string; query: ActorsRouteQuery }
   | { kind: "library"; libraryId: string; query: LibraryVideoRouteQuery }
   | { kind: "settings"; group: SettingsRouteGroup }
-  | { kind: "video"; videoId: string };
+  | { kind: "video"; backTo: string | null; videoId: string };
 
 export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto[]): AppRoute {
   const route = parseRoute(hash);
@@ -34,6 +34,10 @@ export function ensureRoute(hash: string, libraries: readonly LibraryListItemDto
   }
 
   if (route.kind === "video") {
+    return route;
+  }
+
+  if (route.kind === "actor") {
     return route;
   }
 
@@ -64,16 +68,41 @@ export function parseRoute(hash: string): AppRoute {
   }
 
   if (routePath === "/actors" || routePath === "/actors/") {
+    const actorId = parseLegacyActorId(queryText);
+    const query = parseActorsRouteQuery(queryText);
+    if (actorId) {
+      return {
+        kind: "actor",
+        actorId,
+        query,
+      };
+    }
+
     return {
       kind: "actors",
-      query: parseActorsRouteQuery(queryText),
+      query,
     };
+  }
+
+  if (routePath.startsWith("/actors/")) {
+    const actorId = decodeURIComponent(routePath.substring("/actors/".length).replace(/\/$/, "").trim());
+    if (actorId.length > 0) {
+      return {
+        kind: "actor",
+        actorId,
+        query: parseActorsRouteQuery(queryText),
+      };
+    }
   }
 
   if (routePath.startsWith("/videos/")) {
     const videoId = routePath.substring("/videos/".length).trim();
     if (videoId.length > 0) {
-      return { kind: "video", videoId };
+      return {
+        kind: "video",
+        backTo: parseVideoBackTo(queryText),
+        videoId,
+      };
     }
   }
 
@@ -95,6 +124,13 @@ export function toHash(route: AppRoute): string {
       : "#/actors";
   }
 
+  if (route.kind === "actor") {
+    const queryString = buildActorsRouteQuery(route.query);
+    return queryString.length > 0
+      ? `#/actors/${encodeURIComponent(route.actorId)}?${queryString}`
+      : `#/actors/${encodeURIComponent(route.actorId)}`;
+  }
+
   if (route.kind === "library") {
     const queryString = buildLibraryVideoRouteQuery(route.query);
     return queryString.length > 0
@@ -103,7 +139,15 @@ export function toHash(route: AppRoute): string {
   }
 
   if (route.kind === "video") {
-    return `#/videos/${route.videoId}`;
+    const searchParams = new URLSearchParams();
+    if (route.backTo && route.backTo.trim().length > 0) {
+      searchParams.set("backTo", route.backTo.trim());
+    }
+
+    const queryString = searchParams.toString();
+    return queryString.length > 0
+      ? `#/videos/${route.videoId}?${queryString}`
+      : `#/videos/${route.videoId}`;
   }
 
   if (route.kind === "settings") {
@@ -128,7 +172,6 @@ export function createDefaultLibraryVideoRouteQuery(): LibraryVideoRouteQuery {
 
 export function createDefaultActorsRouteQuery(): ActorsRouteQuery {
   return {
-    actorId: "",
     keyword: "",
     pageIndex: 0,
     pageSize: 60,
@@ -188,7 +231,6 @@ function parseActorsRouteQuery(queryText: string): ActorsRouteQuery {
   const sortOrder = searchParams.get("sortOrder") === "desc" ? "desc" : defaults.sortOrder;
 
   return {
-    actorId: searchParams.get("actorId")?.trim() ?? defaults.actorId,
     keyword: searchParams.get("keyword")?.trim() ?? defaults.keyword,
     pageIndex: Number.isFinite(pageIndex) && pageIndex >= 0 ? pageIndex : defaults.pageIndex,
     pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : defaults.pageSize,
@@ -216,13 +258,23 @@ function buildActorsRouteQuery(query: ActorsRouteQuery): string {
   if (query.pageSize !== defaults.pageSize) {
     searchParams.set("pageSize", String(query.pageSize));
   }
-  if (query.actorId.trim().length > 0) {
-    searchParams.set("actorId", query.actorId.trim());
-  }
 
   return searchParams.toString();
 }
 
 function parseSettingsGroup(value: string | null): SettingsRouteGroup {
   return value === "metaTube" || value === "playback" ? value : "general";
+}
+
+function parseLegacyActorId(queryText: string): string {
+  return new URLSearchParams(queryText).get("actorId")?.trim() ?? "";
+}
+
+function parseVideoBackTo(queryText: string): string | null {
+  const value = new URLSearchParams(queryText).get("backTo")?.trim() ?? "";
+  if (!value) {
+    return null;
+  }
+
+  return value.startsWith("#") ? value : `#${value}`;
 }
