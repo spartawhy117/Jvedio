@@ -19,13 +19,20 @@ public sealed class WorkerTaskRegistryService
         this.workerEventStreamBroker = workerEventStreamBroker;
     }
 
-    public WorkerTaskDto CreateTask(string type, string? libraryId, string? libraryName, string summary)
+    public WorkerTaskDto CreateTask(
+        string type,
+        string? libraryId,
+        string? libraryName,
+        string summary,
+        bool canRetry = false,
+        string? retriedFromTaskId = null)
     {
         lock (gate)
         {
             var utcNow = DateTimeOffset.UtcNow;
             var task = new WorkerTaskDto
             {
+                CanRetry = canRetry,
                 CreatedAtUtc = utcNow,
                 Id = $"task_{Guid.NewGuid():N}",
                 LibraryId = string.IsNullOrWhiteSpace(libraryId) ? null : libraryId,
@@ -33,6 +40,7 @@ public sealed class WorkerTaskRegistryService
                 Percent = 0,
                 ProgressCurrent = 0,
                 ProgressTotal = 0,
+                RetriedFromTaskId = string.IsNullOrWhiteSpace(retriedFromTaskId) ? null : retriedFromTaskId,
                 Stage = "queued",
                 Status = "queued",
                 Summary = summary,
@@ -227,6 +235,7 @@ public sealed class WorkerTaskRegistryService
     {
         return new WorkerTaskDto
         {
+            CanRetry = source.CanRetry,
             CompletedAtUtc = source.CompletedAtUtc,
             CreatedAtUtc = source.CreatedAtUtc,
             ErrorMessage = source.ErrorMessage,
@@ -236,6 +245,7 @@ public sealed class WorkerTaskRegistryService
             Percent = source.Percent,
             ProgressCurrent = source.ProgressCurrent,
             ProgressTotal = source.ProgressTotal,
+            RetriedFromTaskId = source.RetriedFromTaskId,
             Stage = source.Stage,
             StartedAtUtc = source.StartedAtUtc,
             Status = source.Status,

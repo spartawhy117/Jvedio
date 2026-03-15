@@ -2,6 +2,8 @@ namespace Jvedio.Contracts.Tasks;
 
 public sealed class WorkerTaskDto
 {
+    public bool CanRetry { get; set; }
+
     public DateTimeOffset? CompletedAtUtc { get; set; }
 
     public DateTimeOffset CreatedAtUtc { get; set; }
@@ -19,6 +21,8 @@ public sealed class WorkerTaskDto
     public int ProgressCurrent { get; set; }
 
     public int ProgressTotal { get; set; }
+
+    public string? RetriedFromTaskId { get; set; }
 
     public string Stage { get; set; } = string.Empty;
 

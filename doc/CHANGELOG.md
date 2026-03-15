@@ -6,6 +6,10 @@
 ## [未发布]
 
 ### 已变更
+- 补齐任务失败详情与重试入口：`Jvedio-WPF/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。
+- 更新 `electron/renderer/src/features/home/useHomePageData.ts` 与新增 `TaskDetailDialog.ts`，使 Home / Library 任务卡片在失败态展示错误摘要、失败详情入口和重试按钮；失败详情弹窗会展示任务时间线、阶段、失败原因和重试来源，库页内联任务与全局活动条共用同一套重试状态反馈。
+- 更新 `electron/renderer/index.html`，补充失败任务卡片、任务动作区、任务详情弹窗和失败块样式，保证“库页内联 + 全局活动条 + Home 摘要”形态下的失败态布局可读且在移动端可收缩。
+- 新增 `electron/main/testing/tasksRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:tasks`，通过隔离 sqlite 副本稳定覆盖“无有效扫描目录导致任务失败 -> 打开失败详情 -> 修复扫描目录 -> 从详情弹窗直接重试 -> 重试成功”闭环。
 - 完成 Electron 稳定化修复：`electron/main/testing/batch3Regression.ts` 已改为从 `location.hash` 稳定拆出 `videoId`，避免 `#/videos/{videoId}?backTo=...` 场景把查询串误拼进 `GET /api/videos/{videoId}`，恢复第三批播放写回回归。
 - 更新 `electron/renderer/src/features/home/useHomePageData.ts`，为 Home 与 Library 的任务摘要 note 补充原始 `data-last-updated-utc` 标记，稳定支持 `task.summary.changed` 回归对摘要刷新时间的判定。
 - 收口任务反馈的全局活动条：更新 `electron/renderer/src/features/home/useHomePageData.ts`，在主内容区头部新增跨页面可见的活动条，统一展示当前运行或最近失败任务的库名、状态、进度、阶段，并提供跳回目标库工作台与刷新任务入口。

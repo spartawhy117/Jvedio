@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，这一轮既定 1~4 与稳定化清扫均已完成。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，并已补上失败任务详情与重试入口；当前下一步进入 `Home / Library / Favorites / Categories / Series` 的视觉和交互一致性收口。
 
 ## Latest Progress
 
@@ -172,15 +172,23 @@
   - `batch3Regression.ts` 已修正 `#/videos/{videoId}?backTo=...` 场景下的 `videoId` 提取逻辑，避免把查询串误并入详情 API 请求
   - renderer Home / Library 任务摘要 note 已暴露原始 `data-last-updated-utc`，使 `task.summary.changed` 回归校验稳定可判
   - 当前受影响回归矩阵与 Release 构建已再次全绿
+- 已完成任务失败详情与重试入口：
+  - Worker 已为任务 DTO 新增 `CanRetry / RetriedFromTaskId`，并新增 `POST /api/tasks/{taskId}/retry`
+  - 扫描 / 抓取任务在创建时会保留原始请求上下文，失败后允许基于原任务重新发起
+  - renderer Home / Library 失败任务卡片已新增错误摘要、失败详情入口和重试按钮
+  - renderer 已新增任务详情弹窗，展示任务时间线、阶段、失败原因和重试来源
+  - 已新增 `electron/` `npm run regression:tasks` 与 `electron/main/testing/tasksRegression.ts`
+  - `regression:tasks` 当前通过“无有效扫描目录 -> 失败详情 -> 修复目录 -> 详情页重试 -> 重试成功”隔离闭环稳定验证
 
 ## Next Recommended Work
 
-1. 为下一批产品工作重新冻结范围：
-   - 当前 1~4 与相关收尾项已经全部完成
-   - 下一步需要重新定义新的功能批次，而不是继续在当前批次里追加范围
-2. 如果继续沿 Electron 线推进，优先考虑新的用户可见增量：
-   - 更细的任务失败详情与重试入口
+1. 继续执行现有排期中的下一项：
    - Home / Library / Favorites / Categories / Series 的视觉收口与交互一致性打磨
+2. 视觉收口完成后再做当前受影响 Electron 聚焦回归与 Release 构建复扫：
+   - `electron/` `npm run regression:tasks`
+   - `electron/` `npm run regression:activity`
+   - 其余受影响页面聚焦回归
+   - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
 ## Validation Steps
 
@@ -218,6 +226,11 @@
 - `electron/` `npm run regression:settings` 已通过，覆盖：
   - 设置读取
   - 6 个页签可访问
+- `electron/` `npm run regression:tasks` 已通过，覆盖：
+  - 失败扫描任务出现
+  - 失败详情弹窗打开与错误原因展示
+  - 修复扫描目录后从详情弹窗直接重试
+  - 重试任务回填 `retriedFromTaskId` 并最终成功
   - 设置保存
   - MetaTube diagnostics
   - `settings.changed`

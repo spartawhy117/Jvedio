@@ -11,6 +11,7 @@
     "regression:categories": "npm run build && electron . --regression-categories",
     "regression:favorites": "npm run build && electron . --regression-favorites",
     "regression:series": "npm run build && electron . --regression-series",
+    "regression:tasks": "npm run build && electron . --regression-tasks",
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "tsc -p tsconfig.renderer.json",
     "regression:batch3": "npm run build && electron . --regression-batch3",

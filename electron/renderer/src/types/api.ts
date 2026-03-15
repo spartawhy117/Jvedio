@@ -289,6 +289,7 @@ export interface StartLibraryScrapeRequest {
 }
 
 export interface WorkerTaskDto {
+  canRetry: boolean;
   completedAtUtc: string | null;
   createdAtUtc: string;
   errorMessage: string | null;
@@ -298,6 +299,7 @@ export interface WorkerTaskDto {
   percent: number;
   progressCurrent: number;
   progressTotal: number;
+  retriedFromTaskId: string | null;
   stage: string;
   startedAtUtc: string | null;
   status: string;
@@ -319,6 +321,12 @@ export interface StartLibraryScrapeResponse {
 export interface GetTasksResponse {
   summary: TaskSummaryDto;
   tasks: readonly WorkerTaskDto[];
+}
+
+export interface RetryTaskResponse {
+  acceptedAtUtc: string;
+  retriedFromTaskId: string;
+  task: WorkerTaskDto;
 }
 
 export interface GeneralSettingsDto {

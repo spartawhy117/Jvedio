@@ -34,4 +34,20 @@ public sealed class TasksController : ControllerBase
 
         return ApiResponse<GetTaskResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
+
+    [HttpPost("{taskId}/retry")]
+    public ActionResult<ApiResponse<RetryTaskResponse>> RetryTask(
+        string taskId,
+        [FromServices] LibraryTaskOrchestratorService libraryTaskOrchestratorService)
+    {
+        var task = libraryTaskOrchestratorService.RetryTask(taskId);
+        var response = new RetryTaskResponse
+        {
+            AcceptedAtUtc = DateTimeOffset.UtcNow,
+            RetriedFromTaskId = taskId,
+            Task = task,
+        };
+
+        return Accepted(ApiResponse<RetryTaskResponse>.FromData(response, HttpContext.TraceIdentifier));
+    }
 }

@@ -25,6 +25,7 @@ import type {
   PlayVideoResponse,
   RunMetaTubeDiagnosticsRequest,
   RunMetaTubeDiagnosticsResponse,
+  RetryTaskResponse,
   StartLibraryScanRequest,
   StartLibraryScanResponse,
   StartLibraryScrapeRequest,
@@ -229,6 +230,12 @@ export class ApiClient {
 
   public getTasks(): Promise<GetTasksResponse> {
     return this.request<GetTasksResponse>("/api/tasks");
+  }
+
+  public retryTask(taskId: string): Promise<RetryTaskResponse> {
+    return this.request<RetryTaskResponse>(`/api/tasks/${encodeURIComponent(taskId)}/retry`, {
+      method: "POST"
+    });
   }
 
   public getSettings(): Promise<GetSettingsResponse> {

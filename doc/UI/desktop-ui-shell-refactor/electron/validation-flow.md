@@ -129,6 +129,25 @@
   - `electron/` `npm run regression:settings`
   - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
 
+## 收尾增强：任务失败详情与重试入口
+
+- 失败任务卡片可见
+- 失败详情弹窗可打开
+- 失败原因展示正确
+- 修复前置条件后可直接重试
+- 新任务会回填重试来源
+- 当前已完成代码接线：
+  - Worker 已接入 `POST /api/tasks/{taskId}/retry`
+  - 扫描 / 抓取任务会保留原始请求上下文，并通过 `CanRetry / RetriedFromTaskId` 暴露给 renderer
+  - Home / Library 失败任务卡片已支持失败详情与重试
+  - renderer 已新增任务详情弹窗，展示任务时间线、失败原因和重试来源
+  - 已新增 `electron/` `npm run regression:tasks`
+- 当前已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run regression:tasks`
+  - `electron/` `npm run regression:activity`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+
 ## 验证方式建议
 
 - Worker 单元测试

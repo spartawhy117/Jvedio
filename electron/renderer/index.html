@@ -323,6 +323,105 @@
         background: linear-gradient(180deg, rgba(13, 24, 39, 0.96), rgba(11, 19, 32, 0.82));
       }
 
+      .task-card {
+        display: grid;
+        gap: 12px;
+        padding: 16px 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(111, 209, 255, 0.14);
+        background: linear-gradient(180deg, rgba(13, 24, 39, 0.96), rgba(11, 19, 32, 0.82));
+      }
+
+      .task-card.failed {
+        border-color: rgba(255, 121, 113, 0.24);
+        background: linear-gradient(180deg, rgba(40, 16, 21, 0.96), rgba(20, 11, 18, 0.9));
+      }
+
+      .task-card-head,
+      .task-card-actions,
+      .task-card-meta,
+      .task-detail-status-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .task-card-head {
+        justify-content: space-between;
+      }
+
+      .task-card-head strong,
+      .task-card-title {
+        font-weight: 700;
+      }
+
+      .task-card-title {
+        font-size: 18px;
+        letter-spacing: -0.01em;
+      }
+
+      .task-card-summary {
+        line-height: 1.7;
+      }
+
+      .task-card-meta,
+      .task-card-time {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .task-card-actions {
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .task-card-actions .primary-button,
+      .task-card-actions .ghost-button {
+        flex: 1 1 140px;
+      }
+
+      .task-error,
+      .task-detail-error-block {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 121, 113, 0.22);
+        background: rgba(255, 121, 113, 0.1);
+        color: #ffc2bc;
+      }
+
+      .task-error {
+        line-height: 1.65;
+      }
+
+      .task-detail-card {
+        width: min(760px, 100%);
+        display: grid;
+        gap: 18px;
+        max-height: calc(100vh - 48px);
+        overflow: auto;
+      }
+
+      .task-detail-status-row {
+        margin-top: -2px;
+      }
+
+      .task-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .task-detail-error-block {
+        display: grid;
+        gap: 10px;
+      }
+
+      .task-detail-error-block strong {
+        color: inherit;
+        line-height: 1.7;
+      }
+
       .library-title {
         font-size: 23px;
         font-weight: 700;
@@ -371,6 +470,13 @@
         display: grid;
         gap: 12px;
         margin-top: 20px;
+      }
+
+      .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
       }
 
       .task-row {
@@ -1116,7 +1222,11 @@
         .global-activity-actions .ghost-button,
         .modal-actions .ghost-button,
         .modal-actions .danger-button,
-        .modal-actions .primary-button {
+        .modal-actions .primary-button,
+        .task-card-actions .ghost-button,
+        .task-card-actions .primary-button,
+        .action-row .ghost-button,
+        .action-row .primary-button {
           width: 100%;
         }
 

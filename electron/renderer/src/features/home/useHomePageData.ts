@@ -38,6 +38,7 @@ import type {
 } from "../../types/api.js";
 import { renderCreateLibraryDialog } from "./CreateLibraryDialog.js";
 import { renderDeleteLibraryDialog } from "./DeleteLibraryDialog.js";
+import { renderTaskDetailDialog } from "./TaskDetailDialog.js";
 
 interface AppBridge { getAppVersion(): Promise<string>; }
 interface WorkerBridge { getWorkerBaseUrl(): Promise<string>; }
@@ -52,7 +53,8 @@ declare global {
 type ModalState =
   | null
   | { kind: "create"; errorMessage: string | null; name: string; pending: boolean; scanPath: string; }
-  | { kind: "delete"; errorMessage: string | null; libraryId: string; pending: boolean; };
+  | { kind: "delete"; errorMessage: string | null; libraryId: string; pending: boolean; }
+  | { kind: "task-detail"; pendingRetry: boolean; taskId: string; };
 
 type LibraryActionKind = "refresh-videos" | "save" | "scan" | "scrape";
 interface LibraryActionState { kind: LibraryActionKind; libraryId: string; }
@@ -61,6 +63,7 @@ interface CategoryActionState { kind: "refresh"; }
 interface FavoritesActionState { kind: "refresh"; }
 interface SeriesActionState { kind: "refresh"; }
 interface SettingsActionState { kind: "reset" | "save"; }
+interface TaskActionState { kind: "retry"; taskId: string; }
 interface VideoActionState { kind: "play"; videoId: string; }
 
 interface RendererState {
@@ -97,6 +100,7 @@ interface RendererState {
   settings: GetSettingsResponse | null;
   settingsAction: SettingsActionState | null;
   settingsDraft: UpdateSettingsRequest | null;
+  taskAction: TaskActionState | null;
   tasks: readonly WorkerTaskDto[];
   videoAction: VideoActionState | null;
   videoDetail: VideoDetailDto | null;
@@ -144,6 +148,7 @@ export class HomePageController {
     settings: null,
     settingsAction: null,
     settingsDraft: null,
+    taskAction: null,
     tasks: [],
     videoAction: null,
     videoDetail: null,
@@ -183,6 +188,7 @@ export class HomePageController {
       inlineError: null,
       libraryAction: null,
       loading: true,
+      taskAction: null,
     };
     this.render();
 
@@ -222,6 +228,7 @@ export class HomePageController {
         seriesVideos: route.kind === "series" ? this.state.seriesVideos : null,
         settingsAction: route.kind === "settings" ? this.state.settingsAction : null,
         settingsDraft: route.kind === "settings" ? this.state.settingsDraft : null,
+        taskAction: null,
         tasks: tasks.tasks,
         workerWarning: null,
       };
@@ -237,6 +244,7 @@ export class HomePageController {
         inlineError: this.toUserMessage(error),
         loading: false,
         routeDataLoading: false,
+        taskAction: null,
         tasks: [],
         videoDetail: null,
         workerWarning: null,
@@ -487,11 +495,22 @@ export class HomePageController {
         this.state = { ...this.state, modal: { kind: "delete", errorMessage: null, libraryId, pending: false } };
         this.render();
         return;
+      case "open-task-detail":
+        if (actionElement.dataset.taskId) {
+          this.state = { ...this.state, modal: { kind: "task-detail", pendingRetry: false, taskId: actionElement.dataset.taskId } };
+          this.render();
+        }
+        return;
       case "close-modal":
         this.closeModal();
         return;
       case "confirm-delete-library":
         await this.deleteLibrary(libraryId);
+        return;
+      case "retry-task":
+        if (actionElement.dataset.taskId) {
+          await this.retryTask(actionElement.dataset.taskId);
+        }
         return;
       case "navigate-home":
         window.location.hash = "#/home";
@@ -711,6 +730,42 @@ export class HomePageController {
       await this.reloadHomeData(`已启动抓取任务 ${response.task.id}。`);
     } catch (error) {
       this.state = { ...this.state, inlineError: this.toUserMessage(error), libraryAction: null };
+      this.render();
+    }
+  }
+
+  private async retryTask(taskId: string): Promise<void> {
+    if (!this.apiClient || !taskId) return;
+    const task = this.findTask(taskId);
+    if (!task || task.status !== "failed" || !task.canRetry) return;
+
+    this.state = {
+      ...this.state,
+      inlineError: null,
+      infoMessage: null,
+      modal: this.state.modal?.kind === "task-detail" && this.state.modal.taskId === taskId
+        ? { ...this.state.modal, pendingRetry: true }
+        : this.state.modal,
+      taskAction: { kind: "retry", taskId },
+    };
+    this.render();
+
+    try {
+      const response = await this.apiClient.retryTask(taskId);
+      if (this.state.modal?.kind === "task-detail" && this.state.modal.taskId === taskId) {
+        this.closeModal(false);
+      }
+
+      await this.reloadHomeData(`已重新发起任务 ${response.task.id}，来源于 ${response.retriedFromTaskId}。`);
+    } catch (error) {
+      this.state = {
+        ...this.state,
+        inlineError: this.toUserMessage(error),
+        modal: this.state.modal?.kind === "task-detail" && this.state.modal.taskId === taskId
+          ? { ...this.state.modal, pendingRetry: false }
+          : this.state.modal,
+        taskAction: null,
+      };
       this.render();
     }
   }
@@ -1205,6 +1260,10 @@ export class HomePageController {
     return cloneSettingsDraft(this.state.settingsDraft ?? createSettingsDraft(this.state.settings ?? createDefaultSettingsResponse()));
   }
 
+  private findTask(taskId: string): WorkerTaskDto | undefined {
+    return this.state.tasks.find((task) => task.id === taskId);
+  }
+
   private findLibrary(libraryId: string): LibraryListItemDto | undefined {
     return this.state.bootstrap?.libraries.find((library) => library.libraryId === libraryId);
   }
@@ -1273,7 +1332,9 @@ export class HomePageController {
     const backToLabel = this.state.route.kind === "video"
       ? describeBackToAction(this.state.route.backTo)
       : "";
+    const pendingRetryTaskId = this.state.taskAction?.kind === "retry" ? this.state.taskAction.taskId : "";
     const globalActivityBar = renderGlobalActivityBar({
+      pendingRetryTaskId,
       route: this.state.route,
       summary,
       tasks: this.state.tasks,
@@ -1302,7 +1363,8 @@ export class HomePageController {
 
   private renderRouteBody(libraries: readonly LibraryListItemDto[], worker: WorkerStatusDto): string {
     const summary = this.state.bootstrap?.taskSummary ?? emptySummary();
-    if (this.state.route.kind === "home") return renderHome(libraries, summary, worker, this.state.tasks);
+    const pendingRetryTaskId = this.state.taskAction?.kind === "retry" ? this.state.taskAction.taskId : "";
+    if (this.state.route.kind === "home") return renderHome(libraries, summary, worker, this.state.tasks, pendingRetryTaskId);
     if (this.state.route.kind === "category") {
       return renderCategoryRoute({
         categoryAction: this.state.categoryAction,
@@ -1365,6 +1427,7 @@ export class HomePageController {
         runningTask: this.state.tasks.find((task) => task.libraryId === library.libraryId && isActiveTask(task)) ?? null,
         scanPathDraft: this.getScanPathDraft(library),
         summary,
+        pendingRetryTaskId,
         tasks: this.state.tasks.filter((task) => task.libraryId === library.libraryId),
         worker,
       }) : `<div class="empty-card"><h3>媒体库不存在</h3><p>请返回 Home 重新选择媒体库。</p></div>`;
@@ -1394,6 +1457,10 @@ export class HomePageController {
     if (this.state.modal.kind === "create") {
       return renderCreateLibraryDialog(this.state.modal.name, this.state.modal.scanPath, this.state.modal.errorMessage, this.state.modal.pending);
     }
+    if (this.state.modal.kind === "task-detail") {
+      const task = this.findTask(this.state.modal.taskId);
+      return task ? renderTaskDetailDialog(task, this.state.modal.pendingRetry) : "";
+    }
     const libraryId = this.state.modal.kind === "delete" ? this.state.modal.libraryId : "";
     const library = libraries.find((item) => item.libraryId === libraryId);
     return library ? renderDeleteLibraryDialog(library, this.state.modal.errorMessage, this.state.modal.pending) : "";
@@ -1408,11 +1475,12 @@ function renderNav(libraries: readonly LibraryListItemDto[], route: AppRoute): s
 }
 
 function renderGlobalActivityBar(args: {
+  pendingRetryTaskId: string;
   route: AppRoute;
   summary: TaskSummaryDto;
   tasks: readonly WorkerTaskDto[];
 }): string {
-  const { route, summary, tasks } = args;
+  const { pendingRetryTaskId, route, summary, tasks } = args;
   const activeTasks = sortTasksByUrgency(tasks.filter(isActiveTask));
   const failedTasks = sortTasksByUrgency(tasks.filter((task) => task.status === "failed"));
   const primaryTask = activeTasks[0] ?? failedTasks[0] ?? null;
@@ -1432,12 +1500,14 @@ function renderGlobalActivityBar(args: {
   const actionButton = primaryLibraryId
     ? `<button class="ghost-button" data-action="navigate-library" data-library-id="${escapeHtml(primaryLibraryId)}" data-global-activity-open-library ${inCurrentLibrary ? "disabled" : ""}>${inCurrentLibrary ? "当前库工作台" : "打开库工作台"}</button>`
     : "";
+  const failureActions = activeCount === 0
+    ? `${primaryTask.status === "failed" ? `<button class="ghost-button" data-action="open-task-detail" data-task-id="${escapeHtml(primaryTask.id)}" data-global-activity-open-task>失败详情</button>` : ""}${primaryTask.status === "failed" && primaryTask.canRetry ? `<button class="primary-button" data-action="retry-task" data-task-id="${escapeHtml(primaryTask.id)}" data-global-activity-retry-task ${pendingRetryTaskId === primaryTask.id ? "disabled" : ""}>${pendingRetryTaskId === primaryTask.id ? "重试中..." : "重试任务"}</button>` : ""}` : "";
 
-  return `<section class="global-activity-bar ${state}" data-global-activity data-global-activity-state="${state}"><div class="global-activity-copy"><div><span class="eyebrow">Activity</span><h2>${escapeHtml(heading)}</h2><p data-global-activity-summary>${escapeHtml(summaryText)}</p></div><div class="global-activity-meta"><div class="activity-pill" data-global-activity-library>${escapeHtml(primaryTask.libraryName ?? primaryTask.libraryId ?? "全局任务")}</div><div class="activity-pill">${escapeHtml(status(primaryTask.status))}</div><div class="activity-pill">${escapeHtml(progressText)}</div><div class="activity-pill">${escapeHtml(primaryTask.stage || primaryTask.type)}</div></div></div><div class="global-activity-actions">${actionButton}<button class="ghost-button" data-action="refresh-library-tasks">刷新任务</button><div class="global-activity-summary-grid"><span>运行中 ${summary.runningCount}</span><span>排队中 ${Math.max(summary.queuedCount, queuedCount)}</span><span>失败 ${Math.max(summary.failedCount, failedCount)}</span></div></div></section>`;
+  return `<section class="global-activity-bar ${state}" data-global-activity data-global-activity-state="${state}"><div class="global-activity-copy"><div><span class="eyebrow">Activity</span><h2>${escapeHtml(heading)}</h2><p data-global-activity-summary>${escapeHtml(summaryText)}</p></div><div class="global-activity-meta"><div class="activity-pill" data-global-activity-library>${escapeHtml(primaryTask.libraryName ?? primaryTask.libraryId ?? "全局任务")}</div><div class="activity-pill">${escapeHtml(status(primaryTask.status))}</div><div class="activity-pill">${escapeHtml(progressText)}</div><div class="activity-pill">${escapeHtml(primaryTask.stage || primaryTask.type)}</div></div></div><div class="global-activity-actions">${actionButton}${failureActions}<button class="ghost-button" data-action="refresh-library-tasks">刷新任务</button><div class="global-activity-summary-grid"><span>运行中 ${summary.runningCount}</span><span>排队中 ${Math.max(summary.queuedCount, queuedCount)}</span><span>失败 ${Math.max(summary.failedCount, failedCount)}</span></div></div></section>`;
 }
 
-function renderHome(libraries: readonly LibraryListItemDto[], summary: TaskSummaryDto, worker: WorkerStatusDto, tasks: readonly WorkerTaskDto[]): string {
-  return `<section class="metric-grid">${metric("媒体库", String(libraries.length), "Home 与左导航共享库清单")}${metric("运行中任务", String(summary.runningCount), "包含扫描与抓取任务")}${metric("今日完成", String(summary.completedTodayCount), "由 SSE 与 /api/tasks 刷新")}${metric("Worker", worker.healthy ? "Healthy" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Libraries</span><h2>媒体库列表</h2></div><button class="ghost-button" data-action="open-create-dialog">添加媒体库</button></div>${libraries.length > 0 ? `<div class="library-grid">${libraries.map((library) => renderLibraryCard(library, tasks)).join("")}</div>` : `<div class="empty-card"><h3>还没有媒体库</h3><p>先创建一个库，再在库页完成扫描、展示和播放验证。</p></div>`}</div><div class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Task Summary</span><h2>任务摘要</h2></div></div><div class="task-list">${row("运行中", summary.runningCount)}${row("排队中", summary.queuedCount)}${row("失败", summary.failedCount)}${row("今日完成", summary.completedTodayCount)}</div><div class="task-feed home-task-feed">${tasks.length > 0 ? tasks.slice(0, 5).map(renderTaskCard).join("") : `<div class="empty-task-feed">当前还没有任务记录。</div>`}</div><div class="worker-note" data-last-updated-utc="${escapeHtml(summary.lastUpdatedUtc)}"><div class="note-label">最近刷新</div><div class="note-value">${formatDate(summary.lastUpdatedUtc)}</div></div></div></section>`;
+function renderHome(libraries: readonly LibraryListItemDto[], summary: TaskSummaryDto, worker: WorkerStatusDto, tasks: readonly WorkerTaskDto[], pendingRetryTaskId: string): string {
+  return `<section class="metric-grid">${metric("媒体库", String(libraries.length), "Home 与左导航共享库清单")}${metric("运行中任务", String(summary.runningCount), "包含扫描与抓取任务")}${metric("今日完成", String(summary.completedTodayCount), "由 SSE 与 /api/tasks 刷新")}${metric("Worker", worker.healthy ? "Healthy" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Libraries</span><h2>媒体库列表</h2></div><button class="ghost-button" data-action="open-create-dialog">添加媒体库</button></div>${libraries.length > 0 ? `<div class="library-grid">${libraries.map((library) => renderLibraryCard(library, tasks)).join("")}</div>` : `<div class="empty-card"><h3>还没有媒体库</h3><p>先创建一个库，再在库页完成扫描、展示和播放验证。</p></div>`}</div><div class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Task Summary</span><h2>任务摘要</h2></div></div><div class="task-list">${row("运行中", summary.runningCount)}${row("排队中", summary.queuedCount)}${row("失败", summary.failedCount)}${row("今日完成", summary.completedTodayCount)}</div><div class="task-feed home-task-feed">${tasks.length > 0 ? tasks.slice(0, 5).map((task) => renderTaskCard(task, pendingRetryTaskId)).join("") : `<div class="empty-task-feed">当前还没有任务记录。</div>`}</div><div class="worker-note" data-last-updated-utc="${escapeHtml(summary.lastUpdatedUtc)}"><div class="note-label">最近刷新</div><div class="note-value">${formatDate(summary.lastUpdatedUtc)}</div></div></div></section>`;
 }
 
 function renderCategoryRoute(args: {
@@ -1553,11 +1623,11 @@ function renderSeriesGroups(
   return `<div class="settings-group-nav">${response.items.map((item) => `<a class="nav-link ${item.name === currentName ? "active" : ""}" data-series-group-name="${escapeHtml(item.name)}" href="${toHash({ kind: "series", name: item.name, query })}"><span>${escapeHtml(item.name)}</span><small>${item.videoCount} items</small></a>`).join("")}</div>`;
 }
 
-function renderLibraryRoute(args: { draft: LibraryVideoRouteQuery; library: LibraryListItemDto; pendingAction: LibraryActionKind | null; response: GetLibraryVideosResponse | undefined; routeDataLoading: boolean; runningTask: WorkerTaskDto | null; scanPathDraft: string; summary: TaskSummaryDto; tasks: readonly WorkerTaskDto[]; worker: WorkerStatusDto; }): string {
-  const { draft, library, pendingAction, response, routeDataLoading, runningTask, scanPathDraft, summary, tasks, worker } = args;
+function renderLibraryRoute(args: { draft: LibraryVideoRouteQuery; library: LibraryListItemDto; pendingAction: LibraryActionKind | null; pendingRetryTaskId: string; response: GetLibraryVideosResponse | undefined; routeDataLoading: boolean; runningTask: WorkerTaskDto | null; scanPathDraft: string; summary: TaskSummaryDto; tasks: readonly WorkerTaskDto[]; worker: WorkerStatusDto; }): string {
+  const { draft, library, pendingAction, pendingRetryTaskId, response, routeDataLoading, runningTask, scanPathDraft, summary, tasks, worker } = args;
   const backToHash = toHash({ kind: "library", libraryId: library.libraryId, query: draft });
   const hasRunningTask = tasks.some((task) => isActiveTask(task));
-  return `<section class="metric-grid">${metric("影片数", String(response?.totalCount ?? library.videoCount), "来自库结果集总数")}${metric("库内任务", String(tasks.length), "当前库最近任务")}${metric("最近扫描", library.lastScanAt ? formatDate(library.lastScanAt) : "未记录", "完成扫描后由 Worker 回写")}${metric("最近抓取", library.lastScrapeAt ? formatDate(library.lastScrapeAt) : "未记录", "完成抓取后回写")}</section><section class="split-layout"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Library Workbench</span><h2>${escapeHtml(library.name)}</h2></div><button class="danger-button" data-action="open-delete-dialog" data-library-id="${escapeHtml(library.libraryId)}">删除媒体库</button></div><div class="library-detail-grid"><div class="detail-card"><span>Library ID</span><strong>${escapeHtml(library.libraryId)}</strong></div><div class="detail-card"><span>主路径</span><strong>${escapeHtml(library.path || "未配置")}</strong></div><div class="detail-card"><span>运行中任务</span><strong>${hasRunningTask ? "Yes" : "No"}</strong></div><div class="detail-card"><span>Worker</span><strong>${worker.healthy ? "Ready" : "Unavailable"}</strong></div></div><div class="scan-path-editor"><label class="field-label">默认扫描目录</label><textarea class="scan-path-textarea" name="library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}">${escapeHtml(scanPathDraft)}</textarea><div class="inline-note">保存后会写回库默认扫描目录。执行扫描时优先使用这里的路径。</div></div><div class="action-row"><button class="primary-button" data-action="save-library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}" ${pendingAction === "save" ? "disabled" : ""}>${pendingAction === "save" ? "保存中..." : "保存扫描目录"}</button><button class="ghost-button" data-action="start-library-scan" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scan" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scan" ? "扫描启动中..." : "触发扫描"}</button><button class="ghost-button" data-action="start-library-scrape" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scrape" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scrape" ? "抓取启动中..." : "触发抓取"}</button><button class="ghost-button" data-action="refresh-library-tasks">刷新任务</button></div>${runningTask ? renderInlineTaskBanner(runningTask) : ""}</div><div class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Task Feed</span><h2>当前库任务</h2></div></div>${tasks.length > 0 ? `<div class="task-feed">${tasks.slice(0, 8).map(renderTaskCard).join("")}</div>` : `<div class="empty-card compact-empty"><h3>当前还没有任务</h3><p>先保存扫描目录，再触发扫描或抓取。</p></div>`}<div class="worker-note" data-last-updated-utc="${escapeHtml(summary.lastUpdatedUtc)}"><div class="note-label">摘要刷新</div><div class="note-value">${formatDate(summary.lastUpdatedUtc)}</div></div></div></section><section class="surface-card video-results-surface"><div class="section-header"><div><span class="eyebrow">Videos</span><h2>影片结果集</h2></div><div class="section-meta">${response ? `${response.totalCount} items` : `${library.videoCount} indexed`}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-query-field="keyword" data-library-id="${escapeHtml(library.libraryId)}" value="${escapeHtml(draft.keyword)}" placeholder="按标题、VID 或路径筛选" /><select class="select-field" data-query-field="sortBy" data-library-id="${escapeHtml(library.libraryId)}">${option("lastScanDate", draft.sortBy, "最近扫描")}${option("title", draft.sortBy, "标题")}${option("vid", draft.sortBy, "VID")}${option("releaseDate", draft.sortBy, "发行日期")}${option("lastPlayedAt", draft.sortBy, "最近播放")}${option("viewCount", draft.sortBy, "播放次数")}</select><select class="select-field" data-query-field="sortOrder" data-library-id="${escapeHtml(library.libraryId)}">${option("desc", draft.sortOrder, "降序")}${option("asc", draft.sortOrder, "升序")}</select><label class="toggle-chip"><input type="checkbox" data-query-field="missingSidecarOnly" data-library-id="${escapeHtml(library.libraryId)}" ${draft.missingSidecarOnly ? "checked" : ""}/><span>仅看缺 sidecar</span></label><button class="primary-button" data-action="apply-library-video-query" data-library-id="${escapeHtml(library.libraryId)}">应用筛选</button><button class="ghost-button" data-action="reset-library-video-query" data-library-id="${escapeHtml(library.libraryId)}">重置</button><button class="ghost-button" data-action="refresh-library-videos" data-library-id="${escapeHtml(library.libraryId)}" ${pendingAction === "refresh-videos" ? "disabled" : ""}>${pendingAction === "refresh-videos" ? "刷新中..." : "刷新结果"}</button></div>${routeDataLoading && !response ? renderRouteLoading("正在拉取当前媒体库影片结果集...") : renderVideoResults(response, draft, backToHash, "当前媒体库还没有影片，请先执行扫描。")}</section>`;
+  return `<section class="metric-grid">${metric("影片数", String(response?.totalCount ?? library.videoCount), "来自库结果集总数")}${metric("库内任务", String(tasks.length), "当前库最近任务")}${metric("最近扫描", library.lastScanAt ? formatDate(library.lastScanAt) : "未记录", "完成扫描后由 Worker 回写")}${metric("最近抓取", library.lastScrapeAt ? formatDate(library.lastScrapeAt) : "未记录", "完成抓取后回写")}</section><section class="split-layout"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Library Workbench</span><h2>${escapeHtml(library.name)}</h2></div><button class="danger-button" data-action="open-delete-dialog" data-library-id="${escapeHtml(library.libraryId)}">删除媒体库</button></div><div class="library-detail-grid"><div class="detail-card"><span>Library ID</span><strong>${escapeHtml(library.libraryId)}</strong></div><div class="detail-card"><span>主路径</span><strong>${escapeHtml(library.path || "未配置")}</strong></div><div class="detail-card"><span>运行中任务</span><strong>${hasRunningTask ? "Yes" : "No"}</strong></div><div class="detail-card"><span>Worker</span><strong>${worker.healthy ? "Ready" : "Unavailable"}</strong></div></div><div class="scan-path-editor"><label class="field-label">默认扫描目录</label><textarea class="scan-path-textarea" name="library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}">${escapeHtml(scanPathDraft)}</textarea><div class="inline-note">保存后会写回库默认扫描目录。执行扫描时优先使用这里的路径。</div></div><div class="action-row"><button class="primary-button" data-action="save-library-scan-paths" data-library-id="${escapeHtml(library.libraryId)}" ${pendingAction === "save" ? "disabled" : ""}>${pendingAction === "save" ? "保存中..." : "保存扫描目录"}</button><button class="ghost-button" data-action="start-library-scan" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scan" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scan" ? "扫描启动中..." : "触发扫描"}</button><button class="ghost-button" data-action="start-library-scrape" data-library-id="${escapeHtml(library.libraryId)}" ${(pendingAction === "scrape" || hasRunningTask) ? "disabled" : ""}>${pendingAction === "scrape" ? "抓取启动中..." : "触发抓取"}</button><button class="ghost-button" data-action="refresh-library-tasks">刷新任务</button></div>${runningTask ? renderInlineTaskBanner(runningTask) : ""}</div><div class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Task Feed</span><h2>当前库任务</h2></div></div>${tasks.length > 0 ? `<div class="task-feed">${sortTasksByUrgency(tasks).slice(0, 8).map((task) => renderTaskCard(task, pendingRetryTaskId)).join("")}</div>` : `<div class="empty-card compact-empty"><h3>当前还没有任务</h3><p>先保存扫描目录，再触发扫描或抓取。</p></div>`}<div class="worker-note" data-last-updated-utc="${escapeHtml(summary.lastUpdatedUtc)}"><div class="note-label">摘要刷新</div><div class="note-value">${formatDate(summary.lastUpdatedUtc)}</div></div></div></section><section class="surface-card video-results-surface"><div class="section-header"><div><span class="eyebrow">Videos</span><h2>影片结果集</h2></div><div class="section-meta">${response ? `${response.totalCount} items` : `${library.videoCount} indexed`}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-query-field="keyword" data-library-id="${escapeHtml(library.libraryId)}" value="${escapeHtml(draft.keyword)}" placeholder="按标题、VID 或路径筛选" /><select class="select-field" data-query-field="sortBy" data-library-id="${escapeHtml(library.libraryId)}">${option("lastScanDate", draft.sortBy, "最近扫描")}${option("title", draft.sortBy, "标题")}${option("vid", draft.sortBy, "VID")}${option("releaseDate", draft.sortBy, "发行日期")}${option("lastPlayedAt", draft.sortBy, "最近播放")}${option("viewCount", draft.sortBy, "播放次数")}</select><select class="select-field" data-query-field="sortOrder" data-library-id="${escapeHtml(library.libraryId)}">${option("desc", draft.sortOrder, "降序")}${option("asc", draft.sortOrder, "升序")}</select><label class="toggle-chip"><input type="checkbox" data-query-field="missingSidecarOnly" data-library-id="${escapeHtml(library.libraryId)}" ${draft.missingSidecarOnly ? "checked" : ""}/><span>仅看缺 sidecar</span></label><button class="primary-button" data-action="apply-library-video-query" data-library-id="${escapeHtml(library.libraryId)}">应用筛选</button><button class="ghost-button" data-action="reset-library-video-query" data-library-id="${escapeHtml(library.libraryId)}">重置</button><button class="ghost-button" data-action="refresh-library-videos" data-library-id="${escapeHtml(library.libraryId)}" ${pendingAction === "refresh-videos" ? "disabled" : ""}>${pendingAction === "refresh-videos" ? "刷新中..." : "刷新结果"}</button></div>${routeDataLoading && !response ? renderRouteLoading("正在拉取当前媒体库影片结果集...") : renderVideoResults(response, draft, backToHash, "当前媒体库还没有影片，请先执行扫描。")}</section>`;
 }
 
 function renderVideoRoute(args: { backToHash: string | null; routeDataLoading: boolean; video: VideoDetailDto | null; videoAction: VideoActionState | null; worker: WorkerStatusDto; }): string {
@@ -1726,9 +1796,16 @@ function renderLibraryCard(library: LibraryListItemDto, tasks: readonly WorkerTa
   return `<article class="library-card"><div class="library-card-head"><a href="#/libraries/${escapeHtml(library.libraryId)}" class="library-title">${escapeHtml(library.name)}</a><button class="icon-button" data-action="open-delete-dialog" data-library-id="${escapeHtml(library.libraryId)}" aria-label="删除媒体库">×</button></div><div class="library-stat">${library.videoCount} videos</div><div class="path-list">${scanPaths}</div>${activeTask ? `<div class="task-chip">${escapeHtml(taskHeadline(activeTask))}</div>` : ""}<div class="library-card-actions"><a href="#/libraries/${escapeHtml(library.libraryId)}" class="ghost-link">打开库工作台</a></div></article>`;
 }
 
-function renderTaskCard(task: WorkerTaskDto): string {
+function renderTaskCard(task: WorkerTaskDto, pendingRetryTaskId: string): string {
   const progress = taskProgressText(task);
-  return `<article class="task-card ${escapeHtml(task.status)}"><div class="task-card-head"><strong>${escapeHtml(task.libraryName ?? task.libraryId ?? "全局任务")}</strong><span>${escapeHtml(status(task.status))}</span></div><div class="task-card-title">${escapeHtml(task.type)}</div><div class="task-card-summary">${escapeHtml(task.summary)}</div><div class="task-card-meta"><span>${escapeHtml(task.stage)}</span><span>${escapeHtml(progress)}</span><span>${task.percent}%</span></div><div class="task-card-time">${escapeHtml(formatDate(task.updatedAtUtc))}</div>${task.errorMessage ? `<div class="task-error">${escapeHtml(task.errorMessage)}</div>` : ""}</article>`;
+  const retrying = task.status === "failed" && pendingRetryTaskId === task.id;
+  const showActions = task.status === "failed";
+  const stage = task.stage || "未记录";
+  const retriedFrom = task.retriedFromTaskId
+    ? `<span data-task-retried-from-label>重试来源 ${escapeHtml(task.retriedFromTaskId)}</span>`
+    : "";
+
+  return `<article class="task-card ${escapeHtml(task.status)}" data-task-id="${escapeHtml(task.id)}" data-task-status="${escapeHtml(task.status)}" data-task-retried-from-id="${escapeHtml(task.retriedFromTaskId ?? "")}"><div class="task-card-head"><strong>${escapeHtml(task.libraryName ?? task.libraryId ?? "全局任务")}</strong><span>${escapeHtml(status(task.status))}</span></div><div class="task-card-title">${escapeHtml(task.type)}</div><div class="task-card-summary">${escapeHtml(task.summary)}</div><div class="task-card-meta"><span>${escapeHtml(stage)}</span><span>${escapeHtml(progress)}</span><span>${task.percent}%</span>${retriedFrom}</div><div class="task-card-time">${escapeHtml(formatDate(task.updatedAtUtc))}</div>${task.errorMessage ? `<div class="task-error" data-task-error>${escapeHtml(task.errorMessage)}</div>` : ""}${showActions ? `<div class="task-card-actions"><button class="ghost-button" data-action="open-task-detail" data-task-id="${escapeHtml(task.id)}" data-task-open-detail>失败详情</button>${task.canRetry ? `<button class="primary-button" data-action="retry-task" data-task-id="${escapeHtml(task.id)}" data-task-retry ${retrying ? "disabled" : ""}>${retrying ? "重试中..." : "重试任务"}</button>` : ""}</div>` : ""}</article>`;
 }
 
 function renderInlineTaskBanner(task: WorkerTaskDto): string {
@@ -1763,7 +1840,7 @@ function syncScanPathDrafts(current: Record<string, string>, libraries: readonly
 function normalizeScanPaths(value: string): string[] { const seen = new Set<string>(); const result: string[] = []; for (const item of value.split(/\r?\n/).map((part) => part.trim()).filter(Boolean)) { const key = item.toLowerCase(); if (!seen.has(key)) { seen.add(key); result.push(item); } } return result; }
 function isActiveTask(task: WorkerTaskDto): boolean { return task.status === "queued" || task.status === "running"; }
 function sortTasksByUrgency(tasks: readonly WorkerTaskDto[]): WorkerTaskDto[] { return [...tasks].sort((left, right) => { const leftPriority = left.status === "running" ? 0 : left.status === "queued" ? 1 : left.status === "failed" ? 2 : 3; const rightPriority = right.status === "running" ? 0 : right.status === "queued" ? 1 : right.status === "failed" ? 2 : 3; if (leftPriority !== rightPriority) return leftPriority - rightPriority; return (right.updatedAtUtc || "").localeCompare(left.updatedAtUtc || ""); }); }
-function taskProgressText(task: WorkerTaskDto): string { return task.progressTotal > 0 ? `${task.progressCurrent}/${task.progressTotal}` : task.percent > 0 ? `${task.percent}%` : "等待中"; }
+function taskProgressText(task: WorkerTaskDto): string { return task.progressTotal > 0 ? `${task.progressCurrent}/${task.progressTotal}` : task.percent > 0 ? `${task.percent}%` : task.status === "failed" ? "执行失败" : "等待中"; }
 function buildGlobalActivitySummary(task: WorkerTaskDto, activeCount: number, failedCount: number): string { const target = task.libraryName ?? task.libraryId ?? "全局任务"; const siblings = activeCount > 1 ? `，另有 ${activeCount - 1} 个任务仍在排队或运行` : failedCount > 0 && activeCount === 0 ? `，最近失败 ${failedCount} 个任务` : ""; return `${target} 正在执行 ${task.type} · ${taskHeadline(task)}${siblings}`; }
 function taskHeadline(task: WorkerTaskDto): string { const progress = task.progressTotal > 0 ? ` ${task.progressCurrent}/${task.progressTotal}` : ""; return `${status(task.status)} · ${task.type} · ${task.percent}%${progress}`; }
 function status(value: string): string { return value === "queued" ? "排队中" : value === "running" ? "运行中" : value === "succeeded" ? "已完成" : value === "failed" ? "失败" : value; }

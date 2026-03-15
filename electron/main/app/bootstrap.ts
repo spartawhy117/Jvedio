@@ -13,6 +13,7 @@ import { prepareDRegressionEnvironment, runDRegression } from "../testing/dRegre
 import { prepareFavoritesRegressionEnvironment, runFavoritesRegression } from "../testing/favoritesRegression";
 import { prepareSeriesRegressionEnvironment, runSeriesRegression } from "../testing/seriesRegression";
 import { prepareSettingsRegressionEnvironment, runSettingsRegression } from "../testing/settingsRegression";
+import { prepareTasksRegressionEnvironment, runTasksRegression } from "../testing/tasksRegression";
 import { WorkerProcessController } from "../worker/workerProcess";
 
 async function bootstrap(): Promise<void> {
@@ -26,6 +27,7 @@ async function bootstrap(): Promise<void> {
   const favoritesRegressionEnvironment = await prepareFavoritesRegressionEnvironment(electronRoot);
   const seriesRegressionEnvironment = await prepareSeriesRegressionEnvironment(electronRoot);
   const settingsRegressionEnvironment = await prepareSettingsRegressionEnvironment(electronRoot);
+  const tasksRegressionEnvironment = await prepareTasksRegressionEnvironment(electronRoot);
   const workerController = new WorkerProcessController(electronRoot);
 
   registerAppLifecycle(workerController);
@@ -104,6 +106,13 @@ async function bootstrap(): Promise<void> {
 
   if (settingsRegressionEnvironment) {
     const success = await runSettingsRegression(mainWindow, settingsRegressionEnvironment);
+    await workerController.stop();
+    app.exit(success ? 0 : 1);
+    return;
+  }
+
+  if (tasksRegressionEnvironment) {
+    const success = await runTasksRegression(mainWindow, tasksRegressionEnvironment);
     await workerController.stop();
     app.exit(success ? 0 : 1);
     return;
