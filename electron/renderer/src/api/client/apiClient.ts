@@ -4,6 +4,11 @@ import type {
   CreateLibraryRequest,
   CreateLibraryResponse,
   DeleteLibraryResponse,
+  GetActorDetailResponse,
+  GetActorsRequest,
+  GetActorsResponse,
+  GetActorVideosRequest,
+  GetActorVideosResponse,
   GetBootstrapResponse,
   GetLibrariesResponse,
   GetLibraryVideosRequest,
@@ -103,6 +108,39 @@ export class ApiClient {
     const queryString = searchParams.toString();
     const path = `/api/libraries/${encodeURIComponent(libraryId)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`;
     return this.request<GetLibraryVideosResponse>(path);
+  }
+
+  public getActors(request: GetActorsRequest): Promise<GetActorsResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+
+    const queryString = searchParams.toString();
+    return this.request<GetActorsResponse>(`/api/actors${queryString.length > 0 ? `?${queryString}` : ""}`);
+  }
+
+  public getActorDetail(actorId: string): Promise<GetActorDetailResponse> {
+    return this.request<GetActorDetailResponse>(`/api/actors/${encodeURIComponent(actorId)}`);
+  }
+
+  public getActorVideos(actorId: string, request: GetActorVideosRequest): Promise<GetActorVideosResponse> {
+    const searchParams = new URLSearchParams();
+    if (request.keyword.trim().length > 0) {
+      searchParams.set("keyword", request.keyword.trim());
+    }
+    searchParams.set("sortBy", request.sortBy);
+    searchParams.set("sortOrder", request.sortOrder);
+    searchParams.set("pageIndex", String(request.pageIndex));
+    searchParams.set("pageSize", String(request.pageSize));
+
+    const queryString = searchParams.toString();
+    const path = `/api/actors/${encodeURIComponent(actorId)}/videos${queryString.length > 0 ? `?${queryString}` : ""}`;
+    return this.request<GetActorVideosResponse>(path);
   }
 
   public startLibraryScan(libraryId: string, request: StartLibraryScanRequest): Promise<StartLibraryScanResponse> {

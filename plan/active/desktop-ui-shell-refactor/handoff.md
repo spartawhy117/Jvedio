@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员线的 Worker 查询接口第一轮也已补齐：`GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos` 已落地。下一步建议进入演员页 renderer 闭环与聚焦回归。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员页 renderer 第一轮闭环也已完成：Actors 路由壳、列表结果集、筛选排序、关联影片抽屉、演员详情头部消费和 `regression:actors` 已接通。下一步建议进入演员页增强收口。
 
 ## Latest Progress
 
@@ -122,13 +122,19 @@
   - 已新增 `Jvedio.Contracts/Actors` 下的演员列表、详情、关联影片 DTO
   - 已新增 `Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`
   - 当前演员头像字段暂统一返回空，待后续梳理 sqlite `ActorID` 与正式头像缓存命名映射后再补稳定路径解析
+- 已完成演员页 renderer 第一轮闭环：
+  - renderer 已新增 `#/actors` 路由、Actors 导航入口与查询参数同步
+  - Actors 页已支持演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉
+  - Actors 抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、关联库和影片列表
+  - 已新增 `electron/` `npm run regression:actors` 与 `electron/main/testing/actorsRegression.ts`
+  - `regression:actors` 当前通过扫描两部样例影片后向隔离 sqlite 副本注入演员映射，稳定覆盖路由壳、结果集、筛选排序和抽屉详情消费
 
 ## Next Recommended Work
 
-1. 继续进入演员页：
-   - 先接演员页路由壳、列表结果集、基础筛选排序和关联影片下钻
-   - 再补演员详情头部消费与 `regression:actors`
-2. 若继续留在设置线做增强：
+1. 继续收口演员页：
+   - 补演员头像真实路径解析与占位图策略
+   - 评估是否增加演员详情到影片详情的上下钻增强、分页和更多排序项
+2. 若切回设置线做增强：
    - 评估补 General 主题项、Data 只读信息区
    - 再决定是否扩为完整 Settings 分组
 
@@ -169,7 +175,13 @@
   - 设置读取
   - 设置保存
   - 恢复默认
-- `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建；若需继续推进演员页，下一步应补 renderer 与聚焦回归。
+- `Jvedio.Worker` 已补齐 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并完成 Release 构建。
+- `electron/` `npm run regression:actors` 已通过，覆盖：
+  - Actors 路由壳
+  - 演员结果集展示
+  - 关键字筛选与作品数排序
+  - 关联影片抽屉
+  - 演员详情头部消费
 
 ## Blockers And Caveats
 

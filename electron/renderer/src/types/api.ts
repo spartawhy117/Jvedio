@@ -144,6 +144,87 @@ export interface GetLibraryVideosResponse {
   totalCount: number;
 }
 
+export interface GetActorsRequest {
+  keyword: string;
+  pageIndex: number;
+  pageSize: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface ActorListItemDto {
+  actorId: string;
+  avatarPath: string | null;
+  libraryCount: number;
+  lastPlayedAt: string | null;
+  lastScanAt: string | null;
+  name: string;
+  videoCount: number;
+  webType: string;
+  webUrl: string;
+}
+
+export interface GetActorsResponse {
+  items: readonly ActorListItemDto[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface ActorDetailDto {
+  actorId: string;
+  avatarPath: string | null;
+  libraryCount: number;
+  libraryIds: readonly string[];
+  libraryNames: readonly string[];
+  lastPlayedAt: string | null;
+  lastScanAt: string | null;
+  name: string;
+  videoCount: number;
+  webType: string;
+  webUrl: string;
+}
+
+export interface GetActorDetailResponse {
+  actor: ActorDetailDto | null;
+}
+
+export interface GetActorVideosRequest {
+  keyword: string;
+  pageIndex: number;
+  pageSize: number;
+  sortBy: string;
+  sortOrder: string;
+}
+
+export interface ActorVideoListItemDto {
+  displayTitle: string;
+  durationSeconds: number;
+  hasFanart: boolean;
+  hasMissingAssets: boolean;
+  hasNfo: boolean;
+  hasPoster: boolean;
+  hasThumb: boolean;
+  libraryId: string;
+  libraryName: string;
+  lastPlayedAt: string | null;
+  lastScanAt: string | null;
+  path: string;
+  rating: number;
+  releaseDate: string | null;
+  title: string;
+  vid: string;
+  videoId: string;
+  viewCount: number;
+}
+
+export interface GetActorVideosResponse {
+  items: readonly ActorVideoListItemDto[];
+  pageIndex: number;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface DeleteLibraryResponse {
   libraryId: string;
   deletedAtUtc: string;

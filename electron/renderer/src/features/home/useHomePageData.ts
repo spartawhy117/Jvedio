@@ -1,16 +1,22 @@
 import { ApiClient, WorkerApiError } from "../../api/client/apiClient.js";
 import { useLibraryNavItems } from "../../app/navigation/useLibraryNavItems.js";
 import {
+  createDefaultActorsRouteQuery,
   createDefaultLibraryVideoRouteQuery,
   ensureRoute,
   toHash,
   type AppRoute,
+  type ActorsRouteQuery,
   type LibraryVideoRouteQuery,
   type SettingsRouteGroup,
 } from "../../app/routes/router.js";
 import type {
+  ActorDetailDto,
   GetSettingsResponse,
+  GetActorsResponse,
   GetBootstrapResponse,
+  GetActorVideosRequest,
+  GetActorVideosResponse,
   GetLibraryVideosResponse,
   RunMetaTubeDiagnosticsRequest,
   RunMetaTubeDiagnosticsResponse,
@@ -45,11 +51,17 @@ type ModalState =
 
 type LibraryActionKind = "refresh-videos" | "save" | "scan" | "scrape";
 interface LibraryActionState { kind: LibraryActionKind; libraryId: string; }
+interface ActorsActionState { kind: "refresh" | "select"; actorId?: string; }
 interface SettingsActionState { kind: "reset" | "save"; }
 interface VideoActionState { kind: "play"; videoId: string; }
 
 interface RendererState {
   appVersion: string;
+  actorDetail: ActorDetailDto | null;
+  actorVideos: GetActorVideosResponse | null;
+  actors: GetActorsResponse | null;
+  actorsAction: ActorsActionState | null;
+  actorsQueryDraft: ActorsRouteQuery;
   bootstrap: GetBootstrapResponse | null;
   inlineError: string | null;
   infoMessage: string | null;
@@ -81,6 +93,11 @@ export class HomePageController {
   private routeLoadVersion = 0;
   private state: RendererState = {
     appVersion: "",
+    actorDetail: null,
+    actorVideos: null,
+    actors: null,
+    actorsAction: null,
+    actorsQueryDraft: createDefaultActorsRouteQuery(),
     bootstrap: null,
     inlineError: null,
     infoMessage: null,
@@ -151,6 +168,11 @@ export class HomePageController {
 
       this.state = {
         ...this.state,
+        actorDetail: route.kind === "actors" ? this.state.actorDetail : null,
+        actorVideos: route.kind === "actors" ? this.state.actorVideos : null,
+        actors: route.kind === "actors" ? this.state.actors : null,
+        actorsAction: null,
+        actorsQueryDraft: syncActorsQueryDraft(this.state.actorsQueryDraft, route),
         bootstrap: { ...bootstrap, taskSummary: tasks.summary },
         libraryVideoDrafts: syncLibraryVideoDrafts(this.state.libraryVideoDrafts, route),
         loading: false,
@@ -188,6 +210,11 @@ export class HomePageController {
     const route = ensureRoute(window.location.hash, libraries);
     this.state = {
       ...this.state,
+      actorDetail: route.kind === "actors" && previousRoute.kind === "actors" ? this.state.actorDetail : null,
+      actorVideos: route.kind === "actors" && previousRoute.kind === "actors" ? this.state.actorVideos : null,
+      actors: route.kind === "actors" && previousRoute.kind === "actors" ? this.state.actors : null,
+      actorsAction: route.kind === "actors" ? this.state.actorsAction : null,
+      actorsQueryDraft: syncActorsQueryDraft(this.state.actorsQueryDraft, route),
       libraryVideoDrafts: syncLibraryVideoDrafts(this.state.libraryVideoDrafts, route),
       route,
       routeDataLoading: route.kind !== "home",
@@ -246,6 +273,34 @@ export class HomePageController {
       return;
     }
 
+    if (target instanceof HTMLInputElement && target.dataset.actorsQueryField === "keyword") {
+      this.state = {
+        ...this.state,
+        actorsQueryDraft: {
+          ...this.state.actorsQueryDraft,
+          keyword: target.value,
+          pageIndex: 0,
+        },
+      };
+      return;
+    }
+
+    if (target instanceof HTMLSelectElement && target.dataset.actorsQueryField) {
+      const current = cloneActorsQuery(this.state.actorsQueryDraft);
+      if (target.dataset.actorsQueryField === "sortBy") {
+        current.sortBy = target.value;
+      }
+      if (target.dataset.actorsQueryField === "sortOrder") {
+        current.sortOrder = target.value === "desc" ? "desc" : "asc";
+      }
+      current.pageIndex = 0;
+      this.state = {
+        ...this.state,
+        actorsQueryDraft: current,
+      };
+      return;
+    }
+
     const libraryId = target instanceof HTMLElement ? target.dataset.libraryId ?? "" : "";
     if (!libraryId) return;
 
@@ -293,6 +348,9 @@ export class HomePageController {
       case "navigate-home":
         window.location.hash = "#/home";
         return;
+      case "navigate-actors":
+        window.location.hash = toHash({ kind: "actors", query: this.state.actorsQueryDraft });
+        return;
       case "navigate-library":
         if (libraryId) window.location.hash = toHash({ kind: "library", libraryId, query: this.getLibraryVideoDraft(libraryId) });
         return;
@@ -326,6 +384,24 @@ export class HomePageController {
         return;
       case "refresh-library-videos":
         await this.refreshLibraryVideos(libraryId);
+        return;
+      case "apply-actors-query":
+        window.location.hash = toHash({ kind: "actors", query: this.state.actorsQueryDraft });
+        return;
+      case "reset-actors-query": {
+        const query = createDefaultActorsRouteQuery();
+        this.state = { ...this.state, actorsQueryDraft: query };
+        window.location.hash = toHash({ kind: "actors", query });
+        return;
+      }
+      case "refresh-actors":
+        await this.refreshActors();
+        return;
+      case "open-actor-drawer":
+        await this.openActorDrawer(actionElement.dataset.actorId ?? "");
+        return;
+      case "close-actor-drawer":
+        this.closeActorDrawer();
         return;
       case "save-settings":
         await this.saveSettings();
@@ -448,6 +524,28 @@ export class HomePageController {
     await this.loadRouteData(true, "已刷新影片结果集。");
     this.state = { ...this.state, libraryAction: null };
     this.render();
+  }
+
+  private async refreshActors(): Promise<void> {
+    this.state = { ...this.state, actorsAction: { kind: "refresh" }, inlineError: null, infoMessage: null };
+    this.render();
+    await this.loadRouteData(true, "已刷新演员结果集。");
+    this.state = { ...this.state, actorsAction: null };
+    this.render();
+  }
+
+  private async openActorDrawer(actorId: string): Promise<void> {
+    if (!actorId || this.state.route.kind !== "actors") return;
+    const query = { ...this.state.actorsQueryDraft, actorId };
+    this.state = { ...this.state, actorsAction: { kind: "select", actorId }, actorsQueryDraft: query };
+    window.location.hash = toHash({ kind: "actors", query });
+  }
+
+  private closeActorDrawer(): void {
+    if (this.state.route.kind !== "actors") return;
+    const query = { ...this.state.actorsQueryDraft, actorId: "" };
+    this.state = { ...this.state, actorsQueryDraft: query, actorsAction: null };
+    window.location.hash = toHash({ kind: "actors", query });
   }
 
   private async saveSettings(): Promise<void> {
@@ -573,6 +671,11 @@ export class HomePageController {
         return;
       }
 
+      if (route.kind === "actors") {
+        await this.loadActorsRouteData(route.query, version, infoMessage);
+        return;
+      }
+
       if (route.kind === "settings") {
         const settings = await this.apiClient.getSettings();
         if (version !== this.routeLoadVersion) return;
@@ -609,6 +712,38 @@ export class HomePageController {
       infoMessage: infoMessage ?? this.state.infoMessage,
       inlineError: null,
       libraryVideos: { ...this.state.libraryVideos, [libraryId]: response },
+      routeDataLoading: false,
+      videoDetail: null,
+    };
+    this.render();
+  }
+
+  private async loadActorsRouteData(query: ActorsRouteQuery, version = this.routeLoadVersion, infoMessage?: string): Promise<void> {
+    if (!this.apiClient) return;
+    const actors = await this.apiClient.getActors(query);
+    if (version !== this.routeLoadVersion) return;
+
+    let actorDetail: ActorDetailDto | null = null;
+    let actorVideos: GetActorVideosResponse | null = null;
+    const selectedActorId = query.actorId.trim();
+    if (selectedActorId.length > 0) {
+      const [detailResponse, videosResponse] = await Promise.all([
+        this.apiClient.getActorDetail(selectedActorId),
+        this.apiClient.getActorVideos(selectedActorId, createDefaultActorVideosRequest()),
+      ]);
+      if (version !== this.routeLoadVersion) return;
+      actorDetail = detailResponse.actor;
+      actorVideos = videosResponse;
+    }
+
+    this.state = {
+      ...this.state,
+      actorDetail,
+      actorVideos,
+      actorsAction: null,
+      actors,
+      inlineError: null,
+      infoMessage: infoMessage ?? this.state.infoMessage,
       routeDataLoading: false,
       videoDetail: null,
     };
@@ -764,25 +899,35 @@ export class HomePageController {
     const worker = bootstrap?.worker ?? emptyWorker();
     const title = this.state.route.kind === "home"
       ? "媒体库总览"
+      : this.state.route.kind === "actors"
+        ? (this.state.actorDetail?.name ?? "演员")
       : this.state.route.kind === "library"
         ? (this.findLibrary(this.state.route.libraryId)?.name ?? "媒体库")
         : this.state.route.kind === "settings"
           ? "设置"
         : (this.state.videoDetail?.displayTitle ?? "影片详情");
     const routeBody = this.state.loading ? renderLoading() : this.renderRouteBody(libraries, worker);
-    const eyebrow = this.state.route.kind === "home" ? "Home" : this.state.route.kind === "library" ? "Library" : this.state.route.kind === "settings" ? "Settings" : "Video";
+    const eyebrow = this.state.route.kind === "home"
+      ? "Home"
+      : this.state.route.kind === "actors"
+        ? "Actors"
+        : this.state.route.kind === "library"
+          ? "Library"
+          : this.state.route.kind === "settings"
+            ? "Settings"
+            : "Video";
 
     this.rootElement.innerHTML = `
       <main class="app-shell">
         <aside class="shell-sidebar">
-          <div class="sidebar-header"><span class="brand-mark">JV</span><div><div class="brand-title">Jvedio Desktop</div><div class="brand-subtitle">Batch 4 / Settings</div></div></div>
+          <div class="sidebar-header"><span class="brand-mark">JV</span><div><div class="brand-title">Jvedio Desktop</div><div class="brand-subtitle">Batch 5 / Actors</div></div></div>
           <button class="primary-button wide-button" data-action="open-create-dialog">新建媒体库</button>
-          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "general" })}"><span>Settings</span><small>3 groups</small></a></nav>
+          <nav class="primary-nav"><a class="nav-link ${this.state.route.kind === "home" ? "active" : ""}" href="#/home"><span>Home</span><small>${libraries.length} libs</small></a><a class="nav-link ${this.state.route.kind === "actors" ? "active" : ""}" href="${toHash({ kind: "actors", query: this.state.actorsQueryDraft })}"><span>Actors</span><small>${this.state.actors?.totalCount ?? 0} cast</small></a><a class="nav-link ${this.state.route.kind === "settings" ? "active" : ""}" href="${toHash({ kind: "settings", group: "general" })}"><span>Settings</span><small>3 groups</small></a></nav>
           <section class="nav-section"><div class="nav-section-label">Libraries</div>${renderNav(libraries, this.state.route)}</section>
           <section class="sidebar-footer"><div class="footer-card"><div class="footer-label">Worker</div><div class="footer-value ${worker.healthy ? "status-ok" : "status-error"}">${escapeHtml(worker.status)}</div><div class="footer-hint">${escapeHtml(bootstrap?.app.version ?? this.state.appVersion)}</div></div></section>
         </aside>
         <section class="shell-content">
-          <header class="content-header"><div><span class="eyebrow">${eyebrow}</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(routeDescription(this.state.route.kind))}</p></div><div class="header-actions"><button class="ghost-button" data-action="refresh-home">刷新</button>${this.state.route.kind === "library" || this.state.route.kind === "settings" ? `<button class="ghost-button" data-action="navigate-home">返回 Home</button>` : ""}${this.state.route.kind === "video" && this.state.videoDetail ? `<button class="ghost-button" data-action="navigate-library" data-library-id="${escapeHtml(this.state.videoDetail.libraryId)}">返回媒体库</button>` : ""}</div></header>
+          <header class="content-header"><div><span class="eyebrow">${eyebrow}</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(routeDescription(this.state.route.kind))}</p></div><div class="header-actions"><button class="ghost-button" data-action="refresh-home">刷新</button>${this.state.route.kind === "library" || this.state.route.kind === "settings" || this.state.route.kind === "actors" ? `<button class="ghost-button" data-action="navigate-home">返回 Home</button>` : ""}${this.state.route.kind === "video" && this.state.videoDetail ? `<button class="ghost-button" data-action="navigate-library" data-library-id="${escapeHtml(this.state.videoDetail.libraryId)}">返回媒体库</button>` : ""}</div></header>
           ${this.state.workerWarning ? `<div class="page-banner warning-banner">${escapeHtml(this.state.workerWarning)}</div>` : ""}
           ${this.state.inlineError ? `<div class="page-banner error-banner">${escapeHtml(this.state.inlineError)}</div>` : ""}
           ${this.state.infoMessage ? `<div class="page-banner info-banner">${escapeHtml(this.state.infoMessage)}</div>` : ""}
@@ -795,6 +940,18 @@ export class HomePageController {
   private renderRouteBody(libraries: readonly LibraryListItemDto[], worker: WorkerStatusDto): string {
     const summary = this.state.bootstrap?.taskSummary ?? emptySummary();
     if (this.state.route.kind === "home") return renderHome(libraries, summary, worker, this.state.tasks);
+    if (this.state.route.kind === "actors") {
+      return renderActorsRoute({
+        actorDetail: this.state.actorDetail,
+        actorVideos: this.state.actorVideos,
+        actors: this.state.actors,
+        currentQuery: this.state.actorsQueryDraft,
+        routeDataLoading: this.state.routeDataLoading,
+        selectedActorId: this.state.route.query.actorId,
+        selectingActorId: this.state.actorsAction?.kind === "select" ? this.state.actorsAction.actorId ?? "" : "",
+        worker,
+      });
+    }
     if (this.state.route.kind === "library") {
       const library = this.findLibrary(this.state.route.libraryId);
       return library ? renderLibraryRoute({
@@ -846,6 +1003,25 @@ function renderHome(libraries: readonly LibraryListItemDto[], summary: TaskSumma
   return `<section class="metric-grid">${metric("媒体库", String(libraries.length), "Home 与左导航共享库清单")}${metric("运行中任务", String(summary.runningCount), "包含扫描与抓取任务")}${metric("今日完成", String(summary.completedTodayCount), "由 SSE 与 /api/tasks 刷新")}${metric("Worker", worker.healthy ? "Healthy" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Libraries</span><h2>媒体库列表</h2></div><button class="ghost-button" data-action="open-create-dialog">添加媒体库</button></div>${libraries.length > 0 ? `<div class="library-grid">${libraries.map((library) => renderLibraryCard(library, tasks)).join("")}</div>` : `<div class="empty-card"><h3>还没有媒体库</h3><p>先创建一个库，再在库页完成扫描、展示和播放验证。</p></div>`}</div><div class="surface-card side-stack"><div class="section-header"><div><span class="eyebrow">Task Summary</span><h2>任务摘要</h2></div></div><div class="task-list">${row("运行中", summary.runningCount)}${row("排队中", summary.queuedCount)}${row("失败", summary.failedCount)}${row("今日完成", summary.completedTodayCount)}</div><div class="task-feed home-task-feed">${tasks.length > 0 ? tasks.slice(0, 5).map(renderTaskCard).join("") : `<div class="empty-task-feed">当前还没有任务记录。</div>`}</div><div class="worker-note"><div class="note-label">最近刷新</div><div class="note-value">${formatDate(summary.lastUpdatedUtc)}</div></div></div></section>`;
 }
 
+function renderActorsRoute(args: {
+  actorDetail: ActorDetailDto | null;
+  actorVideos: GetActorVideosResponse | null;
+  actors: GetActorsResponse | null;
+  currentQuery: ActorsRouteQuery;
+  routeDataLoading: boolean;
+  selectedActorId: string;
+  selectingActorId: string;
+  worker: WorkerStatusDto;
+}): string {
+  const { actorDetail, actorVideos, actors, currentQuery, routeDataLoading, selectedActorId, selectingActorId, worker } = args;
+  const actorCount = actors?.totalCount ?? 0;
+  const selectedVideoCount = actorDetail?.videoCount ?? actorVideos?.totalCount ?? 0;
+  const selectedLibraryCount = actorDetail?.libraryCount ?? 0;
+  const selectedName = actorDetail?.name ?? (selectedActorId ? "已选择演员" : "未选择");
+
+  return `<section class="metric-grid">${metric("演员数", String(actorCount), "来自 /api/actors 聚合结果")}${metric("当前选中", selectedName, "点击结果卡片后打开关联影片抽屉")}${metric("关联影片", String(selectedVideoCount), "来自 /api/actors/{actorId}/videos")}${metric("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout ${selectedActorId ? "" : "single-column"}"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Actors</span><h2>演员结果集</h2></div><div class="section-meta">${actors ? `${actors.totalCount} actors` : "等待加载"}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-actors-query-field="keyword" value="${escapeHtml(currentQuery.keyword)}" placeholder="按演员名、来源站点或来源地址筛选" /><select class="select-field" data-actors-query-field="sortBy">${option("name", currentQuery.sortBy, "姓名")}${option("videoCount", currentQuery.sortBy, "作品数")}${option("libraryCount", currentQuery.sortBy, "媒体库数")}${option("lastPlayedAt", currentQuery.sortBy, "最近播放")}${option("lastScanAt", currentQuery.sortBy, "最近扫描")}</select><select class="select-field" data-actors-query-field="sortOrder">${option("asc", currentQuery.sortOrder, "升序")}${option("desc", currentQuery.sortOrder, "降序")}</select><button class="primary-button" data-action="apply-actors-query">应用筛选</button><button class="ghost-button" data-action="reset-actors-query">重置</button><button class="ghost-button" data-action="refresh-actors" ${routeDataLoading ? "disabled" : ""}>${routeDataLoading ? "刷新中..." : "刷新结果"}</button></div>${routeDataLoading && !actors ? renderRouteLoading("正在拉取演员结果集...") : renderActorResults(actors, currentQuery, selectedActorId, selectingActorId)}</div>${selectedActorId ? renderActorDrawer({ actorDetail, actorVideos, routeDataLoading, selectedLibraryCount }) : ""}</section>`;
+}
+
 function renderLibraryRoute(args: { draft: LibraryVideoRouteQuery; library: LibraryListItemDto; pendingAction: LibraryActionKind | null; response: GetLibraryVideosResponse | undefined; routeDataLoading: boolean; runningTask: WorkerTaskDto | null; scanPathDraft: string; summary: TaskSummaryDto; tasks: readonly WorkerTaskDto[]; worker: WorkerStatusDto; }): string {
   const { draft, library, pendingAction, response, routeDataLoading, runningTask, scanPathDraft, summary, tasks, worker } = args;
   const hasRunningTask = tasks.some((task) => isActiveTask(task));
@@ -883,6 +1059,46 @@ function renderVideoResults(response: GetLibraryVideosResponse | undefined, draf
   if (!response) return `<div class="empty-card"><h3>结果集尚未加载</h3><p>点击“应用筛选”或“刷新结果”后即可查看当前媒体库影片。</p></div>`;
   if (response.items.length === 0) return `<div class="empty-card"><h3>暂无结果</h3><p>${escapeHtml(draft.keyword || draft.missingSidecarOnly ? "当前筛选条件下没有命中影片。" : "当前媒体库还没有影片，请先执行扫描。")}</p></div>`;
   return `<div class="video-result-grid">${response.items.map((video) => `<article class="video-result-card"><div class="video-result-head"><a href="#/videos/${escapeHtml(video.videoId)}" class="video-result-title">${escapeHtml(video.displayTitle)}</a><span class="code-pill">${escapeHtml(video.vid || "NO-VID")}</span></div><div class="video-result-meta"><span>扫描：${escapeHtml(video.lastScanAt ? formatDate(video.lastScanAt) : "未记录")}</span><span>播放：${escapeHtml(video.lastPlayedAt ? formatDate(video.lastPlayedAt) : "未播放")}</span><span>次数：${video.viewCount}</span></div><div class="badge-row">${asset("NFO", video.hasNfo)}${asset("Poster", video.hasPoster)}${asset("Thumb", video.hasThumb)}${asset("Fanart", video.hasFanart)}</div><div class="inline-note">${escapeHtml(video.path)}</div><div class="library-card-actions"><a href="#/videos/${escapeHtml(video.videoId)}" class="ghost-link">查看详情</a></div></article>`).join("")}</div>`;
+}
+
+function renderActorResults(
+  response: GetActorsResponse | null,
+  query: ActorsRouteQuery,
+  selectedActorId: string,
+  selectingActorId: string,
+): string {
+  if (!response) {
+    return `<div class="empty-card"><h3>结果集尚未加载</h3><p>点击“应用筛选”或“刷新结果”后即可查看当前演员聚合结果。</p></div>`;
+  }
+
+  if (response.items.length === 0) {
+    return `<div class="empty-card"><h3>暂无演员</h3><p>${escapeHtml(query.keyword ? "当前筛选条件下没有命中演员。" : "当前还没有演员数据，请先完成扫描或抓取。")}</p></div>`;
+  }
+
+  return `<div class="actor-result-grid">${response.items.map((actor) => {
+    const active = actor.actorId === selectedActorId;
+    const loading = actor.actorId === selectingActorId;
+    return `<article class="actor-result-card ${active ? "selected" : ""}" data-actor-card-id="${escapeHtml(actor.actorId)}"><div class="actor-result-head"><div class="actor-avatar">${escapeHtml(actorInitials(actor.name))}</div><div><div class="actor-result-title">${escapeHtml(actor.name)}</div><div class="library-stat">${actor.videoCount} videos · ${actor.libraryCount} libraries</div></div></div><div class="actor-result-meta"><span>最近扫描：${escapeHtml(actor.lastScanAt ? formatDate(actor.lastScanAt) : "未记录")}</span><span>最近播放：${escapeHtml(actor.lastPlayedAt ? formatDate(actor.lastPlayedAt) : "未记录")}</span></div><div class="badge-row">${actor.webType ? `<span class="asset-badge ok">${escapeHtml(actor.webType)}</span>` : ""}${actor.webUrl ? `<span class="asset-badge ${active ? "ok" : "missing"}">Link</span>` : ""}</div><div class="library-card-actions"><button class="ghost-button" data-action="open-actor-drawer" data-actor-id="${escapeHtml(actor.actorId)}" ${loading ? "disabled" : ""}>${loading ? "加载中..." : active ? "查看中" : "查看关联影片"}</button></div></article>`;
+  }).join("")}</div>`;
+}
+
+function renderActorDrawer(args: {
+  actorDetail: ActorDetailDto | null;
+  actorVideos: GetActorVideosResponse | null;
+  routeDataLoading: boolean;
+  selectedLibraryCount: number;
+}): string {
+  const { actorDetail, actorVideos, routeDataLoading, selectedLibraryCount } = args;
+  if (routeDataLoading && !actorDetail) {
+    return `<aside class="surface-card actor-drawer-surface">${renderRouteLoading("正在拉取演员详情和关联影片...")}</aside>`;
+  }
+
+  if (!actorDetail) {
+    return `<aside class="surface-card actor-drawer-surface"><div class="empty-card compact-empty"><h3>演员详情不可用</h3><p>当前未命中有效演员，请重新选择。</p></div></aside>`;
+  }
+
+  const videoItems = actorVideos?.items ?? [];
+  return `<aside class="surface-card actor-drawer-surface"><div class="section-header"><div><span class="eyebrow">Actor Detail</span><h2 data-actor-drawer-name>${escapeHtml(actorDetail.name)}</h2></div><button class="ghost-button" data-action="close-actor-drawer">关闭</button></div><div class="actor-detail-head"><div class="actor-avatar large">${escapeHtml(actorInitials(actorDetail.name))}</div><div class="actor-detail-copy"><div class="code-pill">${escapeHtml(actorDetail.actorId)}</div><p class="route-copy">当前头部信息和关联影片都来自 Worker actors 查询接口。</p></div></div><div class="library-detail-grid actor-detail-grid">${detail("作品数", String(actorDetail.videoCount))}${detail("媒体库数", String(selectedLibraryCount))}${detail("最近扫描", actorDetail.lastScanAt ? formatDate(actorDetail.lastScanAt) : "未记录")}${detail("最近播放", actorDetail.lastPlayedAt ? formatDate(actorDetail.lastPlayedAt) : "未记录")}</div><div class="worker-note"><div class="note-label">所属媒体库</div><div class="actor-library-list">${actorDetail.libraryNames.length > 0 ? actorDetail.libraryNames.map((item) => `<span class="path-badge">${escapeHtml(item)}</span>`).join("") : `<span class="footer-hint">当前未关联媒体库。</span>`}</div>${actorDetail.webUrl ? `<div class="inline-note">来源：<a class="ghost-link" href="${escapeHtml(actorDetail.webUrl)}">${escapeHtml(actorDetail.webType || actorDetail.webUrl)}</a></div>` : ""}</div><section class="actor-video-list"><div class="section-header"><div><span class="eyebrow">Related Videos</span><h2>关联影片</h2></div><div class="section-meta">${actorVideos?.totalCount ?? 0} items</div></div>${videoItems.length > 0 ? `<div class="task-feed">${videoItems.map((video) => `<article class="video-result-card compact" data-actor-video-id="${escapeHtml(video.videoId)}"><div class="video-result-head"><a href="#/videos/${escapeHtml(video.videoId)}" class="video-result-title">${escapeHtml(video.displayTitle)}</a><span class="code-pill">${escapeHtml(video.vid || "NO-VID")}</span></div><div class="video-result-meta"><span>${escapeHtml(video.libraryName || video.libraryId)}</span><span>扫描：${escapeHtml(video.lastScanAt ? formatDate(video.lastScanAt) : "未记录")}</span><span>播放：${escapeHtml(video.lastPlayedAt ? formatDate(video.lastPlayedAt) : "未播放")}</span></div><div class="badge-row">${asset("NFO", video.hasNfo)}${asset("Poster", video.hasPoster)}${asset("Thumb", video.hasThumb)}${asset("Fanart", video.hasFanart)}</div><div class="inline-note">${escapeHtml(video.path)}</div></article>`).join("")}</div>` : `<div class="empty-card compact-empty"><h3>暂无关联影片</h3><p>当前演员还没有关联影片结果。</p></div>`}</section></aside>`;
 }
 
 function renderSettingsGroupLink(group: SettingsRouteGroup, currentGroup: SettingsRouteGroup, title: string, note: string): string {
@@ -936,15 +1152,18 @@ function asset(label: string, exists: boolean): string { return `<span class="as
 function option(value: string, current: string, label: string): string { return `<option value="${escapeHtml(value)}" ${value === current ? "selected" : ""}>${escapeHtml(label)}</option>`; }
 function renderRouteLoading(message: string): string { return `<section class="loading-shell"><div class="loading-card"><span class="eyebrow">Loading</span><h2>正在同步路由数据</h2><p>${escapeHtml(message)}</p></div></section>`; }
 function renderLoading(): string { return `<section class="loading-shell"><div class="loading-card"><span class="eyebrow">Loading</span><h2>正在加载桌面壳数据</h2><p>读取 bootstrap、libraries、tasks 和当前路由所需的数据。</p></div></section>`; }
-function routeDescription(kind: AppRoute["kind"]): string { return kind === "home" ? "当前壳层已覆盖库列表、任务摘要和设置入口。" : kind === "library" ? "这里同时承载扫描/抓取工作台和影片结果集。" : kind === "settings" ? "第四批聚焦真正落库且能被播放/抓取链消费的设置项。" : "基础详情、播放调用和播放写回已在这一页打通。"; }
+function routeDescription(kind: AppRoute["kind"]): string { return kind === "home" ? "当前壳层已覆盖库列表、任务摘要和设置入口。" : kind === "actors" ? "这里承载演员聚合结果、筛选排序和关联影片抽屉。" : kind === "library" ? "这里同时承载扫描/抓取工作台和影片结果集。" : kind === "settings" ? "第四批聚焦真正落库且能被播放/抓取链消费的设置项。" : "基础详情、播放调用和播放写回已在这一页打通。"; }
+function cloneActorsQuery(query: ActorsRouteQuery): ActorsRouteQuery { return { actorId: query.actorId, keyword: query.keyword, pageIndex: query.pageIndex, pageSize: query.pageSize, sortBy: query.sortBy, sortOrder: query.sortOrder }; }
 function cloneQuery(query: LibraryVideoRouteQuery): LibraryVideoRouteQuery { return { keyword: query.keyword, missingSidecarOnly: query.missingSidecarOnly, pageIndex: query.pageIndex, pageSize: query.pageSize, sortBy: query.sortBy, sortOrder: query.sortOrder }; }
 function createDefaultSettingsResponse(): GetSettingsResponse { return { general: { currentLanguage: "zh-CN", debug: false }, metaTube: { requestTimeoutSeconds: 60, serverUrl: "" }, playback: { playerPath: "", useSystemDefaultFallback: true } }; }
+function createDefaultActorVideosRequest(): GetActorVideosRequest { return { keyword: "", pageIndex: 0, pageSize: 12, sortBy: "lastScanAt", sortOrder: "desc" }; }
 function createSettingsDraft(settings: GetSettingsResponse): UpdateSettingsRequest { return { general: { ...settings.general }, metaTube: { ...settings.metaTube }, playback: { ...settings.playback }, resetToDefaults: false }; }
 function cloneSettingsDraft(draft: UpdateSettingsRequest): UpdateSettingsRequest { return { general: draft.general ? { ...draft.general } : undefined, metaTube: draft.metaTube ? { ...draft.metaTube } : undefined, playback: draft.playback ? { ...draft.playback } : undefined, resetToDefaults: draft.resetToDefaults }; }
 function isSettingsDirty(draft: UpdateSettingsRequest, settings: GetSettingsResponse): boolean { return (draft.general?.currentLanguage ?? "") !== settings.general.currentLanguage || Boolean(draft.general?.debug) !== settings.general.debug || (draft.metaTube?.serverUrl ?? "") !== settings.metaTube.serverUrl || Number(draft.metaTube?.requestTimeoutSeconds ?? 0) !== settings.metaTube.requestTimeoutSeconds || (draft.playback?.playerPath ?? "") !== settings.playback.playerPath || Boolean(draft.playback?.useSystemDefaultFallback) !== settings.playback.useSystemDefaultFallback; }
 function settingsGroupTitle(group: SettingsRouteGroup): string { return group === "general" ? "General" : group === "metaTube" ? "MetaTube" : "Playback"; }
 function settingsGroupDescription(group: SettingsRouteGroup): string { return group === "general" ? "语言与调试开关。" : group === "metaTube" ? "抓取服务地址和请求超时。" : "播放器路径和系统默认回退策略。"; }
 function toSettingsGroup(value: string | undefined): SettingsRouteGroup { return value === "metaTube" || value === "playback" ? value : "general"; }
+function syncActorsQueryDraft(current: ActorsRouteQuery, route: AppRoute): ActorsRouteQuery { return route.kind === "actors" ? cloneActorsQuery(route.query) : current; }
 function syncLibraryVideoDrafts(current: Record<string, LibraryVideoRouteQuery>, route: AppRoute): Record<string, LibraryVideoRouteQuery> { return route.kind === "library" ? { ...current, [route.libraryId]: cloneQuery(route.query) } : current; }
 function syncScanPathDrafts(current: Record<string, string>, libraries: readonly LibraryListItemDto[]): Record<string, string> { const next: Record<string, string> = {}; for (const library of libraries) next[library.libraryId] = current[library.libraryId] ?? library.scanPaths.join("\n"); return next; }
 function normalizeScanPaths(value: string): string[] { const seen = new Set<string>(); const result: string[] = []; for (const item of value.split(/\r?\n/).map((part) => part.trim()).filter(Boolean)) { const key = item.toLowerCase(); if (!seen.has(key)) { seen.add(key); result.push(item); } } return result; }
@@ -953,6 +1172,7 @@ function taskHeadline(task: WorkerTaskDto): string { const progress = task.progr
 function status(value: string): string { return value === "queued" ? "排队中" : value === "running" ? "运行中" : value === "succeeded" ? "已完成" : value === "failed" ? "失败" : value; }
 function formatDate(value: string): string { const date = new Date(value); return Number.isNaN(date.getTime()) ? value || "未记录" : new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short" }).format(date); }
 function formatDuration(minutes: number): string { if (!minutes || minutes <= 0) return "未记录"; const hours = Math.floor(minutes / 60); const rest = minutes % 60; return hours > 0 ? `${hours} 小时${rest > 0 ? ` ${rest} 分钟` : ""}` : `${minutes} 分钟`; }
+function actorInitials(name: string): string { const trimmed = name.trim(); return trimmed.length >= 2 ? trimmed.slice(0, 2).toUpperCase() : (trimmed || "?").toUpperCase(); }
 function emptySummary(): TaskSummaryDto { return { completedTodayCount: 0, failedCount: 0, lastUpdatedUtc: new Date().toISOString(), queuedCount: 0, runningCount: 0 }; }
 function emptyWorker(): WorkerStatusDto { return { baseUrl: "", eventStreamPath: "/api/events", healthy: false, startedAtUtc: "", status: "starting" }; }
 function escapeHtml(value: string): string { return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;"); }

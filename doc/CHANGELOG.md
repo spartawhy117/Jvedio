@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 完成演员页 renderer 第一轮闭环：新增 `#/actors` 路由、Actors 一级导航入口、演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉；抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、所属库和关联影片列表。
+- 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 actors 查询参数同步、详情抽屉状态、actors DTO 类型和对应页面样式。
+- 新增 `electron/main/testing/actorsRegression.ts` 与 `electron/` `npm run regression:actors`，通过临时 sqlite 副本、样例影片扫描和直接注入演员映射，稳定覆盖 Actors 路由壳、结果集、筛选排序和抽屉详情消费。
 - 补齐演员线第一轮 Worker 查询接口：新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并在 `Jvedio-WPF/Jvedio.Contracts/Actors/` 下新增演员列表、详情、关联影片 DTO。
 - 新增 `Jvedio-WPF/Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`，打通 `actor_info`、`metadata_to_actor`、`metadata`、`metadata_video` 的聚合查询，支持演员关键字筛选、分页、排序、详情读取和关联影片查询。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`、`contracts-naming.md`、`backend-bridge.md`、`page-actors.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，将演员详情端点、DTO 命名和下一步 renderer 工作面同步到当前规格。
