@@ -23,7 +23,11 @@ async function bootstrap(): Promise<void> {
   const mainWindow = await createMainWindow(electronRoot);
 
   if (c3RegressionEnvironment) {
-    const success = await runC3Regression(mainWindow, c3RegressionEnvironment);
+    const success = await runC3Regression(mainWindow, c3RegressionEnvironment, {
+      stopWorker: async () => {
+        await workerController.stop();
+      }
+    });
     await workerController.stop();
     app.exit(success ? 0 : 1);
     return;

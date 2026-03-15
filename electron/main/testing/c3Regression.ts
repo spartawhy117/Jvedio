@@ -19,13 +19,19 @@ export interface C3RegressionEnvironment {
   sourceAppBaseDir: string;
 }
 
+export interface C3RegressionControls {
+  stopWorker(): Promise<void>;
+}
+
 interface RendererSnapshot {
   hash: string;
   infoBanner: string | null;
   inlineError: string | null;
   libraryCards: string[];
   navItems: string[];
+  taskSummaryLastUpdatedUtc: string | null;
   title: string;
+  workerWarning: string | null;
 }
 
 export async function prepareC3RegressionEnvironment(electronRoot: string): Promise<C3RegressionEnvironment | null> {
@@ -58,9 +64,12 @@ export async function prepareC3RegressionEnvironment(electronRoot: string): Prom
 export async function runC3Regression(
   mainWindow: BrowserWindow,
   environment: C3RegressionEnvironment,
+  controls?: C3RegressionControls,
 ): Promise<boolean> {
   const createdLibraryName = `C3 Regression ${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const createdScanPath = `D:\\Jvedio-C3-Regression\\${createdLibraryName.replace(/\s+/g, "-")}`;
+  const sseLibraryName = `C4 Event Regression ${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const sseScanPath = `D:\\Jvedio-C4-Regression\\${sseLibraryName.replace(/\s+/g, "-")}`;
 
   console.log("[C3-Regression] Starting focused regression for Home MVP.");
 
@@ -91,6 +100,9 @@ export async function runC3Regression(
     const snapshot = await getRendererSnapshot(mainWindow);
     if (snapshot.inlineError) {
       throw new Error(`页面出现错误横幅: ${snapshot.inlineError}`);
+    }
+    if (snapshot.workerWarning) {
+      throw new Error(`页面出现 Worker 警告: ${snapshot.workerWarning}`);
     }
 
     return `标题=${snapshot.title}; 当前路由=${snapshot.hash || "#/home"}; 侧栏库数量=${snapshot.navItems.length}`;
@@ -289,7 +301,188 @@ export async function runC3Regression(
   });
   environment.checks.push(deleteLibrary);
   logCheckResult(deleteLibrary);
-  return deleteLibrary.passed;
+  if (!deleteLibrary.passed) {
+    return false;
+  }
+
+  const sseLibraryChanged = await captureCheck("library.changed 事件驱动同步", async () => {
+    const workerBaseUrl = await getWorkerBaseUrl(mainWindow);
+    const initialSnapshot = await getRendererSnapshot(mainWindow);
+
+    const createResponse = await fetch(`${workerBaseUrl}/api/libraries`, {
+      body: JSON.stringify({
+        name: sseLibraryName,
+        path: sseScanPath,
+        scanPaths: [sseScanPath],
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    });
+    if (!createResponse.ok) {
+      throw new Error(`外部 API 创建媒体库失败，状态码=${createResponse.status}`);
+    }
+
+    const createPayload = await createResponse.json() as {
+      data: {
+        library: {
+          libraryId: string;
+        };
+      } | null;
+    };
+    const createdLibraryId = createPayload.data?.library.libraryId ?? "";
+    if (!createdLibraryId) {
+      throw new Error("外部 API 创建媒体库成功，但未返回 libraryId。");
+    }
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const titles = Array.from(document.querySelectorAll(".library-title"))
+            .map((item) => item.textContent?.trim() ?? "");
+          const navItems = Array.from(document.querySelectorAll(".nav-section .nav-link span"))
+            .map((item) => item.textContent?.trim() ?? "");
+          return titles.includes(${JSON.stringify(sseLibraryName)})
+            && navItems.includes(${JSON.stringify(sseLibraryName)});
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "外部 API 创建媒体库后，UI 未通过 library.changed 自动同步。",
+    );
+
+    const updatedSnapshot = await getRendererSnapshot(mainWindow);
+    if (updatedSnapshot.workerWarning) {
+      throw new Error(`事件同步期间出现 Worker 警告: ${updatedSnapshot.workerWarning}`);
+    }
+
+    await fetch(`${workerBaseUrl}/api/libraries/${encodeURIComponent(createdLibraryId)}`, {
+      method: "DELETE",
+    });
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const titles = Array.from(document.querySelectorAll(".library-title"))
+            .map((item) => item.textContent?.trim() ?? "");
+          const navItems = Array.from(document.querySelectorAll(".nav-section .nav-link span"))
+            .map((item) => item.textContent?.trim() ?? "");
+          return !titles.includes(${JSON.stringify(sseLibraryName)})
+            && !navItems.includes(${JSON.stringify(sseLibraryName)});
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "外部 API 删除媒体库后，UI 未通过 library.changed 自动移除。",
+    );
+
+    return `事件前库数=${initialSnapshot.navItems.length}; 事件后已完成自动新增与移除`;
+  });
+  environment.checks.push(sseLibraryChanged);
+  logCheckResult(sseLibraryChanged);
+  if (!sseLibraryChanged.passed) {
+    return false;
+  }
+
+  const taskSummaryRefresh = await captureCheck("任务摘要刷新", async () => {
+    const workerBaseUrl = await getWorkerBaseUrl(mainWindow);
+    const beforeSnapshot = await getRendererSnapshot(mainWindow);
+    const beforeLastUpdatedUtc = beforeSnapshot.taskSummaryLastUpdatedUtc;
+
+    const response = await fetch(`${workerBaseUrl}/api/libraries`, {
+      body: JSON.stringify({
+        name: `${sseLibraryName}-Task`,
+        path: `${sseScanPath}-Task`,
+        scanPaths: [`${sseScanPath}-Task`],
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    });
+    if (!response.ok) {
+      throw new Error(`触发任务摘要刷新时创建媒体库失败，状态码=${response.status}`);
+    }
+
+    const payload = await response.json() as {
+      data: {
+        library: {
+          libraryId: string;
+        };
+      } | null;
+    };
+    const libraryId = payload.data?.library.libraryId ?? "";
+    if (!libraryId) {
+      throw new Error("任务摘要刷新检查未获取到新建库的 libraryId。");
+    }
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const lastUpdated = document.querySelector(".worker-note")?.getAttribute("data-last-updated-utc");
+          return Boolean(lastUpdated) && lastUpdated !== ${JSON.stringify(beforeLastUpdatedUtc)};
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "task.summary.changed 触发后，任务摘要刷新时间未更新。",
+    );
+
+    await fetch(`${workerBaseUrl}/api/libraries/${encodeURIComponent(libraryId)}`, {
+      method: "DELETE",
+    });
+
+    const afterSnapshot = await getRendererSnapshot(mainWindow);
+    return `任务摘要刷新时间由 ${beforeLastUpdatedUtc ?? "null"} 更新为 ${afterSnapshot.taskSummaryLastUpdatedUtc ?? "null"}`;
+  });
+  environment.checks.push(taskSummaryRefresh);
+  logCheckResult(taskSummaryRefresh);
+  if (!taskSummaryRefresh.passed) {
+    return false;
+  }
+
+  const workerFailureFeedback = await captureCheck("Worker 未就绪错误反馈", async () => {
+    if (!controls) {
+      throw new Error("当前回归环境未注入 Worker 控制器，无法验证停机错误反馈。");
+    }
+
+    await controls.stopWorker();
+    await delay(400);
+
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const button = document.querySelector('[data-action="refresh-home"]');
+          if (!(button instanceof HTMLElement)) {
+            throw new Error("未找到刷新按钮。");
+          }
+
+          button.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const errorBanner = document.querySelector(".error-banner")?.textContent?.trim() ?? "";
+          const warningBanner = document.querySelector(".warning-banner")?.textContent?.trim() ?? "";
+          return errorBanner.includes("Worker") || errorBanner.includes("本地") || warningBanner.includes("Worker");
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "停掉 Worker 后，页面未显示明确错误反馈。",
+    );
+
+    const snapshot = await getRendererSnapshot(mainWindow);
+    return `错误横幅=${snapshot.inlineError ?? "null"}; 警告横幅=${snapshot.workerWarning ?? "null"}`;
+  });
+  environment.checks.push(workerFailureFeedback);
+  logCheckResult(workerFailureFeedback);
+  return workerFailureFeedback.passed;
 }
 
 function resolveReleaseAppBaseDir(electronRoot: string): string {
@@ -342,9 +535,18 @@ async function getRendererSnapshot(mainWindow: BrowserWindow): Promise<RendererS
         navItems: Array.from(document.querySelectorAll(".nav-section .nav-link span"))
           .map((item) => item.textContent?.trim() ?? "")
           .filter((item) => item.length > 0),
-        title: document.querySelector(".content-header h1")?.textContent?.trim() ?? ""
+        taskSummaryLastUpdatedUtc: document.querySelector(".worker-note")?.getAttribute("data-last-updated-utc") ?? null,
+        title: document.querySelector(".content-header h1")?.textContent?.trim() ?? "",
+        workerWarning: document.querySelector(".warning-banner")?.textContent?.trim() ?? null
       }))()
     `,
+  );
+}
+
+async function getWorkerBaseUrl(mainWindow: BrowserWindow): Promise<string> {
+  return executeInRenderer<string>(
+    mainWindow,
+    `window.jvedioWorker.getWorkerBaseUrl()`,
   );
 }
 

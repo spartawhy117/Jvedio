@@ -65,9 +65,25 @@ export class ApiClient {
     return this.request<GetTasksResponse>("/api/tasks");
   }
 
+  public getEventStreamUrl(eventStreamPath: string): string {
+    const normalizedPath = eventStreamPath.startsWith("/") ? eventStreamPath : `/${eventStreamPath}`;
+    return `${this.baseUrl}${normalizedPath}`;
+  }
+
   private async request<TData>(path: string, init?: RequestInit): Promise<TData> {
-    const response = await fetch(`${this.baseUrl}${path}`, init);
-    const payload = await response.json() as ApiResponse<TData>;
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${path}`, init);
+    } catch (error) {
+      throw this.createTransportError(error);
+    }
+
+    let payload: ApiResponse<TData>;
+    try {
+      payload = await response.json() as ApiResponse<TData>;
+    } catch (error) {
+      throw this.createInvalidPayloadError(response.status, error);
+    }
 
     if (!response.ok || !payload.success || !payload.data) {
       throw this.createError(response.status, payload.error, payload.requestId);
@@ -92,4 +108,33 @@ export class ApiClient {
       userMessage: "Worker 请求失败，请稍后重试。"
     });
   }
+
+  private createInvalidPayloadError(statusCode: number, error: unknown): WorkerApiError {
+    return new WorkerApiError("Worker returned an invalid response payload.", {
+      details: normalizeErrorDetails(error),
+      statusCode: statusCode || 500,
+      userMessage: statusCode === 503
+        ? "本地 Worker 尚未就绪，请稍后重试。"
+        : "Worker 返回了无法识别的响应，请查看日志。"
+    });
+  }
+
+  private createTransportError(error: unknown): WorkerApiError {
+    return new WorkerApiError("Worker request could not reach the local service.", {
+      details: normalizeErrorDetails(error),
+      statusCode: 503,
+      userMessage: "无法连接本地 Worker，请确认 Worker 已启动。"
+    });
+  }
+}
+
+function normalizeErrorDetails(error: unknown): unknown {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  return error;
 }

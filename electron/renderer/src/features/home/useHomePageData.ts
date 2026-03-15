@@ -3,8 +3,11 @@ import { useLibraryNavItems } from "../../app/navigation/useLibraryNavItems.js";
 import { ensureRoute, toHash, type AppRoute } from "../../app/routes/router.js";
 import type {
   GetBootstrapResponse,
+  LibraryChangedEventDto,
   LibraryListItemDto,
   TaskSummaryDto,
+  TaskSummaryChangedEventDto,
+  WorkerEventEnvelopeDto,
   WorkerStatusDto
 } from "../../types/api.js";
 import { renderCreateLibraryDialog } from "./CreateLibraryDialog.js";
@@ -49,11 +52,14 @@ interface RendererState {
   loading: boolean;
   modal: ModalState;
   route: AppRoute;
+  workerWarning: string | null;
   workerBaseUrl: string;
 }
 
 export class HomePageController {
   private apiClient: ApiClient | null = null;
+  private eventSource: EventSource | null = null;
+  private eventStreamUrl = "";
   private readonly rootElement: HTMLElement;
   private state: RendererState = {
     appVersion: "",
@@ -63,6 +69,7 @@ export class HomePageController {
     loading: true,
     modal: null,
     route: { kind: "home" },
+    workerWarning: null,
     workerBaseUrl: "",
   };
 
@@ -82,6 +89,9 @@ export class HomePageController {
       if (event.key === "Escape" && this.state.modal) {
         this.closeModal();
       }
+    });
+    window.addEventListener("beforeunload", () => {
+      this.disposeEventStream();
     });
   }
 
@@ -130,14 +140,18 @@ export class HomePageController {
         inlineError: null,
         loading: false,
         route,
+        workerWarning: null,
       };
+      this.ensureEventStream(bootstrap.worker.eventStreamPath);
     } catch (error) {
+      this.disposeEventStream();
       this.state = {
         ...this.state,
         bootstrap: null,
         infoMessage: null,
         inlineError: this.toUserMessage(error),
         loading: false,
+        workerWarning: null,
       };
     }
 
@@ -316,6 +330,159 @@ export class HomePageController {
     return this.state.bootstrap?.libraries.find((library) => library.libraryId === libraryId);
   }
 
+  private ensureEventStream(eventStreamPath: string): void {
+    if (!this.apiClient) {
+      return;
+    }
+
+    if (typeof EventSource === "undefined") {
+      this.setWorkerWarning("当前运行环境不支持 Worker 事件流，任务摘要和库导航需要手动刷新。");
+      return;
+    }
+
+    const nextEventStreamUrl = this.apiClient.getEventStreamUrl(eventStreamPath);
+    if (this.eventSource && this.eventStreamUrl === nextEventStreamUrl) {
+      return;
+    }
+
+    this.disposeEventStream();
+
+    const eventSource = new EventSource(nextEventStreamUrl);
+    this.eventSource = eventSource;
+    this.eventStreamUrl = nextEventStreamUrl;
+
+    eventSource.onopen = () => {
+      this.setWorkerWarning(null);
+    };
+
+    eventSource.onerror = () => {
+      this.setWorkerWarning("Worker 事件流已断开，库导航和任务摘要可能不是最新状态，可手动刷新。");
+    };
+
+    eventSource.addEventListener("library.changed", (event) => {
+      void this.handleLibraryChangedEvent(event);
+    });
+    eventSource.addEventListener("task.summary.changed", (event) => {
+      void this.handleTaskSummaryChangedEvent(event);
+    });
+    eventSource.addEventListener("task.created", () => {
+      void this.refreshTaskSummaryInBackground();
+    });
+    eventSource.addEventListener("task.completed", () => {
+      void this.refreshTaskSummaryInBackground();
+    });
+    eventSource.addEventListener("task.failed", () => {
+      void this.refreshTaskSummaryInBackground();
+    });
+  }
+
+  private disposeEventStream(): void {
+    if (!this.eventSource) {
+      return;
+    }
+
+    this.eventSource.close();
+    this.eventSource = null;
+    this.eventStreamUrl = "";
+  }
+
+  private async handleLibraryChangedEvent(event: Event): Promise<void> {
+    const messageEvent = event as MessageEvent<string>;
+    const envelope = parseWorkerEventEnvelope<LibraryChangedEventDto>(messageEvent.data);
+    if (!envelope) {
+      this.setWorkerWarning("Worker 推送了无法识别的库变更事件，请查看日志。");
+      return;
+    }
+
+    await this.refreshBootstrapInBackground();
+  }
+
+  private async handleTaskSummaryChangedEvent(event: Event): Promise<void> {
+    const messageEvent = event as MessageEvent<string>;
+    const envelope = parseWorkerEventEnvelope<TaskSummaryChangedEventDto>(messageEvent.data);
+    if (!envelope) {
+      this.setWorkerWarning("Worker 推送了无法识别的任务摘要事件，请查看日志。");
+      return;
+    }
+
+    this.applyTaskSummary(envelope.data.summary);
+  }
+
+  private applyTaskSummary(summary: TaskSummaryDto): void {
+    if (!this.state.bootstrap) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      bootstrap: {
+        ...this.state.bootstrap,
+        taskSummary: summary,
+      },
+    };
+    this.render();
+  }
+
+  private async refreshBootstrapInBackground(): Promise<void> {
+    if (!this.apiClient) {
+      return;
+    }
+
+    try {
+      const bootstrap = await this.apiClient.getBootstrap();
+      const route = ensureRoute(window.location.hash || bootstrap.shell.startRoute, bootstrap.libraries);
+
+      if (toHash(route) !== (window.location.hash || "#/home")) {
+        window.location.hash = toHash(route);
+      }
+
+      this.state = {
+        ...this.state,
+        bootstrap,
+        inlineError: null,
+        route,
+        workerWarning: null,
+      };
+      this.ensureEventStream(bootstrap.worker.eventStreamPath);
+      this.render();
+    } catch (error) {
+      this.setWorkerWarning(this.toBackgroundWarningMessage(error));
+    }
+  }
+
+  private async refreshTaskSummaryInBackground(): Promise<void> {
+    if (!this.apiClient || !this.state.bootstrap) {
+      return;
+    }
+
+    try {
+      const response = await this.apiClient.getTasks();
+      this.state = {
+        ...this.state,
+        bootstrap: {
+          ...this.state.bootstrap,
+          taskSummary: response.summary,
+        },
+        workerWarning: null,
+      };
+      this.render();
+    } catch (error) {
+      this.setWorkerWarning(this.toBackgroundWarningMessage(error));
+    }
+  }
+
+  private setWorkerWarning(message: string | null): void {
+    if (this.state.workerWarning === message) {
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      workerWarning: message,
+    };
+    this.render();
+  }
+
   private toUserMessage(error: unknown): string {
     if (error instanceof WorkerApiError) {
       return error.userMessage;
@@ -326,6 +493,11 @@ export class HomePageController {
     }
 
     return "发生未知错误，请稍后重试。";
+  }
+
+  private toBackgroundWarningMessage(error: unknown): string {
+    const userMessage = this.toUserMessage(error);
+    return `${userMessage} 当前已保留上一次成功加载的数据。`;
   }
 
   private render(): void {
@@ -396,6 +568,7 @@ export class HomePageController {
               ${currentRoute.kind === "library" ? `<button class="ghost-button" data-action="navigate-home">返回 Home</button>` : ""}
             </div>
           </header>
+          ${this.state.workerWarning ? `<div class="page-banner warning-banner">${escapeHtml(this.state.workerWarning)}</div>` : ""}
           ${this.state.inlineError ? `<div class="page-banner error-banner">${escapeHtml(this.state.inlineError)}</div>` : ""}
           ${this.state.infoMessage ? `<div class="page-banner info-banner">${escapeHtml(this.state.infoMessage)}</div>` : ""}
           ${this.state.loading ? renderLoadingState() : this.renderRouteContent(libraries, taskSummary, worker, selectedLibrary)}
@@ -482,7 +655,7 @@ function renderHomePage(libraries: readonly LibraryListItemDto[], taskSummary: T
           ${renderSummaryRow("失败", taskSummary.failedCount)}
           ${renderSummaryRow("今日完成", taskSummary.completedTodayCount)}
         </div>
-        <div class="worker-note">
+        <div class="worker-note" data-last-updated-utc="${escapeHtml(taskSummary.lastUpdatedUtc)}">
           <div class="note-label">最近刷新</div>
           <div class="note-value">${formatDateTime(taskSummary.lastUpdatedUtc)}</div>
         </div>
@@ -636,4 +809,12 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function parseWorkerEventEnvelope<TData>(rawValue: string): WorkerEventEnvelopeDto<TData> | null {
+  try {
+    return JSON.parse(rawValue) as WorkerEventEnvelopeDto<TData>;
+  } catch {
+    return null;
+  }
 }

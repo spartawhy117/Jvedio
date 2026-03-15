@@ -17,6 +17,7 @@ builder.Services.AddSingleton<WorkerPathResolver>();
 builder.Services.AddSingleton<SqliteConnectionFactory>();
 builder.Services.AddSingleton<ConfigStoreService>();
 builder.Services.AddSingleton<WorkerStorageBootstrapper>();
+builder.Services.AddSingleton<WorkerEventStreamBroker>();
 builder.Services.AddSingleton<LibraryService>();
 builder.Services.AddSingleton<AppBootstrapService>();
 builder.Services.AddSingleton<TaskSummarySnapshotService>();
@@ -30,9 +31,9 @@ app.UseMiddleware<ApiExceptionMiddleware>();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok(new
 {
-    stage = "C-2",
+    stage = "C-4",
     service = "Jvedio.Worker",
-    status = "home-mvp-api-ready",
+    status = "home-mvp-events-ready",
 }));
 
 app.Run();

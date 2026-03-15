@@ -54,6 +54,25 @@ export interface TaskSummaryDto {
   lastUpdatedUtc: string;
 }
 
+export interface LibraryChangedEventDto {
+  action: string;
+  library: LibraryListItemDto;
+  occurredAtUtc: string;
+}
+
+export interface TaskSummaryChangedEventDto {
+  occurredAtUtc: string;
+  summary: TaskSummaryDto;
+}
+
+export interface WorkerEventEnvelopeDto<TData = unknown> {
+  data: TData;
+  eventId: string;
+  eventName: string;
+  occurredAtUtc: string;
+  topic: string;
+}
+
 export interface GetBootstrapResponse {
   app: AppInfoDto;
   shell: ShellBootstrapDto;

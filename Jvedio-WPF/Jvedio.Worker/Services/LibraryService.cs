@@ -26,15 +26,21 @@ public sealed class LibraryService
     private readonly ConfigStoreService configStoreService;
     private readonly ILogger<LibraryService> logger;
     private readonly SqliteConnectionFactory sqliteConnectionFactory;
+    private readonly TaskSummarySnapshotService taskSummarySnapshotService;
+    private readonly WorkerEventStreamBroker workerEventStreamBroker;
 
     public LibraryService(
         ConfigStoreService configStoreService,
         ILogger<LibraryService> logger,
-        SqliteConnectionFactory sqliteConnectionFactory)
+        SqliteConnectionFactory sqliteConnectionFactory,
+        TaskSummarySnapshotService taskSummarySnapshotService,
+        WorkerEventStreamBroker workerEventStreamBroker)
     {
         this.configStoreService = configStoreService;
         this.logger = logger;
         this.sqliteConnectionFactory = sqliteConnectionFactory;
+        this.taskSummarySnapshotService = taskSummarySnapshotService;
+        this.workerEventStreamBroker = workerEventStreamBroker;
     }
 
     public IReadOnlyList<LibraryListItemDto> GetLibraries()
@@ -105,7 +111,7 @@ public sealed class LibraryService
         EnsureDefaultLibrarySelection(insertedId);
 
         logger.LogInformation("[Worker-HomeMvp] Created library {LibraryId} {LibraryName}", insertedId, name);
-        return new LibraryListItemDto
+        var createdLibrary = new LibraryListItemDto
         {
             LibraryId = insertedId.ToString(),
             Name = name,
@@ -116,6 +122,8 @@ public sealed class LibraryService
             LastScrapeAt = null,
             HasRunningTask = false,
         };
+        PublishLibraryChanged("created", createdLibrary);
+        return createdLibrary;
     }
 
     public void DeleteLibrary(string libraryId)
@@ -161,6 +169,19 @@ public sealed class LibraryService
 
         ReassignDefaultLibrarySelection(parsedId);
         logger.LogInformation("[Worker-HomeMvp] Deleted library {LibraryId} {LibraryName}", parsedId, library.Value.Name);
+        PublishLibraryChanged(
+            "deleted",
+            new LibraryListItemDto
+            {
+                LibraryId = parsedId.ToString(),
+                Name = library.Value.Name,
+                Path = library.Value.Path,
+                ScanPaths = library.Value.ScanPaths,
+                VideoCount = library.Value.VideoCount,
+                LastScanAt = null,
+                LastScrapeAt = null,
+                HasRunningTask = false,
+            });
     }
 
     private static WorkerApiException CreateException(
@@ -267,7 +288,7 @@ public sealed class LibraryService
         using var command = connection.CreateCommand();
         command.CommandText =
             """
-            SELECT DBId, Name, DataType
+            SELECT DBId, Name, DataType, IFNULL(Count, 0), IFNULL(ScanPath, '')
             FROM app_databases
             WHERE DBId = $libraryId
             LIMIT 1;
@@ -280,7 +301,12 @@ public sealed class LibraryService
             return null;
         }
 
-        return new LibraryRecord(reader.GetInt64(0), reader.GetString(1), reader.IsDBNull(2) ? VideoDataType : Convert.ToInt64(reader.GetValue(2)));
+        return new LibraryRecord(
+            reader.GetInt64(0),
+            reader.GetString(1),
+            reader.IsDBNull(2) ? VideoDataType : Convert.ToInt64(reader.GetValue(2)),
+            reader.IsDBNull(3) ? 0 : Convert.ToInt32(reader.GetValue(3)),
+            ParseScanPaths(reader.GetString(4)));
     }
 
     private void DeleteLibraryRows(SqliteConnection connection, SqliteTransaction transaction, long libraryId, long dataType)
@@ -402,5 +428,29 @@ public sealed class LibraryService
         return result is null || result == DBNull.Value ? 0 : Convert.ToInt64(result);
     }
 
-    private readonly record struct LibraryRecord(long Id, string Name, long DataType);
+    private void PublishLibraryChanged(string action, LibraryListItemDto library)
+    {
+        workerEventStreamBroker.Publish(
+            "library.changed",
+            $"library:{library.LibraryId}",
+            new LibraryChangedEvent
+            {
+                Action = action,
+                Library = library,
+                OccurredAtUtc = DateTimeOffset.UtcNow,
+            });
+
+        var taskSummaryChanged = taskSummarySnapshotService.Touch();
+        workerEventStreamBroker.Publish("task.summary.changed", "tasks", taskSummaryChanged);
+    }
+
+    private readonly record struct LibraryRecord(
+        long Id,
+        string Name,
+        long DataType,
+        int VideoCount,
+        IReadOnlyList<string> ScanPaths)
+    {
+        public string Path => ScanPaths.FirstOrDefault() ?? string.Empty;
+    }
 }

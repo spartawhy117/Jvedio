@@ -12,7 +12,7 @@
   - 保留当前 C# 业务能力，未来拆成 `Jvedio.Core`、`Jvedio.Worker`、`Jvedio.Contracts`。
 - 当前阶段：
   - 已进入阶段 C 代码实现。
-  - `C-1`、`C-2`、`C-3` 已完成，且 `C-3` 聚焦回归已通过，当前进入 `C-4` 准备阶段。
+  - `C-1`、`C-2`、`C-3`、`C-4` 已完成，且阶段 C 聚焦回归已通过，当前准备进入阶段 D。
 
 ## 文档结构决策
 
@@ -219,7 +219,7 @@
 - 已修复首轮回归问题：
   - renderer 原生 ES module 导入缺少 `.js` 扩展，导致 Electron 文件页空白
 - 下一步：
-  - 进入 `C-4` 事件与错误收口
+  - 进入阶段 D 的扫描与抓取闭环
 
 #### 阶段 C-4：事件与错误收口
 
@@ -234,6 +234,36 @@
   - Home 能消费库变更事件
   - Home 能消费任务摘要更新
   - 错误提示明确且不吞异常
+
+#### 阶段 C-4 当前结果
+
+- 已落地：
+  - `Jvedio.Worker` 新增 `GET /api/events` SSE 端点
+  - Worker 新增事件流 broker，并发布：
+    - `worker.ready`
+    - `library.changed`
+    - `task.summary.changed`
+  - Home renderer 建立全局单 `EventSource` 连接
+  - Home 已消费 `library.changed` 做后台 bootstrap 刷新
+  - Home 已消费 `task.summary.changed` 做任务摘要局部刷新
+  - `apiClient` 已统一收口 Worker 未就绪、网络失败和请求失败的错误消息
+  - SSE 断开时已展示非阻塞 warning banner，保留最近一次成功状态
+- 已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:c3`
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+- 已完成阶段 C 聚焦回归：
+  - Home 首屏加载
+  - 新建库
+  - 删除库
+  - 左侧导航同步
+  - 库路由跳转
+  - `library.changed` 事件驱动同步
+  - 任务摘要刷新
+  - Worker 未就绪错误反馈
+- 当前结论：
+  - Home MVP 的阶段 C 闭环已完成，可进入阶段 D 的扫描与抓取实现。
 
 ### 阶段 D：实现第二批
 
@@ -319,31 +349,31 @@
 
 ## 下一步执行方案
 
-### 第 1 步：进入 `C-4` 事件与错误收口
+### 第 1 步：进入阶段 D 的扫描与抓取闭环
 
 - 目标：
-  - 为 Home MVP 补齐最小事件流和更完整的异常反馈
+  - 从 Home MVP 扩展到库默认扫描目录、扫描任务与 MetaTube 抓取最小闭环
 - 覆盖范围：
-  - `GET /api/events`
-  - `library.changed`
-  - 任务摘要刷新
-  - Worker 未就绪错误处理
+  - 库扫描目录读取与保存
+  - 触发扫描
+  - 扫描任务状态回传
+  - 抓取结果与 sidecar 输出
 
-### 第 2 步：补阶段 C 整体回归
+### 第 2 步：补阶段 D 的聚焦回归
 
 - 目标：
-  - 在 `C-4` 落地后补一次阶段 C 的端到端回归
+  - 在扫描和抓取链路落地后，补一轮围绕库扫描闭环的自动回归
 - 覆盖范围：
-  - 同步接口
-  - Home 页面闭环
-  - 事件流
-  - 错误流
+  - 扫描目录配置
+  - 扫描触发
+  - 任务状态刷新
+  - sidecar 产物校验
 
 ## 阶段 C 当前推荐动作
 
-- `C-1`、`C-2`、`C-3` 已完成，不再回头调整骨架、同步接口或 Home 基础路由壳范围。
-- `C-3` 聚焦回归已通过，当前直接进入 `C-4`。
-- 在 `C-4` 完成前，仍不提前触碰扫描 / 抓取 / Settings / Video Detail。
+- `C-1`、`C-2`、`C-3`、`C-4` 已完成，不再回头调整 Home MVP 骨架、同步接口、事件流或基础路由壳范围。
+- 阶段 C 聚焦回归已通过，当前直接进入阶段 D。
+- 阶段 D 之前，仍不提前扩散到 Settings / Video Detail / Actors 深化页面实现。
 
 ## 阶段 C 测试策略
 
@@ -364,7 +394,7 @@
     - 删除库
     - 左侧导航同步
     - 路由跳转
-  - `C-4` 完成后，再做阶段 C 的整体回归：
+  - `C-4` 完成后，已补阶段 C 的整体回归：
     - 事件流
     - 错误流
     - Home MVP 端到端闭环
@@ -376,8 +406,9 @@
 
 - `C-3` 聚焦回归已完成，Home 首屏、建库、删库、导航同步和路由跳转结果明确。
 - `C-4` 已补齐 `GET /api/events`、`library.changed`、任务摘要刷新和 Worker 未就绪错误处理。
+- 阶段 C 聚焦回归已补齐事件流和错误流校验，Home MVP 端到端闭环结果明确。
 - `handoff.md`、`plan.md`、`plan.json` 与验证文档中的阶段状态保持一致。
-- 阶段 C 的整体回归范围和进入条件已收敛清楚。
+- 阶段 D 的进入条件和首批回归范围已收敛清楚。
 
 ## 风险与约束
 

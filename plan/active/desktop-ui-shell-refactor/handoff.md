@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 阶段 `C-3` 已完成：renderer Home 最小闭环与聚焦功能回归均已通过；下一步进入 `C-4` 事件与错误收口。
+- 阶段 `C-4` 已完成：Home MVP 的事件流与错误收口已落地，阶段 C 聚焦回归已通过；下一步进入阶段 D 的扫描与抓取闭环。
 
 ## Latest Progress
 
@@ -63,31 +63,48 @@
   - 新增 `electron/` `npm run regression:c3`
   - 使用临时 sqlite 副本自动验证 Home 首屏加载、新建库、删除库、左侧导航同步、库路由跳转
   - 首轮回归发现 renderer 原生 ES module 缺失 `.js` 扩展导致页面空白，已修复并通过二次回归
+- 已完成 `C-4` 事件与错误收口：
+  - Worker 新增 `GET /api/events` SSE 端点与事件流 broker
+  - Worker 已发布 `worker.ready`、`library.changed`、`task.summary.changed`
+  - Home renderer 已建立全局单 `EventSource` 连接，并消费库变更与任务摘要更新
+  - `apiClient` 已将 Worker 未就绪、网络失败与请求失败统一映射为更明确的用户提示
+  - SSE 断开时已展示 warning banner，避免静默失联
+- 已完成阶段 C 聚焦回归增强：
+  - `electron/` `npm run regression:c3`
+  - 新增校验 `library.changed` 事件驱动同步
+  - 新增校验任务摘要刷新
+  - 新增校验 Worker 未就绪错误反馈
+- 已完成最新工程验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:c3`
+  - `Jvedio-WPF/Jvedio.sln` `Release` 构建
 
 ## Next Recommended Work
 
 ### 方案路径
 
 - 路径 A：
-  - 直接进入 `C-4`
+  - 直接进入阶段 D
   - 推荐
 - 路径 B：
-  - 先补 Electron E2E，再进入 `C-4`
+  - 先补 Electron E2E，再进入阶段 D
 - 路径 C：
-  - 先扩 Home 页面视觉细节，再回头补事件流
+  - 先扩 Home 页面视觉细节，再回头补扫描与抓取闭环
 
-1. 进入 `阶段 C-4`：
-   - `GET /api/events`
-   - `library.changed`
-   - 任务摘要刷新
-   - 结构化错误收口
-2. `C-4` 完成后做阶段 C 整体回归：
-   - 事件流
-   - 错误流
-   - Home MVP 端到端闭环
+1. 进入 `阶段 D`：
+   - 库默认扫描目录读取与保存
+   - 扫描触发
+   - MetaTube 抓取最小闭环
+   - sidecar 与任务状态反馈
+2. 为阶段 D 设计新的聚焦回归：
+   - 扫描目录配置
+   - 扫描任务触发
+   - 任务状态刷新
+   - sidecar 输出校验
 3. 如需继续收紧回归，再补 Electron 侧更稳定的 E2E 包装：
    - 保留临时 sqlite 副本策略
-   - 把 `C-3` 聚焦回归纳入固定脚本
+   - 继续沿用现有 `regression:c3` 作为阶段 C 稳定回归入口
 
 ## Validation Steps
 
@@ -110,7 +127,7 @@
 - 测试库创建后已成功回删，`app_databases` 当前恢复为单条 `Jav` 记录。
 - `C-3` renderer Home 闭环代码已落地，可通过 Home 页加载、库列表渲染、新建/删除对话框和 Library 路由壳串起最小 UI 链路。
 - `Jvedio-WPF/Jvedio.sln` 已再次通过 `Release` 构建。
-- `electron/` `npm run regression:c3` 已通过，覆盖 Home 首屏加载、新建库、删除库、左侧导航同步与库路由跳转五项检查。
+- `electron/` `npm run regression:c3` 已通过，覆盖 Home 首屏加载、新建库、删除库、左侧导航同步、库路由跳转、`library.changed` 事件驱动同步、任务摘要刷新与 Worker 未就绪错误反馈。
 
 ## Blockers And Caveats
 

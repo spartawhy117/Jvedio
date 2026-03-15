@@ -308,9 +308,8 @@ Jvedio.Contracts/
   - 创建测试库后已成功回删，sqlite 恢复原状
   - `npm run smoke`
 - 当前结论：
-  - `C-3` 已完成代码落地与工程级验证。
-  - `C-3` 自动聚焦回归已通过。
-  - 下一步进入 `C-4`。
+  - `C-2` 已完成代码落地与工程级验证。
+  - 下一步进入 `C-3`。
 
 ### C-3：renderer Home 闭环
 
@@ -352,6 +351,21 @@ Jvedio.Contracts/
   - Worker 未就绪错误反馈
 - 本步结束要求：
   - Home MVP 端到端闭环完成
+- 当前结果：
+  - Worker 已新增 `GET /api/events` SSE 端点
+  - Worker 已发布 `worker.ready`、`library.changed`、`task.summary.changed`
+  - renderer 已建立全局单 `EventSource` 连接
+  - Home 已消费 `library.changed` 并后台刷新 bootstrap / libraries
+  - Home 已消费 `task.summary.changed` 并局部刷新任务摘要
+  - `apiClient` 已统一收口 Worker 未就绪、网络失败与请求失败的错误提示
+  - SSE 断开时已展示 warning banner，避免 UI 静默失联
+- 已完成验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `electron/` `npm run regression:c3`
+  - `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+- 当前结论：
+  - 阶段 C 已完成，Home MVP 闭环可作为后续扫描与抓取能力的壳层基础。
 
 ## Home MVP 的 Done 定义
 
@@ -441,6 +455,12 @@ Jvedio.Contracts/
 - `library.changed` 事件能被 Home 消费
 - 任务摘要更新能被 Home 消费
 - Worker 未就绪时错误提示正确
+- 当前状态：
+  - 已通过 `electron/` `npm run regression:c3` 自动验证
+  - 当前回归额外覆盖：
+    - `library.changed` 事件驱动同步
+    - 任务摘要刷新
+    - Worker 未就绪 warning banner 反馈
 
 ## 当前风险
 

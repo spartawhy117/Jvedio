@@ -54,6 +54,16 @@
   - 删除当前库后的路由回退与提示消息
 - `C-3` 回归首轮发现并修复：
   - renderer 原生 ES module 导入缺少 `.js` 扩展，导致 Electron 文件页空白
+- `C-4` 当前已完成实现与工程级验证：
+  - `electron/` `npm run build`
+  - `electron/` `npm run smoke`
+  - `Jvedio-WPF/Jvedio.sln` Release 构建通过
+- `C-4` 与阶段 C 聚焦回归已通过：
+  - `electron/` `npm run regression:c3`
+  - `GET /api/events` SSE 订阅链路
+  - `library.changed` 事件驱动同步
+  - 任务摘要刷新
+  - Worker 未就绪错误反馈
 
 ## 第二批：扫描路径、扫描和拉取
 
