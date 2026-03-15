@@ -138,12 +138,51 @@
       "dependencies": [
         "d2-stage-d-focused-regression"
       ],
+      "status": "completed"
+    },
+    {
+      "id": "e1-actor-detail-page",
+      "content": "Stage E-1: Add a dedicated Actor Detail page in the right content area and close the actor-to-video drilldown loop",
+      "dependencies": [
+        "d3-stage-d-validation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "e2-settings-tab-alignment",
+      "content": "Stage E-2: Align Settings tabs and visible controls with the current shell scope without detailed polish",
+      "dependencies": [
+        "e1-actor-detail-page"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "e3-favorites-page",
+      "content": "Stage E-3: Implement the Favorites page using the shared video card and existing playback/detail loop",
+      "dependencies": [
+        "e2-settings-tab-alignment"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "e4-smart-category-pages",
+      "content": "Stage E-4: Implement smart category pages for category and series after Favorites",
+      "dependencies": [
+        "e3-favorites-page"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "e5-embedded-task-feedback",
+      "content": "Stage E-5: Keep scan and scrape feedback embedded through library inline status, global activity bar, and Home summary",
+      "dependencies": [
+        "e4-smart-category-pages"
+      ],
       "status": "pending"
     }
   ],
   "openQuestions": [
-    "Whether the future Worker should use a fixed localhost port or a runtime-selected port.",
-    "Whether a dedicated task center page should ship in the first Electron implementation batch."
+    "Whether the future Worker should use a fixed localhost port or a runtime-selected port."
   ],
   "optionPaths": [
     {
@@ -153,5 +192,5 @@
       "status": "selected"
     }
   ],
-  "updatedAt": "2026-03-15"
+  "updatedAt": "2026-03-16"
 }

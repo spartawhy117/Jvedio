@@ -106,3 +106,80 @@
   - 跟随 `validation.md` 的第四批用例。
 - Exit condition:
   - 设置页面功能完好。
+
+## Step 8. Implement actor detail page in content area
+
+- Goal:
+  - 将当前演员抽屉升级为右侧内容区独立详情页，并补齐到影片详情页的上下钻闭环。
+- Involved modules:
+  - Electron Actors page
+  - Electron Actor Detail route
+  - Worker actors APIs
+  - existing video detail route
+- Risks:
+  - 返回链路处理不好会导致筛选、分页、选中状态丢失。
+- Validation:
+  - 受影响的 Electron actors 聚焦回归 + Release 构建。
+- Exit condition:
+  - `Actors -> Actor Detail -> Video Detail` 稳定可回归，且不需要新窗口。
+
+## Step 9. Align settings tabs to current shell scope
+
+- Goal:
+  - 让 Settings 页签数量与当前既有设置页一致，并按当前已有开关 / 输入项完成第一轮结构对齐。
+- Involved modules:
+  - Electron Settings page
+  - Worker settings APIs
+  - current config persistence logic
+- Risks:
+  - 页签快速扩展时容易引入只展示不消费或只消费不展示的不一致。
+- Validation:
+  - 受影响的 Electron settings 聚焦回归 + Release 构建。
+- Exit condition:
+  - 页签数量对齐，已有开关有可见承载，本轮不做细节打磨。
+
+## Step 10. Implement Favorites page
+
+- Goal:
+  - 补齐 Favorites 一级导航页的最小壳、结果集和与统一影片卡片的衔接。
+- Involved modules:
+  - Electron Favorites route
+  - Worker favorites query APIs if needed
+  - shared video card rendering
+- Risks:
+  - 如果直接复制 Library 结果集实现，会让影片卡片继续分叉。
+- Validation:
+  - 受影响的 Electron Favorites 聚焦回归 + Release 构建。
+- Exit condition:
+  - Favorites 路由、结果集、跳到影片详情和返回链路可用。
+
+## Step 11. Implement smart categories: category and series
+
+- Goal:
+  - 完成智能分类中的“类别”和“系列”两个页面最小闭环。
+- Involved modules:
+  - Electron smart category routes
+  - Worker grouped query APIs
+  - shared video card rendering
+- Risks:
+  - 分组查询、空状态和筛选状态如果各自实现，后续维护成本会明显上升。
+- Validation:
+  - 受影响的 Electron smart-category 聚焦回归 + Release 构建。
+- Exit condition:
+  - 类别页和系列页都具备路由、列表、结果集和影片详情跳转。
+
+## Cross-cutting rule. Task feedback stays embedded
+
+- Goal:
+  - 继续承接扫描和抓取状态，但不引入独立任务中心页面。
+- Involved modules:
+  - Electron Home page
+  - Electron Library page
+  - global shell header
+  - Worker task summary events
+- Risks:
+  - 如果页面间任务状态表达不一致，会让用户误以为任务丢失。
+- Validation:
+  - 受影响的 Electron 回归 + Release 构建。
+- Exit condition:
+  - 后台任务统一通过“库页内联 + 全局活动条 + Home 摘要”呈现。
