@@ -796,6 +796,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
         width: 48px;
         height: 48px;
         border-radius: 16px;
@@ -810,6 +812,36 @@
         height: 72px;
         border-radius: 22px;
         font-size: 24px;
+      }
+
+      .actor-avatar.placeholder {
+        background: linear-gradient(135deg, rgba(255, 173, 94, 0.9), rgba(111, 209, 255, 0.34));
+      }
+
+      .actor-avatar-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: rgba(7, 16, 28, 0.9);
+      }
+
+      .actor-avatar-fallback {
+        position: relative;
+        z-index: 1;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       .actor-result-title {

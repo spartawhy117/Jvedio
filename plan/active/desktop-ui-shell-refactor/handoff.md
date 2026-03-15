@@ -126,14 +126,16 @@
   - renderer 已新增 `#/actors` 路由、Actors 导航入口与查询参数同步
   - Actors 页已支持演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉
   - Actors 抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、关联库和影片列表
+  - Worker 已补齐演员头像真实路径解析：优先 `actor_info.ImageUrl`，再回退 `data/<user>/cache/actor-avatar/<ActorID>.*` 与演员名哈希缓存
+  - renderer 已补齐演员头像占位策略：有头像显示本地图片，无头像显示 initials 占位块
   - 已新增 `electron/` `npm run regression:actors` 与 `electron/main/testing/actorsRegression.ts`
-  - `regression:actors` 当前通过扫描两部样例影片后向隔离 sqlite 副本注入演员映射，稳定覆盖路由壳、结果集、筛选排序和抽屉详情消费
+  - `regression:actors` 当前通过扫描两部样例影片后向隔离 sqlite 副本注入演员映射和头像缓存，稳定覆盖路由壳、结果集、头像 / 占位策略、筛选排序和抽屉详情消费
 
 ## Next Recommended Work
 
 1. 继续收口演员页：
-   - 补演员头像真实路径解析与占位图策略
    - 评估是否增加演员详情到影片详情的上下钻增强、分页和更多排序项
+   - 若要继续提升完整度，可再补演员详情专页而不只停留在抽屉
 2. 若切回设置线做增强：
    - 评估补 General 主题项、Data 只读信息区
    - 再决定是否扩为完整 Settings 分组

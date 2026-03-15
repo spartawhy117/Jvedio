@@ -8,6 +8,7 @@ import { DatabaseSync } from "node:sqlite";
 const REGRESSION_FLAG = "--regression-actors";
 const RENDERER_WAIT_TIMEOUT_MS = 20000;
 const TASK_WAIT_TIMEOUT_MS = 120000;
+const SAMPLE_AVATAR_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wn8xWkAAAAASUVORK5CYII=";
 const SAMPLE_VIDEO_SIZE_BYTES = 10 * 1024 * 1024;
 const SAMPLE_VIDEOS = [
   { fileName: "ABP-123.mp4", vid: "ABP-123" },
@@ -191,16 +192,20 @@ export async function runActorsRegression(
       `
         (() => {
           const title = document.querySelector('.content-header h1')?.textContent?.trim() ?? '';
+          const imageAvatars = document.querySelectorAll('[data-actor-avatar-state="image"]').length;
+          const placeholders = document.querySelectorAll('[data-actor-avatar-state="placeholder"]').length;
           return location.hash.startsWith('#/actors')
             && title === '演员'
-            && document.querySelectorAll('[data-actor-card-id]').length === 2;
+            && document.querySelectorAll('[data-actor-card-id]').length === 2
+            && imageAvatars >= 1
+            && placeholders >= 1;
         })()
       `,
       RENDERER_WAIT_TIMEOUT_MS,
-      "未成功进入 Actors 页面或结果集数量不符合预期。",
+      "未成功进入 Actors 页面，或头像 / 占位策略不符合预期。",
     );
 
-    return "已进入 Actors 页面并展示 2 个演员结果";
+    return "已进入 Actors 页面，并同时展示真实头像与占位头像";
   });
   environment.checks.push(actorsRoute);
   logCheckResult(actorsRoute);
@@ -371,6 +376,13 @@ async function seedActorRows(appBaseDir: string, libraryId: string): Promise<voi
       insertMapping.run(Number(alphaResult.lastInsertRowid), jurId);
       insertMapping.run(Number(betaResult.lastInsertRowid), jurId);
       database.exec("COMMIT;");
+
+      const avatarDirectory = path.join(appBaseDir, "data", os.userInfo().username, "cache", "actor-avatar");
+      fs.mkdirSync(avatarDirectory, { recursive: true });
+      fs.writeFileSync(
+        path.join(avatarDirectory, `${Number(alphaResult.lastInsertRowid)}.png`),
+        Buffer.from(SAMPLE_AVATAR_PNG_BASE64, "base64"),
+      );
     } catch (error) {
       database.exec("ROLLBACK;");
       throw error;

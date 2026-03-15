@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 收口演员头像策略：`Jvedio.Worker/Services/ActorService.cs` 现在会优先返回 `actor_info.ImageUrl` 指向的本地头像，其次回退到 `data/<user>/cache/actor-avatar/<ActorID>.*`，最后再尝试演员名哈希缓存；renderer Actors 页与抽屉在拿到真实头像时展示本地图片，拿不到时展示明确的 initials 占位头像。
 - 完成演员页 renderer 第一轮闭环：新增 `#/actors` 路由、Actors 一级导航入口、演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉；抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、所属库和关联影片列表。
 - 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 actors 查询参数同步、详情抽屉状态、actors DTO 类型和对应页面样式。
 - 新增 `electron/main/testing/actorsRegression.ts` 与 `electron/` `npm run regression:actors`，通过临时 sqlite 副本、样例影片扫描和直接注入演员映射，稳定覆盖 Actors 路由壳、结果集、筛选排序和抽屉详情消费。

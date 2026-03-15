@@ -9,18 +9,22 @@ namespace Jvedio.Worker.Services;
 
 public sealed class ActorService
 {
+    private static readonly string[] AvatarExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
     private const int DefaultPageSize = 60;
     private const int MaxPageSize = 200;
 
     private readonly LibraryService libraryService;
     private readonly SqliteConnectionFactory sqliteConnectionFactory;
+    private readonly WorkerPathResolver workerPathResolver;
 
     public ActorService(
         LibraryService libraryService,
-        SqliteConnectionFactory sqliteConnectionFactory)
+        SqliteConnectionFactory sqliteConnectionFactory,
+        WorkerPathResolver workerPathResolver)
     {
         this.libraryService = libraryService;
         this.sqliteConnectionFactory = sqliteConnectionFactory;
+        this.workerPathResolver = workerPathResolver;
     }
 
     public GetActorsResponse GetActors(GetActorsRequest request)
@@ -66,7 +70,7 @@ public sealed class ActorService
             Actor = new ActorDetailDto
             {
                 ActorId = actor.ActorId.ToString(),
-                AvatarPath = null,
+                AvatarPath = ResolveActorAvatarPath(actor.ActorId, actor.Name, actor.ImageUrl),
                 LibraryCount = libraries.Count,
                 LibraryIds = libraries.Select(item => item.LibraryId).ToList(),
                 LibraryNames = libraries.Select(item => item.LibraryName).ToList(),
@@ -158,6 +162,7 @@ public sealed class ActorService
             """
             SELECT actor_info.ActorID,
                    IFNULL(actor_info.ActorName, ''),
+                   IFNULL(actor_info.ImageUrl, ''),
                    IFNULL(actor_info.WebType, ''),
                    IFNULL(actor_info.WebUrl, ''),
                    COUNT(DISTINCT metadata.DataID) AS VideoCount,
@@ -185,14 +190,14 @@ public sealed class ActorService
             result.Add(new ActorListItemDto
             {
                 ActorId = reader.GetInt64(0).ToString(),
-                AvatarPath = null,
-                LibraryCount = reader.IsDBNull(5) ? 0 : Convert.ToInt32(reader.GetValue(5)),
-                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
-                LastScanAt = NullIfWhiteSpace(reader.GetString(7)),
+                AvatarPath = ResolveActorAvatarPath(reader.GetInt64(0), name, reader.GetString(2)),
+                LibraryCount = reader.IsDBNull(6) ? 0 : Convert.ToInt32(reader.GetValue(6)),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(8)),
                 Name = name,
-                VideoCount = reader.IsDBNull(4) ? 0 : Convert.ToInt32(reader.GetValue(4)),
-                WebType = reader.GetString(2),
-                WebUrl = reader.GetString(3),
+                VideoCount = reader.IsDBNull(5) ? 0 : Convert.ToInt32(reader.GetValue(5)),
+                WebType = reader.GetString(3),
+                WebUrl = reader.GetString(4),
             });
         }
 
@@ -274,6 +279,7 @@ public sealed class ActorService
             """
             SELECT actor_info.ActorID,
                    IFNULL(actor_info.ActorName, ''),
+                   IFNULL(actor_info.ImageUrl, ''),
                    IFNULL(actor_info.WebType, ''),
                    IFNULL(actor_info.WebUrl, ''),
                    COUNT(DISTINCT metadata.DataID) AS VideoCount,
@@ -301,10 +307,11 @@ public sealed class ActorService
             reader.GetString(1),
             reader.GetString(2),
             reader.GetString(3),
-            reader.IsDBNull(4) ? 0 : Convert.ToInt32(reader.GetValue(4)),
+            reader.GetString(4),
             reader.IsDBNull(5) ? 0 : Convert.ToInt32(reader.GetValue(5)),
-            reader.GetString(6),
-            reader.GetString(7));
+            reader.IsDBNull(6) ? 0 : Convert.ToInt32(reader.GetValue(6)),
+            reader.GetString(7),
+            reader.GetString(8));
     }
 
     private List<(string LibraryId, string LibraryName)> LoadActorLibraries(SqliteConnection connection, long actorId)
@@ -414,6 +421,68 @@ public sealed class ActorService
         return string.IsNullOrWhiteSpace(candidate) ? "video" : candidate;
     }
 
+    private string? ResolveActorAvatarPath(long actorId, string actorName, string imageUrl)
+    {
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            var normalizedImageUrl = imageUrl.Trim();
+            if (File.Exists(normalizedImageUrl))
+            {
+                return normalizedImageUrl;
+            }
+        }
+
+        foreach (var extension in AvatarExtensions)
+        {
+            var actorIdPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{actorId}{extension}");
+            if (File.Exists(actorIdPath))
+            {
+                return actorIdPath;
+            }
+        }
+
+        var fallbackKey = ComputeActorNameFallbackKey(actorName);
+        foreach (var extension in AvatarExtensions)
+        {
+            var fallbackPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{fallbackKey}{extension}");
+            if (File.Exists(fallbackPath))
+            {
+                return fallbackPath;
+            }
+        }
+
+        return null;
+    }
+
+    private static string ComputeActorNameFallbackKey(string actorName)
+    {
+        var normalized = NormalizeActorAvatarKey(actorName);
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            normalized = "unknown_actor";
+        }
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(normalized);
+        var hash = System.Security.Cryptography.SHA1.HashData(bytes);
+        return Convert.ToHexString(hash).ToLowerInvariant();
+    }
+
+    private static string NormalizeActorAvatarKey(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        var result = value.Trim();
+        foreach (var invalid in Path.GetInvalidFileNameChars())
+        {
+            result = result.Replace(invalid, '_');
+        }
+
+        return result;
+    }
+
     private static WorkerApiException CreateNotFoundException(string code, string message)
     {
         return new WorkerApiException(
@@ -430,6 +499,7 @@ public sealed class ActorService
     private readonly record struct ActorRecord(
         long ActorId,
         string Name,
+        string ImageUrl,
         string WebType,
         string WebUrl,
         int VideoCount,

@@ -9,9 +9,13 @@ public sealed class WorkerPathResolver
         this.logger = logger;
         SharedAppBaseDirectory = ResolveSharedAppBaseDirectory();
         CurrentUserFolder = ResolveCurrentUserFolder();
+        ActorAvatarCacheFolder = Path.Combine(CurrentUserFolder, "cache", "actor-avatar");
         AppDataSqlitePath = Path.Combine(CurrentUserFolder, "app_datas.sqlite");
         AppConfigSqlitePath = Path.Combine(CurrentUserFolder, "app_configs.sqlite");
+        Directory.CreateDirectory(ActorAvatarCacheFolder);
     }
+
+    public string ActorAvatarCacheFolder { get; }
 
     public string AppConfigSqlitePath { get; }
 
