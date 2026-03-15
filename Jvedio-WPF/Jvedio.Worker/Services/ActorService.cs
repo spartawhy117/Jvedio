@@ -123,18 +123,37 @@ public sealed class ActorService
     private static IReadOnlyList<ActorListItemDto> SortActors(IReadOnlyList<ActorListItemDto> actors, string? sortBy, string? sortOrder)
     {
         var descending = string.Equals(sortOrder, "desc", StringComparison.OrdinalIgnoreCase);
-        Func<ActorListItemDto, object?> keySelector = (sortBy ?? string.Empty).ToLowerInvariant() switch
+        var normalizedSortBy = (sortBy ?? string.Empty).Trim().ToLowerInvariant();
+
+        IOrderedEnumerable<ActorListItemDto> ordered = normalizedSortBy switch
         {
-            "librarycount" => actor => actor.LibraryCount,
-            "lastplayedat" => actor => actor.LastPlayedAt,
-            "lastscanat" => actor => actor.LastScanAt,
-            "videocount" => actor => actor.VideoCount,
-            _ => actor => actor.Name,
+            "actorid" => descending
+                ? actors.OrderByDescending(actor => ParseActorSortId(actor.ActorId))
+                : actors.OrderBy(actor => ParseActorSortId(actor.ActorId)),
+            "librarycount" => descending
+                ? actors.OrderByDescending(actor => actor.LibraryCount)
+                : actors.OrderBy(actor => actor.LibraryCount),
+            "lastplayedat" => descending
+                ? actors.OrderByDescending(actor => actor.LastPlayedAt, StringComparer.OrdinalIgnoreCase)
+                : actors.OrderBy(actor => actor.LastPlayedAt, StringComparer.OrdinalIgnoreCase),
+            "lastscanat" => descending
+                ? actors.OrderByDescending(actor => actor.LastScanAt, StringComparer.OrdinalIgnoreCase)
+                : actors.OrderBy(actor => actor.LastScanAt, StringComparer.OrdinalIgnoreCase),
+            "videocount" => descending
+                ? actors.OrderByDescending(actor => actor.VideoCount)
+                : actors.OrderBy(actor => actor.VideoCount),
+            "webtype" => descending
+                ? actors.OrderByDescending(actor => actor.WebType, StringComparer.OrdinalIgnoreCase)
+                : actors.OrderBy(actor => actor.WebType, StringComparer.OrdinalIgnoreCase),
+            _ => descending
+                ? actors.OrderByDescending(actor => actor.Name, StringComparer.OrdinalIgnoreCase)
+                : actors.OrderBy(actor => actor.Name, StringComparer.OrdinalIgnoreCase),
         };
 
-        return descending
-            ? actors.OrderByDescending(keySelector).ThenBy(actor => actor.ActorId, StringComparer.OrdinalIgnoreCase).ToList()
-            : actors.OrderBy(keySelector).ThenBy(actor => actor.ActorId, StringComparer.OrdinalIgnoreCase).ToList();
+        return ordered
+            .ThenBy(actor => ParseActorSortId(actor.ActorId))
+            .ThenBy(actor => actor.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static IReadOnlyList<ActorVideoListItemDto> SortVideos(IReadOnlyList<ActorVideoListItemDto> videos, string? sortBy, string? sortOrder)
@@ -481,6 +500,11 @@ public sealed class ActorService
         }
 
         return result;
+    }
+
+    private static long ParseActorSortId(string? actorId)
+    {
+        return long.TryParse(actorId, out var parsed) ? parsed : 0L;
     }
 
     private static WorkerApiException CreateNotFoundException(string code, string message)

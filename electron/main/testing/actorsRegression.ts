@@ -13,6 +13,7 @@ const SAMPLE_VIDEO_SIZE_BYTES = 10 * 1024 * 1024;
 const SAMPLE_VIDEOS = [
   { fileName: "ABP-123.mp4", vid: "ABP-123" },
   { fileName: "JUR-293-C.mp4", vid: "JUR-293-C" },
+  { fileName: "IPX-001.mp4", vid: "IPX-001" },
 ] as const;
 
 export interface ActorsRegressionCheckResult {
@@ -166,9 +167,9 @@ export async function runActorsRegression(
 
     await waitForCondition(
       mainWindow,
-      `(() => document.querySelectorAll('.video-result-card').length === 2)()`,
+      `(() => document.querySelectorAll('.video-result-card').length === 3)()`,
       RENDERER_WAIT_TIMEOUT_MS,
-      "扫描完成后库页未展示 2 个影片结果。",
+      "扫描完成后库页未展示 3 个影片结果。",
     );
 
     const hash = await executeInRenderer<string>(mainWindow, `(() => location.hash)()`);
@@ -196,7 +197,7 @@ export async function runActorsRegression(
           const placeholders = document.querySelectorAll('[data-actor-avatar-state="placeholder"]').length;
           return location.hash.startsWith('#/actors')
             && title === '演员'
-            && document.querySelectorAll('[data-actor-card-id]').length === 2
+            && document.querySelectorAll('[data-actor-card-id]').length === 3
             && imageAvatars >= 1
             && placeholders >= 1;
         })()
@@ -281,7 +282,137 @@ export async function runActorsRegression(
   logCheckResult(filterSort);
   if (!filterSort.passed) return false;
 
+  const paginationAndExtendedSort = await captureCheck("演员分页与扩展排序", async () => {
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const reset = document.querySelector('[data-action="reset-actors-query"]');
+          const sortBy = document.querySelector('[data-actors-query-field="sortBy"]');
+          const sortOrder = document.querySelector('[data-actors-query-field="sortOrder"]');
+          const pageSize = document.querySelector('[data-actors-query-field="pageSize"]');
+          const apply = document.querySelector('[data-action="apply-actors-query"]');
+          if (!(reset instanceof HTMLElement) || !(sortBy instanceof HTMLSelectElement) || !(sortOrder instanceof HTMLSelectElement) || !(pageSize instanceof HTMLSelectElement) || !(apply instanceof HTMLElement)) {
+            throw new Error("未找到演员分页或扩展排序控件。");
+          }
+
+          reset.click();
+          sortBy.value = 'actorId';
+          sortBy.dispatchEvent(new Event('change', { bubbles: true }));
+          sortOrder.value = 'desc';
+          sortOrder.dispatchEvent(new Event('change', { bubbles: true }));
+          pageSize.value = '1';
+          pageSize.dispatchEvent(new Event('change', { bubbles: true }));
+          apply.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const first = document.querySelector('[data-actor-card-id]');
+          const summary = document.querySelector('[data-actors-page-summary]')?.textContent ?? '';
+          return first?.textContent?.includes('Actor Gamma') === true
+            && location.hash.includes('sortBy=actorId')
+            && location.hash.includes('pageSize=1')
+            && summary.includes('第 1 / 3 页');
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "演员扩展排序或第一页分页状态不符合预期。",
+    );
+
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const next = document.querySelector('[data-action="actors-next-page"]');
+          if (!(next instanceof HTMLElement)) {
+            throw new Error("未找到演员下一页按钮。");
+          }
+
+          next.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const first = document.querySelector('[data-actor-card-id]');
+          const summary = document.querySelector('[data-actors-page-summary]')?.textContent ?? '';
+          return location.hash.includes('pageIndex=1')
+            && first?.textContent?.includes('Actor Beta') === true
+            && summary.includes('第 2 / 3 页');
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "切到演员第二页后结果或页码摘要不正确。",
+    );
+
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const previous = document.querySelector('[data-action="actors-previous-page"]');
+          if (!(previous instanceof HTMLElement)) {
+            throw new Error("未找到演员上一页按钮。");
+          }
+
+          previous.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const first = document.querySelector('[data-actor-card-id]');
+          return !location.hash.includes('pageIndex=1')
+            && first?.textContent?.includes('Actor Gamma') === true;
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "返回演员第一页后结果未恢复。",
+    );
+
+    return "已验证 actorId 扩展排序、pageSize=1 和前后翻页";
+  });
+  environment.checks.push(paginationAndExtendedSort);
+  logCheckResult(paginationAndExtendedSort);
+  if (!paginationAndExtendedSort.passed) return false;
+
   const drawerAndDetail = await captureCheck("关联影片抽屉与演员详情头部消费", async () => {
+    await executeInRenderer(
+      mainWindow,
+      `
+        (() => {
+          const reset = document.querySelector('[data-action="reset-actors-query"]');
+          if (!(reset instanceof HTMLElement)) {
+            throw new Error("未找到演员重置按钮。");
+          }
+
+          reset.click();
+        })()
+      `,
+    );
+
+    await waitForCondition(
+      mainWindow,
+      `
+        (() => {
+          const cards = Array.from(document.querySelectorAll('[data-actor-card-id]'));
+          return cards.length === 3 && cards.some((item) => item.textContent?.includes('Actor Alpha'));
+        })()
+      `,
+      RENDERER_WAIT_TIMEOUT_MS,
+      "重置演员查询后未恢复完整结果集。",
+    );
+
     await executeInRenderer(
       mainWindow,
       `
@@ -351,15 +482,16 @@ async function seedActorRows(appBaseDir: string, libraryId: string): Promise<voi
       ORDER BY metadata.DataID ASC;
     `).all(Number.parseInt(libraryId, 10)) as Array<{ dataId: number; vid: string; }>;
 
-    if (rows.length < 2) {
+    if (rows.length < 3) {
       throw new Error(`演员回归造数失败，库 ${libraryId} 仅找到 ${rows.length} 个影片。`);
     }
 
     const byVid = new Map(rows.map((row) => [row.vid, row.dataId]));
     const abpId = byVid.get("ABP-123");
     const jurId = byVid.get("JUR-293-C");
-    if (!abpId || !jurId) {
-      throw new Error(`演员回归造数失败，未找到 ABP-123/JUR-293-C，实际=${JSON.stringify(rows)}`);
+    const ipxId = byVid.get("IPX-001");
+    if (!abpId || !jurId || !ipxId) {
+      throw new Error(`演员回归造数失败，未找到 ABP-123/JUR-293-C/IPX-001，实际=${JSON.stringify(rows)}`);
     }
 
     database.exec("BEGIN;");
@@ -369,12 +501,14 @@ async function seedActorRows(appBaseDir: string, libraryId: string): Promise<voi
 
       const insertActor = database.prepare("INSERT INTO actor_info (ActorName, WebType, WebUrl) VALUES (?, ?, ?);");
       const alphaResult = insertActor.run("Actor Alpha", "MetaTube", "https://actors.example/alpha");
-      const betaResult = insertActor.run("Actor Beta", "MetaTube", "https://actors.example/beta");
+      const betaResult = insertActor.run("Actor Beta", "Archive", "https://actors.example/beta");
+      const gammaResult = insertActor.run("Actor Gamma", "Local", "https://actors.example/gamma");
       const insertMapping = database.prepare("INSERT OR IGNORE INTO metadata_to_actor (ActorID, DataID) VALUES (?, ?);");
 
       insertMapping.run(Number(alphaResult.lastInsertRowid), abpId);
       insertMapping.run(Number(alphaResult.lastInsertRowid), jurId);
       insertMapping.run(Number(betaResult.lastInsertRowid), jurId);
+      insertMapping.run(Number(gammaResult.lastInsertRowid), ipxId);
       database.exec("COMMIT;");
 
       const avatarDirectory = path.join(appBaseDir, "data", os.userInfo().username, "cache", "actor-avatar");

@@ -293,6 +293,9 @@ export class HomePageController {
       if (target.dataset.actorsQueryField === "sortOrder") {
         current.sortOrder = target.value === "desc" ? "desc" : "asc";
       }
+      if (target.dataset.actorsQueryField === "pageSize") {
+        current.pageSize = Number.parseInt(target.value || "0", 10) || createDefaultActorsRouteQuery().pageSize;
+      }
       current.pageIndex = 0;
       this.state = {
         ...this.state,
@@ -396,6 +399,12 @@ export class HomePageController {
       }
       case "refresh-actors":
         await this.refreshActors();
+        return;
+      case "actors-previous-page":
+        this.navigateActorsPage(-1);
+        return;
+      case "actors-next-page":
+        this.navigateActorsPage(1);
         return;
       case "open-actor-drawer":
         await this.openActorDrawer(actionElement.dataset.actorId ?? "");
@@ -538,6 +547,19 @@ export class HomePageController {
     if (!actorId || this.state.route.kind !== "actors") return;
     const query = { ...this.state.actorsQueryDraft, actorId };
     this.state = { ...this.state, actorsAction: { kind: "select", actorId }, actorsQueryDraft: query };
+    window.location.hash = toHash({ kind: "actors", query });
+  }
+
+  private navigateActorsPage(direction: number): void {
+    if (this.state.route.kind !== "actors" || direction === 0) return;
+    const currentQuery = cloneActorsQuery(this.state.actorsQueryDraft);
+    const totalCount = this.state.actors?.totalCount ?? 0;
+    const pageSize = Math.max(1, this.state.actors?.pageSize ?? currentQuery.pageSize);
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const nextPageIndex = clampPageIndex(currentQuery.pageIndex + direction, totalPages);
+    if (nextPageIndex === currentQuery.pageIndex) return;
+    const query = { ...currentQuery, pageIndex: nextPageIndex };
+    this.state = { ...this.state, actorsQueryDraft: query };
     window.location.hash = toHash({ kind: "actors", query });
   }
 
@@ -945,6 +967,7 @@ export class HomePageController {
         actorDetail: this.state.actorDetail,
         actorVideos: this.state.actorVideos,
         actors: this.state.actors,
+        actorsAction: this.state.actorsAction,
         currentQuery: this.state.actorsQueryDraft,
         routeDataLoading: this.state.routeDataLoading,
         selectedActorId: this.state.route.query.actorId,
@@ -1007,19 +1030,22 @@ function renderActorsRoute(args: {
   actorDetail: ActorDetailDto | null;
   actorVideos: GetActorVideosResponse | null;
   actors: GetActorsResponse | null;
+  actorsAction: ActorsActionState | null;
   currentQuery: ActorsRouteQuery;
   routeDataLoading: boolean;
   selectedActorId: string;
   selectingActorId: string;
   worker: WorkerStatusDto;
 }): string {
-  const { actorDetail, actorVideos, actors, currentQuery, routeDataLoading, selectedActorId, selectingActorId, worker } = args;
+  const { actorDetail, actorVideos, actors, actorsAction, currentQuery, routeDataLoading, selectedActorId, selectingActorId, worker } = args;
   const actorCount = actors?.totalCount ?? 0;
   const selectedVideoCount = actorDetail?.videoCount ?? actorVideos?.totalCount ?? 0;
   const selectedLibraryCount = actorDetail?.libraryCount ?? 0;
   const selectedName = actorDetail?.name ?? (selectedActorId ? "已选择演员" : "未选择");
+  const refreshing = actorsAction?.kind === "refresh";
+  const pagination = renderActorsPagination(actors, routeDataLoading);
 
-  return `<section class="metric-grid">${metric("演员数", String(actorCount), "来自 /api/actors 聚合结果")}${metric("当前选中", selectedName, "点击结果卡片后打开关联影片抽屉")}${metric("关联影片", String(selectedVideoCount), "来自 /api/actors/{actorId}/videos")}${metric("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout ${selectedActorId ? "" : "single-column"}"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Actors</span><h2>演员结果集</h2></div><div class="section-meta">${actors ? `${actors.totalCount} actors` : "等待加载"}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-actors-query-field="keyword" value="${escapeHtml(currentQuery.keyword)}" placeholder="按演员名、来源站点或来源地址筛选" /><select class="select-field" data-actors-query-field="sortBy">${option("name", currentQuery.sortBy, "姓名")}${option("videoCount", currentQuery.sortBy, "作品数")}${option("libraryCount", currentQuery.sortBy, "媒体库数")}${option("lastPlayedAt", currentQuery.sortBy, "最近播放")}${option("lastScanAt", currentQuery.sortBy, "最近扫描")}</select><select class="select-field" data-actors-query-field="sortOrder">${option("asc", currentQuery.sortOrder, "升序")}${option("desc", currentQuery.sortOrder, "降序")}</select><button class="primary-button" data-action="apply-actors-query">应用筛选</button><button class="ghost-button" data-action="reset-actors-query">重置</button><button class="ghost-button" data-action="refresh-actors" ${routeDataLoading ? "disabled" : ""}>${routeDataLoading ? "刷新中..." : "刷新结果"}</button></div>${routeDataLoading && !actors ? renderRouteLoading("正在拉取演员结果集...") : renderActorResults(actors, currentQuery, selectedActorId, selectingActorId)}</div>${selectedActorId ? renderActorDrawer({ actorDetail, actorVideos, routeDataLoading, selectedLibraryCount }) : ""}</section>`;
+  return `<section class="metric-grid">${metric("演员数", String(actorCount), "来自 /api/actors 聚合结果")}${metric("当前选中", selectedName, "点击结果卡片后打开关联影片抽屉")}${metric("关联影片", String(selectedVideoCount), "来自 /api/actors/{actorId}/videos")}${metric("Worker", worker.healthy ? "Ready" : "Unavailable", worker.baseUrl || "等待 Worker 地址")}</section><section class="split-layout ${selectedActorId ? "" : "single-column"}"><div class="surface-card"><div class="section-header"><div><span class="eyebrow">Actors</span><h2>演员结果集</h2></div><div class="section-meta">${actors ? `${actors.totalCount} actors` : "等待加载"}</div></div><div class="filter-toolbar"><input class="text-field" type="text" data-actors-query-field="keyword" value="${escapeHtml(currentQuery.keyword)}" placeholder="按演员名、来源站点或来源地址筛选" /><select class="select-field" data-actors-query-field="sortBy">${option("name", currentQuery.sortBy, "姓名")}${option("actorId", currentQuery.sortBy, "演员 ID")}${option("videoCount", currentQuery.sortBy, "作品数")}${option("libraryCount", currentQuery.sortBy, "媒体库数")}${option("webType", currentQuery.sortBy, "来源站点")}${option("lastPlayedAt", currentQuery.sortBy, "最近播放")}${option("lastScanAt", currentQuery.sortBy, "最近扫描")}</select><select class="select-field" data-actors-query-field="sortOrder">${option("asc", currentQuery.sortOrder, "升序")}${option("desc", currentQuery.sortOrder, "降序")}</select><select class="select-field" data-actors-query-field="pageSize">${option("1", String(currentQuery.pageSize), "1 / 页")}${option("12", String(currentQuery.pageSize), "12 / 页")}${option("24", String(currentQuery.pageSize), "24 / 页")}${option("60", String(currentQuery.pageSize), "60 / 页")}${option("120", String(currentQuery.pageSize), "120 / 页")}</select><button class="primary-button" data-action="apply-actors-query">应用筛选</button><button class="ghost-button" data-action="reset-actors-query">重置</button><button class="ghost-button" data-action="refresh-actors" ${refreshing ? "disabled" : ""}>${refreshing ? "刷新中..." : "刷新结果"}</button></div>${routeDataLoading && !actors ? renderRouteLoading("正在拉取演员结果集...") : `${pagination}${renderActorResults(actors, currentQuery, selectedActorId, selectingActorId)}${pagination}`}</div>${selectedActorId ? renderActorDrawer({ actorDetail, actorVideos, routeDataLoading, selectedLibraryCount }) : ""}</section>`;
 }
 
 function renderLibraryRoute(args: { draft: LibraryVideoRouteQuery; library: LibraryListItemDto; pendingAction: LibraryActionKind | null; response: GetLibraryVideosResponse | undefined; routeDataLoading: boolean; runningTask: WorkerTaskDto | null; scanPathDraft: string; summary: TaskSummaryDto; tasks: readonly WorkerTaskDto[]; worker: WorkerStatusDto; }): string {
@@ -1078,8 +1104,23 @@ function renderActorResults(
   return `<div class="actor-result-grid">${response.items.map((actor) => {
     const active = actor.actorId === selectedActorId;
     const loading = actor.actorId === selectingActorId;
-    return `<article class="actor-result-card ${active ? "selected" : ""}" data-actor-card-id="${escapeHtml(actor.actorId)}"><div class="actor-result-head">${renderActorAvatar(actor.avatarPath, actor.name)}<div><div class="actor-result-title">${escapeHtml(actor.name)}</div><div class="library-stat">${actor.videoCount} videos · ${actor.libraryCount} libraries</div></div></div><div class="actor-result-meta"><span>最近扫描：${escapeHtml(actor.lastScanAt ? formatDate(actor.lastScanAt) : "未记录")}</span><span>最近播放：${escapeHtml(actor.lastPlayedAt ? formatDate(actor.lastPlayedAt) : "未记录")}</span></div><div class="badge-row">${actor.webType ? `<span class="asset-badge ok">${escapeHtml(actor.webType)}</span>` : ""}${actor.webUrl ? `<span class="asset-badge ${active ? "ok" : "missing"}">Link</span>` : ""}${actor.avatarPath ? `<span class="asset-badge ok">Avatar</span>` : `<span class="asset-badge missing">Placeholder</span>`}</div><div class="library-card-actions"><button class="ghost-button" data-action="open-actor-drawer" data-actor-id="${escapeHtml(actor.actorId)}" ${loading ? "disabled" : ""}>${loading ? "加载中..." : active ? "查看中" : "查看关联影片"}</button></div></article>`;
+    return `<article class="actor-result-card ${active ? "selected" : ""}" data-actor-card-id="${escapeHtml(actor.actorId)}"><div class="actor-result-head">${renderActorAvatar(actor.avatarPath, actor.name)}<div><div class="actor-result-title">${escapeHtml(actor.name)}</div><div class="library-stat">${actor.videoCount} videos · ${actor.libraryCount} libraries</div></div></div><div class="actor-result-meta"><span>演员 ID：${escapeHtml(actor.actorId)}</span><span>最近扫描：${escapeHtml(actor.lastScanAt ? formatDate(actor.lastScanAt) : "未记录")}</span><span>最近播放：${escapeHtml(actor.lastPlayedAt ? formatDate(actor.lastPlayedAt) : "未记录")}</span></div><div class="badge-row">${actor.webType ? `<span class="asset-badge ok">${escapeHtml(actor.webType)}</span>` : ""}${actor.webUrl ? `<span class="asset-badge ${active ? "ok" : "missing"}">Link</span>` : ""}${actor.avatarPath ? `<span class="asset-badge ok">Avatar</span>` : `<span class="asset-badge missing">Placeholder</span>`}</div><div class="library-card-actions"><button class="ghost-button" data-action="open-actor-drawer" data-actor-id="${escapeHtml(actor.actorId)}" ${loading ? "disabled" : ""}>${loading ? "加载中..." : active ? "查看中" : "查看关联影片"}</button></div></article>`;
   }).join("")}</div>`;
+}
+
+function renderActorsPagination(response: GetActorsResponse | null, loading: boolean): string {
+  if (!response) {
+    return "";
+  }
+
+  const totalPages = Math.max(1, Math.ceil(response.totalCount / Math.max(1, response.pageSize)));
+  const currentPage = Math.min(response.pageIndex + 1, totalPages);
+  const from = response.totalCount === 0 ? 0 : response.pageIndex * response.pageSize + 1;
+  const to = response.totalCount === 0 ? 0 : Math.min(response.totalCount, from + response.items.length - 1);
+  const previousDisabled = loading || response.pageIndex <= 0;
+  const nextDisabled = loading || currentPage >= totalPages;
+
+  return `<div class="result-pagination" data-actors-pagination><div class="pagination-summary" data-actors-page-summary>第 ${currentPage} / ${totalPages} 页 · 第 ${from}-${to} 项，共 ${response.totalCount} 名演员</div><div class="pagination-actions"><button class="ghost-button" data-action="actors-previous-page" ${previousDisabled ? "disabled" : ""}>上一页</button><button class="ghost-button" data-action="actors-next-page" ${nextDisabled ? "disabled" : ""}>下一页</button></div></div>`;
 }
 
 function renderActorDrawer(args: {
@@ -1182,6 +1223,7 @@ function status(value: string): string { return value === "queued" ? "排队中"
 function formatDate(value: string): string { const date = new Date(value); return Number.isNaN(date.getTime()) ? value || "未记录" : new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short" }).format(date); }
 function formatDuration(minutes: number): string { if (!minutes || minutes <= 0) return "未记录"; const hours = Math.floor(minutes / 60); const rest = minutes % 60; return hours > 0 ? `${hours} 小时${rest > 0 ? ` ${rest} 分钟` : ""}` : `${minutes} 分钟`; }
 function actorInitials(name: string): string { const trimmed = name.trim(); return trimmed.length >= 2 ? trimmed.slice(0, 2).toUpperCase() : (trimmed || "?").toUpperCase(); }
+function clampPageIndex(pageIndex: number, totalPages: number): number { return Math.min(Math.max(0, pageIndex), Math.max(0, totalPages - 1)); }
 function toLocalFileUrl(value: string): string {
   if (/^[a-z]+:\/\//i.test(value)) {
     return value;

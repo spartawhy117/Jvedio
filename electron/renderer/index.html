@@ -435,6 +435,32 @@
         color: #ffd89a;
       }
 
+      .result-pagination,
+      .pagination-actions {
+        display: flex;
+        align-items: center;
+      }
+
+      .result-pagination {
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 18px;
+        padding: 14px 16px;
+        border: 1px solid rgba(111, 209, 255, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .pagination-summary {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .pagination-actions {
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
       .primary-button,
       .ghost-button,
       .danger-button,
@@ -1014,6 +1040,12 @@
         .modal-actions .danger-button,
         .modal-actions .primary-button {
           width: 100%;
+        }
+
+        .result-pagination,
+        .pagination-actions {
+          align-items: stretch;
+          flex-direction: column;
         }
       }
     </style>

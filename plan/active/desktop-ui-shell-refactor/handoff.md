@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员页 renderer 第一轮闭环也已完成：Actors 路由壳、列表结果集、筛选排序、关联影片抽屉、演员详情头部消费和 `regression:actors` 已接通。下一步建议进入演员页增强收口。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”第一轮最小闭环和设置消费扩展均已完成实现与验证；演员页当前也已完成第二轮增强收口：Actors 路由壳、列表结果集、筛选排序、关联影片抽屉、演员详情头部消费、头像真实路径解析 / 占位策略、结果分页和扩展排序均已接通。下一步建议转入演员详情上下钻或设置页第二轮增强。
 
 ## Latest Progress
 
@@ -121,20 +121,21 @@
   - Worker 已新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`
   - 已新增 `Jvedio.Contracts/Actors` 下的演员列表、详情、关联影片 DTO
   - 已新增 `Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`
-  - 当前演员头像字段暂统一返回空，待后续梳理 sqlite `ActorID` 与正式头像缓存命名映射后再补稳定路径解析
-- 已完成演员页 renderer 第一轮闭环：
+  - 当前 `GET /api/actors` 已支持关键字筛选、分页、详情读取、关联影片查询，以及 `name / actorId / videoCount / libraryCount / webType / lastPlayedAt / lastScanAt` 排序
+- 已完成演员页 renderer 第二轮闭环：
   - renderer 已新增 `#/actors` 路由、Actors 导航入口与查询参数同步
   - Actors 页已支持演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉
   - Actors 抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、关联库和影片列表
   - Worker 已补齐演员头像真实路径解析：优先 `actor_info.ImageUrl`，再回退 `data/<user>/cache/actor-avatar/<ActorID>.*` 与演员名哈希缓存
   - renderer 已补齐演员头像占位策略：有头像显示本地图片，无头像显示 initials 占位块
+  - Actors 页已补齐结果分页、页大小切换、页码摘要、上一页/下一页翻页，以及 `actorId / webType` 扩展排序项
   - 已新增 `electron/` `npm run regression:actors` 与 `electron/main/testing/actorsRegression.ts`
-  - `regression:actors` 当前通过扫描两部样例影片后向隔离 sqlite 副本注入演员映射和头像缓存，稳定覆盖路由壳、结果集、头像 / 占位策略、筛选排序和抽屉详情消费
+  - `regression:actors` 当前通过扫描三部样例影片后向隔离 sqlite 副本注入演员映射和头像缓存，稳定覆盖路由壳、结果集、头像 / 占位策略、筛选排序、分页翻页、扩展排序和抽屉详情消费
 
 ## Next Recommended Work
 
 1. 继续收口演员页：
-   - 评估是否增加演员详情到影片详情的上下钻增强、分页和更多排序项
+   - 评估是否增加演员详情到影片详情的上下钻增强，以及是否补独立演员详情页
    - 若要继续提升完整度，可再补演员详情专页而不只停留在抽屉
 2. 若切回设置线做增强：
    - 评估补 General 主题项、Data 只读信息区
@@ -181,7 +182,7 @@
 - `electron/` `npm run regression:actors` 已通过，覆盖：
   - Actors 路由壳
   - 演员结果集展示
-  - 关键字筛选与作品数排序
+  - 关键字筛选、扩展排序与分页翻页
   - 关联影片抽屉
   - 演员详情头部消费
 
