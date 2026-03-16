@@ -13,6 +13,8 @@
   - `actors-page.*`
   - `library-page.*`
   - `settings-page.*`
+  - `page-index.md`
+  - `ui-todo.md`
 - 对应规格：
   - `main-shell.md`
   - `shared-components.md`
