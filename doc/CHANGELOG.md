@@ -16,6 +16,7 @@
 - 统一 `doc/UI/new/` 的命名：页面规格改为 `main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md`，配套 `.png` / `.excalidraw` 文件同步按相同基础名对齐；其中额外的库内容图收口为 `library-page-content.*`，图标语义图收口为 `icon-config.*`。
 - 继续收敛 `doc/UI/new/` 的库页面命名：正式的库内容页统一为 `library-page.*`，原 `library-page-content.*` 已并入该名称，不再作为独立页面保留。
 - 将旧的库编辑样式线框移入 `doc/UI/new/_archive/library-editor-page.*`，当前 `doc/UI/new/library-page.*` 只表示用户最终确认的“单个媒体库内容页”。
+- 删除 `doc/UI/new/_archive/library-editor-page.*` 及相关目录引用，避免当前正式文档入口继续保留已退役线框的归档占位说明。
 - 更新 `doc/UI/new/main-shell.*` 与相关规格：设置入口不再位于标题右侧，而是改为左栏顶部、与 `库管理` 同规格的全宽导航按钮；同时同步调整 `library-management-page.md`、`settings-page.md` 与 `icon-config.md` 的入口语义描述。
 - 继续收口 `doc/UI/new/main-shell.*`：品牌区改为 `Jvedio Next`，并采用“左侧 icon + 右侧名称”的品牌排布；`智能分类` 与 `影视库` 标题改为统一样式，同时在文档中补充 `类别 / 系列` 默认聚合所有库内容、库列表则保持单库作用域的规则。
 - 将原 `home-page.*` 重命名为 `library-management-page.*`，并把主壳一级导航中的 `Home / Favorites / Actors` 文案改为 `库管理 / 喜欢 / 演员`；同时同步调整库管理页标题、相关说明文档和主壳线框导出结果。

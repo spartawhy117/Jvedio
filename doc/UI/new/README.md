@@ -41,8 +41,6 @@
   - `icon-config.md`
 - 辅助图：
   - `icon-config.*`
-- 归档：
-  - `_archive/` 用于存放已退役、不再作为当前 exe 正式页面依据的旧线框与旧导出图
 
 ## 文档边界
 
@@ -71,7 +69,7 @@
   - `回归点`
 - 共享组件约束统一写在 `shared-components.md`，页面文档直接引用，不在每页重复发散描述。
 - `library-page` 现在统一表示“单个媒体库的内容页”，不再并行保留 `library-page-content` 这一页面名称。
-- 旧的库编辑样式线框已移入 `_archive/`，避免再与当前正式 `library-page.*` 混用。
+- 旧的库编辑样式线框已从当前正式文档集中删除，避免再与当前正式 `library-page.*` 混用。
 - 当前正式页面、弹层和共享组件图都要求同时具备：
   - `.png`
   - `.excalidraw`
