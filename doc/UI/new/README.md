@@ -38,9 +38,6 @@
   - `delete-library-dialog.md`
   - `task-detail-dialog.md`
   - `shared-components.md`
-  - `icon-config.md`
-- 辅助图：
-  - `icon-config.*`
 
 ## 文档边界
 

@@ -30,7 +30,6 @@
 | `delete-library-dialog` | `delete-library-dialog.png` | `delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
 | `task-detail-dialog` | `task-detail-dialog.png` | `task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
 | `shared-components` | `shared-components.png` | `shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
-| `icon-config` | `icon-config.png` | `icon-config.md` | 导航与图标语义配置图，约束品牌区、导航项和语义 icon key。 |
 
 ## 命名规则
 

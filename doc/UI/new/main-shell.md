@@ -101,5 +101,4 @@
 
 ## 相关文档
 
-- 图标语义：`icon-config.md`
 - 共享组件：`shared-components.md`
