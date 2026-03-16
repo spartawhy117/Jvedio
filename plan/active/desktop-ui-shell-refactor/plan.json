@@ -9,7 +9,7 @@
     "plan",
     "validation",
     "implementation-steps",
-    "electron-docs",
+    "ui-docs",
     "reference-notes",
     "renderer-architecture",
     "worker-api-spec",
@@ -29,7 +29,7 @@
     },
     {
       "id": "add-electron-specs",
-      "content": "Add stable Electron product and page specification docs under doc/UI/desktop-ui-shell-refactor/electron",
+      "content": "Add and later migrate stable Electron product and page specification conclusions into doc/UI/new and the active feature docs",
       "dependencies": [
         "rewrite-active-docs"
       ],

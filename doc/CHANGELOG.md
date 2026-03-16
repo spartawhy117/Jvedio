@@ -18,6 +18,7 @@
 - 将旧的库编辑样式线框移入 `doc/UI/new/_archive/library-editor-page.*`，当前 `doc/UI/new/library-page.*` 只表示用户最终确认的“单个媒体库内容页”。
 - 删除 `doc/UI/new/_archive/library-editor-page.*` 及相关目录引用，避免当前正式文档入口继续保留已退役线框的归档占位说明。
 - 删除 `doc/UI/new/icon-config.*` 及相关引用；当前导航与页面入口统一以 `main-shell.*` 和 Electron renderer 实现为准，不再保留旧的图标资源配置草案。
+- 收口旧 UI 重构文档：将 `page-home / page-library / page-actors / page-video-detail / page-settings / information-architecture` 中仍有效的页面规格迁入 `doc/UI/new/`，补强 `main-shell`、`library-management-page`、`library-page`、`actors-page`、`video-detail-page`、`settings-page` 与 `shared-components`，并删除整个 `doc/UI/desktop-ui-shell-refactor/` 目录；当前 active feature 仅保留 `plan/active/desktop-ui-shell-refactor/` 作为阶段、验证与交接入口。
 - 更新 `doc/UI/new/main-shell.*` 与相关规格：设置入口不再位于标题右侧，而是改为左栏顶部、与 `库管理` 同规格的全宽导航按钮；同时同步调整 `library-management-page.md`、`settings-page.md` 与 `icon-config.md` 的入口语义描述。
 - 继续收口 `doc/UI/new/main-shell.*`：品牌区改为 `Jvedio Next`，并采用“左侧 icon + 右侧名称”的品牌排布；`智能分类` 与 `影视库` 标题改为统一样式，同时在文档中补充 `类别 / 系列` 默认聚合所有库内容、库列表则保持单库作用域的规则。
 - 将原 `home-page.*` 重命名为 `library-management-page.*`，并把主壳一级导航中的 `Home / Favorites / Actors` 文案改为 `库管理 / 喜欢 / 演员`；同时同步调整库管理页标题、相关说明文档和主壳线框导出结果。

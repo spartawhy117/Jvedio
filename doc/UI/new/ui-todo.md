@@ -49,12 +49,12 @@
   - 当前仅做结构承载的分组
   - 实现边界
   - 数据消费关系
-- [ ] 复查所有迁移后的 `new/*.md`，确认未引入任何新的 UI 元素或布局变化
-- [ ] 更新 `doc/UI/new/README.md`，移除对 `desktop-ui-shell-refactor/` 的依赖说明
+- [x] 复查所有迁移后的 `new/*.md`，确认未引入任何新的 UI 元素或布局变化
+- [x] 更新 `doc/UI/new/README.md`，移除对 `desktop-ui-shell-refactor/` 的依赖说明
 - [ ] 更新 `page-index.md`，如有必要补充文档说明边界
 - [ ] 更新 `CHANGELOG.md`，记录本轮 UI 文档迁移与旧目录删除
-- [ ] 删除 `doc/UI/desktop-ui-shell-refactor/` 整个目录及其全部内容
-- [ ] 修复 active feature 文档中对旧目录的当前入口引用，重点包括：
+- [x] 删除 `doc/UI/desktop-ui-shell-refactor/` 整个目录及其全部内容
+- [x] 修复 active feature 文档中对旧目录的当前入口引用，重点包括：
   - `plan/active/desktop-ui-shell-refactor/handoff.md`
   - `plan/active/desktop-ui-shell-refactor/plan.md`
   - `plan/active/desktop-ui-shell-refactor/validation.md`

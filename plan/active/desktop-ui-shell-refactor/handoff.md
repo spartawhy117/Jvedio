@@ -18,21 +18,18 @@
 ## Latest Progress
 
 - 已重写 active feature 的核心规划文档为 Electron 路线。
-- 已在 `doc/UI/desktop-ui-shell-refactor/electron/` 下建立新的稳定规格层。
-- 已在 `doc/UI/desktop-ui-shell-refactor/reference/` 下补充 `fntv-electron` 参考说明。
+- 旧的 UI 重构目录内容已收口到 `doc/UI/new/` 与当前 active feature 文档，并已从 `doc/UI/` 下移除。
+- 参考项目说明与页面规格结论已转为当前 active feature 的背景知识，不再依赖旧 UI 文档目录。
 - 已拉取本地参考仓库 `D:\study\Proj\fntv-electron`。
-- 已完成基于真实源码的首轮结构审计，并新增 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-audit.md`。
+- 已完成基于真实源码的首轮结构审计，并将其结论折叠进当前 active feature 文档体系。
 - 已确认 `fntv-electron` 更适合作为“桌面壳 + preload 注入 + 本地播放器/代理增强”参考，而不是 Jvedio 页面实现模板。
 - 已拉取本地参考仓库 `D:\study\Proj\jellyfin-web`。
-- 已完成 `jellyfin-web` 首轮结构审计，并新增 `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md`。
-- 已产出 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，明确 `fntv-electron` 与 `jellyfin-web` 的双参考分工。
-- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录推进到文件级骨架和 feature 边界。
-- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker API 的请求/响应、任务模型、错误流和 SSE 订阅模型。
+- 已完成 `jellyfin-web` 首轮结构审计，并将页面实现借鉴边界折叠进当前 active feature 文档体系。
+- 已沉淀 Electron 页面重构、renderer 边界和 Worker API 规格结论，并将其折叠到 `doc/UI/new/` 与 `plan/active/desktop-ui-shell-refactor/`。
 - 已完成五个页面文档与 renderer 组件边界对齐，页面规格已补齐 section、页面状态、API 依赖和分批实现边界。
-- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts、事件、任务 payload 和错误码前缀。
-- 已新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、落地顺序、done 定义和验证顺序。
-- 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
-- 当前 exe UI 的页面实施入口已收口到 `doc/UI/new/`；`doc/UI/desktop-ui-shell-refactor/electron/` 继续承载 Electron 架构、桥接与阶段规划文档。
+- 已冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts、事件、任务 payload 和错误码前缀，并已在实现与文档中稳定使用。
+- 已冻结阶段 C 的首批工程范围、落地顺序、done 定义和验证顺序，并已按该顺序推进到当前阶段。
+- 当前 exe UI 的页面实施入口已完全收口到 `doc/UI/new/`；active feature 的阶段、验证与实现文档统一收口在 `plan/active/desktop-ui-shell-refactor/`。
 - 已新增 `Jvedio-WPF/Jvedio.Contracts`，落地 `Common / App / Libraries / Tasks` 四组首批 DTO 与事件 contracts。
 - 已新增 `Jvedio-WPF/Jvedio.Worker`，落地 localhost 宿主骨架、健康检查端点和 `JVEDIO_WORKER_READY` 启动信号。
 - 已新增根目录 `electron/` 工程骨架，落地 `main / preload / renderer` 三段最小启动链路，并通过 IPC 向 renderer 注入 Worker base URL。
@@ -203,14 +200,9 @@
 
 - `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
 - `handoff.md` 可独立描述当前状态并作为新会话入口。
-- `doc/UI/desktop-ui-shell-refactor/electron/` 文档结构完整。
-- `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-audit.md` 存在且能独立说明借鉴边界。
-- `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md` 存在且能独立说明页面实现参考边界。
-- `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md` 存在且能直接指导页面落地拆分。
-- `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md` 存在且能直接指导 renderer 建目录。
-- `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md` 存在且能直接指导 contracts 冻结。
-- `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md` 存在且能直接指导 `Jvedio.Contracts` 建目录。
-- `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 存在且能直接指导阶段 C 开工。
+- `doc/UI/new/` 已成为唯一正式 UI 页面与组件文档入口。
+- `plan/active/desktop-ui-shell-refactor/` 已成为当前 active feature 的唯一阶段、验证与交接入口。
+- 当前 active feature 文档已能独立说明参考边界、renderer 收口原则、Worker API 方向和阶段推进状态。
 - 阶段 C 已拆为 `C-1` 到 `C-4`，并具备逐步测试策略。
 - Release 构建通过。
 - `Jvedio.Contracts` 与 `Jvedio.Worker` 已加入 `Jvedio-WPF/Jvedio.sln` 并可成功构建。

@@ -6,8 +6,7 @@
   - 完成 Electron 路线的方案文档、会话 handoff、验证矩阵和参考说明。
 - Involved modules:
   - `plan/active/desktop-ui-shell-refactor/`
-  - `doc/UI/desktop-ui-shell-refactor/electron/`
-  - `doc/UI/desktop-ui-shell-refactor/reference/`
+  - `doc/UI/new/`
 - Risks:
   - 旧 WPF 路线与新 Electron 路线并存，导致后续实施入口混乱。
 - Validation:
@@ -21,7 +20,7 @@
   - 将 `fntv-electron` 拉取到 `D:\study\Proj\fntv-electron`，形成可持续参考的本地仓库。
 - Involved modules:
   - local reference repo only
-  - `doc/UI/desktop-ui-shell-refactor/reference/`
+  - active feature planning docs
 - Risks:
   - 借鉴范围不清，导致误把远程访问或 MPV 深度能力带入第一阶段。
 - Validation:
@@ -34,12 +33,8 @@
 - Goal:
   - 锁定 Electron 页面规格和 Worker API 草案。
 - Involved modules:
-  - `electron/page-home.md`
-  - `electron/page-library.md`
-  - `electron/page-actors.md`
-  - `electron/page-video-detail.md`
-  - `electron/page-settings.md`
-  - `electron/backend-bridge.md`
+  - `doc/UI/new/*.md`
+  - `plan/active/desktop-ui-shell-refactor/`
 - Risks:
   - 页面职责、API 分组和事件流未锁定，后续实现反复返工。
 - Validation:

@@ -23,9 +23,9 @@
 
 - `plan/active/desktop-ui-shell-refactor/`
   - 管进度、阶段、决策、验证矩阵、会话接力。
-- `doc/UI/desktop-ui-shell-refactor/electron/`
+- `doc/UI/new/`
   - 管 Electron 稳定规格。
-- `doc/UI/desktop-ui-shell-refactor/reference/`
+- 当前 active feature 文档与本地参考仓库审计结论
   - 管参考项目说明和借鉴边界。
 - `doc/UI/old/`
   - 保留为旧界面基线。
@@ -433,9 +433,9 @@
 
 - `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
 - `handoff.md` 可独立说明当前状态。
-- `doc/UI/desktop-ui-shell-refactor/electron/` 文档完整。
-- `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md` 与 `worker-api-spec.md` 存在。
-- `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 明确区分借鉴与非目标。
+- `doc/UI/new/` 文档完整。
+- `plan/active/desktop-ui-shell-refactor/` 可独立说明 renderer 收口、Worker API 方向与阶段推进。
+- 当前 active feature 文档已明确区分借鉴范围与非目标。
 - Release 构建通过。
 - 本轮仅文档变更，不跑 `Jvedio.Test` 集成测试。
 

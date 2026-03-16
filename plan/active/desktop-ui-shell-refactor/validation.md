@@ -4,21 +4,11 @@
 
 - 确认 `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
 - 确认 `handoff.md` 能独立说明当前状态。
-- 确认 `doc/UI/desktop-ui-shell-refactor/electron/` 已包含：
-  - `README.md`
-  - `product-summary.md`
-  - `information-architecture.md`
-  - `page-home.md`
-  - `page-library.md`
-  - `page-actors.md`
-  - `page-video-detail.md`
-  - `page-settings.md`
-  - `backend-bridge.md`
-  - `validation-flow.md`
-- 确认 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 已明确：
+- 确认 `doc/UI/new/` 已包含当前正式页面、弹层、共享组件与索引文档。
+- 确认 `plan/active/desktop-ui-shell-refactor/` 已能独立说明：
   - 借鉴范围
   - 非目标范围
-  - 许可证与复用约束
+  - 阶段推进状态
 - 确认 `doc/UI/old/` 未被覆盖。
 - 确认 `doc/UI/new/` 已被明确标记为当前 exe UI 的线框与页面规格入口。
 
