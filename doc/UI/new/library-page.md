@@ -1,65 +1,98 @@
 # Library Page Spec
 
-## Purpose
+## 页面目的
 
-- Show the contents of the selected media library.
+- `Library Page` 表示单个媒体库内部的影片内容页。
+- 它负责浏览当前库中的影片，不负责管理“库对象”本身。
 
-## Layout
+## 页面范围
 
-- The normal library content page reuses the shared main shell defined in `main-shell.md`.
-- The library content-page wireframe should focus on the right content area only.
-- Page title uses the selected library name.
-- Top action row:
-  - sort
-    - `VID`
-    - `名称`
-    - `发布时间`
-- Main content:
-  - video card grid similar to the Favorites page rhythm
-  - the default first-page density should show about 50 videos
-  - paging controls should sit in the bottom-right corner of the content area
-  - no extra top-right shell actions in this phase
+- 本页负责：
+  - 展示当前库的影片结果集
+  - 提供最小筛选、排序、刷新
+  - 打开影片详情页
+  - 保留从详情页返回当前库的链路
+- 本页不负责：
+  - 新建媒体库
+  - 删除媒体库
+  - 编辑扫描目录
+  - 展示库级配置表单
 
-## Current content-page rules
+## 数据来源
 
-- This page should feel close to the Favorites page layout direction, but for the currently selected media library.
-- The current content-page wireframe should focus on:
-  - library title
-  - `VID / 名称 / 发布时间` sorting
-  - video grid density
-  - bottom-right paging
-- The first content-page wireframe in this phase does not need to show a dedicated search box.
+- 当前库影片结果集：
+  - `GET /api/libraries/{libraryId}/videos`
+- 影片详情跳转目标：
+  - `GET /api/videos/{videoId}`
 
-## Library settings page
+## 布局
 
-- The Library Management page `Editor` action opens a dedicated library-settings page instead of editing inline.
-- The library-settings page should follow the same compact visual direction as the settings window:
-  - dense spacing
-  - low-noise shell
-  - narrow left navigation plus right content list
-  - one compact list for the active nav item content
-- The page should use the same left-side navigation selection pattern as the settings window instead of a horizontal tab strip.
-- In the current phase, only one left-nav item is needed:
-  - `扫描路径`
-- The active tab content only needs one editable setting item:
-  - the folder path used as the scan path for this library
-- Do not add extra rows for scan strategy, scraper rules, or other advanced options in this round.
-- Scan and scraping behavior are treated as automatic defaults in this phase and do not need dedicated controls on this page.
-- This page is separate from the normal library browsing page.
+- 本页复用 `main-shell.md` 定义的共享壳层。
+- 当前线框只表达右侧内容区。
+- 页面标题使用当前库名称。
+- 顶部只保留最小排序入口：
+  - `VID`
+  - `名称`
+  - `发布时间`
+- 主体区域使用影片卡片网格。
+- 分页控件位于内容区右下角。
 
-## Behavior
+## 元素清单
 
-- Selecting a library from the left navigation opens this page.
-- This page is scoped to the selected library only, unlike the global `类别` / `系列` aggregation entries in the shared shell.
-- Existing browsing, filtering, search, and detail-opening behavior should be preserved in the later implementation phase.
-- Opening the library editor from Library Management lands directly on the `扫描路径` item.
-- The first content-page wireframe should show the selected-library browsing view rather than the editor view.
+| 元素 | 类型 | 常显 | 行为 | 数据来源 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 页面标题 | 静态标题 | 是 | 无 | 当前库 | 显示当前库名 |
+| 排序按钮组 | 轻量切换按钮 | 是 | 切换排序字段 | 当前查询状态 | 当前只保留最小排序集 |
+| 影片卡片网格 | 内容区 | 是 | 点击进入影片详情 | `GET /api/libraries/{libraryId}/videos` | 复用统一影片卡片语义 |
+| 单张影片卡片 | 卡片 | 是 | 打开影片详情 | 当前列表项 | 显示 VID、标题等基础信息 |
+| 分页控件 | 翻页控件 | 是 | 切换当前页 | 当前查询状态 | 放在右下角 |
 
-## Notes
+## 交互规则
 
-- This page is distinct from Library Management.
-- Library Management manages libraries.
-- Library Page browses a selected library's contents.
-- The first wireframe for the editor page should emphasize the compact left-nav shell and the single scan-path configuration row, not feature breadth.
-- The first wireframe for the library content page should emphasize the Favorites-like browsing layout, the three sort options, and the 50-item default paging rhythm.
-- The current exported wireframe batch should use the Light theme direction first.
+- 进入方式：
+  - 从左侧库导航进入
+  - 从库管理页的 `打开` 进入
+- 当前页只作用于一个库，不跨库聚合。
+- 影片卡片点击后进入影片详情页。
+- 影片详情返回时应恢复当前库页的筛选、排序和分页状态。
+- 当前线框阶段不额外增加顶部右侧动作区。
+
+## 状态定义
+
+### Loading
+
+- 首次进入当前库时显示结果集 loading。
+
+### Empty
+
+- 当前库无影片时显示轻量空态。
+- 空态文案应引导用户先回到库管理页执行扫描。
+
+### Error
+
+- 拉取结果集失败时显示错误提示和刷新入口。
+
+## 性能与体验约束
+
+- 首屏优先展示当前页结果，不预加载全部影片。
+- 默认信息密度保持接近 Favorites 页。
+- 当前阶段优先保持浏览稳定，不在此页混入库编辑控件。
+
+## 回归点
+
+- 能正确进入指定库内容页。
+- 能正确显示当前库影片结果集。
+- 排序切换有效。
+- 分页切换有效。
+- 打开影片详情后返回链路正常。
+
+## 命名约束
+
+- `library-page` 是当前正式的“库内容页”名称。
+- 旧的 `library-page-content` 不再作为独立页面名称保留。
+
+## 相关文档
+
+- 共享组件：`shared-components.md`
+- 主壳层：`main-shell.md`
+- 库管理页：`library-management-page.md`

@@ -12,7 +12,6 @@
   - `favorites-page.*`
   - `actors-page.*`
   - `library-page.*`
-  - `library-page-content.*`
   - `settings-page.*`
 - 对应规格：
   - `main-shell.md`
@@ -25,6 +24,8 @@
   - `icon-config.md`
 - 辅助图：
   - `icon-config.*`
+- 归档：
+  - `_archive/` 用于存放已退役、不再作为当前 exe 正式页面依据的旧线框与旧导出图
 
 ## 文档边界
 
@@ -52,3 +53,5 @@
   - `性能与体验约束`
   - `回归点`
 - 共享组件约束统一写在 `shared-components.md`，页面文档直接引用，不在每页重复发散描述。
+- `library-page` 现在统一表示“单个媒体库的内容页”，不再并行保留 `library-page-content` 这一页面名称。
+- 旧的库编辑样式线框已移入 `_archive/`，避免再与当前正式 `library-page.*` 混用。
