@@ -6,6 +6,11 @@
 ## [未发布]
 
 ### 已变更
+- 收口 `doc/UI/new/` 的当前 exe UI 文档资产：新增 `page-index.md` 与 `ui-todo.md` 作为总索引和执行清单，并将正式页面、弹层与共享组件的图片/线稿/文档要求统一为同名三件套。
+- 收口已有正式页面图片中的说明性文案：`main-shell`、`library-management-page`、`library-page`、`favorites-page`、`actors-page`、`settings-page` 的线框图现在只保留页面结构与最小标签，对应功能说明已迁入各自 `.md` 规格文档。
+- 新增 `doc/UI/new/` 下缺失的页面与详情规格：`categories-page.*`、`series-page.*`、`actor-detail-page.*`、`video-detail-page.*`，并明确聚合页骨架、返回链路、播放入口与详情页职责边界。
+- 新增 `doc/UI/new/` 下缺失的弹层与组件规格：`create-edit-library-dialog.*`、`delete-library-dialog.*`、`task-detail-dialog.*`、`shared-components.*`，使当前 renderer 中已存在的关键 UI 都有对应图片和文档。
+- 本轮仅涉及 UI 文档、线框和说明文件收口，已完成 Release 构建验证，未运行 `Jvedio.Test` 集成测试。
 - 将与 `doc/UI/new/` 线框输出直接对应的历史规格文档迁到同目录维护：`main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md` 现已统一在 `doc/UI/new/` 维护；同时更新 `doc/UI/desktop-ui-shell-refactor/README.md` 与说明文档入口，使剩余说明文档改为引用新位置。
 - 进一步收口当前 exe UI 文档入口：新增 `doc/UI/new/README.md`，并将 `plan/active/desktop-ui-shell-refactor/`、`doc/UI/desktop-ui-shell-refactor/README.md` 与 `electron/product-summary.md` 中对 `doc/UI/new/` 的定位统一改为“当前 exe UI 的线框与页面规格入口”；同时删除 `doc/UI/desktop-ui-shell-refactor/` 根目录下已过时的 `information-architecture.md`、`theme-spec.md`、`drawing-output-guide.md`、`references.md`，避免继续与当前实施入口混用。
 - 统一 `doc/UI/new/` 的命名：页面规格改为 `main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md`，配套 `.png` / `.excalidraw` 文件同步按相同基础名对齐；其中额外的库内容图收口为 `library-page-content.*`，图标语义图收口为 `icon-config.*`。

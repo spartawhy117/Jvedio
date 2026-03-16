@@ -9,20 +9,35 @@
 - 页面线框：
   - `main-shell.*`
   - `library-management-page.*`
+  - `library-page.*`
   - `favorites-page.*`
   - `actors-page.*`
-  - `library-page.*`
+  - `actor-detail-page.*`
+  - `categories-page.*`
+  - `series-page.*`
+  - `video-detail-page.*`
   - `settings-page.*`
+  - `create-edit-library-dialog.*`
+  - `delete-library-dialog.*`
+  - `task-detail-dialog.*`
+  - `shared-components.*`
   - `page-index.md`
   - `ui-todo.md`
 - 对应规格：
   - `main-shell.md`
-  - `shared-components.md`
   - `library-management-page.md`
+  - `library-page.md`
   - `favorites-page.md`
   - `actors-page.md`
-  - `library-page.md`
+  - `actor-detail-page.md`
+  - `categories-page.md`
+  - `series-page.md`
+  - `video-detail-page.md`
   - `settings-page.md`
+  - `create-edit-library-dialog.md`
+  - `delete-library-dialog.md`
+  - `task-detail-dialog.md`
+  - `shared-components.md`
   - `icon-config.md`
 - 辅助图：
   - `icon-config.*`
@@ -57,3 +72,7 @@
 - 共享组件约束统一写在 `shared-components.md`，页面文档直接引用，不在每页重复发散描述。
 - `library-page` 现在统一表示“单个媒体库的内容页”，不再并行保留 `library-page-content` 这一页面名称。
 - 旧的库编辑样式线框已移入 `_archive/`，避免再与当前正式 `library-page.*` 混用。
+- 当前正式页面、弹层和共享组件图都要求同时具备：
+  - `.png`
+  - `.excalidraw`
+  - `.md`
