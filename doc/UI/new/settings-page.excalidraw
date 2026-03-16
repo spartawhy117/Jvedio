@@ -14,8 +14,8 @@
       "strokeColor": "#d0d0d0",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -29,8 +29,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -44,8 +44,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -57,8 +57,8 @@
       "text": "Settings Wireframe",
       "fontSize": 26,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -70,21 +70,8 @@
       "text": "基本 / Basic",
       "fontSize": 26,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "window-subtitle-light",
-      "type": "text",
-      "x": 410,
-      "y": 158,
-      "strokeColor": "#6b7280",
-      "text": "微信风格的紧凑双栏设置窗口，当前仅示意壳层和单列表节奏",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -96,8 +83,8 @@
       "text": "X",
       "fontSize": 22,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -111,8 +98,8 @@
       "strokeColor": "#7cc08a",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -124,8 +111,8 @@
       "text": "[icon] 基本",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -139,8 +126,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -152,8 +139,8 @@
       "text": "[icon] 图片",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -167,8 +154,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -180,8 +167,8 @@
       "text": "[icon] 扫描与导入",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -195,8 +182,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -208,8 +195,8 @@
       "text": "[icon] 网络",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -223,8 +210,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -236,8 +223,8 @@
       "text": "[icon] 库",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -251,8 +238,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -264,49 +251,8 @@
       "text": "[icon] MetaTube",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "nav-version-light",
-      "type": "rectangle",
-      "x": 96,
-      "y": 588,
-      "width": 218,
-      "height": 54,
-      "backgroundColor": "#ebe8e2",
-      "strokeColor": "#d7d3cc",
-      "strokeWidth": 1,
-      "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "nav-version-text-light",
-      "type": "text",
-      "x": 126,
-      "y": 604,
-      "strokeColor": "#1f2933",
-      "text": "[icon] 版本检查",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "nav-note-light",
-      "type": "text",
-      "x": 108,
-      "y": 820,
-      "strokeColor": "#6b7280",
-      "text": "设置按钮从主窗口左下角直接进入本页",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.751Z",
+      "updatedAt": "2026-03-16T19:57:23.751Z",
       "version": 1
     },
     {
@@ -320,8 +266,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -333,21 +279,8 @@
       "text": "语言",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row1-help-light",
-      "type": "text",
-      "x": 530,
-      "y": 250,
-      "strokeColor": "#6b7280",
-      "text": "切换界面语言，当前阶段只开放中英两项",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -361,8 +294,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -374,8 +307,8 @@
       "text": "中文",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -389,34 +322,8 @@
       "strokeColor": "#e5e7eb",
       "strokeWidth": 1,
       "roughness": 0,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row2-label-light",
-      "type": "text",
-      "x": 450,
-      "y": 324,
-      "strokeColor": "#1f2933",
-      "text": "主题",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row2-help-light",
-      "type": "text",
-      "x": 530,
-      "y": 326,
-      "strokeColor": "#6b7280",
-      "text": "先保留 Light / Dark，后续配置仍可扩展",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -430,21 +337,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row2-value-light",
-      "type": "text",
-      "x": 997,
-      "y": 324,
-      "strokeColor": "#1f2933",
-      "text": "Light",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -458,34 +352,8 @@
       "strokeColor": "#e5e7eb",
       "strokeWidth": 1,
       "roughness": 0,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row3-label-light",
-      "type": "text",
-      "x": 450,
-      "y": 400,
-      "strokeColor": "#1f2933",
-      "text": "窗口行为",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row3-help-light",
-      "type": "text",
-      "x": 560,
-      "y": 402,
-      "strokeColor": "#6b7280",
-      "text": "使用右侧内联开关或下拉，不再拆成独立卡片",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -499,21 +367,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row3-value-light",
-      "type": "text",
-      "x": 1012,
-      "y": 400,
-      "strokeColor": "#1f2933",
-      "text": "关闭到托盘",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -527,34 +382,8 @@
       "strokeColor": "#e5e7eb",
       "strokeWidth": 1,
       "roughness": 0,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row4-label-light",
-      "type": "text",
-      "x": 450,
-      "y": 476,
-      "strokeColor": "#1f2933",
-      "text": "默认首页",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row4-help-light",
-      "type": "text",
-      "x": 560,
-      "y": 478,
-      "strokeColor": "#6b7280",
-      "text": "只示意紧凑列表的排布密度，具体字段后续逐页细化",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -568,21 +397,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row4-value-light",
-      "type": "text",
-      "x": 1033,
-      "y": 476,
-      "strokeColor": "#1f2933",
-      "text": "Home",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -596,34 +412,8 @@
       "strokeColor": "#e5e7eb",
       "strokeWidth": 1,
       "roughness": 0,
-      "createdAt": "2026-03-14T22:07:09.725Z",
-      "updatedAt": "2026-03-14T22:07:09.725Z",
-      "version": 1
-    },
-    {
-      "id": "row5-label-light",
-      "type": "text",
-      "x": 450,
-      "y": 552,
-      "strokeColor": "#1f2933",
-      "text": "列表密度",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
-      "version": 1
-    },
-    {
-      "id": "row5-help-light",
-      "type": "text",
-      "x": 560,
-      "y": 554,
-      "strokeColor": "#6b7280",
-      "text": "每个设置子页都沿用同样的单列表风格",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -637,21 +427,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
-      "version": 1
-    },
-    {
-      "id": "row5-value-light",
-      "type": "text",
-      "x": 1023,
-      "y": 552,
-      "strokeColor": "#1f2933",
-      "text": "紧凑",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
@@ -665,75 +442,156 @@
       "strokeColor": "#e5e7eb",
       "strokeWidth": 1,
       "roughness": 0,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "createdAt": "2026-03-16T19:57:23.752Z",
+      "updatedAt": "2026-03-16T19:57:23.752Z",
       "version": 1
     },
     {
-      "id": "row6-label-light",
+      "id": "settings-reset-btn",
+      "type": "rectangle",
+      "x": 900,
+      "y": 700,
+      "width": 130,
+      "height": 42,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "createdAt": "2026-03-16T19:59:01.074Z",
+      "updatedAt": "2026-03-16T19:59:01.074Z",
+      "version": 1
+    },
+    {
+      "id": "settings-reset-text",
+      "type": "text",
+      "x": 934,
+      "y": 712,
+      "strokeColor": "#1f2933",
+      "text": "恢复默认",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:01.074Z",
+      "updatedAt": "2026-03-16T19:59:01.074Z",
+      "version": 1
+    },
+    {
+      "id": "settings-save-btn",
+      "type": "rectangle",
+      "x": 1046,
+      "y": 700,
+      "width": 130,
+      "height": 42,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "createdAt": "2026-03-16T19:59:01.074Z",
+      "updatedAt": "2026-03-16T19:59:01.074Z",
+      "version": 1
+    },
+    {
+      "id": "settings-save-text",
+      "type": "text",
+      "x": 1082,
+      "y": 712,
+      "strokeColor": "#1f2933",
+      "text": "保存设置",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:01.074Z",
+      "updatedAt": "2026-03-16T19:59:01.074Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row2-label-new",
       "type": "text",
       "x": 450,
-      "y": 628,
+      "y": 324,
       "strokeColor": "#1f2933",
-      "text": "子页规则",
+      "text": "Debug",
       "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
       "version": 1
     },
     {
-      "id": "row6-help-light",
+      "id": "settings-row2-value-new",
       "type": "text",
-      "x": 560,
-      "y": 630,
-      "strokeColor": "#6b7280",
-      "text": "版本检查也放在左侧导航里，不再做额外弹窗入口",
-      "fontSize": 15,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
-      "version": 1
-    },
-    {
-      "id": "row6-value-box-light",
-      "type": "rectangle",
-      "x": 940,
-      "y": 618,
-      "width": 200,
-      "height": 40,
-      "backgroundColor": "#f7f6f2",
-      "strokeColor": "#d7d3cc",
-      "strokeWidth": 1,
-      "roughness": 1,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
-      "version": 1
-    },
-    {
-      "id": "row6-value-light",
-      "type": "text",
-      "x": 982,
-      "y": 628,
+      "x": 1018,
+      "y": 324,
       "strokeColor": "#1f2933",
-      "text": "统一单列表",
+      "text": "关闭",
       "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
       "version": 1
     },
     {
-      "id": "bottom-note-light",
+      "id": "settings-row3-label-new",
       "type": "text",
-      "x": 410,
-      "y": 744,
-      "strokeColor": "#6b7280",
-      "text": "当前批次先确认壳层、导航和紧凑列表节奏；每个子页的细项在后续实现阶段同步迭代。",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:07:09.726Z",
-      "updatedAt": "2026-03-14T22:07:09.726Z",
+      "x": 450,
+      "y": 400,
+      "strokeColor": "#1f2933",
+      "text": "播放器回退",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row3-value-new",
+      "type": "text",
+      "x": 986,
+      "y": 400,
+      "strokeColor": "#1f2933",
+      "text": "系统默认",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row4-label-new",
+      "type": "text",
+      "x": 450,
+      "y": 476,
+      "strokeColor": "#1f2933",
+      "text": "MetaTube 地址",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row4-value-new",
+      "type": "text",
+      "x": 986,
+      "y": 476,
+      "strokeColor": "#1f2933",
+      "text": "http://local",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row5-label-new",
+      "type": "text",
+      "x": 450,
+      "y": 552,
+      "strokeColor": "#1f2933",
+      "text": "请求超时",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
+      "version": 1
+    },
+    {
+      "id": "settings-row5-value-new",
+      "type": "text",
+      "x": 1014,
+      "y": 552,
+      "strokeColor": "#1f2933",
+      "text": "30 秒",
+      "fontSize": 18,
+      "createdAt": "2026-03-16T19:59:28.090Z",
+      "updatedAt": "2026-03-16T19:59:28.090Z",
       "version": 1
     }
   ],

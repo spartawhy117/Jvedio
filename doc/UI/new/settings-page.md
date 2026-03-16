@@ -1,75 +1,114 @@
 # Settings Page Spec
 
-## Purpose
+## 页面目的
 
-- Keep settings in a standalone shell, opened directly from the top-most settings navigation button in the main left rail.
-- `版本检查` is one page inside the settings window, not a separate shell popup action.
+- `Settings Page` 是当前 exe 的独立设置页。
+- 它负责设置读取、保存、恢复默认，以及 MetaTube diagnostics 的集中入口。
 
-## Layout
+## 页面范围
 
-- Compact two-column structure inspired by the WeChat desktop settings window:
-  - narrow left navigation
-  - right scrollable content list
-- Window header:
-  - minimal title treatment
-  - close button
-- Right content style:
-  - use a single compact vertical list per page
-  - do not split the first version into multiple cards or sections
-  - keep row spacing tight
-  - use inline controls at the right side of each row when needed
+- 本页负责：
+  - 设置分组导航
+  - 设置项读取与保存
+  - 保存反馈
+  - 恢复默认
+  - MetaTube diagnostics
+- 本页不负责：
+  - 应用内更新下载流程
+  - 独立任务中心
+  - 库内容浏览
 
-## Left navigation
+## 数据来源
 
-- 基本
-- 图片
-- 扫描与导入
-- 网络
-- 库
-- MetaTube
-- 版本检查
+- 读取设置：
+  - `GET /api/settings`
+- 保存设置：
+  - `PUT /api/settings`
+- 恢复默认：
+  - `POST /api/settings/reset`
+- MetaTube diagnostics：
+  - `POST /api/settings/meta-tube/diagnostics`
 
-Only one left-nav item is selected at a time.
+## 布局
 
-## Right content rules
+- 页面采用紧凑双栏结构：
+  - 左侧分组导航
+  - 右侧单列表表单区
+- 顶部保留页面标题和关闭入口。
+- 当前阶段每个分组使用统一单列表，不拆多卡片。
 
-- Every page should read as one compact list instead of stacked cards.
-- Use short row labels and short helper text only when necessary.
-- Prefer a denser visual rhythm similar to WeChat desktop settings.
+## 左侧分组
 
-## Language and theme rules
+- `基本`
+- `图片`
+- `扫描与导入`
+- `网络`
+- `库`
+- `MetaTube`
 
-- No dedicated first-run language/theme picker window.
-- Language choices exposed in settings:
-  - 中文
-  - English
-- Theme choices exposed in settings:
-  - Light
-  - Dark
-- Underlying config should remain extensible for future additional languages or themes, but the UI in this phase exposes only the options above.
+规则：
+- 同一时间只选中一个分组。
+- 当前线框以 `基本` 为选中态。
 
-## Current iteration rule
+## 元素清单
 
-- Keep the original left-side page categories for now.
-- Do not over-specify each page's detailed fields in this round.
-- During later page-by-page implementation, the function list and UI layout can be refined together.
-- For the current wireframe batch, one representative compact list is enough to show the shell direction.
+| 元素 | 类型 | 常显 | 行为 | 数据来源 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 分组导航 | 左侧导航 | 是 | 切换设置分组 | 当前路由 | 保持 6 个一级分组 |
+| 设置列表 | 表单列表 | 是 | 编辑当前分组设置项 | `GET /api/settings` | 单列表紧凑布局 |
+| 行级输入控件 | 输入/开关/选择器 | 是 | 更新草稿值 | 当前表单态 | 与设置项类型对应 |
+| `恢复默认` | 次按钮 | 是 | 重置当前设置草稿 | `POST /api/settings/reset` | 需反馈结果 |
+| `保存设置` | 主按钮 | 是 | 提交设置 | `PUT /api/settings` | 保存中显示反馈 |
+| diagnostics 区 | 辅助面板 | 条件 | 执行 MetaTube 诊断 | `POST /api/settings/meta-tube/diagnostics` | 仅 MetaTube 分组显示 |
 
-## Version-check rules
+## 交互规则
 
-- Version checks are manual in this phase.
-- The version-check page should use the same compact list style as the other settings pages.
-- The UI may surface:
-  - current version
-  - latest-version status after a user-triggered check
-  - a button that checks for updates
-  - a button or link that opens the project release page
-- Do not design an in-app download-and-install flow for this phase.
+- 从主壳层顶部 `设置` 按钮进入本页。
+- 分组切换时保留统一的设置页壳层，不弹独立窗口。
+- 右侧列表优先展示当前真实落库的设置项：
+  - 语言
+  - Debug
+  - MetaTube 地址
+  - 请求超时
+  - 播放器路径
+  - 系统默认回退
+- 保存后显示明确反馈。
+- 恢复默认后，当前表单值同步回默认状态。
+- 如果有外部 `settings.changed` 事件，应刷新持久化值并保护未保存草稿。
 
-## Drawing rule for first batch
+## 状态定义
 
-- The first settings wireframe should show the compact WeChat-like shell direction clearly.
-- The wireframe should show the existing left navigation categories plus `版本检查`.
-- The selected state can stay on `基本`.
-- The right content area should render one compact list for the selected page instead of grouped cards.
-- The current exported wireframe batch should use the Light theme direction first.
+### Loading
+
+- 首次进入本页时显示设置读取 loading。
+
+### Saving
+
+- 保存进行中时禁用重复提交。
+
+### Dirty
+
+- 表单修改但未保存时显示未保存状态。
+
+### Error
+
+- 读取或保存失败时显示错误提示。
+
+## 性能与体验约束
+
+- 设置页保持紧凑单列表，不堆叠大段说明文字。
+- 说明性语义统一写入文档，不写入页面线框。
+- MetaTube diagnostics 结果区只在相关分组显示，不污染其它分组。
+
+## 回归点
+
+- 设置页可正常进入。
+- 6 个分组入口正确显示。
+- 设置可读取、保存、恢复默认。
+- MetaTube diagnostics 可触发并展示结果。
+- `settings.changed` 事件消费后状态正确。
+
+## 相关文档
+
+- 主壳层：`main-shell.md`
+- 共享组件：`shared-components.md`
