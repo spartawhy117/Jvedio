@@ -6,9 +6,12 @@
 ## [未发布]
 
 ### 已变更
-- 将与 `doc/UI/new/` 线框输出直接对应的历史规格文档迁到同目录维护：`main-shell.md`、`home-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md` 现已统一在 `doc/UI/new/` 维护；同时更新 `doc/UI/desktop-ui-shell-refactor/README.md` 与说明文档入口，使剩余说明文档改为引用新位置。
+- 将与 `doc/UI/new/` 线框输出直接对应的历史规格文档迁到同目录维护：`main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md` 现已统一在 `doc/UI/new/` 维护；同时更新 `doc/UI/desktop-ui-shell-refactor/README.md` 与说明文档入口，使剩余说明文档改为引用新位置。
 - 进一步收口当前 exe UI 文档入口：新增 `doc/UI/new/README.md`，并将 `plan/active/desktop-ui-shell-refactor/`、`doc/UI/desktop-ui-shell-refactor/README.md` 与 `electron/product-summary.md` 中对 `doc/UI/new/` 的定位统一改为“当前 exe UI 的线框与页面规格入口”；同时删除 `doc/UI/desktop-ui-shell-refactor/` 根目录下已过时的 `information-architecture.md`、`theme-spec.md`、`drawing-output-guide.md`、`references.md`，避免继续与当前实施入口混用。
-- 统一 `doc/UI/new/` 的命名：页面规格改为 `main-shell.md`、`home-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md`，配套 `.png` / `.excalidraw` 文件同步按相同基础名对齐；其中额外的库内容图收口为 `library-page-content.*`，图标语义图收口为 `icon-config.*`。
+- 统一 `doc/UI/new/` 的命名：页面规格改为 `main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md`，配套 `.png` / `.excalidraw` 文件同步按相同基础名对齐；其中额外的库内容图收口为 `library-page-content.*`，图标语义图收口为 `icon-config.*`。
+- 更新 `doc/UI/new/main-shell.*` 与相关规格：设置入口不再位于标题右侧，而是改为左栏顶部、与 `库管理` 同规格的全宽导航按钮；同时同步调整 `library-management-page.md`、`settings-page.md` 与 `icon-config.md` 的入口语义描述。
+- 继续收口 `doc/UI/new/main-shell.*`：品牌区改为 `Jvedio Next`，并采用“左侧 icon + 右侧名称”的品牌排布；`智能分类` 与 `影视库` 标题改为统一样式，同时在文档中补充 `类别 / 系列` 默认聚合所有库内容、库列表则保持单库作用域的规则。
+- 将原 `home-page.*` 重命名为 `library-management-page.*`，并把主壳一级导航中的 `Home / Favorites / Actors` 文案改为 `库管理 / 喜欢 / 演员`；同时同步调整库管理页标题、相关说明文档和主壳线框导出结果。
 - 去掉 Electron 主窗体顶部原生菜单栏：`electron/main/app/bootstrap.ts` 现在会清空应用菜单，`electron/main/app/createMainWindow.ts` 会对主窗口启用 `autoHideMenuBar` 并直接移除窗口菜单，避免 Release 版本继续显示 `File / Edit / View / Window / Help`。
 - 将 `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
 - 更新 `Jvedio-WPF/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。

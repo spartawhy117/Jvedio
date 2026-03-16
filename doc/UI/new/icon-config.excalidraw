@@ -12,8 +12,8 @@
       "text": "Navigation + Icon Semantics",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -26,8 +26,8 @@
       "backgroundColor": "#e9ecef",
       "strokeColor": "#868e96",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -40,8 +40,8 @@
       "backgroundColor": "#ffffff",
       "strokeColor": "#868e96",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -53,8 +53,8 @@
       "text": "Shell destinations",
       "fontSize": 26,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -66,8 +66,8 @@
       "text": "Semantic icon keys",
       "fontSize": 26,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -75,27 +75,14 @@
       "type": "rectangle",
       "x": 110,
       "y": 200,
-      "width": 190,
+      "width": 250,
       "height": 54,
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
-      "version": 1
-    },
-    {
-      "id": "mmqrjwea1t54qsfm4h9",
-      "type": "text",
-      "x": 155,
-      "y": 216,
-      "strokeColor": "#1e1e1e",
-      "text": "Home",
-      "fontSize": 24,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
-      "version": 1
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:42.750Z",
+      "version": 2
     },
     {
       "id": "d-fav",
@@ -107,8 +94,8 @@
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -120,8 +107,8 @@
       "text": "Favorites",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -134,8 +121,8 @@
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -147,8 +134,8 @@
       "text": "Actors",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -161,8 +148,8 @@
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -174,8 +161,8 @@
       "text": "Library entries",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.108Z",
-      "updatedAt": "2026-03-14T20:25:55.108Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -188,8 +175,8 @@
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -201,8 +188,8 @@
       "text": "Genre",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -215,8 +202,8 @@
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -228,8 +215,8 @@
       "text": "Series",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -242,8 +229,8 @@
       "backgroundColor": "#ffd8a8",
       "strokeColor": "#e8590c",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -255,8 +242,8 @@
       "text": "Settings action",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -269,8 +256,8 @@
       "backgroundColor": "#ffd8a8",
       "strokeColor": "#e8590c",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -282,8 +269,8 @@
       "text": "Shared actions\n(search + library)",
       "fontSize": 20,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -291,27 +278,14 @@
       "type": "rectangle",
       "x": 760,
       "y": 200,
-      "width": 220,
+      "width": 310,
       "height": 54,
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
-      "version": 1
-    },
-    {
-      "id": "mmqrjweahjsz1mjon9f",
-      "type": "text",
-      "x": 805,
-      "y": 216,
-      "strokeColor": "#1e1e1e",
-      "text": "nav.home",
-      "fontSize": 24,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
-      "version": 1
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:42.804Z",
+      "version": 2
     },
     {
       "id": "k-fav",
@@ -323,8 +297,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -336,8 +310,8 @@
       "text": "nav.favorites",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -350,8 +324,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.547Z",
+      "updatedAt": "2026-03-16T18:12:29.547Z",
       "version": 1
     },
     {
@@ -363,8 +337,8 @@
       "text": "nav.actors",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -377,8 +351,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -390,8 +364,8 @@
       "text": "nav.library",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -404,8 +378,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -417,8 +391,8 @@
       "text": "nav.category",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -431,8 +405,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -444,8 +418,8 @@
       "text": "nav.series",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -458,8 +432,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -471,8 +445,8 @@
       "text": "action.settings",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -485,8 +459,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -498,8 +472,8 @@
       "text": "action.search",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -512,8 +486,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -525,8 +499,8 @@
       "text": "action.add-library",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.109Z",
-      "updatedAt": "2026-03-14T20:25:55.109Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -539,8 +513,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -552,8 +526,8 @@
       "text": "action.rename-library",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -566,8 +540,8 @@
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -579,8 +553,8 @@
       "text": "action.delete-library",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -609,8 +583,8 @@
         "id": "k-home"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.548Z",
+      "updatedAt": "2026-03-16T18:12:29.548Z",
       "version": 1
     },
     {
@@ -639,8 +613,8 @@
         "id": "k-fav"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -669,8 +643,8 @@
         "id": "k-actors"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -699,8 +673,8 @@
         "id": "k-lib"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -729,8 +703,8 @@
         "id": "k-genre"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -759,8 +733,8 @@
         "id": "k-series"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -789,8 +763,8 @@
         "id": "k-settings"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -819,8 +793,8 @@
         "id": "k-search"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -849,8 +823,8 @@
         "id": "k-add"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -879,8 +853,8 @@
         "id": "k-rename"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
       "version": 1
     },
     {
@@ -909,8 +883,21 @@
         "id": "k-delete"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-14T20:25:55.110Z",
-      "updatedAt": "2026-03-14T20:25:55.110Z",
+      "createdAt": "2026-03-16T18:12:29.549Z",
+      "updatedAt": "2026-03-16T18:12:29.549Z",
+      "version": 1
+    },
+    {
+      "id": "mmqrjwea1t54qsfm4h9",
+      "type": "text",
+      "x": 128,
+      "y": 216,
+      "strokeColor": "#1e1e1e",
+      "text": "Library Management",
+      "fontSize": 18,
+      "fontFamily": 2,
+      "createdAt": "2026-03-16T18:12:42.799Z",
+      "updatedAt": "2026-03-16T18:12:42.799Z",
       "version": 1
     }
   ],

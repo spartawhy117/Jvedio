@@ -25,7 +25,7 @@
 以下规格文档已迁到 `../new/`，与对应线稿放在同一目录维护：
 
 - `main-shell.md`
-- `home-page.md`
+- `library-management-page.md`
 - `favorites-page.md`
 - `actors-page.md`
 - `library-page.md`

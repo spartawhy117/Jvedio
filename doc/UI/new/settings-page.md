@@ -2,7 +2,7 @@
 
 ## Purpose
 
-- Keep settings in a standalone shell, opened directly from the footer settings button at the bottom-right of the main left rail.
+- Keep settings in a standalone shell, opened directly from the top-most settings navigation button in the main left rail.
 - `版本检查` is one page inside the settings window, not a separate shell popup action.
 
 ## Layout

@@ -8,7 +8,7 @@
 
 - 页面线框：
   - `main-shell.*`
-  - `home-page.*`
+  - `library-management-page.*`
   - `favorites-page.*`
   - `actors-page.*`
   - `library-page.*`
@@ -16,7 +16,8 @@
   - `settings-page.*`
 - 对应规格：
   - `main-shell.md`
-  - `home-page.md`
+  - `shared-components.md`
+  - `library-management-page.md`
   - `favorites-page.md`
   - `actors-page.md`
   - `library-page.md`
@@ -29,6 +30,7 @@
 
 - 本目录负责：
   - 当前 exe UI 的页面结构、主要交互、线框和图标语义
+  - 当前 exe UI 的页面级功能说明与共享组件约束
 - `../desktop-ui-shell-refactor/electron/` 负责：
   - Electron 路线的架构、桥接、API、阶段规划
 - `../old/` 负责：
@@ -38,3 +40,15 @@
 
 - 当前 exe UI 调整优先对齐这里的线框和规格，不再以 `desktop-ui-shell-refactor` 根目录旧说明文档作为实施依据。
 - 若页面实现与本目录规格不一致，先更新本目录文档，再继续改代码。
+- 当前 `库管理` 页不保留 `导入 / 恢复` 入口。
+- 当前可用的是影片扫描导入；面向最终用户的库配置导入 / 数据恢复流程在现有 Electron / Worker 和旧 WPF 中都未形成完整可用产品链路。
+- 每个页面规格文档后续都应按统一模板补齐：
+  - `页面目的`
+  - `页面范围`
+  - `数据来源`
+  - `元素清单`
+  - `交互规则`
+  - `状态定义`
+  - `性能与体验约束`
+  - `回归点`
+- 共享组件约束统一写在 `shared-components.md`，页面文档直接引用，不在每页重复发散描述。

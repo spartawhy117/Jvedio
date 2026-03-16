@@ -32,7 +32,7 @@
 
 ## Library settings page
 
-- The Home page `Editor` action opens a dedicated library-settings page instead of editing inline inside Home.
+- The Library Management page `Editor` action opens a dedicated library-settings page instead of editing inline.
 - The library-settings page should follow the same compact visual direction as the settings window:
   - dense spacing
   - low-noise shell
@@ -50,14 +50,15 @@
 ## Behavior
 
 - Selecting a library from the left navigation opens this page.
+- This page is scoped to the selected library only, unlike the global `类别` / `系列` aggregation entries in the shared shell.
 - Existing browsing, filtering, search, and detail-opening behavior should be preserved in the later implementation phase.
-- Opening the library editor from Home lands directly on the `扫描路径` item.
+- Opening the library editor from Library Management lands directly on the `扫描路径` item.
 - The first content-page wireframe should show the selected-library browsing view rather than the editor view.
 
 ## Notes
 
-- This page is distinct from Home.
-- Home manages libraries.
+- This page is distinct from Library Management.
+- Library Management manages libraries.
 - Library Page browses a selected library's contents.
 - The first wireframe for the editor page should emphasize the compact left-nav shell and the single scan-path configuration row, not feature breadth.
 - The first wireframe for the library content page should emphasize the Favorites-like browsing layout, the three sort options, and the 50-item default paging rhythm.

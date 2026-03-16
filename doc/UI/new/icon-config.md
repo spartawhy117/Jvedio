@@ -33,17 +33,24 @@ Suggested `kind` values:
 
 ## Required semantic keys in the first phase
 
-- `nav.home`
+- `brand.app`
+- `nav.library-management`
+- `nav.settings`
 - `nav.favorites`
 - `nav.actors`
 - `nav.library`
 - `nav.category`
 - `nav.series`
-- `action.settings`
 - `action.search`
 - `action.add-library`
 - `action.delete-library`
 - `action.rename-library`
+
+## Shell icon rhythm
+
+- In the shared main shell, the brand area uses `brand.app` on the left and the product name on the right.
+- First-level navigation uses a consistent `icon left + name right` rhythm.
+- `智能分类` and `影视库` are section titles, not clickable icon entries; their child rows continue to use the same icon-left layout as the primary nav.
 
 ## Build-time display process
 
