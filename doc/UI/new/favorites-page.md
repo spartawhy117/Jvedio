@@ -1,31 +1,89 @@
 # Favorites Page Spec
 
-## Purpose
+## 页面目的
 
-- Provide a dedicated first-level page for favorite videos.
+- `Favorites Page` 是喜欢影片的一级聚合页。
+- 它负责集中展示被收藏的影片结果集，不承担库管理和演员浏览职责。
 
-## Layout
+## 页面范围
 
-- This page reuses the shared main shell defined in `main-shell.md`.
-- The page wireframe should focus on the right content area only.
-- Page title: `收藏` or `Favorites`
-- Top row:
-  - sort
-    - `名字`
-    - `发布日期`
-  - do not place extra actions on the top-right side of the content area in this phase
-- Main content:
-  - video card grid
-  - on a 1080p window, the default first-page density should show about 30 videos
-  - paging controls should sit in the bottom-right corner of the content area
+- 本页负责：
+  - 展示喜欢影片结果集
+  - 提供最小筛选、排序、刷新
+  - 打开影片详情页
+  - 保留从影片详情返回 Favorites 的链路
+- 本页不负责：
+  - 新建或删除媒体库
+  - 编辑媒体库
+  - 演员聚合
+  - 分类或系列聚合
 
-## Behavior
+## 数据来源
 
-- Reuse the existing favorites data logic.
-- This page does not provide a search entry in this phase.
-- Keep sort and paging behavior aligned with the current video list experience.
+- 喜欢影片结果集：
+  - `GET /api/videos/favorites`
+- 影片详情：
+  - `GET /api/videos/{videoId}`
 
-## Empty state
+## 布局
 
-- If there are no favorites, show a lightweight empty state.
-- No library CRUD actions belong here.
+- 本页复用 `main-shell.md` 定义的共享壳层。
+- 当前线框只表达右侧内容区。
+- 顶部保留轻量排序区：
+  - `名字`
+  - `发布日期`
+- 主体区域使用统一影片卡片网格。
+- 分页控件位于内容区右下角。
+
+## 元素清单
+
+| 元素 | 类型 | 常显 | 行为 | 数据来源 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 页面标题 | 静态标题 | 是 | 无 | 固定文案 | 文案为 `收藏 / Favorites` |
+| 排序按钮组 | 轻量切换按钮 | 是 | 切换排序字段 | 当前查询状态 | 与统一结果页规则一致 |
+| 影片卡片网格 | 内容区 | 是 | 点击进入影片详情 | `GET /api/videos/favorites` | 复用统一影片卡片结构 |
+| 单张影片卡片 | 卡片 | 是 | 打开影片详情 | 当前列表项 | 显示 VID 与发布日期等基础信息 |
+| 分页控件 | 翻页控件 | 是 | 切换当前页 | 当前查询状态 | 位于右下角 |
+
+## 交互规则
+
+- 从左侧一级导航 `喜欢` 进入本页。
+- 本页默认按收藏结果集展示，不跨页显示库管理动作。
+- 影片卡片点击后进入影片详情页。
+- 从影片详情返回时应恢复当前 Favorites 的排序和分页状态。
+- 当前阶段不额外增加顶部右侧动作区。
+
+## 状态定义
+
+### Loading
+
+- 首次进入本页时显示结果集 loading。
+
+### Empty
+
+- 没有喜欢影片时显示轻量空态。
+- 空态不出现库管理动作。
+
+### Error
+
+- 结果集拉取失败时显示错误提示与刷新入口。
+
+## 性能与体验约束
+
+- 保持与 `library-page` 相同的影片卡片密度方向。
+- 当前阶段优先保证结果集浏览稳定，不在此页混入其它聚合逻辑。
+- 顶部交互保持轻量，避免做成复杂工作台。
+
+## 回归点
+
+- 能从左侧导航进入 Favorites。
+- 能正确显示喜欢影片结果集。
+- 排序切换有效。
+- 分页切换有效。
+- 影片详情返回链路正常。
+
+## 相关文档
+
+- 共享组件：`shared-components.md`
+- 主壳层：`main-shell.md`
+- 影片详情页：`video-detail-page.md`

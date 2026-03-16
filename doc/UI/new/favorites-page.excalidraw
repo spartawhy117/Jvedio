@@ -14,8 +14,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -27,21 +27,8 @@
       "text": "收藏 / Favorites Content",
       "fontSize": 30,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
-      "version": 1
-    },
-    {
-      "id": "fav-content-subtitle",
-      "type": "text",
-      "x": 160,
-      "y": 132,
-      "strokeColor": "#6b7280",
-      "text": "共享左侧栏已省略；本图只表达右侧内容区的结构",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -53,8 +40,8 @@
       "text": "排序",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -68,8 +55,8 @@
       "strokeColor": "#7cc08a",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -81,8 +68,8 @@
       "text": "名字",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -96,8 +83,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -109,8 +96,8 @@
       "text": "发布日期",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -124,8 +111,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -139,8 +126,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -154,8 +141,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -167,8 +154,8 @@
       "text": "ABP-123",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -180,8 +167,8 @@
       "text": "2025-08-01",
       "fontSize": 15,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -195,8 +182,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -210,8 +197,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -223,8 +210,8 @@
       "text": "IPZZ-011",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -236,8 +223,8 @@
       "text": "2025-07-12",
       "fontSize": 15,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -251,8 +238,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -266,8 +253,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -279,8 +266,8 @@
       "text": "MIDV-777",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.161Z",
-      "updatedAt": "2026-03-14T22:44:06.161Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -292,8 +279,8 @@
       "text": "2025-06-20",
       "fontSize": 15,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -307,8 +294,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -322,8 +309,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -335,8 +322,8 @@
       "text": "PRED-410",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -348,8 +335,8 @@
       "text": "2025-05-11",
       "fontSize": 15,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -363,8 +350,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -378,8 +365,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -391,8 +378,8 @@
       "text": "...",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -406,8 +393,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -419,8 +406,8 @@
       "text": "<",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -434,8 +421,8 @@
       "strokeColor": "#7cc08a",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -447,8 +434,8 @@
       "text": "1",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -462,8 +449,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     },
     {
@@ -475,21 +462,8 @@
       "text": ">",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
-      "version": 1
-    },
-    {
-      "id": "fav-content-note",
-      "type": "text",
-      "x": 160,
-      "y": 780,
-      "strokeColor": "#6b7280",
-"text": "共享主框架中的左侧导航、智能分类和设置入口已在 main-shell 单独维护。",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:44:06.162Z",
-      "updatedAt": "2026-03-14T22:44:06.162Z",
+      "createdAt": "2026-03-16T19:53:35.643Z",
+      "updatedAt": "2026-03-16T19:53:35.643Z",
       "version": 1
     }
   ],
