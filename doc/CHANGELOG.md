@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 将与 `doc/UI/new/` 线框输出直接对应的历史规格文档迁到同目录维护：`main-shell-spec.md`、`home-page-spec.md`、`favorites-page-spec.md`、`actors-page-spec.md`、`library-page-spec.md`、`settings-page-spec.md`、`icon-config-spec.md` 现已移动到 `doc/UI/new/`；同时更新 `doc/UI/desktop-ui-shell-refactor/README.md` 与 `drawing-output-guide.md`，使剩余说明文档改为引用新位置。
+- 进一步收口当前 exe UI 文档入口：新增 `doc/UI/new/README.md`，并将 `plan/active/desktop-ui-shell-refactor/`、`doc/UI/desktop-ui-shell-refactor/README.md` 与 `electron/product-summary.md` 中对 `doc/UI/new/` 的定位统一改为“当前 exe UI 的线框与页面规格入口”；同时删除 `doc/UI/desktop-ui-shell-refactor/` 根目录下已过时的 `information-architecture.md`、`theme-spec.md`、`drawing-output-guide.md`、`references.md`，避免继续与当前实施入口混用。
 - 去掉 Electron 主窗体顶部原生菜单栏：`electron/main/app/bootstrap.ts` 现在会清空应用菜单，`electron/main/app/createMainWindow.ts` 会对主窗口启用 `autoHideMenuBar` 并直接移除窗口菜单，避免 Release 版本继续显示 `File / Edit / View / Window / Help`。
 - 将 `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
 - 更新 `Jvedio-WPF/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。

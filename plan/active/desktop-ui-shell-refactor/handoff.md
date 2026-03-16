@@ -9,7 +9,7 @@
 - 前端参考源改为 `QiaoKes/fntv-electron`，但只参考桌面壳、导航、页面组织和桌面交互方式。
 - 后端继续复用现有 C# 能力，不做远程服务化。
 - 第一阶段播放能力继续沿用外部播放器/系统默认播放器模式。
-- `doc/UI/old/` 保留为旧界面基线，`doc/UI/new/` 视为 WPF 线稿历史参考。
+- `doc/UI/old/` 保留为旧界面基线，`doc/UI/new/` 现为当前 exe UI 的线框与页面规格入口。
 
 ## Current Phase
 
@@ -32,7 +32,7 @@
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts、事件、任务 payload 和错误码前缀。
 - 已新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、落地顺序、done 定义和验证顺序。
 - 已更新 `doc/UI/desktop-ui-shell-refactor/electron/backend-bridge.md` 与 `README.md`，将桥接摘要和详细规格分层整理。
-- 现有根目录 UI 文档已标注 Electron 规格为当前主入口，旧 WPF 线稿不再作为默认实施路线。
+- 当前 exe UI 的页面实施入口已收口到 `doc/UI/new/`；`doc/UI/desktop-ui-shell-refactor/electron/` 继续承载 Electron 架构、桥接与阶段规划文档。
 - 已新增 `Jvedio-WPF/Jvedio.Contracts`，落地 `Common / App / Libraries / Tasks` 四组首批 DTO 与事件 contracts。
 - 已新增 `Jvedio-WPF/Jvedio.Worker`，落地 localhost 宿主骨架、健康检查端点和 `JVEDIO_WORKER_READY` 启动信号。
 - 已新增根目录 `electron/` 工程骨架，落地 `main / preload / renderer` 三段最小启动链路，并通过 IPC 向 renderer 注入 Worker base URL。

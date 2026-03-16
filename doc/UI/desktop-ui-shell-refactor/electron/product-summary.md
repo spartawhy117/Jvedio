@@ -50,5 +50,5 @@
 - 页面实现参考：
   - `jellyfin/jellyfin-web`
 - 辅助参考：
-  - 现有 `doc/UI/new/` WPF 线稿历史稿
+  - 现有 `doc/UI/new/` 当前 exe UI 线框与页面规格
   - 现有 `doc/UI/old/` 旧界面截图

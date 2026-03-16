@@ -30,7 +30,7 @@
 - `doc/UI/old/`
   - 保留为旧界面基线。
 - `doc/UI/new/`
-  - 作为 WPF 线稿历史参考保留，不再作为默认实施输入。
+  - 作为当前 exe UI 的线框、页面规格与实施入口。
 
 ## 产品定义
 
@@ -103,7 +103,7 @@
 - 重写 active feature 文档为 Electron 路线。
 - 建立 `electron/` 子目录文档层。
 - 建立 `reference/` 参考说明层。
-- 统一标记旧 WPF 线稿为历史参考。
+- 将当前 exe UI 的页面实施入口统一收口到 `doc/UI/new/`。
 
 ### 阶段 B：前端页面与 Worker API 草案
 
@@ -424,7 +424,7 @@
 
 ## 风险与约束
 
-- 当前根目录旧 UI 文档仍存在，后续实施时必须明确以 `electron/` 子目录为准。
+- 当前 exe UI 调整以 `doc/UI/new/` 为准；`electron/` 子目录继续承载架构与桥接文档，不直接替代页面规格。
 - `WindowStartUp` 仍承载库管理逻辑，后续 Home 页迁移必须依赖现有实现梳理。
 - 参考项目 `fntv-electron` 与 `jellyfin-web` 已拉取到本地，但只能按既定边界做结构参考，不能误当现成工程模板。
 - 当前已完成 `C-2` 的 Worker 接口实现；后续 renderer 接线必须继续复用同一套 contracts 和共享 sqlite 数据目录。
