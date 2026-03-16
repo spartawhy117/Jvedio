@@ -14,6 +14,7 @@ export async function createMainWindow(electronRoot: string): Promise<BrowserWin
     minWidth: 1200,
     minHeight: 720,
     show: false,
+    autoHideMenuBar: true,
     backgroundColor: "#0f1115",
     title: "Jvedio",
     webPreferences: {
@@ -28,6 +29,7 @@ export async function createMainWindow(electronRoot: string): Promise<BrowserWin
     mainWindow.show();
   });
 
+  mainWindow.removeMenu();
   await mainWindow.loadFile(htmlPath);
   return mainWindow;
 }

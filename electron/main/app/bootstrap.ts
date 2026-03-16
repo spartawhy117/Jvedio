@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { Menu, app, ipcMain } from "electron";
 import path from "node:path";
 
 import { prepareActivityRegressionEnvironment, runActivityRegression } from "../testing/activityRegression";
@@ -38,6 +38,7 @@ async function bootstrap(): Promise<void> {
 
   registerAppLifecycle(workerController);
   await app.whenReady();
+  Menu.setApplicationMenu(null);
 
   const workerBaseUrl = await workerController.start();
   ipcMain.handle("app:getVersion", () => app.getVersion());

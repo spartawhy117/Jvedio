@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 去掉 Electron 主窗体顶部原生菜单栏：`electron/main/app/bootstrap.ts` 现在会清空应用菜单，`electron/main/app/createMainWindow.ts` 会对主窗口启用 `autoHideMenuBar` 并直接移除窗口菜单，避免 Release 版本继续显示 `File / Edit / View / Window / Help`。
 - 将 `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
 - 更新 `Jvedio-WPF/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。
 - 更新 `electron/main/app/bootstrap.ts`、`electron/main/worker/workerProcess.ts`、`electron/main/app/createMainWindow.ts` 与 `electron/renderer/index.html`，补上 Electron 单实例锁、打包后 Worker 路径解析和正式窗口标题收口，避免改用启动器后重复开窗或继续暴露 `Home MVP Shell` 占位标题。
