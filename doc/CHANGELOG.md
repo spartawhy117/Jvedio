@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 将 `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
+- 更新 `Jvedio-WPF/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。
+- 更新 `electron/main/app/bootstrap.ts`、`electron/main/worker/workerProcess.ts`、`electron/main/app/createMainWindow.ts` 与 `electron/renderer/index.html`，补上 Electron 单实例锁、打包后 Worker 路径解析和正式窗口标题收口，避免改用启动器后重复开窗或继续暴露 `Home MVP Shell` 占位标题。
 - 收口 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性：`electron/renderer/src/features/home/useHomePageData.ts` 现在为这五个页面补上统一的结果摘要条、筛选上下文说明、缺资源影片提示，以及关键字输入回车直接应用筛选的统一手势。
 - 更新 `electron/renderer/index.html`，新增 `collection-summary-strip`、`summary-pill`、缺资源影片卡片高亮和结果说明样式，使 Home 的入口摘要、Library 工作台、Favorites、Categories、Series 的结果集视觉语义收敛到同一套层级。
 - 补齐任务失败详情与重试入口：`Jvedio-WPF/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。

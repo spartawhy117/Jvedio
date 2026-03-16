@@ -17,6 +17,12 @@ import { prepareTasksRegressionEnvironment, runTasksRegression } from "../testin
 import { WorkerProcessController } from "../worker/workerProcess";
 
 async function bootstrap(): Promise<void> {
+  const singleInstanceLock = app.requestSingleInstanceLock();
+  if (!singleInstanceLock) {
+    app.exit(0);
+    return;
+  }
+
   const electronRoot = path.resolve(__dirname, "../../..");
   const activityRegressionEnvironment = await prepareActivityRegressionEnvironment(electronRoot);
   const actorsRegressionEnvironment = await prepareActorsRegressionEnvironment(electronRoot);
@@ -39,6 +45,13 @@ async function bootstrap(): Promise<void> {
 
   configureTray();
   const mainWindow = await createMainWindow(electronRoot);
+  app.on("second-instance", () => {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    mainWindow.focus();
+  });
 
   if (activityRegressionEnvironment) {
     const success = await runActivityRegression(mainWindow, activityRegressionEnvironment);

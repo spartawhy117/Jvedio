@@ -12,14 +12,17 @@ const WORKER_START_TIMEOUT_MS = 20000;
 export class WorkerProcessController {
   private readonly electronRoot: string;
   private readonly sharedAppBaseDir: string;
-  private readonly workerProjectDirectory: string;
+  private readonly workerLaunchDirectory: string;
+  private readonly workerDllPath: string;
   private baseUrl = "";
   private childProcess: WorkerChildProcess | null = null;
 
   public constructor(electronRoot: string) {
     this.electronRoot = electronRoot;
     this.sharedAppBaseDir = resolveSharedAppBaseDir(electronRoot);
-    this.workerProjectDirectory = path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio.Worker");
+    const workerLaunchInfo = resolveWorkerLaunchInfo(electronRoot);
+    this.workerDllPath = workerLaunchInfo.dllPath;
+    this.workerLaunchDirectory = workerLaunchInfo.workingDirectory;
   }
 
   public async start(): Promise<string> {
@@ -29,10 +32,9 @@ export class WorkerProcessController {
 
     const port = await getAvailablePort();
     const baseUrl = `http://127.0.0.1:${port}`;
-    const workerDllPath = resolveWorkerDllPath(this.electronRoot);
 
-    const childProcess = spawn("dotnet", [workerDllPath, "--urls", baseUrl], {
-      cwd: this.workerProjectDirectory,
+    const childProcess = spawn("dotnet", [this.workerDllPath, "--urls", baseUrl], {
+      cwd: this.workerLaunchDirectory,
       env: {
         ...process.env,
         JVEDIO_APP_BASE_DIR: this.sharedAppBaseDir
@@ -69,20 +71,30 @@ export class WorkerProcessController {
   }
 }
 
-function resolveWorkerDllPath(electronRoot: string): string {
+function resolveWorkerLaunchInfo(electronRoot: string): WorkerLaunchInfo {
   const overridePath = process.env.JVEDIO_WORKER_DLL;
   if (overridePath && fs.existsSync(overridePath)) {
-    return overridePath;
+    const overrideWorkingDirectory = process.env.JVEDIO_WORKER_CWD;
+    return {
+      dllPath: overridePath,
+      workingDirectory: overrideWorkingDirectory && fs.existsSync(overrideWorkingDirectory)
+        ? overrideWorkingDirectory
+        : path.dirname(overridePath)
+    };
   }
 
   const candidates = [
+    path.join(electronRoot, "..", "worker", "Jvedio.Worker.dll"),
     path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio.Worker", "bin", "Release", "net8.0", "Jvedio.Worker.dll"),
     path.join(electronRoot, "..", "Jvedio-WPF", "Jvedio.Worker", "bin", "Debug", "net8.0", "Jvedio.Worker.dll")
   ];
 
   const existingCandidate = candidates.find((candidate) => fs.existsSync(candidate));
   if (existingCandidate) {
-    return existingCandidate;
+    return {
+      dllPath: existingCandidate,
+      workingDirectory: path.dirname(existingCandidate)
+    };
   }
 
   throw new Error("Jvedio.Worker.dll was not found. Build Jvedio.Worker before starting Electron.");
@@ -185,3 +197,8 @@ async function waitForReadySignal(
 }
 
 type WorkerChildProcess = ChildProcessByStdio<null, Readable, Readable>;
+
+interface WorkerLaunchInfo {
+  dllPath: string;
+  workingDirectory: string;
+}

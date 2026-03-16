@@ -15,7 +15,7 @@ export async function createMainWindow(electronRoot: string): Promise<BrowserWin
     minHeight: 720,
     show: false,
     backgroundColor: "#0f1115",
-    title: "Jvedio Home MVP Shell",
+    title: "Jvedio",
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,

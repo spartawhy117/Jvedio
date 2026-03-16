@@ -911,6 +911,33 @@ XCOPY  "$(ProjectDir)Reference\CommonNet.dll"  "$(ProjectDir)bin\Release\plugins
 
 XCOPY  "$(ProjectDir)Reference\HtmlAgilityPack.dll"  "$(ProjectDir)bin\Release\plugins\crawlers"    /Y /i</PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <ElectronProjectDir>$(MSBuildProjectDirectory)\..\..\electron</ElectronProjectDir>
+    <ElectronShellOutputDir>$(TargetDir)electron-shell\</ElectronShellOutputDir>
+    <WorkerShellOutputDir>$(TargetDir)worker\</WorkerShellOutputDir>
+    <WorkerProjectDir>$(MSBuildProjectDirectory)\..\Jvedio.Worker</WorkerProjectDir>
+    <WorkerBuildOutputDir>$(WorkerProjectDir)\bin\$(Configuration)\net8.0\</WorkerBuildOutputDir>
+  </PropertyGroup>
+  <Target Name="PrepareElectronShellArtifacts" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true'">
+    <Error Condition="!Exists('$(ElectronProjectDir)\package.json')" Text="Electron shell project was not found at $(ElectronProjectDir)." />
+    <Error Condition="!Exists('$(ElectronProjectDir)\node_modules\electron\dist\electron.exe')" Text="Electron runtime is missing. Run npm install in $(ElectronProjectDir)." />
+    <Exec Command="dotnet build &quot;$(WorkerProjectDir)\Jvedio.Worker.csproj&quot; -c $(Configuration)" WorkingDirectory="$(WorkerProjectDir)" />
+    <Exec Command="npm run build" WorkingDirectory="$(ElectronProjectDir)" />
+    <ItemGroup>
+      <ElectronPackageFile Include="$(ElectronProjectDir)\package.json" />
+      <ElectronRendererFiles Include="$(ElectronProjectDir)\renderer\index.html" />
+      <ElectronBuildFiles Include="$(ElectronProjectDir)\dist\**\*" />
+      <ElectronRuntimeFiles Include="$(ElectronProjectDir)\node_modules\electron\dist\**\*" />
+      <WorkerShellFiles Include="$(WorkerBuildOutputDir)\**\*" Exclude="$(WorkerBuildOutputDir)\**\*.log" />
+    </ItemGroup>
+    <RemoveDir Directories="$(ElectronShellOutputDir);$(WorkerShellOutputDir)" />
+    <MakeDir Directories="$(ElectronShellOutputDir);$(ElectronShellOutputDir)dist;$(ElectronShellOutputDir)renderer;$(ElectronShellOutputDir)electron-runtime;$(WorkerShellOutputDir)" />
+    <Copy SourceFiles="@(ElectronPackageFile)" DestinationFolder="$(ElectronShellOutputDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ElectronRendererFiles)" DestinationFolder="$(ElectronShellOutputDir)renderer" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ElectronBuildFiles)" DestinationFiles="@(ElectronBuildFiles->'$(ElectronShellOutputDir)dist\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ElectronRuntimeFiles)" DestinationFiles="@(ElectronRuntimeFiles->'$(ElectronShellOutputDir)electron-runtime\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(WorkerShellFiles)" DestinationFiles="@(WorkerShellFiles->'$(WorkerShellOutputDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

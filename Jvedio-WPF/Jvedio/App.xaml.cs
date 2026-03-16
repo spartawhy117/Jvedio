@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows.Interop;
 using SuperUtils.Systems;
 using Jvedio.Windows;
+using System.IO;
 #if DEBUG
 #else
 using System.Diagnostics;
@@ -78,6 +79,11 @@ namespace Jvedio
 
 #if DEBUG
 #else
+            if (ElectronShellLauncher.TryLaunch(Logger)) {
+                Shutdown();
+                return;
+            }
+
             bool createNew;
             ProgramStarted = new EventWaitHandle(false, EventResetMode.AutoReset, "Jvedio", out createNew);
             if (!createNew) {
@@ -163,3 +169,68 @@ namespace Jvedio
 
     }
 }
+
+#if DEBUG
+#else
+internal static class ElectronShellLauncher
+{
+    private const string DisableLegacyFallbackEnvironmentVariable = "JVEDIO_FORCE_LEGACY_WPF";
+    private const string ElectronShellDirectoryName = "electron-shell";
+
+    public static bool TryLaunch(Jvedio.Core.Logs.Logger logger)
+    {
+        if (ShouldUseLegacyWpf()) {
+            logger.Info("[Electron-Launcher] Legacy WPF startup forced by environment variable.");
+            return false;
+        }
+
+        string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string electronRoot = Path.Combine(appBaseDirectory, ElectronShellDirectoryName);
+        string electronExecutablePath = Path.Combine(electronRoot, "electron-runtime", "electron.exe");
+        string packageJsonPath = Path.Combine(electronRoot, "package.json");
+        string bootstrapPath = Path.Combine(electronRoot, "dist", "main", "app", "bootstrap.js");
+
+        if (!File.Exists(electronExecutablePath) || !File.Exists(packageJsonPath) || !File.Exists(bootstrapPath)) {
+            logger.Warn($"[Electron-Launcher] Electron shell artifacts were not found under {electronRoot}. Falling back to legacy WPF.");
+            return false;
+        }
+
+        string workerDllPath = Path.Combine(appBaseDirectory, "worker", "Jvedio.Worker.dll");
+
+        try {
+            ProcessStartInfo startInfo = new ProcessStartInfo {
+                FileName = electronExecutablePath,
+                Arguments = ".",
+                WorkingDirectory = electronRoot,
+                UseShellExecute = false
+            };
+
+            startInfo.EnvironmentVariables["JVEDIO_APP_BASE_DIR"] = appBaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (File.Exists(workerDllPath)) {
+                startInfo.EnvironmentVariables["JVEDIO_WORKER_DLL"] = workerDllPath;
+                startInfo.EnvironmentVariables["JVEDIO_WORKER_CWD"] = Path.GetDirectoryName(workerDllPath);
+            }
+
+            Process process = Process.Start(startInfo);
+            if (process == null) {
+                logger.Warn("[Electron-Launcher] Process.Start returned null. Falling back to legacy WPF.");
+                return false;
+            }
+
+            logger.Info($"[Electron-Launcher] Started Electron shell. pid={process.Id}, shellRoot={electronRoot}");
+            return true;
+        } catch (Exception ex) {
+            logger.Error(ex);
+            logger.Warn("[Electron-Launcher] Failed to start Electron shell. Falling back to legacy WPF.");
+            return false;
+        }
+    }
+
+    private static bool ShouldUseLegacyWpf()
+    {
+        string value = Environment.GetEnvironmentVariable(DisableLegacyFallbackEnvironmentVariable);
+        return string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
+    }
+}
+#endif

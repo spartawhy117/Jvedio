@@ -14,6 +14,16 @@
 - 已明确推荐方案路径，并冻结本轮推荐为“先补文档再进入实现”
 - `plan.md`、`plan.json`、`handoff.md` 的下一步状态一致
 
+## Release 启动器验证
+
+- `MSBuild.exe Jvedio.sln -property:Configuration=Release` 完成后，确认 `Jvedio-WPF/Jvedio/bin/Release/` 下存在：
+  - `Jvedio.exe`
+  - `electron-shell/`
+  - `worker/`
+- 直接运行 `Jvedio.exe` 时，应拉起 Electron 进程和本地 Worker，而不是旧 WPF 欢迎页
+- 窗口标题应为 `Jvedio`
+- 如需临时回退旧 WPF，仅用于排障，可设置环境变量 `JVEDIO_FORCE_LEGACY_WPF=1`
+
 ## 第一批：库的新建和删除
 
 - 先确认 `home-mvp-implementation-entry.md` 已冻结首批工程范围

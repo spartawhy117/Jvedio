@@ -13,7 +13,7 @@
 
 ## Current Phase
 
-- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，并已补上失败任务详情与重试入口、以及 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性收口；当前下一步进入最终受影响测试复扫与问题修复。
+- 第二批阶段 `D`、第三批“影片展示和播放”、第四批“设置页面”最小闭环与第二轮页签对齐、演员页第三轮收口、Favorites 一级聚合页、智能分类两项“类别 / 系列”，以及任务反馈的“全局活动条”收口均已完成实现并通过当前受影响 Electron 聚焦回归与 Release 构建。当前 Electron Settings 已对齐到 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`；其中真正落库与业务消费仍集中在 `Basic / MetaTube`，其余页签先承担结构对齐和现有控件承载。当前实现面已稳定收口到“库页内联 + 全局活动条 + Home 摘要”，并已补上失败任务详情与重试入口、以及 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性收口；同时 `Jvedio.exe` 的 Release 正式入口已切到 Electron 壳层，构建产物会自动带出 `electron-shell/` 与 `worker/`。当前下一步进入最终受影响测试复扫与问题修复。
 
 ## Latest Progress
 
@@ -185,6 +185,11 @@
   - 缺少 sidecar 或图片资源的影片卡片会以统一视觉高亮，便于快速识别资源缺口
   - Home 已新增统一入口摘要，明确 Favorites / Categories / Series / Actors / Settings 的切换关系
   - 当前已通过 `electron/` `npm run regression:favorites`、`npm run regression:categories`、`npm run regression:series`、`npm run regression:activity`、`npm run regression:tasks` 与 `MSBuild.exe Jvedio.sln -property:Configuration=Release`
+- 已完成 Release 启动器接线：
+  - `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动现在优先拉起 `bin/Release/electron-shell/`，旧 WPF 仅作为缺失产物时的回退
+  - `Jvedio-WPF/Jvedio/Jvedio.csproj` 已在 Release 构建中自动执行 `npm run build`、复制 Electron runtime / renderer / dist，并复制 `Jvedio.Worker` 运行产物到 `bin/Release/worker/`
+  - `electron/main/app/bootstrap.ts` 已补上单实例锁，`electron/main/worker/workerProcess.ts` 已兼容打包后 `worker/` 目录与环境变量覆盖
+  - 当前直接运行 `Jvedio-WPF/Jvedio/bin/Release/Jvedio.exe` 已会进入 Electron 新界面，而不是旧 WPF 主窗体
 
 ## Next Recommended Work
 
@@ -254,7 +259,12 @@
   - `electron/` `npm run regression:categories`
   - `electron/` `npm run regression:series`
   - `electron/` `npm run regression:activity`
+  - `electron/` `npm run regression:tasks`
   - `Jvedio-WPF/Jvedio.sln` `Release` 构建
+- Release 启动器验证目标：
+  - `Jvedio-WPF/Jvedio/bin/Release/` 下存在 `electron-shell/` 与 `worker/`
+  - 直接运行 `Jvedio.exe` 会拉起 Electron 进程与 Worker 进程
+  - 窗口标题为 `Jvedio`，不再落回旧 WPF 欢迎页
 - `electron/` `npm run regression:favorites` 已通过，覆盖：
   - Favorites 一级路由与结果集展示
   - 关键字筛选、排序、刷新
