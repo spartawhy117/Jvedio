@@ -1,62 +1,105 @@
 # Main Shell Spec
 
-## Purpose
+## 页面目的
 
-- Define the shared desktop shell used by the main window content pages.
-- Keep global navigation and shell controls in one reusable specification so page-level drawings can focus on right-side content.
+- `Main Shell` 定义当前 exe 主窗口的共享壳层。
+- 它负责品牌区、一级导航、智能分类入口、媒体库入口和右侧内容承载区。
 
-## Shared layout
+## 页面范围
 
-- The main shell uses a two-column structure:
-  - fixed left navigation rail
-  - adaptive right content area
-- The left rail should stay at a fixed width and should not stretch with window resizing.
-- The right content area should expand or shrink with the window size.
-- The first wireframe batch for the shell should use the Light theme direction.
+- 本壳层负责：
+  - 左侧固定导航栏
+  - 品牌区
+  - 一级导航入口
+  - 智能分类区入口
+  - 影视库区入口
+  - 右侧内容承载区
+- 本壳层不负责：
+  - 具体业务页面内容布局细节
+  - 设置页内部表单
+  - 库内容页具体结果集
 
-## Left rail
+## 布局
 
-- Top brand area:
-  - app icon on the left
-  - app title `Jvedio Next` on the right
-  - the icon + title lockup should read as one compact brand row, similar to the Clash Verge desktop-title pattern
-- Primary navigation:
-  - `设置`
-  - `库管理`
-  - `喜欢`
-  - `演员`
-  - every first-level entry uses the same left-icon + right-label pattern
-- Smart categories block:
-  - section title: `智能分类`
-  - use the same title style as the `影视库` block
-  - child items:
-    - `类别`
-    - `系列`
-  - this block is a global aggregation entry by default, not a child view of a specific library
-  - `类别` and `系列` aggregate videos across all libraries first; later implementation may add a per-library filter inside the page
-- Media libraries block:
-  - section title: `影视库`
-  - use the same title style as the `智能分类` block
-  - one row per configured library
-  - entering a library switches the content area into that library's scoped browsing view
-- The old footer popup with two expandable options is removed.
-- The shell should not show a bottom-left expandable menu for `设置` or `版本检查`.
+- 主窗口使用双栏结构：
+  - 左侧固定导航栏
+  - 右侧自适应内容区
+- 左栏宽度固定，不随窗口拉伸。
+- 右侧内容区随窗口尺寸变化而伸缩。
+- 当前线框采用 Light 方向。
 
-## Settings entry rule
+## 左侧导航结构
 
-- The `设置` entry is rendered as the first full-width navigation button in the left rail.
-- Its size, spacing, and visual weight should match the `库管理` navigation button instead of using a compact title-area action.
-- Clicking the top `设置` button opens the standalone settings window directly.
-- `版本检查` remains inside the settings window.
-- The main shell does not expose a secondary popup for settings-related actions.
+### 品牌区
 
-## Content-page drawing rule
+- 左侧为应用 icon。
+- 右侧为应用名 `Jvedio Next`。
+- 品牌区采用“左 icon + 右名称”的一行结构。
 
-- Shared-shell drawings should show the full left rail and the shell proportions.
-- Content-page drawings for Library Management, Favorites, Actors, Library, Genre, and Series should focus on the right content area only.
-- Content-page drawings should assume the shared shell is already present and should not redraw the entire left rail.
+### 一级导航
 
-## Responsive rule
+- `设置`
+- `库管理`
+- `喜欢`
+- `演员`
 
-- The left rail width is fixed across the main content pages.
-- The right content area is the only region that responds to window width changes in this phase.
+规则：
+- 一级导航全部使用相同的按钮高度、间距和 icon-left + label-right 结构。
+- `设置` 位于最上方，样式与 `库管理` 等导航按钮完全一致。
+
+### 智能分类区
+
+- 区块标题：`智能分类`
+- 子项：
+  - `类别`
+  - `系列`
+
+规则：
+- `类别` 和 `系列` 默认聚合所有库内容。
+- 它们不是某个单独媒体库的子页面。
+
+### 影视库区
+
+- 区块标题：`影视库`
+- 每个已配置媒体库占一行入口。
+- 点击某个库后，右侧内容区切换到该库的内容页。
+
+## 交互规则
+
+- 点击 `设置` 直接进入设置页，不再通过底部弹出菜单或二级展开入口。
+- 点击 `库管理` 进入媒体库管理首页。
+- 点击 `喜欢`、`演员`、`类别`、`系列` 进入对应一级内容页。
+- 点击某个媒体库名称进入该库的内容页。
+- 内容页线框只需要表达右侧内容区，不重复绘制整个左栏。
+
+## 状态定义
+
+### Default
+
+- 显示品牌区、一级导航、智能分类区和影视库区。
+
+### Active
+
+- 当前路由对应的导航项显示选中态。
+
+### Empty
+
+- 没有任何媒体库时，`影视库` 区块仍保留标题，但不显示库项列表。
+
+## 性能与体验约束
+
+- 左栏保持稳定，不因右侧页面切换产生结构抖动。
+- 主壳层优先提供清晰导航，不承载业务说明性长文本。
+- 智能分类区与影视库区标题样式保持统一。
+
+## 回归点
+
+- 品牌区显示 `Jvedio Next`。
+- `设置` 位于最上方且与其它一级导航同规格。
+- `类别`、`系列` 和 `影视库` 标题样式一致。
+- 进入不同一级页面时，右侧内容区可正常切换。
+
+## 相关文档
+
+- 图标语义：`icon-config.md`
+- 共享组件：`shared-components.md`
