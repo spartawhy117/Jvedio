@@ -7,7 +7,7 @@
 
 ## Layout
 
-- This page reuses the shared main shell defined in `main-shell-spec.md`.
+- This page reuses the shared main shell defined in `main-shell.md`.
 - The page wireframe should focus on the right content area only.
 - Page title: `首页` or `Home`
 - Top action row:

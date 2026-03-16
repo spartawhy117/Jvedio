@@ -6,7 +6,7 @@
 
 ## Layout
 
-- The normal library content page reuses the shared main shell defined in `main-shell-spec.md`.
+- The normal library content page reuses the shared main shell defined in `main-shell.md`.
 - The library content-page wireframe should focus on the right content area only.
 - Page title uses the selected library name.
 - Top action row:

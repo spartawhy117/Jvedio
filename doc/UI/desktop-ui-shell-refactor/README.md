@@ -24,13 +24,13 @@
 
 以下规格文档已迁到 `../new/`，与对应线稿放在同一目录维护：
 
-- `main-shell-spec.md`
-- `home-page-spec.md`
-- `favorites-page-spec.md`
-- `actors-page-spec.md`
-- `library-page-spec.md`
-- `settings-page-spec.md`
-- `icon-config-spec.md`
+- `main-shell.md`
+- `home-page.md`
+- `favorites-page.md`
+- `actors-page.md`
+- `library-page.md`
+- `settings-page.md`
+- `icon-config.md`
 
 此前放在本目录根下、容易与当前实施入口混淆的旧说明文档已移除，不再继续维护。
 

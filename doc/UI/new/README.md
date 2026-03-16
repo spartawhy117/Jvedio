@@ -7,23 +7,23 @@
 ## 当前使用方式
 
 - 页面线框：
-  - `main-shell-wireframe-v1.*`
-  - `home-wireframe-v1.*`
-  - `favorites-wireframe-v1.*`
-  - `actors-wireframe-v1.*`
-  - `library-wireframe-v1.*`
-  - `library-content-wireframe-v1.*`
-  - `settings-wireframe-v1.*`
+  - `main-shell.*`
+  - `home-page.*`
+  - `favorites-page.*`
+  - `actors-page.*`
+  - `library-page.*`
+  - `library-page-content.*`
+  - `settings-page.*`
 - 对应规格：
-  - `main-shell-spec.md`
-  - `home-page-spec.md`
-  - `favorites-page-spec.md`
-  - `actors-page-spec.md`
-  - `library-page-spec.md`
-  - `settings-page-spec.md`
-  - `icon-config-spec.md`
+  - `main-shell.md`
+  - `home-page.md`
+  - `favorites-page.md`
+  - `actors-page.md`
+  - `library-page.md`
+  - `settings-page.md`
+  - `icon-config.md`
 - 辅助图：
-  - `navigation-icon-semantics-v1.*`
+  - `icon-config.*`
 
 ## 文档边界
 
