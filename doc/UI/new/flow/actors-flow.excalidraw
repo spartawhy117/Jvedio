@@ -1,0 +1,376 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "title-actors",
+      "type": "text",
+      "x": 80,
+      "y": 40,
+      "strokeColor": "#1e1e1e",
+      "text": "Actors Flow",
+      "fontSize": 28,
+      "fontFamily": 2,
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-entry",
+      "type": "rectangle",
+      "x": 80,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "进入演员列表页\nGET /api/actors"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-filter",
+      "type": "rectangle",
+      "x": 380,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "搜索 / 排序 / 分页\n保持列表上下文"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-grid",
+      "type": "rectangle",
+      "x": 680,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "演员卡片网格\n真实头像或占位头像"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actor-detail",
+      "type": "rectangle",
+      "x": 980,
+      "y": 100,
+      "width": 240,
+      "height": 80,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "进入演员详情页\nGET /api/actors/{id}"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actor-videos",
+      "type": "rectangle",
+      "x": 980,
+      "y": 220,
+      "width": 240,
+      "height": 80,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "加载关联影片\nGET /api/actors/{id}/videos"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actor-video-detail",
+      "type": "rectangle",
+      "x": 1300,
+      "y": 100,
+      "width": 240,
+      "height": 80,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "从关联影片进入影片详情\n保留二级返回链路"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actor-return",
+      "type": "rectangle",
+      "x": 1300,
+      "y": 220,
+      "width": 240,
+      "height": 80,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "Video Detail -> Actor Detail\nActor Detail -> Actors"
+      },
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a1",
+      "type": "arrow",
+      "x": 308,
+      "y": 200,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#1e1e1e",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "actors-entry"
+      },
+      "end": {
+        "id": "actors-filter"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a2",
+      "type": "arrow",
+      "x": 608,
+      "y": 200,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#1e1e1e",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "actors-filter"
+      },
+      "end": {
+        "id": "actors-grid"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a3",
+      "type": "arrow",
+      "x": 907.8542388047223,
+      "y": 177.18950216682796,
+      "width": 80,
+      "height": -20,
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "label": {
+        "text": "点击演员卡片"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.29152239055543,
+          -12.443520462688156
+        ]
+      ],
+      "start": {
+        "id": "actors-grid"
+      },
+      "end": {
+        "id": "actor-detail"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a4",
+      "type": "arrow",
+      "x": 1100,
+      "y": 188,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "label": {
+        "text": "加载作品集"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          24
+        ]
+      ],
+      "start": {
+        "id": "actor-detail"
+      },
+      "end": {
+        "id": "actor-videos"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a5",
+      "type": "arrow",
+      "x": 1228,
+      "y": 140,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "label": {
+        "text": "点击关联影片"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          2.842170943040401e-14
+        ]
+      ],
+      "start": {
+        "id": "actor-detail"
+      },
+      "end": {
+        "id": "actor-video-detail"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a6",
+      "type": "arrow",
+      "x": 1228,
+      "y": 260,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "label": {
+        "text": "分页与返回恢复"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "actor-videos"
+      },
+      "end": {
+        "id": "actor-return"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    },
+    {
+      "id": "actors-a7",
+      "type": "arrow",
+      "x": 1420,
+      "y": 188,
+      "width": 0,
+      "height": 40,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "label": {
+        "text": "返回"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          24
+        ]
+      ],
+      "start": {
+        "id": "actor-video-detail"
+      },
+      "end": {
+        "id": "actor-return"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:43:50.442Z",
+      "updatedAt": "2026-03-16T23:43:50.442Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

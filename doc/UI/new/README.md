@@ -23,6 +23,7 @@
   - `shared-components.*`
   - `page-index.md`
   - `ui-todo.md`
+  - `flow/README.md`
 - 对应规格：
   - `main-shell.md`
   - `library-management-page.md`
@@ -38,12 +39,15 @@
   - `delete-library-dialog.md`
   - `task-detail-dialog.md`
   - `shared-components.md`
+  - `flow/*.png`
+  - `flow/*.excalidraw`
 
 ## 文档边界
 
 - 本目录负责：
   - 当前 exe UI 的页面结构、主要交互、线框和共享组件约束
   - 当前 exe UI 的页面级功能说明与共享组件约束
+  - 当前 exe UI 的主链路流程图
 - `../../../plan/active/desktop-ui-shell-refactor/` 负责：
   - 当前 active feature 的阶段、验证、交接和实现计划
 - `../old/` 负责：
@@ -71,3 +75,6 @@
   - `.png`
   - `.excalidraw`
   - `.md`
+- 当前正式流程图统一收口到 `flow/`，每张流程图至少具备：
+  - `.png`
+  - `.excalidraw`

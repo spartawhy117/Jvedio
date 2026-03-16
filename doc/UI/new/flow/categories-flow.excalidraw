@@ -1,0 +1,379 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "title-categories",
+      "type": "text",
+      "x": 80,
+      "y": 40,
+      "strokeColor": "#1e1e1e",
+      "text": "Categories Flow",
+      "fontSize": 28,
+      "fontFamily": 2,
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-entry",
+      "type": "rectangle",
+      "x": 80,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "进入类别聚合页\nGET /api/videos/categories"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-filter",
+      "type": "rectangle",
+      "x": 380,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "搜索 / 排序\n筛类别与结果上下文"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-list",
+      "type": "rectangle",
+      "x": 680,
+      "y": 100,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "左侧类别列表\n名称 + 影片数"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-results",
+      "type": "rectangle",
+      "x": 680,
+      "y": 220,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "右侧影片结果区\n统一影片卡片 + 分页"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-detail",
+      "type": "rectangle",
+      "x": 980,
+      "y": 100,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "选中类别\nGET /api/videos/categories/{name}/videos"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-video",
+      "type": "rectangle",
+      "x": 980,
+      "y": 220,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "打开影片详情\nbackTo=当前类别状态"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-return",
+      "type": "rectangle",
+      "x": 1280,
+      "y": 160,
+      "width": 220,
+      "height": 80,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "返回 Categories\n恢复类别 / 筛选 / 分页"
+      },
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a1",
+      "type": "arrow",
+      "x": 308,
+      "y": 200,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#1e1e1e",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "cat-entry"
+      },
+      "end": {
+        "id": "cat-filter"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a2",
+      "type": "arrow",
+      "x": 607.8446454055273,
+      "y": 176.43107091889453,
+      "width": 80,
+      "height": -20,
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "label": {
+        "text": "聚合列表"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.31070918894534,
+          -12.862141837789096
+        ]
+      ],
+      "start": {
+        "id": "cat-filter"
+      },
+      "end": {
+        "id": "cat-list"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a3",
+      "type": "arrow",
+      "x": 607.8446454055273,
+      "y": 223.56892908110547,
+      "width": 80,
+      "height": 20,
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "label": {
+        "text": "结果区"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.31070918894534,
+          12.862141837789096
+        ]
+      ],
+      "start": {
+        "id": "cat-filter"
+      },
+      "end": {
+        "id": "cat-results"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a4",
+      "type": "arrow",
+      "x": 908,
+      "y": 140,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "label": {
+        "text": "选择类别"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "cat-list"
+      },
+      "end": {
+        "id": "cat-detail"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a5",
+      "type": "arrow",
+      "x": 908,
+      "y": 260,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "label": {
+        "text": "点击卡片"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "cat-results"
+      },
+      "end": {
+        "id": "cat-video"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a6",
+      "type": "arrow",
+      "x": 1207.8446454055274,
+      "y": 163.56892908110547,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "label": {
+        "text": "状态保持"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.31070918894511,
+          12.862141837789096
+        ]
+      ],
+      "start": {
+        "id": "cat-detail"
+      },
+      "end": {
+        "id": "cat-return"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    },
+    {
+      "id": "cat-a7",
+      "type": "arrow",
+      "x": 1207.8446454055274,
+      "y": 236.43107091889453,
+      "width": 80,
+      "height": -20,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "label": {
+        "text": "返回"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.31070918894511,
+          -12.862141837789096
+        ]
+      ],
+      "start": {
+        "id": "cat-video"
+      },
+      "end": {
+        "id": "cat-return"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-16T23:44:31.097Z",
+      "updatedAt": "2026-03-16T23:44:31.097Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

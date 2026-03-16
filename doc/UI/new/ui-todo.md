@@ -51,48 +51,48 @@
   - 数据消费关系
 - [x] 复查所有迁移后的 `new/*.md`，确认未引入任何新的 UI 元素或布局变化
 - [x] 更新 `doc/UI/new/README.md`，移除对 `desktop-ui-shell-refactor/` 的依赖说明
-- [ ] 更新 `page-index.md`，如有必要补充文档说明边界
-- [ ] 更新 `CHANGELOG.md`，记录本轮 UI 文档迁移与旧目录删除
+- [x] 更新 `page-index.md`，如有必要补充文档说明边界
+- [x] 更新 `CHANGELOG.md`，记录本轮 UI 文档迁移与旧目录删除
 - [x] 删除 `doc/UI/desktop-ui-shell-refactor/` 整个目录及其全部内容
 - [x] 修复 active feature 文档中对旧目录的当前入口引用，重点包括：
   - `plan/active/desktop-ui-shell-refactor/handoff.md`
   - `plan/active/desktop-ui-shell-refactor/plan.md`
   - `plan/active/desktop-ui-shell-refactor/validation.md`
   - `plan/active/desktop-ui-shell-refactor/implementation-steps.md`
-- [ ] 新建 `doc/UI/new/flow/`
-- [ ] 新建 `doc/UI/new/flow/README.md`，作为流程图索引
-- [ ] 生成主壳导航流程图：
+- [x] 新建 `doc/UI/new/flow/`
+- [x] 新建 `doc/UI/new/flow/README.md`，作为流程图索引
+- [x] 生成主壳导航流程图：
   - `main-shell-navigation-flow.excalidraw`
   - `main-shell-navigation-flow.png`
-- [ ] 生成库管理流程图：
+- [x] 生成库管理流程图：
   - `library-management-flow.excalidraw`
   - `library-management-flow.png`
-- [ ] 生成单库工作台流程图：
+- [x] 生成单库工作台流程图：
   - `library-workbench-flow.excalidraw`
   - `library-workbench-flow.png`
-- [ ] 生成喜欢页流程图：
+- [x] 生成喜欢页流程图：
   - `favorites-flow.excalidraw`
   - `favorites-flow.png`
-- [ ] 生成演员页流程图：
+- [x] 生成演员页流程图：
   - `actors-flow.excalidraw`
   - `actors-flow.png`
-- [ ] 生成类别页流程图：
+- [x] 生成类别页流程图：
   - `categories-flow.excalidraw`
   - `categories-flow.png`
-- [ ] 生成系列页流程图：
+- [x] 生成系列页流程图：
   - `series-flow.excalidraw`
   - `series-flow.png`
-- [ ] 生成影片详情与播放流程图：
+- [x] 生成影片详情与播放流程图：
   - `video-detail-playback-flow.excalidraw`
   - `video-detail-playback-flow.png`
-- [ ] 生成设置页流程图：
+- [x] 生成设置页流程图：
   - `settings-flow.excalidraw`
   - `settings-flow.png`
-- [ ] 生成任务失败详情与重试流程图：
+- [x] 生成任务失败详情与重试流程图：
   - `task-failure-retry-flow.excalidraw`
   - `task-failure-retry-flow.png`
-- [ ] 更新 `flow/README.md`，补齐每张流程图的用途说明
-- [ ] 执行 Release 构建验证
+- [x] 更新 `flow/README.md`，补齐每张流程图的用途说明
+- [x] 执行 Release 构建验证
 - [ ] 按阶段提交并推送
 
 ## 迁移规则
@@ -149,6 +149,7 @@
 - 当前 UI 页面、文档、流程图全部收口到 `doc/UI/new/`。
 - `doc/UI/new/flow/` 成为当前 UI 流转图唯一入口。
 - 所有迁移都不改变当前已经确认的新 UI 结构。
+- `page-index.md`、`README.md` 与 `flow/README.md` 能互相指回当前正式图片、文档与流程图入口。
 
 ## 验收标准
 

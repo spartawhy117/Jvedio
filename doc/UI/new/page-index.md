@@ -31,6 +31,21 @@
 | `task-detail-dialog` | `task-detail-dialog.png` | `task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
 | `shared-components` | `shared-components.png` | `shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
 
+## 流程图索引
+
+| 名称 | 图片 | 源文件 | 极简功能说明 |
+| --- | --- | --- | --- |
+| `main-shell-navigation-flow` | `flow/main-shell-navigation-flow.png` | `flow/main-shell-navigation-flow.excalidraw` | 主壳导航、智能分类和影视库入口如何切换右侧内容区。 |
+| `library-management-flow` | `flow/library-management-flow.png` | `flow/library-management-flow.excalidraw` | 库管理页的建库、编辑、删除、扫描和打开单库主链路。 |
+| `library-workbench-flow` | `flow/library-workbench-flow.png` | `flow/library-workbench-flow.excalidraw` | 单库页的结果集浏览、任务反馈和详情返回链路。 |
+| `favorites-flow` | `flow/favorites-flow.png` | `flow/favorites-flow.excalidraw` | 喜欢页的结果集浏览和返回恢复。 |
+| `actors-flow` | `flow/actors-flow.png` | `flow/actors-flow.excalidraw` | Actors 列表、演员详情、关联影片和二级返回链路。 |
+| `categories-flow` | `flow/categories-flow.png` | `flow/categories-flow.excalidraw` | Categories 左右分栏和详情返回链路。 |
+| `series-flow` | `flow/series-flow.png` | `flow/series-flow.excalidraw` | Series 左右分栏和详情返回链路。 |
+| `video-detail-playback-flow` | `flow/video-detail-playback-flow.png` | `flow/video-detail-playback-flow.excalidraw` | 影片详情读取、播放、写回和 backTo 返回链路。 |
+| `settings-flow` | `flow/settings-flow.png` | `flow/settings-flow.excalidraw` | 设置读取、保存、恢复默认、diagnostics 和事件回流。 |
+| `task-failure-retry-flow` | `flow/task-failure-retry-flow.png` | `flow/task-failure-retry-flow.excalidraw` | 失败任务详情弹层与重试主链路。 |
+
 ## 命名规则
 
 - 页面正式文件名统一使用英文 kebab-case。
@@ -50,6 +65,11 @@
   - 状态定义
   - 交互规则
   - 回归点
+- 流程图负责：
+  - 页面进入关系
+  - 页面内主链路动作
+  - 返回链路
+  - 数据读取与提交关系
 
 ## 备注
 
