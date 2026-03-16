@@ -1,41 +1,89 @@
 # Actors Page Spec
 
-## Purpose
+## 页面目的
 
-- Provide a dedicated first-level page for actor aggregation and browsing.
+- `Actors Page` 是演员聚合列表的一级入口页。
+- 它负责跨库浏览演员结果集，并作为独立演员详情页的入口。
 
-## Layout
+## 页面范围
 
-- This page reuses the shared main shell defined in `main-shell.md`.
-- The page wireframe should focus on the right content area only.
-- Page title: `影片演员` or `Actors`
-- Top row:
-  - search
-  - sort
-    - `名字`
-    - `数量`
-  - do not place extra actions on the top-right side of the content area in this phase
-- Main content:
-  - adaptive card grid
-  - current page scope is all actresses found across the configured libraries
-  - actor avatar size stays fixed even when the window width changes
-  - card column count adapts to window width
+- 本页负责：
+  - 展示演员聚合结果集
+  - 提供关键字筛选、排序、分页
+  - 打开独立演员详情页
+- 本页不负责：
+  - 展示演员关联影片详情内容本身
+  - 管理媒体库
+  - 展示影片详情主内容
 
-## Behavior
+## 数据来源
 
-- Reuse the existing `ActorList` data and interaction model.
-- Keep the current actor search and favorites-related capabilities where they already exist.
+- 演员列表：
+  - `GET /api/actors`
+- 演员详情跳转目标：
+  - `GET /api/actors/{actorId}`
 
-## Actor card content
+## 布局
 
-- Avatar
-  - fixed-size thumbnail
-- Name
-- Video count
+- 本页复用 `main-shell.md` 定义的共享壳层。
+- 当前线框只表达右侧内容区。
+- 顶部保留：
+  - 搜索框
+  - 排序按钮组
+- 排序项第一轮至少包含：
+  - `名字`
+  - `数量`
+- 主体区域使用自适应演员卡片网格。
+- 演员头像在窗口伸缩时保持固定尺寸。
 
-Do not show extra tag, favorite-state, or secondary metadata text inside the actor card in this phase.
+## 元素清单
 
-## Notes
+| 元素 | 类型 | 常显 | 行为 | 数据来源 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 页面标题 | 静态标题 | 是 | 无 | 固定文案 | 文案为 `影片演员 / Actors` |
+| 搜索框 | 输入框 | 是 | 更新关键字筛选 | 当前查询状态 | 用于演员名搜索 |
+| 排序按钮组 | 轻量切换按钮 | 是 | 切换排序字段 | 当前查询状态 | 至少保留名字/数量 |
+| 演员卡片网格 | 内容区 | 是 | 点击进入演员详情页 | `GET /api/actors` | 统一卡片密度 |
+| 单张演员卡片 | 卡片 | 是 | 进入演员详情 | 当前列表项 | 显示头像、名字、影片数 |
 
-- This page is a content page, not a library-management page.
-- It should inherit the new shell and theme styles without reworking actor business logic in this documentation phase.
+## 交互规则
+
+- 从左侧一级导航 `演员` 进入本页。
+- 搜索框输入关键字后刷新演员结果集。
+- 点击演员卡片后进入独立演员详情页。
+- 从演员详情返回时应恢复当前搜索、排序和分页状态。
+- 当前阶段不在列表页内展开抽屉式详情。
+
+## 状态定义
+
+### Loading
+
+- 首次进入本页时显示演员结果集 loading。
+
+### Empty
+
+- 没有命中演员结果时显示轻量空态。
+
+### Error
+
+- 演员结果集拉取失败时显示错误提示与刷新入口。
+
+## 性能与体验约束
+
+- 演员头像尺寸固定，避免因响应式变化导致视觉抖动。
+- 列表页只保留名字与影片数等最小信息，不在卡片内堆更多元数据。
+- 当前阶段优先保证列表浏览与详情跳转闭环稳定。
+
+## 回归点
+
+- 能从左侧导航进入 Actors。
+- 搜索与排序有效。
+- 分页切换有效。
+- 点击演员卡片后能进入独立详情页。
+- 返回 Actors 后状态能正确恢复。
+
+## 相关文档
+
+- 共享组件：`shared-components.md`
+- 主壳层：`main-shell.md`
+- 演员详情页：`actor-detail-page.md`

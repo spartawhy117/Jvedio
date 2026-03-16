@@ -14,8 +14,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -27,21 +27,8 @@
       "text": "影片演员 / Actors Content",
       "fontSize": 30,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
-      "version": 1
-    },
-    {
-      "id": "actors-content-subtitle",
-      "type": "text",
-      "x": 160,
-      "y": 132,
-      "strokeColor": "#6b7280",
-      "text": "共享左侧栏已省略；本图只表达右侧内容区的结构",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -55,8 +42,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -68,8 +55,8 @@
       "text": "搜索演员名称",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -81,8 +68,8 @@
       "text": "排序",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -96,8 +83,8 @@
       "strokeColor": "#7cc08a",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.707Z",
+      "updatedAt": "2026-03-16T19:54:44.707Z",
       "version": 1
     },
     {
@@ -109,8 +96,8 @@
       "text": "名字",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -124,8 +111,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -137,8 +124,8 @@
       "text": "数量",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -152,8 +139,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -167,8 +154,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -182,8 +169,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -195,8 +182,8 @@
       "text": "Yua Mikami",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -208,8 +195,8 @@
       "text": "126 部影片",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -223,8 +210,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -238,8 +225,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -251,8 +238,8 @@
       "text": "Aoi Sora",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -264,8 +251,8 @@
       "text": "94 部影片",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -279,8 +266,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -294,8 +281,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -307,8 +294,8 @@
       "text": "Julia",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -320,8 +307,8 @@
       "text": "88 部影片",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -335,8 +322,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -350,8 +337,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -363,8 +350,8 @@
       "text": "Kana Momonogi",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -376,8 +363,8 @@
       "text": "73 部影片",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -391,8 +378,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -406,8 +393,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     },
     {
@@ -419,21 +406,8 @@
       "text": "...",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
-      "version": 1
-    },
-    {
-      "id": "actors-content-note",
-      "type": "text",
-      "x": 160,
-      "y": 780,
-      "strokeColor": "#6b7280",
-"text": "共享主框架中的左侧导航、智能分类和设置入口已在 main-shell 单独维护。",
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-14T22:45:08.989Z",
-      "updatedAt": "2026-03-14T22:45:08.989Z",
+      "createdAt": "2026-03-16T19:54:44.708Z",
+      "updatedAt": "2026-03-16T19:54:44.708Z",
       "version": 1
     }
   ],
