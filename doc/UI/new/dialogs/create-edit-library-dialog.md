@@ -86,5 +86,5 @@
 
 ## 相关文档
 
-- 库管理页：`library-management-page.md`
-- 共享组件：`shared-components.md`
+- 库管理页：`../pages/library-management-page.md`
+- 共享组件：`../shared/shared-components.md`

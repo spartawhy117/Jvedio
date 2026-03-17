@@ -5,10 +5,13 @@
 ## 当前硬规则
 
 - `doc/UI/new/` 是当前 exe UI 的唯一正式页面文档入口。
+- 页面三件套统一放在 `doc/UI/new/pages/`。
+- 弹层三件套统一放在 `doc/UI/new/dialogs/`。
+- 共享组件三件套统一放在 `doc/UI/new/shared/`。
 - 从旧文档迁移内容时，只允许补充规格说明、数据来源、交互规则、实现边界和回归点。
 - 不允许因为迁移旧文档内容而修改当前已经确认的 UI 线框。
 - 不允许新增当前线框中不存在的 UI 元素、按钮、区块或排布。
-- 当前页面结构、控件内容和布局，以 `doc/UI/new/*.png` 与对应 `.excalidraw` 为准。
+- 当前页面结构、控件内容和布局，以 `doc/UI/new/pages/*.png`、`doc/UI/new/dialogs/*.png`、`doc/UI/new/shared/*.png` 与对应 `.excalidraw` 为准。
 - 旧目录中仍有价值的内容，优先迁移到对应新文档，而不是继续保留旧目录。
 - 旧目录迁移完成后，删除 `doc/UI/desktop-ui-shell-refactor/` 整个目录。
 - 新增流程图统一放在 `doc/UI/new/flow/`。
@@ -19,37 +22,37 @@
 
 ## 当前执行顺序
 
-- [x] 对比 `doc/UI/new/*.md` 与 `doc/UI/desktop-ui-shell-refactor/electron/*.md`
+- [x] 对比 `doc/UI/new/pages/*.md`、`doc/UI/new/dialogs/*.md`、`doc/UI/new/shared/*.md` 与 `doc/UI/desktop-ui-shell-refactor/electron/*.md`
 - [x] 梳理旧页面文档中仍有价值、且不会改变当前 UI 结构的内容块
 - [x] 将旧 `page-home.md` 中可复用内容迁入：
-  - `library-management-page.md`
+  - `pages/library-management-page.md`
 - [x] 将旧 `page-library.md` 中可复用内容迁入：
-  - `library-page.md`
+  - `pages/library-page.md`
 - [x] 将旧 `page-actors.md` 中可复用内容迁入：
-  - `actors-page.md`
-  - `actor-detail-page.md`
+  - `pages/actors-page.md`
+  - `pages/actor-detail-page.md`
 - [x] 将旧 `page-video-detail.md` 中可复用内容迁入：
-  - `video-detail-page.md`
+  - `pages/video-detail-page.md`
 - [x] 将旧 `page-settings.md` 中可复用内容迁入：
-  - `settings-page.md`
+  - `pages/settings-page.md`
 - [x] 将旧 `information-architecture.md` 中可复用内容迁入：
-  - `main-shell.md`
+  - `pages/main-shell.md`
 - [x] 将旧技术文档中对当前页面规格仍有帮助的稳定结论，按主题分散补入：
-  - `main-shell.md`
-  - `library-management-page.md`
-  - `library-page.md`
-  - `actors-page.md`
-  - `actor-detail-page.md`
-  - `video-detail-page.md`
-  - `settings-page.md`
-  - `shared-components.md`
-- [x] 重点补强 `settings-page.md`，至少补齐：
+  - `pages/main-shell.md`
+  - `pages/library-management-page.md`
+  - `pages/library-page.md`
+  - `pages/actors-page.md`
+  - `pages/actor-detail-page.md`
+  - `pages/video-detail-page.md`
+  - `pages/settings-page.md`
+  - `shared/shared-components.md`
+- [x] 重点补强 `pages/settings-page.md`，至少补齐：
   - 重点设置项
   - 当前真实接线范围
   - 当前仅做结构承载的分组
   - 实现边界
   - 数据消费关系
-- [x] 复查所有迁移后的 `new/*.md`，确认未引入任何新的 UI 元素或布局变化
+- [x] 复查所有迁移后的 `pages/*.md`、`dialogs/*.md`、`shared/*.md`，确认未引入任何新的 UI 元素或布局变化
 - [x] 更新 `doc/UI/new/README.md`，移除对 `desktop-ui-shell-refactor/` 的依赖说明
 - [x] 更新 `page-index.md`，如有必要补充文档说明边界
 - [x] 更新 `CHANGELOG.md`，记录本轮 UI 文档迁移与旧目录删除
@@ -146,14 +149,14 @@
 - `doc/UI/new/` 下所有页面文档都补齐当前实现所需的规格信息。
 - `settings-page.md` 不再只有页面壳说明，而具备足够完整的设置项、接线范围和实现边界说明。
 - `doc/UI/desktop-ui-shell-refactor/` 不再保留。
-- 当前 UI 页面、文档、流程图全部收口到 `doc/UI/new/`。
+- 当前 UI 页面、弹层、共享组件、文档与流程图全部收口到 `doc/UI/new/`。
 - `doc/UI/new/flow/` 成为当前 UI 流转图唯一入口。
 - 所有迁移都不改变当前已经确认的新 UI 结构。
 - `page-index.md`、`README.md` 与 `flow/README.md` 能互相指回当前正式图片、文档与流程图入口。
 
 ## 验收标准
 
-- 任意一个 `doc/UI/new/*.md` 都没有因为内容迁移而要求新增 UI 元素或改变布局。
+- 任意一个 `doc/UI/new/pages/*.md`、`doc/UI/new/dialogs/*.md`、`doc/UI/new/shared/*.md` 都没有因为内容迁移而要求新增 UI 元素或改变布局。
 - `doc/UI/new/README.md` 不再把 `desktop-ui-shell-refactor/` 作为当前入口依赖。
 - `doc/UI/desktop-ui-shell-refactor/` 被完整删除。
 - `doc/UI/new/flow/` 下流程图文件齐全，命名统一。

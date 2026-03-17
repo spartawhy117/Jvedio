@@ -84,6 +84,6 @@
 
 ## 相关文档
 
-- 共享组件：`shared-components.md`
+- 共享组件：`../shared/shared-components.md`
 - 主壳层：`main-shell.md`
 - 影片详情页：`video-detail-page.md`

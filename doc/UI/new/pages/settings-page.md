@@ -191,4 +191,4 @@
 ## 相关文档
 
 - 主壳层：`main-shell.md`
-- 共享组件：`shared-components.md`
+- 共享组件：`../shared/shared-components.md`

@@ -6,41 +6,32 @@
 
 ## 当前使用方式
 
-- 页面线框：
-  - `main-shell.*`
-  - `library-management-page.*`
-  - `library-page.*`
-  - `favorites-page.*`
-  - `actors-page.*`
-  - `actor-detail-page.*`
-  - `categories-page.*`
-  - `series-page.*`
-  - `video-detail-page.*`
-  - `settings-page.*`
-  - `create-edit-library-dialog.*`
-  - `delete-library-dialog.*`
-  - `task-detail-dialog.*`
-  - `shared-components.*`
+- 页面三件套：
+  - `pages/main-shell.*`
+  - `pages/library-management-page.*`
+  - `pages/library-page.*`
+  - `pages/favorites-page.*`
+  - `pages/actors-page.*`
+  - `pages/actor-detail-page.*`
+  - `pages/categories-page.*`
+  - `pages/series-page.*`
+  - `pages/video-detail-page.*`
+  - `pages/settings-page.*`
+- 弹层三件套：
+  - `dialogs/create-edit-library-dialog.*`
+  - `dialogs/delete-library-dialog.*`
+  - `dialogs/task-detail-dialog.*`
+- 共享组件三件套：
+  - `shared/shared-components.*`
+- 流程图：
+  - `flow/*.png`
+  - `flow/*.excalidraw`
+- 根目录索引与说明：
+  - `README.md`
   - `page-index.md`
   - `ui-todo.md`
   - `flow/README.md`
-- 对应规格：
-  - `main-shell.md`
-  - `library-management-page.md`
-  - `library-page.md`
-  - `favorites-page.md`
-  - `actors-page.md`
-  - `actor-detail-page.md`
-  - `categories-page.md`
-  - `series-page.md`
-  - `video-detail-page.md`
-  - `settings-page.md`
-  - `create-edit-library-dialog.md`
-  - `delete-library-dialog.md`
-  - `task-detail-dialog.md`
-  - `shared-components.md`
-  - `flow/*.png`
-  - `flow/*.excalidraw`
+  - `_archive/README.md`
 
 ## 文档边界
 
@@ -68,9 +59,9 @@
   - `状态定义`
   - `性能与体验约束`
   - `回归点`
-- 共享组件约束统一写在 `shared-components.md`，页面文档直接引用，不在每页重复发散描述。
+- 共享组件约束统一写在 `shared/shared-components.md`，页面文档直接引用，不在每页重复发散描述。
 - `library-page` 现在统一表示“单个媒体库的内容页”，不再并行保留 `library-page-content` 这一页面名称。
-- 旧的库编辑样式线框已从当前正式文档集中删除，避免再与当前正式 `library-page.*` 混用。
+- 旧的库编辑样式线框已从当前正式文档集中删除，避免再与当前正式 `pages/library-page.*` 混用。
 - 当前正式页面、弹层和共享组件图都要求同时具备：
   - `.png`
   - `.excalidraw`

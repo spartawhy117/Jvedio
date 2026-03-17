@@ -196,6 +196,6 @@
 
 ## 相关文档
 
-- 共享组件：`shared-components.md`
+- 共享组件：`../shared/shared-components.md`
 - 主壳层：`main-shell.md`
 - 库内容页：`library-page.md`

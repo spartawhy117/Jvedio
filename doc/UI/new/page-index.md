@@ -11,25 +11,25 @@
 
 | 名称 | 图片 | 文档 | 极简功能说明 |
 | --- | --- | --- | --- |
-| `main-shell` | `main-shell.png` | `main-shell.md` | 主窗口共享壳层，负责品牌区、一级导航、智能分类入口和库导航区。 |
-| `library-management-page` | `library-management-page.png` | `library-management-page.md` | 库管理首页，负责建库、开库、扫描、编辑、删除和库级任务状态查看。 |
-| `library-page` | `library-page.png` | `library-page.md` | 单个媒体库内容页，负责库内影片浏览、筛选、排序、分页和进入影片详情。 |
-| `favorites-page` | `favorites-page.png` | `favorites-page.md` | 喜欢影片聚合页，负责展示收藏结果集和统一结果区交互。 |
-| `actors-page` | `actors-page.png` | `actors-page.md` | 演员聚合列表页，负责演员搜索、排序、分页和进入演员详情。 |
-| `actor-detail-page` | `actor-detail-page.png` | `actor-detail-page.md` | 独立演员详情页，负责演员头部信息、关联影片和返回链路。 |
-| `categories-page` | `categories-page.png` | `categories-page.md` | 全局类别聚合页，负责类别列表和类别内影片结果集浏览。 |
-| `series-page` | `series-page.png` | `series-page.md` | 全局系列聚合页，负责系列列表和系列内影片结果集浏览。 |
-| `video-detail-page` | `video-detail-page.png` | `video-detail-page.md` | 影片详情页，负责详情信息展示、播放入口和返回来源恢复。 |
-| `settings-page` | `settings-page.png` | `settings-page.md` | 设置页，负责分组设置、保存、恢复默认和 MetaTube diagnostics。 |
+| `main-shell` | `pages/main-shell.png` | `pages/main-shell.md` | 主窗口共享壳层，负责品牌区、一级导航、智能分类入口和库导航区。 |
+| `library-management-page` | `pages/library-management-page.png` | `pages/library-management-page.md` | 库管理首页，负责建库、开库、扫描、编辑、删除和库级任务状态查看。 |
+| `library-page` | `pages/library-page.png` | `pages/library-page.md` | 单个媒体库内容页，负责库内影片浏览、筛选、排序、分页和进入影片详情。 |
+| `favorites-page` | `pages/favorites-page.png` | `pages/favorites-page.md` | 喜欢影片聚合页，负责展示收藏结果集和统一结果区交互。 |
+| `actors-page` | `pages/actors-page.png` | `pages/actors-page.md` | 演员聚合列表页，负责演员搜索、排序、分页和进入演员详情。 |
+| `actor-detail-page` | `pages/actor-detail-page.png` | `pages/actor-detail-page.md` | 独立演员详情页，负责演员头部信息、关联影片和返回链路。 |
+| `categories-page` | `pages/categories-page.png` | `pages/categories-page.md` | 全局类别聚合页，负责类别列表和类别内影片结果集浏览。 |
+| `series-page` | `pages/series-page.png` | `pages/series-page.md` | 全局系列聚合页，负责系列列表和系列内影片结果集浏览。 |
+| `video-detail-page` | `pages/video-detail-page.png` | `pages/video-detail-page.md` | 影片详情页，负责详情信息展示、播放入口和返回来源恢复。 |
+| `settings-page` | `pages/settings-page.png` | `pages/settings-page.md` | 设置页，负责分组设置、保存、恢复默认和 MetaTube diagnostics。 |
 
 ## 弹层与共享组件索引
 
 | 名称 | 图片 | 文档 | 极简功能说明 |
 | --- | --- | --- | --- |
-| `create-edit-library-dialog` | `create-edit-library-dialog.png` | `create-edit-library-dialog.md` | 新建/编辑媒体库弹层，统一库名与扫描目录输入。 |
-| `delete-library-dialog` | `delete-library-dialog.png` | `delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
-| `task-detail-dialog` | `task-detail-dialog.png` | `task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
-| `shared-components` | `shared-components.png` | `shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
+| `create-edit-library-dialog` | `dialogs/create-edit-library-dialog.png` | `dialogs/create-edit-library-dialog.md` | 新建/编辑媒体库弹层，统一库名与扫描目录输入。 |
+| `delete-library-dialog` | `dialogs/delete-library-dialog.png` | `dialogs/delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
+| `task-detail-dialog` | `dialogs/task-detail-dialog.png` | `dialogs/task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
+| `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
 
 ## 流程图索引
 
@@ -50,6 +50,7 @@
 
 - 页面正式文件名统一使用英文 kebab-case。
 - `.png`、`.excalidraw`、`.md` 使用同一基础名。
+- 页面统一放在 `pages/`，弹层统一放在 `dialogs/`，共享组件统一放在 `shared/`。
 - `library-page` 只表示单个媒体库内容页。
 - `library-page-content` 不再作为独立页面名使用。
 

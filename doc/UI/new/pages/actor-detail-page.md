@@ -91,4 +91,4 @@
 
 - 演员列表页：`actors-page.md`
 - 影片详情页：`video-detail-page.md`
-- 共享组件：`shared-components.md`
+- 共享组件：`../shared/shared-components.md`
