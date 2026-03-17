@@ -191,15 +191,18 @@
     {
       "id": "actor-card1-title",
       "type": "text",
-      "x": 252,
+      "x": 305,
       "y": 432,
       "strokeColor": "#1f2933",
-      "text": "IPZZ-011 / Blue Hour",
+      "text": "IPZZ-011",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:42.934Z",
+      "version": 2,
+      "label": {
+        "text": "IPZZ-011"
+      }
     },
     {
       "id": "actor-card1-meta",
@@ -277,15 +280,18 @@
     {
       "id": "actor-card2-title",
       "type": "text",
-      "x": 609,
+      "x": 659,
       "y": 432,
       "strokeColor": "#1f2933",
-      "text": "ABP-123 / Quiet Room",
+      "text": "ABP-123",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:42.939Z",
+      "version": 2,
+      "label": {
+        "text": "ABP-123"
+      }
     },
     {
       "id": "actor-card2-meta",
@@ -363,15 +369,18 @@
     {
       "id": "actor-card3-title",
       "type": "text",
-      "x": 960,
+      "x": 1013,
       "y": 432,
       "strokeColor": "#1f2933",
-      "text": "MIDV-777 / Afterglow",
+      "text": "MIDV-777",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:43.173Z",
+      "version": 2,
+      "label": {
+        "text": "MIDV-777"
+      }
     },
     {
       "id": "actor-card3-meta",
@@ -449,15 +458,18 @@
     {
       "id": "actor-card4-title",
       "type": "text",
-      "x": 250,
+      "x": 305,
       "y": 690,
       "strokeColor": "#1f2933",
-      "text": "SSIS-321 / Night Walk",
+      "text": "SSIS-321",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:43.176Z",
+      "version": 2,
+      "label": {
+        "text": "SSIS-321"
+      }
     },
     {
       "id": "actor-card4-meta",
@@ -535,15 +547,18 @@
     {
       "id": "actor-card5-title",
       "type": "text",
-      "x": 607,
+      "x": 659,
       "y": 690,
       "strokeColor": "#1f2933",
-      "text": "MIAA-204 / Echo Room",
+      "text": "MIAA-204",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:43.170Z",
+      "version": 2,
+      "label": {
+        "text": "MIAA-204"
+      }
     },
     {
       "id": "actor-card5-meta",
@@ -621,15 +636,18 @@
     {
       "id": "actor-card6-title",
       "type": "text",
-      "x": 958,
+      "x": 1013,
       "y": 690,
       "strokeColor": "#1f2933",
-      "text": "PRED-665 / Last Light",
+      "text": "PRED-665",
       "fontSize": 16,
       "fontFamily": 2,
       "createdAt": "2026-03-17T20:28:26.965Z",
-      "updatedAt": "2026-03-17T20:28:26.965Z",
-      "version": 1
+      "updatedAt": "2026-03-17T20:41:43.168Z",
+      "version": 2,
+      "label": {
+        "text": "PRED-665"
+      }
     },
     {
       "id": "actor-card6-meta",
