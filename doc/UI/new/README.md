@@ -24,7 +24,14 @@
   - `dialogs/README.md`
 - 共享组件三件套：
   - `shared/shared-components.*`
+- 基础实现规范：
+  - `foundation/README.md`
+  - `foundation/theme-and-appearance.md`
+  - `foundation/localization.md`
+  - `foundation/assets-icons-and-coloring.md`
+
 - 流程图：
+
   - `flow/*.png`
   - `flow/*.excalidraw`
 - 根目录索引与说明：
@@ -34,14 +41,24 @@
   - `flow/README.md`
   - `_archive/README.md`
 
+## 后续执行默认阅读顺序
+
+- 先看 `../../plan/active/desktop-ui-shell-refactor/handoff.md`，确认技术主线、冻结决策和下一步。
+- 再看 `page-index.md`，快速定位当前页面、弹层、共享组件与基础规范。
+- 进入具体页面实现前，先看对应 `pages/*.md` 与 `flow/README.md`。
+- 涉及主题、多语言或图片 / 图标接线时，再进入 `foundation/` 对应规范。
+
 ## 文档边界
+
 
 - 本目录负责：
   - 当前 exe UI 的页面结构、主要交互、线框和共享组件约束
   - 当前 exe UI 的页面级功能说明与共享组件约束
   - 当前 exe UI 的主链路流程图
+  - 当前 exe UI 的主题、多语言与静态资源实现规范
 - `../../../plan/active/desktop-ui-shell-refactor/` 负责：
   - 当前 active feature 的阶段、验证、交接和实现计划
+  - 冻结为什么采用这些方案，而不是承载长期实现细则
 - `../old/` 负责：
   - 旧界面基线截图
 
@@ -71,3 +88,7 @@
 - 当前正式流程图统一收口到 `flow/`，每张流程图至少具备：
   - `.png`
   - `.excalidraw`
+- 当前多语言首批只做 `zh` 与 `en`；目录结构可参考 `clash-verge-rev` 的 `locales/{lang}/index.ts + *.json` 方式组织。
+- 当前图片 / 图标资源优先分为：品牌与应用资产、业务与页面图标、通用操作图标；通用图标优先走 icon library，品牌与业务图标再维护自有 SVG。
+- 主题、多语言与图片 / 图标的长期实现细则统一维护在 `foundation/`；这三类内容不再只写在 `plan.md` 中。
+- `flow/README.md` 是正式流程图的文字索引与流程摘要入口；如果修改了任意 `flow/*.png` 或 `flow/*.excalidraw`，必须同步更新 `flow/README.md` 中对应说明。

@@ -1,10 +1,11 @@
 # Desktop UI Page Index
 
-本文件是当前 exe UI 页面、弹层与共享组件的总索引。
+本文件是当前 exe UI 页面、弹层、共享组件与基础实现规范的总索引。
 
 用途：
 - 快速查看当前正式图片文件名
 - 快速定位对应规格文档
+- 快速定位主题、多语言和图片 / 图标规范入口
 - 用极简描述回顾每个页面承担的主要功能
 
 ## 页面索引
@@ -31,7 +32,18 @@
 | `video-context-menu` | `dialogs/video-context-menu.png` | `dialogs/video-context-menu.md` | 影片卡片右键与更多按钮共用动作菜单，固定收口 6 个高频动作，含删除原片危险项。 |
 | `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
 
+## 基础实现规范索引
+
+| 名称 | 文档 | 极简功能说明 |
+| --- | --- | --- |
+| `foundation-overview` | `foundation/README.md` | 主题、多语言、图片 / 图标规范的总入口与维护规则。 |
+| `theme-and-appearance` | `foundation/theme-and-appearance.md` | `light / dark` 双主题的状态分层、token 与切换流程。 |
+| `localization` | `foundation/localization.md` | `zh / en` 的目录结构、初始化顺序和 key 组织。 |
+| `assets-icons-and-coloring` | `foundation/assets-icons-and-coloring.md` | 图片 / 图标分类、显色策略、目录约定与接入流程。 |
+
+
 ## 流程图索引
+
 
 | 名称 | 图片 | 源文件 | 极简功能说明 |
 | --- | --- | --- | --- |
@@ -70,6 +82,10 @@
   - 页面内主链路动作
   - 返回链路
   - 数据读取与提交关系
+- 基础实现规范负责：
+  - 双主题状态分层与 token 规则
+  - 中英多语言目录结构与初始化顺序
+  - 图片 / 图标目录、显色与接入流程
 
 ## 备注
 

@@ -1,31 +1,35 @@
 ## Feature Goal
 
-- 将当前 active feature 从旧的 `Electron` 主叙事切换为轻量 planning 容器，为后续 `Tauri 2` 主线迁移文档提供稳定入口。
+- 以已冻结路线开始实施 `desktop-ui-shell-refactor`，正式主线为 `Tauri 2 + React + TypeScript + Jvedio.Worker + Jvedio.Contracts`。
 
-## Current Reality
+## Frozen Decisions
 
-- `electron/` 已覆盖大部分页面与流程，但现在只作为过渡实现保留。
-- `Jvedio.Worker` 与 `Jvedio.Contracts` 继续保留，后续只做少量收敛。
-- `doc/UI/new/` 已是唯一正式 UI 输入。
-- 当前优先完成 planning 工件收敛，再输出完整版迁移方案。
+- `React + TypeScript` 是唯一默认 renderer 路线，不再继续评估并行前端主线。
+- Worker 正式继续采用**动态端口**。
+- 新桌面壳目录正式冻结为 `tauri/`。
+- `doc/UI/new/` 是唯一正式 UI 输入；主题、多语言、图片 / 图标长期规范统一看 `doc/UI/new/foundation/`。
+- `electron/` 只保留为历史参考，不再作为产品路径或回退基线。
+- 当前项目以个人使用为主；第三方图片资源保留最小来源备注即可，不引入重型合规流程。
 
-## Current Artifact Set
+## Start Here
 
-- `plan.md`：主方案与结构决策
-- `handoff.md`：当前状态与下一步
-- `open-questions.md`：真实未决项
-- `validation.md`：独立验证矩阵
-- `plan.json`：工具元数据
-- 已移除：`implementation-steps.md`、`.plan-original.md`
+回到实现阶段时，默认先读：
 
-## Next Recommended Work
+1. `plan/active/desktop-ui-shell-refactor/validation.md`
+2. `doc/UI/new/README.md`
+3. `doc/UI/new/page-index.md`
+4. `doc/UI/new/flow/README.md`
+5. `doc/UI/new/foundation/README.md`
 
-1. 在当前轻量结构上重写完整版 `Tauri 2 + React/Vue + C# Worker + Jvedio.Contracts` 迁移方案。
-2. 同步清退旧 `Electron / fntv-electron` 主叙事。
-3. 审查通过后，再决定最终落库文件范围。
+## Immediate Next Work
 
-## Blockers And Caveats
+1. 在 `tauri/` 建立最小可运行的 `MainShell` Spike。
+2. 从壳层拉起 `Jvedio.Worker`，并把动态 `baseUrl` 注入 renderer。
+3. 打通 `/api/app/bootstrap` 与 `/api/events`，确认首屏 bootstrap + SSE 能工作。
+4. 先落主壳基础结构：左侧导航、右侧内容区、全局任务 / 提示入口。
+5. 同步建立主题 token、多语言初始化与资源显色接线骨架，但只做最小可运行版本。
 
-- `React / Vue` 仍待最终锁定。
-- Worker 端口固定值还是动态值仍待定。
-- 允许参考 `clash-verge-rev` 的局部 UI 组织方式，但只限布局与页面编排。
+## Current Blockers
+
+- 当前**无阻塞未决项**。
+- 如 Phase 1 发现动态端口注入、Worker 生命周期或壳层打包存在新的系统级障碍，再回写 `open-questions.md`。

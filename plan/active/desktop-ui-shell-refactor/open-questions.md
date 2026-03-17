@@ -1,11 +1,18 @@
 # Open Questions
 
-当前轻量工件结构已收敛完成；以下问题不会阻塞文档结构，但会影响完整版迁移方案的最终表述：
+当前 `desktop-ui-shell-refactor` **无阻塞未决项**。
 
-- 前端最终锁定 `React` 还是 `Vue`。
-- Worker API 最终采用固定端口还是启动时动态端口。
-- 新桌面壳目录名是否直接冻结为 `tauri/`，还是改用其他更明确命名。
+本轮已冻结：
 
-说明：
+- 新壳目录：`tauri/`
+- renderer 主线：`React + TypeScript`
+- Worker 策略：动态端口
+- UI 输入：`doc/UI/new/`
+- 主题 / 多语言 / 图片显色长期规范：`doc/UI/new/foundation/`
+- Electron：不再作为产品路径或回退基线
 
-- 如果以上问题在完整版方案输出前完成冻结，本文件应继续缩短；在无真实未决项时，可直接删除。
+仅当以下情况出现时，再重新打开本文件：
+
+- Phase 1 无法稳定把 Worker `baseUrl` 注入 renderer
+- Tauri 壳层无法满足当前桌面能力边界
+- 新的系统级约束迫使目录、技术路线或发布策略改写

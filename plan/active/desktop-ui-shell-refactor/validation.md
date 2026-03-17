@@ -1,30 +1,56 @@
 # Desktop UI Shell Refactor Validation
 
-## 工件结构收敛
+## 当前阶段
 
-- active feature 当前仅保留：`plan.md`、`handoff.md`、`open-questions.md`、`validation.md` 和 `plan.json`。
-- `implementation-steps.md` 已移除。
-- `.plan-original.md` 已移除。
-- `plan.json` 已降级为工具元数据，不再承载正文叙事。
-- `handoff.md` 明显短于 `plan.md`，且不再复制大段阶段历史。
+- 当前已完成文档审查与冻结，下一步直接进入 **Phase 1: `MainShell` Spike**。
+- `plan.md` 提供完整冻结方案，`handoff.md` 提供执行起点，`doc/UI/new/` 提供 UI 真相源。
 
-## 文档边界
+## Phase 1 必过验证项
 
-- `plan.md` 当前只承载结构决策、冻结事实和完整版迁移文档的预留边界。
-- `doc/UI/new/` 继续作为唯一正式 UI 输入。
-- `clash-verge-rev` 仅作为局部 UI 组织参考，不作为产品或架构来源。
-- `electron/` 在当前文档口径中只作为过渡实现，而非长期主线。
+### 壳层与进程
 
-## 完整版迁移文档前置检查
+- `tauri/` 可独立启动最小桌面壳。
+- 壳层能拉起 `Jvedio.Worker`，并能感知其 ready 状态。
+- 壳层能把动态 `baseUrl` 注入 renderer，而不是写死端口。
+- Worker 异常退出、未就绪或启动失败时，壳层和 renderer 都有明确反馈。
 
-- `open-questions.md` 只保留真实未决项。
-- `AGENTS.md` 已同步到轻量 planning 结构。
-- `plan/templates/` 已去除 `.plan-original.md` 默认模板，并把 `plan.json` 改成元数据模板。
-- `doc/UI/new/ui-todo.md` 不再把 `implementation-steps.md` 视为当前活跃工件。
-- 当前仅做文档结构重写，不涉及 `Worker` / `Contracts` / `electron` 实现代码。
+### Bootstrap 与事件流
 
-## 本轮验证说明
+- renderer 首屏能请求 `GET /api/app/bootstrap`。
+- renderer 能连接 `GET /api/events`。
+- 至少完成以下事件的首轮验证：
+  - `worker.ready`
+  - `task.summary.changed`
+  - `settings.changed`
 
-- 本轮为纯文档结构调整。
-- 不跑 `Jvedio.Test` 集成测试。
-- 按仓库规则至少完成一次 `Release` 构建。
+### UI 基座
+
+- 主壳具备左侧导航 + 右侧内容区的最小结构。
+- 存在 Worker 未就绪、加载中、连接失败三类基础状态呈现。
+- 页面集合和导航命名不偏离 `doc/UI/new/page-index.md`。
+
+### 基础规范接线
+
+- 主题层至少建立 `light / dark` 的状态与 token 骨架。
+- 多语言层至少完成 `zh / en` 资源初始化骨架。
+- 资源层至少明确通用 icon、单色 SVG 和业务媒体图片三类接线方式。
+
+## Phase 1 通过标准
+
+满足以下条件即可进入 Phase 2：
+
+- `MainShell` Spike 能独立运行。
+- Worker 拉起、bootstrap 获取、SSE 订阅三条链路打通。
+- UI 基座、主题骨架、多语言骨架、资源显色骨架已具备继续扩展条件。
+- 不再依赖任何 Electron 运行时才能验证新壳主线。
+
+## 执行注意事项
+
+- 实现始终以 `doc/UI/new/` 为准，不让代码反向改写页面职责。
+- 涉及主题、多语言、图片 / 图标接线时，先对照 `foundation/` 对应文档。
+- 如 Phase 1 暴露新的系统级阻塞，再回写 `open-questions.md`，不要把未冻结决策散落到聊天结论里。
+
+## 本轮说明
+
+- 本轮仅更新文档，不涉及实现代码。
+- 按仓库规则，本轮不要求运行 `Jvedio.Test` 集成测试；但提交前仍需完成 Release 构建。
