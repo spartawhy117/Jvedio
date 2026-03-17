@@ -29,7 +29,6 @@
 | `create-edit-library-dialog` | `dialogs/create-edit-library-dialog.png` | `dialogs/create-edit-library-dialog.md` | 新建/编辑媒体库弹层，统一库名与扫描目录输入。 |
 | `delete-library-dialog` | `dialogs/delete-library-dialog.png` | `dialogs/delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
 | `video-context-menu` | `dialogs/video-context-menu.png` | `dialogs/video-context-menu.md` | 影片卡片右键与更多按钮共用动作菜单，固定收口 7 个高频动作，含删除原片危险项。 |
-| `task-detail-dialog` | `dialogs/task-detail-dialog.png` | `dialogs/task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
 | `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
 
 ## 流程图索引
@@ -45,7 +44,6 @@
 | `series-flow` | `flow/series-flow.png` | `flow/series-flow.excalidraw` | Series 左右分栏和详情返回链路。 |
 | `video-detail-playback-flow` | `flow/video-detail-playback-flow.png` | `flow/video-detail-playback-flow.excalidraw` | 影片详情读取、播放、写回和 backTo 返回链路。 |
 | `settings-flow` | `flow/settings-flow.png` | `flow/settings-flow.excalidraw` | 设置读取、保存、恢复默认、diagnostics 和事件回流。 |
-| `task-failure-retry-flow` | `flow/task-failure-retry-flow.png` | `flow/task-failure-retry-flow.excalidraw` | 失败任务详情弹层与重试主链路。 |
 
 ## 命名规则
 

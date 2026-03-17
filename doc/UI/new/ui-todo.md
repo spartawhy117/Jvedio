@@ -91,9 +91,6 @@
 - [x] 生成设置页流程图：
   - `settings-flow.excalidraw`
   - `settings-flow.png`
-- [x] 生成任务失败详情与重试流程图：
-  - `task-failure-retry-flow.excalidraw`
-  - `task-failure-retry-flow.png`
 - [x] 更新 `flow/README.md`，补齐每张流程图的用途说明
 - [x] 执行 Release 构建验证
 - [ ] 按阶段提交并推送
@@ -142,7 +139,6 @@
   - 保留 `.excalidraw` 源文件
 - 弹层流程不单独拆成大量小图：
   - 优先并入所属页面主流程图中
-  - 只有任务失败详情与重试链路单独成图
 
 ## 当前结果目标
 

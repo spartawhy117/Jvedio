@@ -22,11 +22,12 @@
 | `series-flow` | `series-flow.png` / `series-flow.excalidraw` | 表达 Series 聚合页的左侧系列列表、右侧结果区和详情返回链路。 |
 | `video-detail-playback-flow` | `video-detail-playback-flow.png` / `video-detail-playback-flow.excalidraw` | 表达影片详情读取、播放调用、播放写回、演员入口和来源返回链路。 |
 | `settings-flow` | `settings-flow.png` / `settings-flow.excalidraw` | 表达设置读取、分组切换、保存、恢复默认、MetaTube diagnostics 与 `settings.changed` 回流。 |
-| `task-failure-retry-flow` | `task-failure-retry-flow.png` / `task-failure-retry-flow.excalidraw` | 表达失败任务入口、详情弹层、重试和回流正常任务反馈链路。 |
 
 ## 当前边界
 
-- 任务相关流程只保留一个独立图：
-  - `task-failure-retry-flow`
+- 任务反馈统一并入：
+  - `library-management-flow`
+  - `library-workbench-flow`
+  - `main-shell-navigation-flow`
 - 其它弹层优先并入所属页面主流程，不再拆成大量碎片图。
 - 如果后续页面结构调整，优先更新页面文档和正式线框，再同步更新本目录流程图。
