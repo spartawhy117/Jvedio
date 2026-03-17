@@ -1,196 +1,24 @@
 {
   "id": "desktop-ui-shell-refactor",
-  "name": "Jvedio Electron Desktop Refactor",
-  "overview": "Switch the active UI refactor track from WPF wireframe delivery to Electron front-end planning with a C# Worker backend, and persist the documentation plus tracking system before implementation.",
-  "status": "approved",
-  "hasConfirmed": true,
-  "parts": [
-    "handoff",
-    "plan",
-    "validation",
-    "implementation-steps",
-    "ui-docs",
-    "reference-notes",
-    "renderer-architecture",
-    "worker-api-spec",
-    "contracts-naming"
-  ],
+  "name": "Desktop UI Shell Refactor Planning Container",
+  "overview": "Hold the lightweight active planning artifacts while the full Tauri replatform document is being rewritten.",
+  "status": "prepare",
+  "hasConfirmed": false,
   "feature": {
     "slug": "desktop-ui-shell-refactor",
-    "title": "Jvedio Electron Desktop Refactor"
+    "title": "Desktop UI Shell Refactor"
   },
-  "content": "The new active route keeps Home as media-library management, adds Actors as a first-class left-nav page, keeps Settings as a shell entry, reuses the current C# scan/scrape/database/playback capabilities through a future Worker process, and treats fntv-electron as a shell-and-page reference only.",
-  "todolist": [
-    {
-      "id": "rewrite-active-docs",
-      "content": "Rewrite the active feature handoff, plan, validation, and implementation documents for the Electron route",
-      "dependencies": [],
-      "status": "completed"
-    },
-    {
-      "id": "add-electron-specs",
-      "content": "Add and later migrate stable Electron product and page specification conclusions into doc/UI/new and the active feature docs",
-      "dependencies": [
-        "rewrite-active-docs"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "add-reference-notes",
-      "content": "Add fntv-electron reference notes and mark old WPF wireframes as historical references",
-      "dependencies": [
-        "add-electron-specs"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "pull-reference-repo",
-      "content": "Clone D:/study/Proj/fntv-electron and enrich the reference notes with local source observations",
-      "dependencies": [
-        "add-reference-notes"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "freeze-api-and-page-draft",
-      "content": "Freeze the Worker API draft, page flows, and test strategy before code implementation",
-      "dependencies": [
-        "pull-reference-repo"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "align-page-docs-to-renderer",
-      "content": "Align page specs with the renderer component and section boundaries before implementation",
-      "dependencies": [
-        "freeze-api-and-page-draft"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "freeze-contract-naming",
-      "content": "Freeze contract groups, DTO naming, task payload naming, and error code prefixes",
-      "dependencies": [
-        "freeze-api-and-page-draft"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "prepare-home-mvp-implementation",
-      "content": "Prepare the first implementation batch for Home library CRUD and left navigation sync",
-      "dependencies": [
-        "align-page-docs-to-renderer",
-        "freeze-contract-naming"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "c1-home-mvp-skeleton",
-      "content": "Stage C-1: Create contracts plus Electron and Worker project skeletons for Home MVP",
-      "dependencies": [
-        "prepare-home-mvp-implementation"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "c2-home-mvp-worker-sync-apis",
-      "content": "Stage C-2: Implement bootstrap, libraries, create/delete, and tasks summary APIs",
-      "dependencies": [
-        "c1-home-mvp-skeleton"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "c3-home-mvp-renderer-flow",
-      "content": "Stage C-3: Implement Home page flow, dialogs, and left navigation sync in renderer",
-      "dependencies": [
-        "c2-home-mvp-worker-sync-apis"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "c4-home-mvp-events-and-errors",
-      "content": "Stage C-4: Add event consumption, task summary refresh, and structured error handling",
-      "dependencies": [
-        "c3-home-mvp-renderer-flow"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "d1-library-scan-and-scrape-loop",
-      "content": "Stage D-1: Implement library scan path save, scan trigger, task feedback, and MetaTube sidecar loop",
-      "dependencies": [
-        "c4-home-mvp-events-and-errors"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "d2-stage-d-focused-regression",
-      "content": "Stage D-2: Add focused regression for scan path save, scan trigger, task status, and sidecar outputs",
-      "dependencies": [
-        "d1-library-scan-and-scrape-loop"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "d3-stage-d-validation",
-      "content": "Stage D-3: Run Release build and Stage D regression before moving to the next page batch",
-      "dependencies": [
-        "d2-stage-d-focused-regression"
-      ],
-      "status": "completed"
-    },
-    {
-      "id": "e1-actor-detail-page",
-      "content": "Stage E-1: Add a dedicated Actor Detail page in the right content area and close the actor-to-video drilldown loop",
-      "dependencies": [
-        "d3-stage-d-validation"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "e2-settings-tab-alignment",
-      "content": "Stage E-2: Align Settings tabs and visible controls with the current shell scope without detailed polish",
-      "dependencies": [
-        "e1-actor-detail-page"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "e3-favorites-page",
-      "content": "Stage E-3: Implement the Favorites page using the shared video card and existing playback/detail loop",
-      "dependencies": [
-        "e2-settings-tab-alignment"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "e4-smart-category-pages",
-      "content": "Stage E-4: Implement smart category pages for category and series after Favorites",
-      "dependencies": [
-        "e3-favorites-page"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "e5-embedded-task-feedback",
-      "content": "Stage E-5: Keep scan and scrape feedback embedded through library inline status, global activity bar, and Home summary",
-      "dependencies": [
-        "e4-smart-category-pages"
-      ],
-      "status": "pending"
-    }
+  "parts": [
+    "plan",
+    "handoff",
+    "open-questions",
+    "validation"
   ],
+  "content": "This file is tool metadata only. Human-readable planning content now lives in plan.md, handoff.md, open-questions.md, and validation.md.",
   "openQuestions": [
-    "Whether the future Worker should use a fixed localhost port or a runtime-selected port."
+    "Whether the frontend should finally lock to React or Vue.",
+    "Whether the Worker should use a fixed localhost port or a runtime-selected port.",
+    "Whether the new shell directory should be frozen as tauri or use another explicit name."
   ],
-  "optionPaths": [
-    {
-      "id": "path-a",
-      "label": "Plan and document first",
-      "recommended": true,
-      "status": "selected"
-    }
-  ],
-  "updatedAt": "2026-03-16"
+  "updatedAt": "2026-03-17"
 }

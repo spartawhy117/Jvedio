@@ -137,12 +137,14 @@
 ## 增强规划工作流
 - 复杂功能、跨模块修改、架构调整优先使用 `plan-todo` 模式。
 - 项目级 planning 结构统一放在 `plan/` 目录。
-- 当前 feature 的主要工件：
-  - `plan/active/<feature>/plan.json`
+- 当前 active feature 默认采用轻量工件结构：
   - `plan/active/<feature>/plan.md`
-  - `plan/active/<feature>/.plan-original.md`
   - `plan/active/<feature>/handoff.md`
-- build 模式默认优先读取当前 feature 的 `handoff.md`，只有在需要额外背景时再读取 `plan.json` 或 `plan.md`。
+- 可选工件：
+  - `plan/active/<feature>/open-questions.md`
+  - `plan/active/<feature>/validation.md`
+- `plan/active/<feature>/plan.json` 仅作为工具元数据，不承载正文叙事；只有工具确有需要时才维护。
+- build 模式默认优先读取当前 feature 的 `handoff.md`；需要更多背景时再读取 `plan.md`；涉及未决项或回归范围时再读 `open-questions.md` / `validation.md`。
 - 旧的计划或进度文档完成迁移后应收敛到 `plan/archive/` 或 `doc/_legacy/`，避免继续占用 `doc/` 主索引位置。
 - 同一时间只维护一个 active feature；切换 feature 时优先恢复已有 plan，而不是新建重复计划。
 - 如果存在多个可行方案，必须输出单独的 `方案路径` 区块，并在用户明确确认前保持规划状态。

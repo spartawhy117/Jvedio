@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 在 `plan/active/desktop-ui-shell-refactor/plan.md` 与 `handoff.md` 中新增“UI 冻结后的后续候选路线（Tauri 2 三轮收敛版）”，明确后续若切换到 `Tauri 2 + React/Vue + C# Worker + Jvedio.Contracts`，应继续复用 `localhost API + SSE`、保持壳层与业务层分离，并以组件化 renderer 替换当前单大控制器式 renderer。
 - 收口 `doc/UI/new/` 目录结构：页面三件套移动到 `pages/`，弹层三件套移动到 `dialogs/`，共享组件三件套移动到 `shared/`，并新增 `_archive/README.md` 作为退役草稿保留目录说明；`README.md`、`page-index.md`、`ui-todo.md` 与相关页面文档的相对引用已同步更新。
 - 删除 `doc/assets/` 目录及其中历史 `.mmd` / `.svg` / `.jpg` 图示资源；`doc/developer.md`、`doc/modules/*.md` 和 `doc/UI/new/ui-todo.md` 已同步去掉对该目录的直接引用，当前 UI 流程图入口统一以 `doc/UI/new/flow/` 为准。
 - 收口 `doc/UI/new/` 的当前 exe UI 文档资产：新增 `page-index.md` 与 `ui-todo.md` 作为总索引和执行清单，并将正式页面、弹层与共享组件的图片/线稿/文档要求统一为同名三件套。

@@ -2,25 +2,22 @@
 
 - 
 
-## Confirmed Scope
+## Current Reality
 
 - 
 
-## Current Todo Summary
+## Current Artifact Set
+
+- `plan.md`：
+- `handoff.md`：
+- `open-questions.md`：
+- `validation.md`：
+- `plan.json`：
+
+## Next Recommended Work
 
 1. 
 2. 
-3. 
-
-## Execution Order
-
-1. 
-2. 
-3. 
-
-## Validation Steps
-
-- 
 
 ## Blockers And Caveats
 

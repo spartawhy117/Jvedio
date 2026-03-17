@@ -61,7 +61,6 @@
   - `plan/active/desktop-ui-shell-refactor/handoff.md`
   - `plan/active/desktop-ui-shell-refactor/plan.md`
   - `plan/active/desktop-ui-shell-refactor/validation.md`
-  - `plan/active/desktop-ui-shell-refactor/implementation-steps.md`
 - [x] 新建 `doc/UI/new/flow/`
 - [x] 新建 `doc/UI/new/flow/README.md`，作为流程图索引
 - [x] 生成主壳导航流程图：

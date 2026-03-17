@@ -1,96 +1,30 @@
-# Desktop UI Shell Refactor Validation Matrix
+# Desktop UI Shell Refactor Validation
 
-## 阶段 A：方案与参考资产落地
+## 工件结构收敛
 
-- 确认 `plan/active/desktop-ui-shell-refactor/` 仍是唯一 active feature。
-- 确认 `handoff.md` 能独立说明当前状态。
-- 确认 `doc/UI/new/` 已包含当前正式页面、弹层、共享组件与索引文档。
-- 确认 `plan/active/desktop-ui-shell-refactor/` 已能独立说明：
-  - 借鉴范围
-  - 非目标范围
-  - 阶段推进状态
-- 确认 `doc/UI/old/` 未被覆盖。
-- 确认 `doc/UI/new/` 已被明确标记为当前 exe UI 的线框与页面规格入口。
+- active feature 当前仅保留：`plan.md`、`handoff.md`、`open-questions.md`、`validation.md` 和 `plan.json`。
+- `implementation-steps.md` 已移除。
+- `.plan-original.md` 已移除。
+- `plan.json` 已降级为工具元数据，不再承载正文叙事。
+- `handoff.md` 明显短于 `plan.md`，且不再复制大段阶段历史。
 
-## 第一批：库的新建和删除
+## 文档边界
 
-- Home 页能创建新库。
-- Home 页能删除库。
-- 左侧库导航随增删即时同步。
-- Home 列表随增删即时同步。
-- 数据库记录变化正确。
-- 错误场景有可见反馈且日志可定位。
+- `plan.md` 当前只承载结构决策、冻结事实和完整版迁移文档的预留边界。
+- `doc/UI/new/` 继续作为唯一正式 UI 输入。
+- `clash-verge-rev` 仅作为局部 UI 组织参考，不作为产品或架构来源。
+- `electron/` 在当前文档口径中只作为过渡实现，而非长期主线。
 
-## 第二批：库默认扫描目录、扫描和拉取能力
+## 完整版迁移文档前置检查
 
-- 能为库设置默认扫描目录。
-- 保存后重新进入页面能正确回读。
-- 能启动扫描任务。
-- 命中影片时完成整理、MetaTube 抓取和 sidecar 输出。
-- 未命中影片保持原位并进入报告。
-- 库页内联任务状态显示进度、成功数、失败数和失败原因。
-- 全局活动条能在任务运行时提示当前库与进度。
-- Home 摘要能反映任务总数与最近状态。
-- 库页刷新后能看到新结果。
-- 不引入独立任务中心页面时，全局活动条仍能跨页面显示当前任务并跳回目标库工作台。
+- `open-questions.md` 只保留真实未决项。
+- `AGENTS.md` 已同步到轻量 planning 结构。
+- `plan/templates/` 已去除 `.plan-original.md` 默认模板，并把 `plan.json` 改成元数据模板。
+- `doc/UI/new/ui-todo.md` 不再把 `implementation-steps.md` 视为当前活跃工件。
+- 当前仅做文档结构重写，不涉及 `Worker` / `Contracts` / `electron` 实现代码。
 
-## 第三批：影片展示和播放能力
+## 本轮验证说明
 
-- 库页能展示影片列表或卡片。
-- 影片详情页能展示基础信息、演员、图片和路径。
-- 点击播放后走当前播放链。
-- 已配置播放器路径时使用指定播放器。
-- 未配置时回退系统默认播放器。
-- 播放写回能力正常。
-
-## 第四批：设置页面功能完好
-
-- 从主壳打开设置成功。
-- 各页签页面可访问，且数量与当前既有设置页一致。
-- 当前第二轮应对齐为 6 个页签：`Basic / Picture / Scan & Import / Network / Library / MetaTube`。
-- 当前值显示正确。
-- 保存、应用、恢复默认正常。
-- 视频播放器路径、MetaTube 配置可被业务实际消费。
-- 当前既有开关 / 输入项都能在对应页签中找到承载。
-- 本轮允许样式与布局保持粗粒度一致，不要求细致打磨。
-
-## 第五批：演员详情独立页
-
-- Actors 列表点击后进入 `#/actors/{actorId}`，不再依赖抽屉。
-- 演员详情页能展示头部信息、媒体库聚合信息和关联影片。
-- 从演员详情进入影片详情时会写入稳定返回态。
-- 影片详情页能返回演员详情，同时保留返回媒体库入口。
-- 列表筛选、排序和分页状态在演员详情往返过程中不丢失。
-
-## 第六批：Favorites 聚合页
-
-- 主壳左侧一级导航可进入 `#/favorites`。
-- Favorites 页能展示基于 `metadata.FavoriteCount` 的收藏结果集。
-- Favorites 页支持关键字筛选、排序、刷新。
-- 从 Favorites 进入影片详情时会写入稳定 `backTo` 返回态。
-- 影片详情页能返回 Favorites，并保留当时的筛选/排序状态。
-
-## 第七批：智能分类 / 类别
-
-- 主壳左侧一级导航可进入 `#/categories`。
-- 类别页能展示基于 `metadata.Genre` 聚合出的类别列表。
-- 类别页支持切换类别并展示对应影片结果集。
-- 类别页支持关键字筛选、排序、刷新。
-- 从 Categories 进入影片详情时会写入稳定 `backTo` 返回态。
-- 影片详情页能返回 Categories，并保留当时的筛选/排序状态。
-
-## 第八批：智能分类 / 系列
-
-- 主壳左侧一级导航可进入 `#/series`。
-- 系列页能展示基于 `metadata_video.Series` 聚合出的系列列表。
-- 系列页支持切换系列并展示对应影片结果集。
-- 系列页支持关键字筛选、排序、刷新。
-- 从 Series 进入影片详情时会写入稳定 `backTo` 返回态。
-- 影片详情页能返回 Series，并保留当时的筛选/排序状态。
-
-## Build validation
-
-- 运行受影响的 Electron 聚焦回归。
-- 当前应包含 `npm run regression:activity`，用于覆盖全局活动条出现、跨页面保留、跳回库工作台与完成后收口。
-- Release build succeeds after code and documentation changes.
-- 本轮未跑 `Jvedio.Test` 集成测试；当前改动集中在 Electron renderer / regression 与文档。
+- 本轮为纯文档结构调整。
+- 不跑 `Jvedio.Test` 集成测试。
+- 按仓库规则至少完成一次 `Release` 构建。
