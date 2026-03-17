@@ -13,8 +13,6 @@
   - `pages/favorites-page.*`
   - `pages/actors-page.*`
   - `pages/actor-detail-page.*`
-  - `pages/categories-page.*`
-  - `pages/series-page.*`
   - `pages/video-detail-page.*`
   - `pages/settings-page.*`
 - 弹层资产：
@@ -70,6 +68,7 @@
 - 当前正式 UI 图片与流程图统一采用白色背景底图方案，不再保留深色背景版本。
 - 若页面实现与本目录规格不一致，先更新本目录文档，再继续改代码。
 - 当前 `库管理` 页不保留 `导入 / 恢复` 入口。
+- 当前左侧导航不保留 `智能分类` 区块，也不再维护 `类别 / 系列` 的正式页面与流程资产。
 - 当前可用的是影片扫描导入；面向最终用户的库配置导入 / 数据恢复流程在现有 Electron / Worker 和旧 WPF 中都未形成完整可用产品链路。
 - 每个页面规格文档后续都应按统一模板补齐：
   - `页面目的`

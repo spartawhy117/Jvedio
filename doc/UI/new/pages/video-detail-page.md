@@ -63,7 +63,7 @@
 
 ## 交互规则
 
-- 可从 `library-page`、`favorites-page`、`categories-page`、`series-page`、`actor-detail-page` 进入本页。
+- 可从 `library-page`、`favorites-page`、`actor-detail-page` 进入本页。
 - 顶部返回按钮必须基于 `backTo` 返回来源页，而不是固定返回某个页面。
 - 点击 `播放影片` 后调用播放接口，并触发播放写回。
 - 点击演员标签后进入演员详情页。
@@ -108,6 +108,4 @@
 
 - 库内容页：`library-page.md`
 - 喜欢页：`favorites-page.md`
-- 类别页：`categories-page.md`
-- 系列页：`series-page.md`
 - 演员详情页：`actor-detail-page.md`

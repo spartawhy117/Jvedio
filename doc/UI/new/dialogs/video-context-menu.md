@@ -26,8 +26,6 @@
 
 - `library-page`
 - `favorites-page`
-- `categories-page`
-- `series-page`
 - `actor-detail-page`
 
 ## 数据来源
@@ -35,8 +33,6 @@
 - 当前影片卡片数据：
   - `GET /api/libraries/{libraryId}/videos`
   - `GET /api/videos/favorites`
-  - `GET /api/videos/categories/{categoryName}/videos`
-  - `GET /api/videos/series/{seriesName}/videos`
   - `GET /api/actors/{actorId}/videos`
 - 播放动作：
   - 现有播放调用链路
@@ -138,7 +134,7 @@
 
 - 右键点击影片卡片能打开菜单。
 - 卡片 `更多` 按钮能打开同一套菜单。
-- `library-page`、`favorites-page`、`categories-page`、`series-page`、`actor-detail-page` 都复用同一套菜单项。
+- `library-page`、`favorites-page`、`actor-detail-page` 都复用同一套菜单项。
 - 菜单项顺序固定且与规格一致。
 - `收藏 / 取消收藏` 能即时更新状态。
 - `重新抓取元数据` 能触发任务反馈回刷。
@@ -150,8 +146,6 @@
 
 - 单库页：`../pages/library-page.md`
 - 喜欢页：`../pages/favorites-page.md`
-- 类别页：`../pages/categories-page.md`
-- 系列页：`../pages/series-page.md`
 - 演员详情页：`../pages/actor-detail-page.md`
 - 影片详情页：`../pages/video-detail-page.md`
 - 共享组件：`../shared/shared-components.md`

@@ -21,13 +21,11 @@
 
 | 名称 | 文件 | 用途 |
 | --- | --- | --- |
-| `main-shell-navigation-flow` | `main-shell-navigation-flow.png` / `main-shell-navigation-flow.excalidraw` | 表达主壳左侧导航、智能分类、影视库入口与右侧内容区之间的切换关系。 |
+| `main-shell-navigation-flow` | `main-shell-navigation-flow.png` / `main-shell-navigation-flow.excalidraw` | 表达主壳左侧一级导航、影视库入口与右侧内容区之间的切换关系。 |
 | `library-management-flow` | `library-management-flow.png` / `library-management-flow.excalidraw` | 表达库管理页的建库、编辑、删除、扫描和打开单库主链路。 |
 | `library-workbench-flow` | `library-workbench-flow.png` / `library-workbench-flow.excalidraw` | 表达单库内容页的结果集浏览、影片右键动作菜单、删除原片链路、任务反馈和详情返回链路。 |
 | `favorites-flow` | `favorites-flow.png` / `favorites-flow.excalidraw` | 表达 Favorites 聚合结果集、空态/错误态和影片详情返回链路。 |
 | `actors-flow` | `actors-flow.png` / `actors-flow.excalidraw` | 表达 Actors 列表、演员详情、关联影片和二级返回链路。 |
-| `categories-flow` | `categories-flow.png` / `categories-flow.excalidraw` | 表达 Categories 聚合页的左侧类别列表、右侧结果区和详情返回链路。 |
-| `series-flow` | `series-flow.png` / `series-flow.excalidraw` | 表达 Series 聚合页的左侧系列列表、右侧结果区和详情返回链路。 |
 | `video-detail-playback-flow` | `video-detail-playback-flow.png` / `video-detail-playback-flow.excalidraw` | 表达影片详情读取、播放调用、播放写回、演员入口和来源返回链路。 |
 | `settings-flow` | `settings-flow.png` / `settings-flow.excalidraw` | 表达设置读取、分组切换、保存、恢复默认、MetaTube diagnostics 与 `settings.changed` 回流。 |
 
@@ -37,7 +35,6 @@
 
 - **主入口**：`App Boot` 进入主壳层。
 - **稳定结构**：左侧导航稳定呈现 `设置 / 库管理 / 喜欢 / 演员`。
-- **聚合入口**：智能分类入口承载 `类别 / 系列`。
 - **单库入口**：影视库列表按库切换右侧内容区。
 - **内容承载**：点击任一入口后，右侧内容区渲染对应页面，并保持当前上下文。
 - **承载页面**：一级内容页统一落在主壳右侧内容区，包括：
@@ -46,8 +43,6 @@
   - `单库页`
   - `喜欢页`
   - `演员页`
-  - `类别页`
-  - `系列页`
   - `详情页`
 
 ### `library-management-flow`
@@ -72,7 +67,7 @@
 - **重新抓取**：可重新抓取元数据，并触发任务与状态回刷。
 - **打开文件夹**：可打开所在文件夹，调用系统外部能力。
 - **删除原片**：删除原片时同步处理影片、`sidecar` 与子目录；删除后回刷列表。
-- **联动刷新**：演员关联信息、计数、摘要、系列页结果会跟随删除回刷。
+- **联动刷新**：演员关联信息、计数和结果摘要会跟随删除回刷。
 - **任务反馈**：任务状态回刷会同步到行内摘要与全局活动反馈。
 
 ### `favorites-flow`
@@ -95,28 +90,6 @@
 - **返回规则**：
   - `Video Detail -> Actor Detail`
   - `Actor Detail -> Actors`
-
-### `categories-flow`
-
-- **主入口**：进入类别聚合页，请求 `GET /api/videos/categories`。
-- **上下文保持**：页面保存搜索、排序、筛选类别与结果上下文。
-- **双栏结构**：
-  - 左侧为类别列表，显示名称与影片数。
-  - 右侧为影片结果区，统一使用影片卡片与分页。
-- **选择类别**：选中类别后请求 `GET /api/videos/categories/{name}/videos`。
-- **进入详情**：点击影片卡片打开详情页，并写入 `backTo=当前类别状态`。
-- **返回链路**：从详情返回 Categories 时恢复类别、筛选与分页状态。
-
-### `series-flow`
-
-- **主入口**：进入系列聚合页，请求 `GET /api/videos/series`。
-- **上下文保持**：页面保存搜索、排序、筛选系列与结果上下文。
-- **双栏结构**：
-  - 左侧为系列列表，显示名称与影片数。
-  - 右侧为影片结果区，统一使用影片卡片与分页。
-- **选择系列**：选中系列后请求 `GET /api/videos/series/{name}/videos`。
-- **进入详情**：点击影片卡片打开详情页，并写入 `backTo=当前系列状态`。
-- **返回链路**：从详情返回 Series 时恢复系列、筛选与分页状态。
 
 ### `video-detail-playback-flow`
 

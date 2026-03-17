@@ -14,8 +14,8 @@
       "strokeColor": "#d0d0d0",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.674Z",
+      "updatedAt": "2026-03-17T18:39:32.674Z",
       "version": 1
     },
     {
@@ -29,8 +29,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.674Z",
+      "updatedAt": "2026-03-17T18:39:32.674Z",
       "version": 1
     },
     {
@@ -44,8 +44,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.674Z",
+      "updatedAt": "2026-03-17T18:39:32.674Z",
       "version": 1
     },
     {
@@ -59,8 +59,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.674Z",
+      "updatedAt": "2026-03-17T18:39:32.674Z",
       "version": 1
     },
     {
@@ -74,8 +74,8 @@
       "strokeColor": "#7cc08a",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.674Z",
+      "updatedAt": "2026-03-17T18:39:32.674Z",
       "version": 1
     },
     {
@@ -89,8 +89,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -104,41 +104,12 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
-      "id": "shell-smart-title",
-      "type": "text",
-      "x": 84,
-      "y": 430,
-      "strokeColor": "#1f2933",
-      "text": "智能分类",
-      "fontSize": 18,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
-      "version": 1
-    },
-    {
-      "id": "shell-smart-expand",
-      "type": "text",
-      "x": 68,
-      "y": 430,
-      "strokeColor": "#6b7280",
-      "text": "v",
-      "label": {
-        "text": "v"
-      },
-      "fontSize": 16,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
-      "version": 1
-    },
-    {
-      "id": "shell-smart-cat-box",
+      "id": "shell-lib1-box",
       "type": "rectangle",
       "x": 84,
       "y": 456,
@@ -148,38 +119,25 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.875Z",
-      "updatedAt": "2026-03-16T19:55:51.875Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:52.962Z",
+      "version": 2
     },
     {
-      "id": "shell-smart-cat-text",
+      "id": "shell-lib1-text",
       "type": "text",
-      "x": 108,
+      "x": 112,
       "y": 469,
       "strokeColor": "#1f2933",
-      "text": "[icon] 类别",
+      "text": "Tokyo Hot",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.876Z",
-      "updatedAt": "2026-03-16T19:55:51.876Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:52.995Z",
+      "version": 2
     },
     {
-      "id": "shell-smart-cat-count",
-      "type": "text",
-      "x": 274,
-      "y": 469,
-      "strokeColor": "#6b7280",
-      "text": "0",
-      "fontSize": 17,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.876Z",
-      "updatedAt": "2026-03-16T19:55:51.876Z",
-      "version": 1
-    },
-    {
-      "id": "shell-smart-series-box",
+      "id": "shell-lib2-box",
       "type": "rectangle",
       "x": 84,
       "y": 514,
@@ -189,91 +147,22 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.876Z",
-      "updatedAt": "2026-03-16T19:55:51.876Z",
-      "version": 1
-    },
-    {
-      "id": "shell-smart-series-text",
-      "type": "text",
-      "x": 108,
-      "y": 527,
-      "strokeColor": "#1f2933",
-      "text": "[icon] 系列",
-      "fontSize": 17,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.876Z",
-      "updatedAt": "2026-03-16T19:55:51.876Z",
-      "version": 1
-    },
-    {
-      "id": "shell-smart-series-count",
-      "type": "text",
-      "x": 274,
-      "y": 527,
-      "strokeColor": "#6b7280",
-      "text": "0",
-      "fontSize": 17,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
-    },
-    {
-      "id": "shell-lib1-box",
-      "type": "rectangle",
-      "x": 84,
-      "y": 634,
-      "width": 212,
-      "height": 48,
-      "backgroundColor": "#f5f5f3",
-      "strokeColor": "#d7d3cc",
-      "strokeWidth": 1,
-      "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
-    },
-    {
-      "id": "shell-lib1-text",
-      "type": "text",
-      "x": 112,
-      "y": 647,
-      "strokeColor": "#1f2933",
-      "text": "Tokyo Hot",
-      "fontSize": 17,
-      "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
-    },
-    {
-      "id": "shell-lib2-box",
-      "type": "rectangle",
-      "x": 84,
-      "y": 692,
-      "width": 212,
-      "height": 48,
-      "backgroundColor": "#f5f5f3",
-      "strokeColor": "#d7d3cc",
-      "strokeWidth": 1,
-      "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:52.998Z",
+      "version": 2
     },
     {
       "id": "shell-lib2-text",
       "type": "text",
       "x": 112,
-      "y": 705,
+      "y": 527,
       "strokeColor": "#1f2933",
       "text": "Prestige",
       "fontSize": 17,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:53.001Z",
+      "version": 2
     },
     {
       "id": "shell-right-title",
@@ -284,8 +173,8 @@
       "text": "Shared Main Shell",
       "fontSize": 30,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -299,8 +188,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -312,8 +201,8 @@
       "text": "Adaptive Content Area",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -325,8 +214,8 @@
       "text": "[icon] 设置",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -339,8 +228,8 @@
       "backgroundColor": "#f7f6f2",
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -352,8 +241,8 @@
       "text": "icon",
       "fontSize": 14,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -365,22 +254,22 @@
       "text": "Jvedio Next",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
       "id": "shell-libraries-label",
       "type": "text",
       "x": 84,
-      "y": 608,
+      "y": 430,
       "strokeColor": "#1f2933",
       "text": "影视库",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:52.956Z",
+      "version": 2
     },
     {
       "id": "shell-nav-home-text",
@@ -391,8 +280,8 @@
       "text": "[icon] 库管理",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -404,8 +293,8 @@
       "text": "[icon] 喜欢",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     },
     {
@@ -417,8 +306,8 @@
       "text": "[icon] 演员",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T19:55:51.877Z",
-      "updatedAt": "2026-03-16T19:55:51.877Z",
+      "createdAt": "2026-03-17T18:39:32.675Z",
+      "updatedAt": "2026-03-17T18:39:32.675Z",
       "version": 1
     }
   ],

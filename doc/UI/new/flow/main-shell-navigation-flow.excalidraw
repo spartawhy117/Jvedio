@@ -12,8 +12,8 @@
       "text": "Main Shell Navigation Flow",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:25.683Z",
       "version": 1
     },
     {
@@ -30,8 +30,8 @@
       "label": {
         "text": "App Boot\n进入主壳层"
       },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:25.683Z",
       "version": 1
     },
     {
@@ -48,32 +48,14 @@
       "label": {
         "text": "左侧导航稳定呈现\n设置 / 库管理 / 喜欢 / 演员"
       },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
-    },
-    {
-      "id": "main-shell-categories",
-      "type": "rectangle",
-      "x": 620,
-      "y": 140,
-      "width": 200,
-      "height": 80,
-      "backgroundColor": "#eebefa",
-      "strokeColor": "#9c36b5",
-      "strokeWidth": 2,
-      "roughness": 1,
-      "label": {
-        "text": "智能分类入口\n类别 / 系列"
-      },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:25.683Z",
       "version": 1
     },
     {
       "id": "main-shell-libraries",
       "type": "rectangle",
-      "x": 900,
+      "x": 620,
       "y": 140,
       "width": 200,
       "height": 80,
@@ -84,14 +66,14 @@
       "label": {
         "text": "影视库列表\n按库切换内容区"
       },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:36.337Z",
+      "version": 2
     },
     {
       "id": "main-shell-content",
       "type": "rectangle",
-      "x": 1180,
+      "x": 900,
       "y": 140,
       "width": 220,
       "height": 80,
@@ -102,27 +84,27 @@
       "label": {
         "text": "右侧内容区渲染\n页面保持上下文"
       },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:36.340Z",
+      "version": 2
     },
     {
       "id": "main-shell-pages",
       "type": "rectangle",
       "x": 340,
       "y": 300,
-      "width": 1060,
+      "width": 780,
       "height": 110,
       "backgroundColor": "#e9ecef",
       "strokeColor": "#868e96",
       "strokeWidth": 2,
       "roughness": 1,
       "label": {
-        "text": "一级内容页承载:\n设置页 / 库管理页 / 单库页 / 喜欢页 / 演员页 / 类别页 / 系列页 / 详情页"
+        "text": "一级内容页承载:\n设置页 / 库管理页 / 单库页 / 喜欢页 / 演员页 / 详情页"
       },
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:36.350Z",
+      "version": 2
     },
     {
       "id": "main-shell-arrow-1",
@@ -150,77 +132,14 @@
         "id": "main-shell-nav"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
-    },
-    {
-      "id": "main-shell-arrow-2",
-      "type": "arrow",
-      "x": 548,
-      "y": 180,
-      "width": 80,
-      "height": 0,
-      "strokeColor": "#1e1e1e",
-      "strokeWidth": 2,
-      "label": {
-        "text": "常驻"
-      },
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          64,
-          0
-        ]
-      ],
-      "start": {
-        "id": "main-shell-nav"
-      },
-      "end": {
-        "id": "main-shell-categories"
-      },
-      "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
-    },
-    {
-      "id": "main-shell-arrow-3",
-      "type": "arrow",
-      "x": 828,
-      "y": 180,
-      "width": 80,
-      "height": 0,
-      "strokeColor": "#1e1e1e",
-      "strokeWidth": 2,
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          64,
-          0
-        ]
-      ],
-      "start": {
-        "id": "main-shell-categories"
-      },
-      "end": {
-        "id": "main-shell-libraries"
-      },
-      "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:25.683Z",
       "version": 1
     },
     {
       "id": "main-shell-arrow-4",
       "type": "arrow",
-      "x": 1108,
+      "x": 828,
       "y": 180,
       "width": 80,
       "height": 0,
@@ -246,9 +165,9 @@
         "id": "main-shell-content"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:36.343Z",
+      "version": 2
     },
     {
       "id": "main-shell-arrow-5",
@@ -280,48 +199,14 @@
         "id": "main-shell-pages"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
-    },
-    {
-      "id": "main-shell-arrow-6",
-      "type": "arrow",
-      "x": 759.4920452733621,
-      "y": 226.07405281892238,
-      "width": 0,
-      "height": 80,
-      "strokeColor": "#9c36b5",
-      "strokeWidth": 2,
-      "strokeStyle": "dashed",
-      "label": {
-        "text": "聚合入口"
-      },
-      "points": [
-        [
-          0,
-          0
-        ],
-        [
-          58.15876659613298,
-          67.85189436215524
-        ]
-      ],
-      "start": {
-        "id": "main-shell-categories"
-      },
-      "end": {
-        "id": "main-shell-pages"
-      },
-      "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:25.683Z",
       "version": 1
     },
     {
       "id": "main-shell-arrow-7",
       "type": "arrow",
-      "x": 965.5151222750136,
+      "x": 686,
       "y": 226.42195078363562,
       "width": 0,
       "height": 80,
@@ -348,9 +233,9 @@
         "id": "main-shell-pages"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:40:49.623Z",
-      "updatedAt": "2026-03-16T23:40:49.623Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:44:25.683Z",
+      "updatedAt": "2026-03-17T18:44:36.346Z",
+      "version": 2
     }
   ],
   "appState": {

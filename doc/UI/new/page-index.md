@@ -12,14 +12,12 @@
 
 | 名称 | 图片 | 文档 | 极简功能说明 |
 | --- | --- | --- | --- |
-| `main-shell` | `pages/main-shell.png` | `pages/main-shell.md` | 主窗口共享壳层，负责品牌区、一级导航、智能分类入口和库导航区。 |
+| `main-shell` | `pages/main-shell.png` | `pages/main-shell.md` | 主窗口共享壳层，负责品牌区、一级导航和库导航区。 |
 | `library-management-page` | `pages/library-management-page.png` | `pages/library-management-page.md` | 库管理首页，负责建库、开库、扫描、编辑、删除和库级任务状态查看。 |
 | `library-page` | `pages/library-page.png` | `pages/library-page.md` | 单个媒体库内容页，负责库内影片浏览、筛选、排序、分页和进入影片详情。 |
 | `favorites-page` | `pages/favorites-page.png` | `pages/favorites-page.md` | 喜欢影片聚合页，负责展示收藏结果集和统一结果区交互。 |
 | `actors-page` | `pages/actors-page.png` | `pages/actors-page.md` | 演员聚合列表页，负责演员搜索、排序、分页和进入演员详情。 |
 | `actor-detail-page` | `pages/actor-detail-page.png` | `pages/actor-detail-page.md` | 独立演员详情页，负责演员头部信息、关联影片和返回链路。 |
-| `categories-page` | `pages/categories-page.png` | `pages/categories-page.md` | 全局类别聚合页，负责类别列表和类别内影片结果集浏览。 |
-| `series-page` | `pages/series-page.png` | `pages/series-page.md` | 全局系列聚合页，负责系列列表和系列内影片结果集浏览。 |
 | `video-detail-page` | `pages/video-detail-page.png` | `pages/video-detail-page.md` | 影片详情页，负责详情信息展示、播放入口和返回来源恢复。 |
 | `settings-page` | `pages/settings-page.png` | `pages/settings-page.md` | 设置页，负责分组设置、保存、恢复默认和 MetaTube diagnostics。 |
 
@@ -47,13 +45,11 @@
 
 | 名称 | 图片 | 源文件 | 极简功能说明 |
 | --- | --- | --- | --- |
-| `main-shell-navigation-flow` | `flow/main-shell-navigation-flow.png` | `flow/main-shell-navigation-flow.excalidraw` | 主壳导航、智能分类和影视库入口如何切换右侧内容区。 |
+| `main-shell-navigation-flow` | `flow/main-shell-navigation-flow.png` | `flow/main-shell-navigation-flow.excalidraw` | 主壳一级导航和影视库入口如何切换右侧内容区。 |
 | `library-management-flow` | `flow/library-management-flow.png` | `flow/library-management-flow.excalidraw` | 库管理页的建库、编辑、删除、扫描和打开单库主链路。 |
 | `library-workbench-flow` | `flow/library-workbench-flow.png` | `flow/library-workbench-flow.excalidraw` | 单库页的结果集浏览、影片右键动作菜单、删除原片链路、任务反馈和详情返回链路。 |
 | `favorites-flow` | `flow/favorites-flow.png` | `flow/favorites-flow.excalidraw` | 喜欢页的结果集浏览和返回恢复。 |
 | `actors-flow` | `flow/actors-flow.png` | `flow/actors-flow.excalidraw` | Actors 列表、演员详情、关联影片和二级返回链路。 |
-| `categories-flow` | `flow/categories-flow.png` | `flow/categories-flow.excalidraw` | Categories 左右分栏和详情返回链路。 |
-| `series-flow` | `flow/series-flow.png` | `flow/series-flow.excalidraw` | Series 左右分栏和详情返回链路。 |
 | `video-detail-playback-flow` | `flow/video-detail-playback-flow.png` | `flow/video-detail-playback-flow.excalidraw` | 影片详情读取、播放、写回和 backTo 返回链路。 |
 | `settings-flow` | `flow/settings-flow.png` | `flow/settings-flow.excalidraw` | 设置读取、保存、恢复默认、diagnostics 和事件回流。 |
 

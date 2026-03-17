@@ -78,12 +78,7 @@
 - [x] 生成演员页流程图：
   - `actors-flow.excalidraw`
   - `actors-flow.png`
-- [x] 生成类别页流程图：
-  - `categories-flow.excalidraw`
-  - `categories-flow.png`
-- [x] 生成系列页流程图：
-  - `series-flow.excalidraw`
-  - `series-flow.png`
+- [x] 清理未接线的 `智能分类 / 类别 / 系列` 正式页面与流程资产，避免继续作为当前版本入口维护
 - [x] 生成影片详情与播放流程图：
   - `video-detail-playback-flow.excalidraw`
   - `video-detail-playback-flow.png`

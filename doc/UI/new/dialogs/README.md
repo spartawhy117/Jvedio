@@ -16,7 +16,7 @@
 | --- | --- | --- | --- |
 | `create-edit-library-dialog` | `library-management-page` | `新建媒体库`、`编辑` | 新建与编辑共用一套白底表单弹层。 |
 | `delete-library-dialog` | `library-management-page` | `删除` | 只确认删除媒体库对象，不删除磁盘影片。 |
-| `video-context-menu` | `library-page`、`favorites-page`、`categories-page`、`series-page`、`actor-detail-page` | 影片卡片右键、卡片 `更多` | 所有影片结果页复用同一套 6 项动作，不再为单页分叉。 |
+| `video-context-menu` | `library-page`、`favorites-page`、`actor-detail-page` | 影片卡片右键、卡片 `更多` | 所有当前影片结果页复用同一套 6 项动作，不再为单页分叉。 |
 
 ## 目录规则
 
