@@ -10,6 +10,14 @@
 | `delete-library-dialog` | `delete-library-dialog.png` | `delete-library-dialog.md` | 删除媒体库前的危险确认弹层。 |
 | `video-context-menu` | `video-context-menu.png` | `video-context-menu.md` | 影片卡片右键与更多按钮共用的动作菜单。 |
 
+## 归属关系
+
+| 名称 | 归属页面 | 触发入口 | 说明 |
+| --- | --- | --- | --- |
+| `create-edit-library-dialog` | `library-management-page` | `新建媒体库`、`编辑` | 新建与编辑共用一套白底表单弹层。 |
+| `delete-library-dialog` | `library-management-page` | `删除` | 只确认删除媒体库对象，不删除磁盘影片。 |
+| `video-context-menu` | `library-page`、`favorites-page`、`categories-page`、`series-page`、`actor-detail-page` | 影片卡片右键、卡片 `更多` | 所有影片结果页复用同一套 6 项动作，不再为单页分叉。 |
+
 ## 目录规则
 
 - 当前正式弹层统一采用白色背景底图方案。
@@ -40,4 +48,5 @@
 - 标准表单弹层优先复用共享的通用弹层语义，不为每个功能重新定义按钮顺序。
 - 危险操作弹层必须明确影响范围和不影响范围。
 - 影片卡片动作收口优先使用 `video-context-menu`，不再扩展额外的影片弹窗页面。
+- 统一影片动作菜单的改动必须同步检查所有影片结果页，而不是只改某一个页面文档。
 - 如果后续新增弹层，先补本目录索引，再补页面图和规格文档。

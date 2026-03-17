@@ -93,7 +93,7 @@
   - `settings-flow.png`
 - [x] 更新 `flow/README.md`，补齐每张流程图的用途说明
 - [x] 执行 Release 构建验证
-- [ ] 按阶段提交并推送
+- [x] 按阶段提交并推送
 
 ## 迁移规则
 

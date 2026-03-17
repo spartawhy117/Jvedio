@@ -181,6 +181,8 @@
 ## [2026-03-16]
 
 ### 已变更
+- 收口 `doc/UI/new/dialogs/` 文档入口：新增 `dialogs/README.md`，并补齐新建/编辑库弹层、删除库弹层、影片动作菜单的目录规则、归属关系与复用边界说明。
+- 同步更新 `doc/UI/new/pages/` 和 `shared/shared-components.md`，明确 `video-context-menu` 是 `Library / Favorites / Categories / Series / Actor Detail` 共用的统一影片动作菜单，并补充相关回归点与关联文档引用。
 - 更新 `electron/renderer/src/app/routes/router.ts`，新增独立演员详情路由 `#/actors/{actorId}`，并为影片详情路由补充可序列化的 `backTo` 返回态。
 - 更新 `electron/renderer/src/features/home/useHomePageData.ts`，将演员详情从列表抽屉切换为右侧内容区独立页，保留 Actors 列表筛选 / 排序 / 分页状态，并打通 `Actors -> Actor Detail -> Video Detail` 返回链路。
 - 更新 `electron/main/testing/actorsRegression.ts`，将最后一段回归从抽屉验证改为独立演员详情页、关联影片下钻和返回演员详情的闭环验证。

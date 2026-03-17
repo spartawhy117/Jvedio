@@ -55,6 +55,7 @@
 
 - 从 `actors-page` 点击演员卡片进入本页。
 - 顶部 `返回演员列表` 需恢复原来的关键字、排序和分页状态。
+- 右侧关联影片卡片右键或 `更多` 按钮打开统一的 `video-context-menu`。
 - 右侧关联影片项点击后进入影片详情页。
 - 从影片详情返回时，应先回到当前演员详情页，而不是直接回到 Actors 列表。
 
@@ -85,6 +86,7 @@
 - 头部信息能正确显示。
 - 关联媒体库信息能正确显示。
 - 关联影片列表能正确显示并分页。
+- 关联影片动作菜单可正常打开并执行。
 - `Actors -> Actor Detail -> Video Detail -> Actor Detail` 返回链路正常。
 
 ## 相关文档
@@ -92,3 +94,4 @@
 - 演员列表页：`actors-page.md`
 - 影片详情页：`video-detail-page.md`
 - 共享组件：`../shared/shared-components.md`
+- 影片动作菜单：`../dialogs/video-context-menu.md`

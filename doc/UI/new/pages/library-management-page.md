@@ -199,3 +199,5 @@
 - 共享组件：`../shared/shared-components.md`
 - 主壳层：`main-shell.md`
 - 库内容页：`library-page.md`
+- 新建/编辑库弹层：`../dialogs/create-edit-library-dialog.md`
+- 删除库弹层：`../dialogs/delete-library-dialog.md`

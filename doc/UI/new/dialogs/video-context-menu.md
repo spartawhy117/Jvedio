@@ -5,6 +5,7 @@
 - `Video Context Menu` 是影片卡片的统一上下文动作菜单。
 - 它负责把右键点击和卡片 `更多` 按钮收口到同一套轻量动作入口。
 - 菜单视觉采用白色背景的轻量浮层列表样式，不显示标题栏和分组头。
+- 该菜单适用于所有影片结果页，不只属于单库页。
 
 ## 页面范围
 
@@ -21,10 +22,22 @@
   - 标签管理
   - 旧 WPF 的高级菜单、复制/剪切文件、路径子菜单
 
+## 归属页面
+
+- `library-page`
+- `favorites-page`
+- `categories-page`
+- `series-page`
+- `actor-detail-page`
+
 ## 数据来源
 
 - 当前影片卡片数据：
-  - 当前结果集中的单条影片摘要
+  - `GET /api/libraries/{libraryId}/videos`
+  - `GET /api/videos/favorites`
+  - `GET /api/videos/categories/{categoryName}/videos`
+  - `GET /api/videos/series/{seriesName}/videos`
+  - `GET /api/actors/{actorId}/videos`
 - 播放动作：
   - 现有播放调用链路
 - 详情动作：
@@ -71,6 +84,7 @@
 - 右键点击影片卡片，或点击卡片 `更多` 按钮，打开同一套菜单。
 - 同一时刻只允许一个影片上下文菜单处于打开状态。
 - 点击任意菜单项后立即关闭菜单，再执行对应动作。
+- 菜单结构、动作顺序和危险项样式在所有影片结果页保持一致，不允许按页面单独裁剪。
 - `查看详情` 进入详情页时，必须保留来源页的筛选、排序和分页上下文。
 - `收藏 / 取消收藏` 成功后，需要即时更新当前卡片和当前结果集状态。
 - `重新抓取元数据` 触发后，需要把任务状态回刷到当前页行内摘要或活动条。
@@ -124,6 +138,7 @@
 
 - 右键点击影片卡片能打开菜单。
 - 卡片 `更多` 按钮能打开同一套菜单。
+- `library-page`、`favorites-page`、`categories-page`、`series-page`、`actor-detail-page` 都复用同一套菜单项。
 - 菜单项顺序固定且与规格一致。
 - `收藏 / 取消收藏` 能即时更新状态。
 - `重新抓取元数据` 能触发任务反馈回刷。
@@ -134,6 +149,10 @@
 ## 相关文档
 
 - 单库页：`../pages/library-page.md`
+- 喜欢页：`../pages/favorites-page.md`
+- 类别页：`../pages/categories-page.md`
+- 系列页：`../pages/series-page.md`
+- 演员详情页：`../pages/actor-detail-page.md`
 - 影片详情页：`../pages/video-detail-page.md`
 - 共享组件：`../shared/shared-components.md`
 - 流程图：`../flow/library-workbench-flow.png`
