@@ -1,7 +1,5 @@
 # 主界面与标签页
 
-![主界面流转](../assets/diagrams/main-ui.svg)
-
 ## 范围
 
 | 区域 | 文件 |

@@ -1,7 +1,5 @@
 # 实体与关系
 
-![模块总览](../assets/diagrams/overview.svg)
-
 ## 核心实体
 
 | 实体 | 作用 | 文件 |

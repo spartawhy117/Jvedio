@@ -1,7 +1,5 @@
 # 数据库结构
 
-![配置与持久化](../assets/diagrams/config-persistence.svg)
-
 ## 主分层
 
 | 层 | 作用 | 入口 |

@@ -1,9 +1,0 @@
-flowchart TD
-    A[触发扫描] --> B[ScanTask]
-    B --> C[遍历目录]
-    C --> D[解析识别码与 NFO]
-    D --> E[导入视频]
-    D --> F[导入 NFO]
-    D --> G[记录跳过与失败]
-    E --> H[写入 Mapper]
-    H --> I[刷新界面]

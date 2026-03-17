@@ -13,8 +13,6 @@
 
 - `plan/archive/metatube-only-plan/README.md`：MetaTube 唯一搜刮源历史计划归档说明
 
-![模块总览](assets/diagrams/overview.svg)
-
 ## 项目范围
 
 | 项目 | 路径 |

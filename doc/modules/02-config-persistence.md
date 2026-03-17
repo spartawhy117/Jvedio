@@ -1,7 +1,5 @@
 # 配置与持久化
 
-![配置与持久化](../assets/diagrams/config-persistence.svg)
-
 ## 范围
 
 | 区域 | 文件 |

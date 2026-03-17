@@ -1,7 +1,5 @@
 # 启动与引导
 
-![启动流程](../assets/diagrams/startup-flow.svg)
-
 ## 范围
 
 | 区域 | 文件 |

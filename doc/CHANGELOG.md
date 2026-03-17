@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 删除 `doc/assets/` 目录及其中历史 `.mmd` / `.svg` / `.jpg` 图示资源；`doc/developer.md`、`doc/modules/*.md` 和 `doc/UI/new/ui-todo.md` 已同步去掉对该目录的直接引用，当前 UI 流程图入口统一以 `doc/UI/new/flow/` 为准。
 - 收口 `doc/UI/new/` 的当前 exe UI 文档资产：新增 `page-index.md` 与 `ui-todo.md` 作为总索引和执行清单，并将正式页面、弹层与共享组件的图片/线稿/文档要求统一为同名三件套。
 - 收口已有正式页面图片中的说明性文案：`main-shell`、`library-management-page`、`library-page`、`favorites-page`、`actors-page`、`settings-page` 的线框图现在只保留页面结构与最小标签，对应功能说明已迁入各自 `.md` 规格文档。
 - 新增 `doc/UI/new/` 下缺失的页面与详情规格：`categories-page.*`、`series-page.*`、`actor-detail-page.*`、`video-detail-page.*`，并明确聚合页骨架、返回链路、播放入口与详情页职责边界。

@@ -1,7 +1,5 @@
 # 扫描与导入
 
-![扫描流程](../assets/diagrams/scan-flow.svg)
-
 ## 范围
 
 | 区域 | 文件 |

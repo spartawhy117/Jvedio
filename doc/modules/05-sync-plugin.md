@@ -1,7 +1,5 @@
 # 信息同步与插件
 
-![同步与插件流程](../assets/diagrams/sync-flow.svg)
-
 ## 范围
 
 | 区域 | 文件 |

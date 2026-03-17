@@ -1,7 +1,5 @@
 # 媒体处理与维护工具
 
-![媒体与维护流程](../assets/diagrams/media-maintenance.svg)
-
 ## 范围
 
 | 区域 | 文件 |
