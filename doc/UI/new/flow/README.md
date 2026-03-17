@@ -15,7 +15,7 @@
 | --- | --- | --- |
 | `main-shell-navigation-flow` | `main-shell-navigation-flow.png` / `main-shell-navigation-flow.excalidraw` | 表达主壳左侧导航、智能分类、影视库入口与右侧内容区之间的切换关系。 |
 | `library-management-flow` | `library-management-flow.png` / `library-management-flow.excalidraw` | 表达库管理页的建库、编辑、删除、扫描和打开单库主链路。 |
-| `library-workbench-flow` | `library-workbench-flow.png` / `library-workbench-flow.excalidraw` | 表达单库内容页的结果集浏览、筛选排序、任务反馈和详情返回链路。 |
+| `library-workbench-flow` | `library-workbench-flow.png` / `library-workbench-flow.excalidraw` | 表达单库内容页的结果集浏览、影片右键动作菜单、删除原片链路、任务反馈和详情返回链路。 |
 | `favorites-flow` | `favorites-flow.png` / `favorites-flow.excalidraw` | 表达 Favorites 聚合结果集、空态/错误态和影片详情返回链路。 |
 | `actors-flow` | `actors-flow.png` / `actors-flow.excalidraw` | 表达 Actors 列表、演员详情、关联影片和二级返回链路。 |
 | `categories-flow` | `categories-flow.png` / `categories-flow.excalidraw` | 表达 Categories 聚合页的左侧类别列表、右侧结果区和详情返回链路。 |

@@ -17,9 +17,10 @@
   - `pages/series-page.*`
   - `pages/video-detail-page.*`
   - `pages/settings-page.*`
-- 弹层三件套：
+- 弹层资产：
   - `dialogs/create-edit-library-dialog.*`
   - `dialogs/delete-library-dialog.*`
+  - `dialogs/video-context-menu.*`
   - `dialogs/task-detail-dialog.*`
 - 共享组件三件套：
   - `shared/shared-components.*`

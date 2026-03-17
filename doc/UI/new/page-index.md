@@ -28,6 +28,7 @@
 | --- | --- | --- | --- |
 | `create-edit-library-dialog` | `dialogs/create-edit-library-dialog.png` | `dialogs/create-edit-library-dialog.md` | 新建/编辑媒体库弹层，统一库名与扫描目录输入。 |
 | `delete-library-dialog` | `dialogs/delete-library-dialog.png` | `dialogs/delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
+| `video-context-menu` | `dialogs/video-context-menu.png` | `dialogs/video-context-menu.md` | 影片卡片右键与更多按钮共用动作菜单，固定收口 7 个高频动作，含删除原片危险项。 |
 | `task-detail-dialog` | `dialogs/task-detail-dialog.png` | `dialogs/task-detail-dialog.md` | 任务失败详情与重试弹层，展示状态时间线、错误原因和重试入口。 |
 | `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
 
@@ -37,7 +38,7 @@
 | --- | --- | --- | --- |
 | `main-shell-navigation-flow` | `flow/main-shell-navigation-flow.png` | `flow/main-shell-navigation-flow.excalidraw` | 主壳导航、智能分类和影视库入口如何切换右侧内容区。 |
 | `library-management-flow` | `flow/library-management-flow.png` | `flow/library-management-flow.excalidraw` | 库管理页的建库、编辑、删除、扫描和打开单库主链路。 |
-| `library-workbench-flow` | `flow/library-workbench-flow.png` | `flow/library-workbench-flow.excalidraw` | 单库页的结果集浏览、任务反馈和详情返回链路。 |
+| `library-workbench-flow` | `flow/library-workbench-flow.png` | `flow/library-workbench-flow.excalidraw` | 单库页的结果集浏览、影片右键动作菜单、删除原片链路、任务反馈和详情返回链路。 |
 | `favorites-flow` | `flow/favorites-flow.png` | `flow/favorites-flow.excalidraw` | 喜欢页的结果集浏览和返回恢复。 |
 | `actors-flow` | `flow/actors-flow.png` | `flow/actors-flow.excalidraw` | Actors 列表、演员详情、关联影片和二级返回链路。 |
 | `categories-flow` | `flow/categories-flow.png` | `flow/categories-flow.excalidraw` | Categories 左右分栏和详情返回链路。 |

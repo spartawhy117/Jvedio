@@ -4,25 +4,25 @@
   "source": "mcp-excalidraw-server",
   "elements": [
     {
-      "id": "title-library-workbench",
+      "id": "flow-title",
       "type": "text",
-      "x": 80,
-      "y": 40,
+      "x": 40,
+      "y": 24,
       "strokeColor": "#1e1e1e",
       "text": "Library Workbench Flow",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
       "id": "lw-entry",
       "type": "rectangle",
       "x": 80,
-      "y": 160,
+      "y": 260,
       "width": 220,
-      "height": 80,
+      "height": 84,
       "backgroundColor": "#b2f2bb",
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
@@ -30,17 +30,19 @@
       "label": {
         "text": "进入单库页\nGET /api/libraries/{id}/videos"
       },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
       "id": "lw-controls",
       "type": "rectangle",
       "x": 380,
-      "y": 160,
+      "y": 260,
       "width": 220,
-      "height": 80,
+      "height": 84,
       "backgroundColor": "#a5d8ff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
@@ -48,17 +50,19 @@
       "label": {
         "text": "筛选 / 排序 / 刷新\n保持单库作用域"
       },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
       "id": "lw-grid",
       "type": "rectangle",
       "x": 680,
-      "y": 160,
+      "y": 260,
       "width": 220,
-      "height": 80,
+      "height": 84,
       "backgroundColor": "#99e9f2",
       "strokeColor": "#0c8599",
       "strokeWidth": 2,
@@ -66,53 +70,159 @@
       "label": {
         "text": "影片卡片网格\n分页承载结果上下文"
       },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-detail",
+      "id": "lw-menu",
       "type": "rectangle",
       "x": 980,
-      "y": 100,
-      "width": 220,
-      "height": 80,
-      "backgroundColor": "#ffd8a8",
-      "strokeColor": "#e8590c",
-      "strokeWidth": 2,
-      "roughness": 1,
-      "label": {
-        "text": "打开影片详情\n携带 backTo=当前库"
-      },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
-      "version": 1
-    },
-    {
-      "id": "lw-task",
-      "type": "rectangle",
-      "x": 980,
-      "y": 220,
-      "width": 220,
-      "height": 80,
+      "y": 260,
+      "width": 260,
+      "height": 84,
       "backgroundColor": "#eebefa",
       "strokeColor": "#9c36b5",
       "strokeWidth": 2,
       "roughness": 1,
       "label": {
-        "text": "扫描 / 抓取反馈\n行内摘要 + 活动条"
+        "text": "右键 / 更多菜单\n七项动作统一收口"
       },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-detail",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 60,
+      "width": 240,
+      "height": 84,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "查看详情\n进入影片详情页"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-play",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 170,
+      "width": 240,
+      "height": 84,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "播放\n触发播放调用"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-favorite",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 280,
+      "width": 240,
+      "height": 84,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "收藏 / 取消收藏\n结果即时写回"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-refresh",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 390,
+      "width": 240,
+      "height": 84,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "刷新 / 重新抓取元数据\n触发任务与状态回刷"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-folder",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 500,
+      "width": 240,
+      "height": 84,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "打开所在文件夹\n调用系统外部能力"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-delete",
+      "type": "rectangle",
+      "x": 1320,
+      "y": 610,
+      "width": 280,
+      "height": 104,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "删除影片原片\n删除影片 + sidecar + 子目录"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
       "id": "lw-return",
       "type": "rectangle",
-      "x": 1280,
-      "y": 160,
-      "width": 220,
-      "height": 80,
+      "x": 1640,
+      "y": 60,
+      "width": 240,
+      "height": 84,
       "backgroundColor": "#e9ecef",
       "strokeColor": "#868e96",
       "strokeWidth": 2,
@@ -120,19 +230,62 @@
       "label": {
         "text": "从详情返回\n恢复筛选 / 排序 / 分页"
       },
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a1",
+      "id": "lw-feedback",
+      "type": "rectangle",
+      "x": 1640,
+      "y": 390,
+      "width": 260,
+      "height": 104,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "任务状态回刷\n行内摘要 + 活动条反馈"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "lw-actor-refresh",
+      "type": "rectangle",
+      "x": 1660,
+      "y": 625,
+      "width": 260,
+      "height": 84,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "演员关联信息回刷\n计数 / 摘要 / 索引更新"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a1",
       "type": "arrow",
       "x": 308,
-      "y": 200,
-      "width": 80,
+      "y": 302,
+      "width": 60,
       "height": 0,
       "strokeColor": "#1e1e1e",
       "strokeWidth": 2,
+      "roughness": 0,
       "points": [
         [
           0,
@@ -150,19 +303,20 @@
         "id": "lw-controls"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a2",
+      "id": "a2",
       "type": "arrow",
       "x": 608,
-      "y": 200,
-      "width": 80,
+      "y": 302,
+      "width": 60,
       "height": 0,
       "strokeColor": "#1e1e1e",
       "strokeWidth": 2,
+      "roughness": 0,
       "points": [
         [
           0,
@@ -180,21 +334,53 @@
         "id": "lw-grid"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a3",
+      "id": "a3",
       "type": "arrow",
-      "x": 907.8446454055273,
-      "y": 176.43107091889453,
-      "width": 80,
-      "height": -20,
+      "x": 908,
+      "y": 302,
+      "width": 60,
+      "height": 0,
+      "strokeColor": "#1e1e1e",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "lw-grid"
+      },
+      "end": {
+        "id": "lw-menu"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a4",
+      "type": "arrow",
+      "x": 1186.1415826524321,
+      "y": 255.85358627125325,
+      "width": 60,
+      "height": -200,
       "strokeColor": "#e8590c",
       "strokeWidth": 2,
+      "roughness": 0,
       "label": {
-        "text": "点击卡片"
+        "text": "查看详情"
       },
       "points": [
         [
@@ -202,33 +388,33 @@
           0
         ],
         [
-          64.31070918894534,
-          -12.862141837789096
+          177.71683469513573,
+          -107.7071725425065
         ]
       ],
       "start": {
-        "id": "lw-grid"
+        "id": "lw-menu"
       },
       "end": {
         "id": "lw-detail"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a4",
+      "id": "a5",
       "type": "arrow",
-      "x": 907.8446454055273,
-      "y": 223.56892908110547,
-      "width": 80,
-      "height": 20,
-      "strokeColor": "#9c36b5",
+      "x": 1247.718110569902,
+      "y": 264.4405152991177,
+      "width": 60,
+      "height": -90,
+      "strokeColor": "#e8590c",
       "strokeWidth": 2,
-      "strokeStyle": "dashed",
+      "roughness": 0,
       "label": {
-        "text": "感知任务变化"
+        "text": "播放"
       },
       "points": [
         [
@@ -236,30 +422,167 @@
           0
         ],
         [
-          64.31070918894534,
-          12.862141837789096
+          64.56377886019618,
+          -17.608303325508075
         ]
       ],
       "start": {
-        "id": "lw-grid"
+        "id": "lw-menu"
       },
       "end": {
-        "id": "lw-task"
+        "id": "lw-play"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a5",
+      "id": "a6",
       "type": "arrow",
-      "x": 1207.8446454055274,
-      "y": 163.56892908110547,
-      "width": 80,
+      "x": 1247.9853479730496,
+      "y": 310.362748362003,
+      "width": 60,
       "height": 20,
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "收藏"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.02930405390089,
+          3.8805638820546164
+        ]
+      ],
+      "start": {
+        "id": "lw-menu"
+      },
+      "end": {
+        "id": "lw-favorite"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a7",
+      "type": "arrow",
+      "x": 1224.0586517579213,
+      "y": 346.9321961470599,
+      "width": 60,
+      "height": 130,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "刷新 / 重抓"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          101.88269648415712,
+          40.13560770588015
+        ]
+      ],
+      "start": {
+        "id": "lw-menu"
+      },
+      "end": {
+        "id": "lw-refresh"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a8",
+      "type": "arrow",
+      "x": 1174.2198886744254,
+      "y": 348.70537358140035,
+      "width": 60,
+      "height": 240,
       "strokeColor": "#868e96",
       "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "打开文件夹"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          201.56022265114916,
+          146.5892528371993
+        ]
+      ],
+      "start": {
+        "id": "lw-menu"
+      },
+      "end": {
+        "id": "lw-folder"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a9",
+      "type": "arrow",
+      "x": 1156.4099604796677,
+      "y": 349.73595935051543,
+      "width": 60,
+      "height": 350,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "删除原片"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          247.45785681844222,
+          254.52808129896908
+        ]
+      ],
+      "start": {
+        "id": "lw-menu"
+      },
+      "end": {
+        "id": "lw-delete"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a10",
+      "type": "arrow",
+      "x": 1568,
+      "y": 102,
+      "width": 60,
+      "height": 0,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 0,
       "label": {
         "text": "返回"
       },
@@ -269,8 +592,8 @@
           0
         ],
         [
-          64.31070918894511,
-          12.862141837789096
+          64,
+          1.4210854715202004e-14
         ]
       ],
       "start": {
@@ -280,22 +603,23 @@
         "id": "lw-return"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.368Z",
-      "updatedAt": "2026-03-16T23:42:29.368Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     },
     {
-      "id": "lw-a6",
+      "id": "a11",
       "type": "arrow",
-      "x": 1207.8446454055274,
-      "y": 236.43107091889453,
-      "width": 80,
-      "height": -20,
-      "strokeColor": "#868e96",
+      "x": 1567.996329433163,
+      "y": 435.87867664948976,
+      "width": 60,
+      "height": 0,
+      "strokeColor": "#9c36b5",
       "strokeWidth": 2,
       "strokeStyle": "dashed",
+      "roughness": 0,
       "label": {
-        "text": "状态回刷"
+        "text": "任务回刷"
       },
       "points": [
         [
@@ -303,19 +627,54 @@
           0
         ],
         [
-          64.31070918894511,
-          -12.862141837789096
+          64.00734113367389,
+          1.9396163979901644
         ]
       ],
       "start": {
-        "id": "lw-task"
+        "id": "lw-refresh"
       },
       "end": {
-        "id": "lw-return"
+        "id": "lw-feedback"
       },
       "endArrowhead": "arrow",
-      "createdAt": "2026-03-16T23:42:29.369Z",
-      "updatedAt": "2026-03-16T23:42:29.369Z",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
+      "version": 1
+    },
+    {
+      "id": "a12",
+      "type": "arrow",
+      "x": 1607.9990818844292,
+      "y": 664.2424103315823,
+      "width": 40,
+      "height": 0,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "label": {
+        "text": "删除后回刷"
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          44.001836231141624,
+          0.6666944883505721
+        ]
+      ],
+      "start": {
+        "id": "lw-delete"
+      },
+      "end": {
+        "id": "lw-actor-refresh"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-03-17T01:28:20.472Z",
+      "updatedAt": "2026-03-17T01:28:20.472Z",
       "version": 1
     }
   ],
