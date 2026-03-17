@@ -21,6 +21,7 @@
   - `dialogs/create-edit-library-dialog.*`
   - `dialogs/delete-library-dialog.*`
   - `dialogs/video-context-menu.*`
+  - `dialogs/README.md`
 - 共享组件三件套：
   - `shared/shared-components.*`
 - 流程图：

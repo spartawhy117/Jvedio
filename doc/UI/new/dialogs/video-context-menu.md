@@ -137,3 +137,4 @@
 - 影片详情页：`../pages/video-detail-page.md`
 - 共享组件：`../shared/shared-components.md`
 - 流程图：`../flow/library-workbench-flow.png`
+- 目录索引：`./README.md`
