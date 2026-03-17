@@ -9,14 +9,14 @@
       "x": 80,
       "y": 40,
       "width": 1360,
-      "height": 1000,
+      "height": 1160,
       "backgroundColor": "#f7f6f2",
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.159Z",
-      "updatedAt": "2026-03-17T18:08:51.159Z",
-      "version": 1
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:27:00.829Z",
+      "version": 2
     },
     {
       "id": "shared-title",
@@ -27,8 +27,8 @@
       "text": "Shared Components",
       "fontSize": 28,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.159Z",
-      "updatedAt": "2026-03-17T18:08:51.159Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -42,8 +42,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.159Z",
-      "updatedAt": "2026-03-17T18:08:51.159Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -55,8 +55,8 @@
       "text": "统一影片卡片",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.159Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -70,8 +70,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -85,8 +85,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -100,8 +100,8 @@
       "strokeColor": "#1971c2",
       "strokeWidth": 1,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -113,8 +113,8 @@
       "text": "IPZZ-011 / Main Title",
       "fontSize": 14,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -128,8 +128,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -141,8 +141,8 @@
       "text": "统一演员卡片",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -154,8 +154,8 @@
       "text": "竖向头像 + 居中文本",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -169,8 +169,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -184,8 +184,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -197,8 +197,8 @@
       "text": "Yua Mikami",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -210,8 +210,8 @@
       "text": "126 部作品",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -225,8 +225,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -238,8 +238,8 @@
       "text": "结果摘要条",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -253,8 +253,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -266,8 +266,8 @@
       "text": "总数 128",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -279,8 +279,8 @@
       "text": "缺资源 12",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -292,8 +292,8 @@
       "text": "已筛选",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -307,8 +307,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -320,8 +320,8 @@
       "text": "状态 Badge",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -335,8 +335,8 @@
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -348,8 +348,8 @@
       "text": "待整理",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -363,8 +363,8 @@
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -376,8 +376,8 @@
       "text": "42%",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -391,8 +391,8 @@
       "strokeColor": "#e03131",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.137Z",
       "version": 1
     },
     {
@@ -404,8 +404,8 @@
       "text": "失败",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.137Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -419,8 +419,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -432,8 +432,8 @@
       "text": "行内 Action Strip",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -447,9 +447,9 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:23.093Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-open",
@@ -462,9 +462,9 @@
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.610Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-open-text",
@@ -475,9 +475,9 @@
       "text": "打开",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.614Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-run",
@@ -490,9 +490,9 @@
       "strokeColor": "#2f9e44",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.617Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-run-text",
@@ -503,9 +503,9 @@
       "text": "扫描",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.620Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-edit",
@@ -518,9 +518,9 @@
       "strokeColor": "#868e96",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.623Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "action-edit-text",
@@ -531,9 +531,9 @@
       "text": "编辑",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:09:32.627Z",
-      "version": 2
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
     },
     {
       "id": "page-box",
@@ -546,8 +546,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -559,8 +559,8 @@
       "text": "分页控件",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -574,8 +574,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -587,8 +587,8 @@
       "text": "<",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -602,8 +602,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -615,8 +615,8 @@
       "text": "1 / 24",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -630,8 +630,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -643,8 +643,8 @@
       "text": ">",
       "fontSize": 18,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -658,8 +658,8 @@
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -671,8 +671,8 @@
       "text": "跳转",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -686,8 +686,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.160Z",
-      "updatedAt": "2026-03-17T18:08:51.160Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -699,8 +699,8 @@
       "text": "通用弹层底部动作",
       "fontSize": 24,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -714,8 +714,8 @@
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -729,8 +729,8 @@
       "strokeColor": "#868e96",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -742,8 +742,8 @@
       "text": "取消",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -757,8 +757,8 @@
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
       "roughness": 1,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -770,8 +770,8 @@
       "text": "确认",
       "fontSize": 16,
       "fontFamily": 2,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -782,8 +782,8 @@
       "strokeColor": "#6b7280",
       "text": "宽横图 + 右上勾选 + 居中标题",
       "fontSize": 16,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -794,8 +794,8 @@
       "strokeColor": "#6b7280",
       "text": "2026.03",
       "fontSize": 14,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -808,8 +808,8 @@
       "backgroundColor": "#ffffff",
       "strokeColor": "#1971c2",
       "strokeWidth": 2,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -820,8 +820,8 @@
       "strokeColor": "#1f2933",
       "text": "描述：",
       "fontSize": 16,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -832,8 +832,8 @@
       "strokeColor": "#6b7280",
       "text": "下方文字区仅保留标题与年月，\n主视觉面积尽量让给影片海报。",
       "fontSize": 15,
-      "createdAt": "2026-03-17T18:08:51.161Z",
-      "updatedAt": "2026-03-17T18:08:51.161Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -846,8 +846,8 @@
       "backgroundColor": "#ffc9c9",
       "strokeColor": "#e03131",
       "strokeWidth": 2,
-      "createdAt": "2026-03-17T18:09:40.106Z",
-      "updatedAt": "2026-03-17T18:09:40.106Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
       "version": 1
     },
     {
@@ -858,8 +858,552 @@
       "strokeColor": "#1f2933",
       "text": "删除",
       "fontSize": 16,
-      "createdAt": "2026-03-17T18:09:40.106Z",
-      "updatedAt": "2026-03-17T18:09:40.106Z",
+      "createdAt": "2026-03-17T18:24:04.138Z",
+      "updatedAt": "2026-03-17T18:24:04.138Z",
+      "version": 1
+    },
+    {
+      "id": "batch-box",
+      "type": "rectangle",
+      "x": 120,
+      "y": 840,
+      "width": 440,
+      "height": 260,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-title",
+      "type": "text",
+      "x": 150,
+      "y": 868,
+      "strokeColor": "#1f2933",
+      "text": "批量操作选择态工具条",
+      "fontSize": 20,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-note",
+      "type": "text",
+      "x": 150,
+      "y": 904,
+      "strokeColor": "#6b7280",
+      "text": "影片勾选后出现，不常驻",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-strip",
+      "type": "rectangle",
+      "x": 160,
+      "y": 948,
+      "width": 360,
+      "height": 112,
+      "backgroundColor": "#f7f6f2",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-count",
+      "type": "text",
+      "x": 182,
+      "y": 966,
+      "strokeColor": "#1f2933",
+      "text": "已选择 12 项",
+      "fontSize": 18,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-cancel",
+      "type": "rectangle",
+      "x": 370,
+      "y": 960,
+      "width": 118,
+      "height": 34,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#868e96",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-cancel-text",
+      "type": "text",
+      "x": 392,
+      "y": 968,
+      "strokeColor": "#1f2933",
+      "text": "取消选择",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-fav",
+      "type": "rectangle",
+      "x": 182,
+      "y": 1012,
+      "width": 96,
+      "height": 34,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-fav-text",
+      "type": "text",
+      "x": 202,
+      "y": 1020,
+      "strokeColor": "#1f2933",
+      "text": "加入收藏",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-rescrape",
+      "type": "rectangle",
+      "x": 292,
+      "y": 1012,
+      "width": 108,
+      "height": 34,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-rescrape-text",
+      "type": "text",
+      "x": 314,
+      "y": 1020,
+      "strokeColor": "#1f2933",
+      "text": "重新刮削",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-delete",
+      "type": "rectangle",
+      "x": 414,
+      "y": 1012,
+      "width": 74,
+      "height": 34,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "batch-delete-text",
+      "type": "text",
+      "x": 436,
+      "y": 1020,
+      "strokeColor": "#1f2933",
+      "text": "删除",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-box",
+      "type": "rectangle",
+      "x": 600,
+      "y": 840,
+      "width": 300,
+      "height": 260,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-title",
+      "type": "text",
+      "x": 630,
+      "y": 868,
+      "strokeColor": "#1f2933",
+      "text": "结果状态组件",
+      "fontSize": 20,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-note",
+      "type": "text",
+      "x": 630,
+      "y": 904,
+      "strokeColor": "#6b7280",
+      "text": "Loading / Empty / Error / Retry",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-loading",
+      "type": "rectangle",
+      "x": 634,
+      "y": 948,
+      "width": 232,
+      "height": 42,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-loading-text",
+      "type": "text",
+      "x": 678,
+      "y": 958,
+      "strokeColor": "#6b7280",
+      "text": "Loading Skeleton",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-empty",
+      "type": "rectangle",
+      "x": 634,
+      "y": 1002,
+      "width": 232,
+      "height": 48,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-empty-text",
+      "type": "text",
+      "x": 693,
+      "y": 1016,
+      "strokeColor": "#1f2933",
+      "text": "空态: 暂无结果",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-error",
+      "type": "rectangle",
+      "x": 634,
+      "y": 1062,
+      "width": 232,
+      "height": 56,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-error-text",
+      "type": "text",
+      "x": 654,
+      "y": 1075,
+      "strokeColor": "#1f2933",
+      "text": "错误: 拉取失败",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-retry",
+      "type": "rectangle",
+      "x": 776,
+      "y": 1074,
+      "width": 72,
+      "height": 28,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "state-retry-text",
+      "type": "text",
+      "x": 796,
+      "y": 1081,
+      "strokeColor": "#1971c2",
+      "text": "重试",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.044Z",
+      "version": 1
+    },
+    {
+      "id": "query-box",
+      "type": "rectangle",
+      "x": 940,
+      "y": 840,
+      "width": 420,
+      "height": 260,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.044Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-title",
+      "type": "text",
+      "x": 970,
+      "y": 868,
+      "strokeColor": "#1f2933",
+      "text": "结果页查询工具栏",
+      "fontSize": 20,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-note",
+      "type": "text",
+      "x": 970,
+      "y": 904,
+      "strokeColor": "#6b7280",
+      "text": "Actors / Categories / Series / Favorites / Library",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-strip",
+      "type": "rectangle",
+      "x": 980,
+      "y": 952,
+      "width": 340,
+      "height": 56,
+      "backgroundColor": "#f7f6f2",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-search",
+      "type": "rectangle",
+      "x": 1000,
+      "y": 964,
+      "width": 132,
+      "height": 32,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-search-text",
+      "type": "text",
+      "x": 1038,
+      "y": 972,
+      "strokeColor": "#6b7280",
+      "text": "搜索...",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-sort-1",
+      "type": "rectangle",
+      "x": 1146,
+      "y": 964,
+      "width": 56,
+      "height": 32,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-sort-1-text",
+      "type": "text",
+      "x": 1160,
+      "y": 972,
+      "strokeColor": "#1971c2",
+      "text": "名称",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-sort-2",
+      "type": "rectangle",
+      "x": 1214,
+      "y": 964,
+      "width": 56,
+      "height": 32,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#868e96",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-sort-2-text",
+      "type": "text",
+      "x": 1228,
+      "y": 972,
+      "strokeColor": "#1f2933",
+      "text": "日期",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-refresh",
+      "type": "rectangle",
+      "x": 1282,
+      "y": 964,
+      "width": 28,
+      "height": 32,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-refresh-text",
+      "type": "text",
+      "x": 1288,
+      "y": 972,
+      "strokeColor": "#1f2933",
+      "text": "刷",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-1",
+      "type": "rectangle",
+      "x": 1000,
+      "y": 1024,
+      "width": 114,
+      "height": 30,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-1-text",
+      "type": "text",
+      "x": 1018,
+      "y": 1031,
+      "strokeColor": "#1f2933",
+      "text": "按日期排序",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-2",
+      "type": "rectangle",
+      "x": 1128,
+      "y": 1024,
+      "width": 98,
+      "height": 30,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-2-text",
+      "type": "text",
+      "x": 1152,
+      "y": 1031,
+      "strokeColor": "#1f2933",
+      "text": "已筛选",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-3",
+      "type": "rectangle",
+      "x": 1240,
+      "y": 1024,
+      "width": 70,
+      "height": 30,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#d7d3cc",
+      "strokeWidth": 1,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
+      "version": 1
+    },
+    {
+      "id": "query-pill-3-text",
+      "type": "text",
+      "x": 1258,
+      "y": 1031,
+      "strokeColor": "#1f2933",
+      "text": "刷新",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T18:27:01.045Z",
+      "updatedAt": "2026-03-17T18:27:01.045Z",
       "version": 1
     }
   ],
