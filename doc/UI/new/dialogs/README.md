@@ -9,6 +9,7 @@
 | `create-edit-library-dialog` | `create-edit-library-dialog.png` | `create-edit-library-dialog.md` | 新建/编辑媒体库时复用的表单弹层。 |
 | `delete-library-dialog` | `delete-library-dialog.png` | `delete-library-dialog.md` | 删除媒体库前的危险确认弹层。 |
 | `video-context-menu` | `video-context-menu.png` | `video-context-menu.md` | 影片卡片右键与更多按钮共用的动作菜单。 |
+| `video-batch-context-menu` | `video-batch-context-menu.png` | `video-batch-context-menu.md` | 多选影片后的右键批量动作菜单。 |
 
 ## 归属关系
 
@@ -17,6 +18,7 @@
 | `create-edit-library-dialog` | `library-management-page` | `新建媒体库`、`编辑` | 新建与编辑共用一套白底表单弹层。 |
 | `delete-library-dialog` | `library-management-page` | `删除` | 只确认删除媒体库对象，不删除磁盘影片。 |
 | `video-context-menu` | `library-page`、`favorites-page`、`actor-detail-page` | 影片卡片右键、卡片 `更多` | 所有当前影片结果页复用同一套 6 项动作，不再为单页分叉。 |
+| `video-batch-context-menu` | `library-page`、`favorites-page`、`actor-detail-page` | 勾选多张影片后右键选中卡片或选中区域 | 所有当前影片结果页复用同一套批量动作菜单，不再保留顶部批量工具条。 |
 
 ## 目录规则
 
@@ -48,5 +50,6 @@
 - 标准表单弹层优先复用共享的通用弹层语义，不为每个功能重新定义按钮顺序。
 - 危险操作弹层必须明确影响范围和不影响范围。
 - 影片卡片动作收口优先使用 `video-context-menu`，不再扩展额外的影片弹窗页面。
+- 多选影片后的批量动作统一使用 `video-batch-context-menu`，不再单独维护结果区顶部工具条。
 - 统一影片动作菜单的改动必须同步检查所有影片结果页，而不是只改某一个页面文档。
 - 如果后续新增弹层，先补本目录索引，再补页面图和规格文档。
