@@ -18,6 +18,30 @@
       "version": 1
     },
     {
+      "id": "confirm-scene-title",
+      "type": "text",
+      "x": 130,
+      "y": 96,
+      "strokeColor": "#1f2933",
+      "text": "Confirm Dialog",
+      "fontSize": 28,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
+    },
+    {
+      "id": "confirm-scene-note",
+      "type": "text",
+      "x": 130,
+      "y": 142,
+      "strokeColor": "#6b7280",
+      "text": "正文由调用方传入 / 底部固定取消 + 确认",
+      "fontSize": 18,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
+    },
+    {
       "id": "confirm-modal",
       "type": "rectangle",
       "x": 300,
@@ -27,6 +51,18 @@
       "backgroundColor": "#ffffff",
       "strokeColor": "#d7d3cc",
       "strokeWidth": 2,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
+    },
+    {
+      "id": "confirm-modal-title",
+      "type": "text",
+      "x": 348,
+      "y": 258,
+      "strokeColor": "#1f2933",
+      "text": "确认操作",
+      "fontSize": 24,
       "createdAt": "2026-03-17T19:46:45.524Z",
       "updatedAt": "2026-03-17T19:46:45.524Z",
       "version": 1
@@ -53,6 +89,30 @@
       "backgroundColor": "#d7d3cc",
       "strokeColor": "#d7d3cc",
       "strokeWidth": 1,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
+    },
+    {
+      "id": "confirm-body-line1",
+      "type": "text",
+      "x": 348,
+      "y": 336,
+      "strokeColor": "#6b7280",
+      "text": "此处正文文本由调用方传入",
+      "fontSize": 20,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
+    },
+    {
+      "id": "confirm-body-line2",
+      "type": "text",
+      "x": 348,
+      "y": 372,
+      "strokeColor": "#6b7280",
+      "text": "可用于删除确认、退出确认或覆盖确认",
+      "fontSize": 20,
       "createdAt": "2026-03-17T19:46:45.524Z",
       "updatedAt": "2026-03-17T19:46:45.524Z",
       "version": 1
@@ -90,12 +150,12 @@
       "y": 438,
       "width": 140,
       "height": 42,
-      "backgroundColor": "#ffc9c9",
-      "strokeColor": "#e03131",
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
       "strokeWidth": 2,
       "createdAt": "2026-03-17T19:46:45.524Z",
-      "updatedAt": "2026-03-17T19:48:39.452Z",
-      "version": 2
+      "updatedAt": "2026-03-17T19:46:45.524Z",
+      "version": 1
     },
     {
       "id": "confirm-confirm-text",
@@ -110,102 +170,16 @@
       "version": 1
     },
     {
-      "id": "delete-scene-title",
-      "type": "text",
-      "x": 130,
-      "y": 96,
-      "strokeColor": "#1f2933",
-      "text": "Delete Library Dialog",
-      "fontSize": 28,
-      "createdAt": "2026-03-17T19:49:00.278Z",
-      "updatedAt": "2026-03-17T19:49:00.278Z",
-      "version": 1
-    },
-    {
-      "id": "delete-scene-note",
-      "type": "text",
-      "x": 130,
-      "y": 142,
-      "strokeColor": "#6b7280",
-      "text": "confirm-dialog 危险实例 / 固定取消 + 确认",
-      "fontSize": 18,
-      "createdAt": "2026-03-17T19:49:00.278Z",
-      "updatedAt": "2026-03-17T19:49:00.278Z",
-      "version": 1
-    },
-    {
-      "id": "delete-modal-title",
+      "id": "confirm-footer-note",
       "type": "text",
       "x": 348,
-      "y": 258,
-      "strokeColor": "#1f2933",
-      "text": "删除媒体库",
-      "fontSize": 24,
-      "createdAt": "2026-03-17T19:49:00.278Z",
-      "updatedAt": "2026-03-17T19:49:00.278Z",
-      "version": 1
-    },
-    {
-      "id": "delete-body-line1",
-      "type": "text",
-      "x": 348,
-      "y": 332,
-      "strokeColor": "#6b7280",
-      "text": "不会删除磁盘上的影片文件",
-      "fontSize": 20,
-      "createdAt": "2026-03-17T19:49:00.278Z",
-      "updatedAt": "2026-03-17T19:49:00.278Z",
-      "version": 1
-    },
-    {
-      "id": "delete-body-line2",
-      "type": "text",
-      "x": 348,
-      "y": 366,
-      "strokeColor": "#6b7280",
-      "text": "当前库：Tokyo Library / 128 部影片",
-      "fontSize": 20,
-      "createdAt": "2026-03-17T19:49:00.279Z",
-      "updatedAt": "2026-03-17T19:49:00.279Z",
-      "version": 1
-    },
-    {
-      "id": "delete-body-line3",
-      "type": "text",
-      "x": 348,
-      "y": 398,
-      "strokeColor": "#6b7280",
-      "text": "路径：D:\\\\Media\\\\Tokyo",
-      "fontSize": 18,
-      "createdAt": "2026-03-17T19:49:00.279Z",
-      "updatedAt": "2026-03-17T19:49:00.279Z",
-      "version": 1
-    },
-    {
-      "id": "delete-error-box",
-      "type": "rectangle",
-      "x": 348,
-      "y": 428,
-      "width": 260,
-      "height": 28,
-      "backgroundColor": "#ffc9c9",
-      "strokeColor": "#e03131",
-      "strokeWidth": 1,
-      "createdAt": "2026-03-17T19:49:00.279Z",
-      "updatedAt": "2026-03-17T19:49:00.279Z",
-      "version": 1
-    },
-    {
-      "id": "delete-error-text",
-      "type": "text",
-      "x": 364,
-      "y": 434,
-      "strokeColor": "#1f2933",
-      "text": "失败时在此处显示错误反馈",
-      "fontSize": 14,
-      "createdAt": "2026-03-17T19:49:00.279Z",
-      "updatedAt": "2026-03-17T19:49:00.279Z",
-      "version": 1
+      "y": 408,
+      "strokeColor": "#868e96",
+      "text": "支持普通确认或危险确认样式",
+      "fontSize": 16,
+      "createdAt": "2026-03-17T19:46:45.524Z",
+      "updatedAt": "2026-03-17T19:47:11.985Z",
+      "version": 2
     }
   ],
   "appState": {

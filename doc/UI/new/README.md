@@ -16,6 +16,7 @@
   - `pages/video-detail-page.*`
   - `pages/settings-page.*`
 - 弹层资产：
+  - `dialogs/confirm-dialog.*`
   - `dialogs/create-edit-library-dialog.*`
   - `dialogs/delete-library-dialog.*`
   - `dialogs/video-context-menu.*`

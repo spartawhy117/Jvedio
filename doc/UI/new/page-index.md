@@ -25,11 +25,12 @@
 
 | 名称 | 图片 | 文档 | 极简功能说明 |
 | --- | --- | --- | --- |
+| `confirm-dialog` | `dialogs/confirm-dialog.png` | `dialogs/confirm-dialog.md` | 通用确认对话框骨架，固定 `取消 / 确认`，正文说明由调用方传入。 |
 | `create-edit-library-dialog` | `dialogs/create-edit-library-dialog.png` | `dialogs/create-edit-library-dialog.md` | 新建/编辑媒体库弹层，统一库名与扫描目录输入。 |
 | `delete-library-dialog` | `dialogs/delete-library-dialog.png` | `dialogs/delete-library-dialog.md` | 删除媒体库确认弹层，显示影响范围并执行二次确认。 |
 | `video-context-menu` | `dialogs/video-context-menu.png` | `dialogs/video-context-menu.md` | 影片卡片右键与更多按钮共用动作菜单，固定收口 6 个高频动作，含删除原片危险项。 |
 | `video-batch-context-menu` | `dialogs/video-batch-context-menu.png` | `dialogs/video-batch-context-menu.md` | 多选影片后的右键批量动作菜单，统一收口收藏、重抓、取消选择与删除。 |
-| `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用弹层语义。 |
+| `shared-components` | `shared/shared-components.png` | `shared/shared-components.md` | 共享组件总览，统一影片卡片、摘要条、分页、状态和通用确认对话框骨架。 |
 
 ## 基础实现规范索引
 

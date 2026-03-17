@@ -105,6 +105,7 @@
   - 同步更新行状态 badge
 - 删除入口：
   - 点击 `删除` 先打开确认弹窗
+  - 删除确认弹窗复用 `confirm-dialog` 骨架，正文区注入当前库摘要与影响说明
   - 确认后才调用删除接口
 - 新建入口：
   - 点击 `新建媒体库` 打开新建弹窗
@@ -200,4 +201,5 @@
 - 主壳层：`main-shell.md`
 - 库内容页：`library-page.md`
 - 新建/编辑库弹层：`../dialogs/create-edit-library-dialog.md`
+- 通用确认弹层：`../dialogs/confirm-dialog.md`
 - 删除库弹层：`../dialogs/delete-library-dialog.md`
