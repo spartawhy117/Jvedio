@@ -397,8 +397,182 @@
 
 .video-detail-layout {
   display: flex;
-  gap: 24px;
+  gap: 32px;
   margin-bottom: 24px;
+}
+
+.video-detail-left {
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.video-detail-poster {
+  width: 220px;
+  height: 310px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.video-detail-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poster-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+.video-detail-vid {
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sidecar-status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.sidecar-badge {
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.sidecar-badge.present {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.sidecar-badge.missing {
+  background: var(--badge-danger-bg, #fde8e8);
+  color: var(--color-danger, #e05050);
+}
+
+.video-detail-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.video-detail-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.metadata-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metadata-row {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.metadata-label {
+  color: var(--color-text-secondary);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.metadata-value {
+  color: var(--color-text-primary);
+}
+
+.detail-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.video-detail-actors {
+  display: flex;
+  flex-direction: column;
+}
+
+.actor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.actor-tag {
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.actor-tag:hover {
+  background: var(--color-nav-hover);
+  border-color: var(--color-accent);
+}
+
+.video-detail-synopsis {
+  display: flex;
+  flex-direction: column;
+}
+
+.synopsis-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.video-detail-path {
+  display: flex;
+  flex-direction: column;
+}
+
+.path-text {
+  font-size: 12px;
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+  background: var(--color-surface);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.video-detail-weburl {
+  display: flex;
+  flex-direction: column;
+}
+
+.weburl-link {
+  font-size: 13px;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.weburl-link:hover {
+  text-decoration: underline;
 }
 
 .poster-placeholder {

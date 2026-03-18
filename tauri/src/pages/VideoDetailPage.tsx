@@ -1,59 +1,268 @@
 /**
- * Video Detail Page — Phase 2 skeleton.
+ * Video Detail Page — Phase 3 full implementation.
  *
  * Spec: doc/UI/new/pages/video-detail-page.md
- * Layout: poster + metadata + actors + play button + back link
+ * - Left: poster, VID, sidecar status, play button
+ * - Right: title, metadata, actors, synopsis, file path
+ * - Back navigation via backTo
  */
 
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "../router";
+import { useBootstrap } from "../contexts/BootstrapContext";
+import { getApiClient } from "../api/client";
+import { useApiQuery, useApiMutation } from "../hooks/useApiQuery";
+import { showToast } from "../components/GlobalToast";
+import { ResultState } from "../components/shared/ResultState";
+import type { GetVideoDetailResponse, PlayVideoResponse } from "../api/types";
 import "./pages.css";
 
 export function VideoDetailPage() {
   const { t: tc } = useTranslation("common");
   const { params, canGoBack, goBack, navigate } = useRouter();
+  const { bootstrap } = useBootstrap();
 
-  const handleActorClick = (actorId: string) => {
-    navigate("actor-detail", { actorId }, { label: "Video Detail" });
+  const videoId = params.videoId ?? "";
+  const baseUrl = bootstrap?.worker.baseUrl ?? "";
+
+  // ── Fetch video detail ─────────────────────────────
+  const detailQuery = useApiQuery<GetVideoDetailResponse>({
+    queryKey: `video:${videoId}`,
+    queryFn: () => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.getVideoDetail(videoId);
+    },
+    enabled: !!videoId,
+  });
+
+  // ── Play mutation ──────────────────────────────────
+  const playMutation = useApiMutation<PlayVideoResponse, void>({
+    mutationFn: () => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.playVideo(videoId);
+    },
+    onSuccess: () => {
+      showToast({ message: tc("playSuccess"), type: "success" });
+    },
+    onError: (err) => {
+      showToast({ message: `${tc("playFailed")}: ${err.message}`, type: "error" });
+    },
+  });
+
+  // ── Handlers ──────────────────────────────────────
+  const handlePlay = useCallback(() => {
+    playMutation.mutate(undefined as never);
+  }, [playMutation]);
+
+  const handleActorClick = useCallback((actorId: string) => {
+    navigate("actor-detail", { actorId }, { label: video?.vid ?? "Video Detail" });
+  }, [navigate]);
+
+  // ── Render ────────────────────────────────────────
+  const video = detailQuery.data?.video;
+  const posterUrl = video && baseUrl
+    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
+    : null;
+
+  if (detailQuery.isLoading && !video) {
+    return (
+      <div className="page-content-section">
+        <ResultState type="loading" />
+      </div>
+    );
+  }
+
+  if (detailQuery.isError) {
+    return (
+      <div className="page-content-section">
+        <div className="page-header">
+          {canGoBack && (
+            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
+          )}
+          <h2 className="page-title">Video Detail</h2>
+        </div>
+        <ResultState type="error" message={detailQuery.error?.message} />
+      </div>
+    );
+  }
+
+  if (!video) {
+    return (
+      <div className="page-content-section">
+        <div className="page-header">
+          {canGoBack && (
+            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
+          )}
+          <h2 className="page-title">Video Detail</h2>
+        </div>
+        <ResultState type="empty" message={tc("noData")} />
+      </div>
+    );
+  }
+
+  const formatDuration = (seconds: number) => {
+    if (!seconds) return "—";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
-
-  // Suppress unused warning — will be used in Phase 3
-  void handleActorClick;
 
   return (
     <div className="page-content-section">
+      {/* Header */}
       <div className="page-header">
         {canGoBack && (
-          <button className="btn btn-icon" onClick={goBack} title={tc("back")}>
-            ←
-          </button>
+          <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
         )}
-        <h2 className="page-title">
-          {params.videoId ? `Video: ${params.videoId}` : "Video Detail"}
-        </h2>
+        <h2 className="page-title">{video.displayTitle || video.vid}</h2>
       </div>
 
-      {/* Video detail placeholder */}
+      {/* Main layout: left poster + right metadata */}
       <div className="video-detail-layout">
-        <div className="poster-placeholder">🎬</div>
-        <div className="detail-info">
-          <p className="placeholder-hint">
-            {tc("videoId")}: {params.videoId ?? "—"}
-          </p>
-          <p className="placeholder-hint">Phase 3 — video metadata, actors, play button</p>
+        {/* Left column */}
+        <div className="video-detail-left">
+          <div className="video-detail-poster">
+            {posterUrl ? (
+              <img src={posterUrl} alt={video.vid} loading="lazy" />
+            ) : (
+              <div className="video-card-no-image poster-fallback">🎬</div>
+            )}
+          </div>
 
-          <div className="detail-actions" style={{ marginTop: 16 }}>
-            <button className="btn btn-primary">▶ {tc("play")}</button>
-            <button className="btn btn-secondary">📂 {tc("openFolder")}</button>
+          {/* VID */}
+          <div className="video-detail-vid">{video.vid}</div>
+
+          {/* Sidecar status */}
+          <div className="sidecar-status-grid">
+            <SidecarBadge label={tc("nfo")} present={video.sidecars.hasNfo} />
+            <SidecarBadge label={tc("poster")} present={video.sidecars.hasPoster} />
+            <SidecarBadge label={tc("thumb")} present={video.sidecars.hasThumb} />
+            <SidecarBadge label={tc("fanart")} present={video.sidecars.hasFanart} />
+          </div>
+
+          {/* Play button */}
+          <div className="detail-actions">
+            <button
+              className="btn btn-primary"
+              onClick={handlePlay}
+              disabled={playMutation.isLoading || !video.playback.canPlay}
+            >
+              ▶ {tc("play")}
+            </button>
+            <button className="btn btn-secondary" title={tc("openFolder")}>
+              📂 {tc("openFolder")}
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Sidecar status placeholder */}
-      <h3 className="section-heading">Sidecar</h3>
-      <div className="sidecar-placeholder">
-        <span className="placeholder-hint">Phase 3 — NFO / poster / thumb / fanart status</span>
+        {/* Right column: metadata */}
+        <div className="video-detail-right">
+          {/* Title */}
+          {video.title && video.title !== video.vid && (
+            <h3 className="video-detail-title">{video.title}</h3>
+          )}
+
+          {/* Metadata grid */}
+          <div className="metadata-grid">
+            {video.libraryName && (
+              <MetadataRow label={tc("libraryName")} value={video.libraryName} />
+            )}
+            {video.releaseDate && (
+              <MetadataRow
+                label={tc("releaseDate")}
+                value={new Date(video.releaseDate).toLocaleDateString()}
+              />
+            )}
+            {video.durationSeconds > 0 && (
+              <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
+            )}
+            {video.director && (
+              <MetadataRow label={tc("director")} value={video.director} />
+            )}
+            {video.studio && (
+              <MetadataRow label={tc("studio")} value={video.studio} />
+            )}
+            {video.series && (
+              <MetadataRow label={tc("series")} value={video.series} />
+            )}
+            {video.rating > 0 && (
+              <MetadataRow label={tc("rating")} value={`${video.rating} / 10`} />
+            )}
+            {video.viewCount > 0 && (
+              <MetadataRow label={tc("viewCount")} value={String(video.viewCount)} />
+            )}
+          </div>
+
+          {/* Actors */}
+          {video.actors && video.actors.length > 0 && (
+            <div className="video-detail-actors">
+              <span className="detail-label">{tc("associatedVideos").replace("影片", "演员")}</span>
+              <div className="actor-tags">
+                {video.actors.map((actor) => (
+                  <button
+                    key={actor.actorId}
+                    className="actor-tag"
+                    onClick={() => handleActorClick(actor.actorId)}
+                  >
+                    {actor.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Synopsis */}
+          {(video.plot || video.outline) && (
+            <div className="video-detail-synopsis">
+              <span className="detail-label">{tc("outline")}</span>
+              <p className="synopsis-text">{video.plot || video.outline}</p>
+            </div>
+          )}
+
+          {/* File path */}
+          <div className="video-detail-path">
+            <span className="detail-label">{tc("filePath")}</span>
+            <code className="path-text">{video.path}</code>
+          </div>
+
+          {/* Web URL */}
+          {video.webUrl && (
+            <div className="video-detail-weburl">
+              <span className="detail-label">{tc("webUrl")}</span>
+              <a
+                className="weburl-link"
+                href={video.webUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {video.webUrl}
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+// ── Helper components ───────────────────────────────────
+
+function MetadataRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="metadata-row">
+      <span className="metadata-label">{label}</span>
+      <span className="metadata-value">{value}</span>
+    </div>
+  );
+}
+
+function SidecarBadge({ label, present }: { label: string; present: boolean }) {
+  return (
+    <span className={`sidecar-badge ${present ? "present" : "missing"}`}>
+      {label}
+    </span>
   );
 }
