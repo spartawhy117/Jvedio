@@ -20,6 +20,38 @@
     "zh": "中文",
     "en": "English"
   },
+  "debugMode": "Enable debug mode",
+  "imageSettings": {
+    "posterDisplay": "Poster Display",
+    "posterHint": "Phase 3 — poster size, display mode, missing image placeholder config",
+    "cachePolicy": "Cache Policy",
+    "cacheHint": "Phase 3 — image cache size and cleanup rules"
+  },
+  "scanImportSettings": {
+    "scanBehavior": "Scan Behavior",
+    "scanHint": "Phase 3 — scan strategy, file type filter, exclude rules",
+    "organizeRules": "Organize Rules",
+    "organizeHint": "Phase 3 — auto-organize rules after scan (directory creation, file moving)"
+  },
+  "networkSettings": {
+    "playerPath": "Player Path",
+    "playerPathPlaceholder": "Leave empty to use system default player",
+    "useSystemDefault": "Fall back to system default when no player specified"
+  },
+  "librarySettings": {
+    "defaultBehavior": "Default Behavior",
+    "behaviorHint": "Phase 3 — default scan paths, default sorting for new libraries"
+  },
+  "metaTubeSettings": {
+    "serverUrl": "MetaTube Server URL",
+    "timeout": "Request Timeout",
+    "diagnostics": "Connection Diagnostics",
+    "runDiagnostics": "Run Diagnostics",
+    "diagSuccess": "Connection successful",
+    "diagFailed": "Connection failed"
+  },
   "resetDefaults": "Reset to Defaults",
-  "save": "Save Settings"
+  "save": "Save Settings",
+  "saveSuccess": "Settings saved",
+  "saveFailed": "Save failed"
 }

@@ -237,6 +237,144 @@
   margin-top: auto;
 }
 
+/* ── Settings form elements ─────────────────────────── */
+.settings-group {
+  margin-bottom: 20px;
+}
+
+.settings-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.settings-chip:hover {
+  background: var(--color-nav-hover);
+}
+
+.settings-chip.active {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.settings-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.settings-input {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  max-width: 400px;
+}
+
+.settings-input:focus {
+  border-color: var(--color-accent);
+}
+
+.settings-input-sm {
+  max-width: 100px;
+}
+
+.settings-input-suffix {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.settings-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.settings-checkbox input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+/* ── Diagnostics result ─────────────────────────────── */
+.diag-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.diag-result.success {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.diag-result.failure {
+  background: var(--badge-danger-bg, #fde8e8);
+  color: var(--color-danger, #e05050);
+}
+
+/* ── Settings loading / error / feedback ────────────── */
+.settings-loading {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.settings-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background: var(--badge-danger-bg, #fde8e8);
+  color: var(--color-danger, #e05050);
+  font-size: 13px;
+}
+
+.settings-save-feedback {
+  font-size: 12px;
+  text-align: right;
+  margin-top: 8px;
+}
+
+.settings-save-feedback.success {
+  color: #388e3c;
+}
+
+.settings-save-feedback.error {
+  color: var(--color-danger, #e05050);
+}
+
+.placeholder-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
 /* ── Detail pages ────────────────────────────────────── */
 .detail-header-placeholder {
   display: flex;

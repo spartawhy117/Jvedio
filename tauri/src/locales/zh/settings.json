@@ -20,6 +20,38 @@
     "zh": "中文",
     "en": "English"
   },
+  "debugMode": "启用调试模式",
+  "imageSettings": {
+    "posterDisplay": "海报显示",
+    "posterHint": "Phase 3 — 海报尺寸、显示模式、缺失图占位配置",
+    "cachePolicy": "缓存策略",
+    "cacheHint": "Phase 3 — 图片缓存大小与清理规则"
+  },
+  "scanImportSettings": {
+    "scanBehavior": "扫描行为",
+    "scanHint": "Phase 3 — 扫描策略、文件类型过滤、排除规则",
+    "organizeRules": "整理规则",
+    "organizeHint": "Phase 3 — 扫描后自动整理规则（目录创建、文件移动）"
+  },
+  "networkSettings": {
+    "playerPath": "播放器路径",
+    "playerPathPlaceholder": "留空使用系统默认播放器",
+    "useSystemDefault": "无指定播放器时回退到系统默认"
+  },
+  "librarySettings": {
+    "defaultBehavior": "默认行为",
+    "behaviorHint": "Phase 3 — 新建库默认扫描路径、默认排序等"
+  },
+  "metaTubeSettings": {
+    "serverUrl": "MetaTube 服务地址",
+    "timeout": "请求超时",
+    "diagnostics": "连接诊断",
+    "runDiagnostics": "运行诊断",
+    "diagSuccess": "连接成功",
+    "diagFailed": "连接失败"
+  },
   "resetDefaults": "恢复默认",
-  "save": "保存设置"
+  "save": "保存设置",
+  "saveSuccess": "设置已保存",
+  "saveFailed": "保存失败"
 }
