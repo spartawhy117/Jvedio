@@ -285,11 +285,23 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("imageSettings.posterDisplay")}</h4>
-              <p className="settings-hint-text">{t("imageSettings.posterHint")}</p>
+              <div className="settings-coming-soon">
+                <span className="coming-soon-icon">🖼️</span>
+                <div className="coming-soon-body">
+                  <span className="coming-soon-title">{t("comingSoon")}</span>
+                  <p className="coming-soon-detail">{t("imageSettings.posterHint")}</p>
+                </div>
+              </div>
             </section>
             <section className="settings-group">
               <h4>{t("imageSettings.cachePolicy")}</h4>
-              <p className="settings-hint-text">{t("imageSettings.cacheHint")}</p>
+              <div className="settings-coming-soon">
+                <span className="coming-soon-icon">💾</span>
+                <div className="coming-soon-body">
+                  <span className="coming-soon-title">{t("comingSoon")}</span>
+                  <p className="coming-soon-detail">{t("imageSettings.cacheHint")}</p>
+                </div>
+              </div>
             </section>
           </div>
         )}
@@ -299,11 +311,23 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("scanImportSettings.scanBehavior")}</h4>
-              <p className="settings-hint-text">{t("scanImportSettings.scanHint")}</p>
+              <div className="settings-coming-soon">
+                <span className="coming-soon-icon">🔍</span>
+                <div className="coming-soon-body">
+                  <span className="coming-soon-title">{t("comingSoon")}</span>
+                  <p className="coming-soon-detail">{t("scanImportSettings.scanHint")}</p>
+                </div>
+              </div>
             </section>
             <section className="settings-group">
               <h4>{t("scanImportSettings.organizeRules")}</h4>
-              <p className="settings-hint-text">{t("scanImportSettings.organizeHint")}</p>
+              <div className="settings-coming-soon">
+                <span className="coming-soon-icon">📁</span>
+                <div className="coming-soon-body">
+                  <span className="coming-soon-title">{t("comingSoon")}</span>
+                  <p className="coming-soon-detail">{t("scanImportSettings.organizeHint")}</p>
+                </div>
+              </div>
             </section>
           </div>
         )}
@@ -339,7 +363,13 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("librarySettings.defaultBehavior")}</h4>
-              <p className="settings-hint-text">{t("librarySettings.behaviorHint")}</p>
+              <div className="settings-coming-soon">
+                <span className="coming-soon-icon">📚</span>
+                <div className="coming-soon-body">
+                  <span className="coming-soon-title">{t("comingSoon")}</span>
+                  <p className="coming-soon-detail">{t("librarySettings.behaviorHint")}</p>
+                </div>
+              </div>
             </section>
           </div>
         )}

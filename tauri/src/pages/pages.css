@@ -375,6 +375,44 @@
   font-style: italic;
 }
 
+/* ── Settings coming-soon panel ─────────────────────── */
+.settings-coming-soon {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+}
+
+.coming-soon-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.coming-soon-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.coming-soon-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.coming-soon-detail {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* ── Settings hint text (user-facing) ────────────────── */
 .settings-hint-text {
   font-size: 13px;

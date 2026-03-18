@@ -67,5 +67,7 @@
   "lastPlayed": "最近播放",
   "libraryName": "所属库",
   "actorName": "演员名称",
-  "videoCount": "影片数"
+  "videoCount": "影片数",
+  "viewDetail": "查看详情",
+  "copyVid": "复制 VID"
 }

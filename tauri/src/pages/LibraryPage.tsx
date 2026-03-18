@@ -9,8 +9,9 @@
  * - SSE library.changed auto-refresh
  */
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
@@ -22,7 +23,9 @@ import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
 import { ResultSummary } from "../components/shared/ResultSummary";
-import type { GetLibraryVideosResponse } from "../api/types";
+import { VideoContextMenu, type ContextMenuAction } from "../components/shared/VideoContextMenu";
+import { showToast } from "../components/GlobalToast";
+import type { GetLibraryVideosResponse, VideoListItemDto } from "../api/types";
 import "./pages.css";
 
 const PAGE_SIZE = 30;
@@ -114,6 +117,68 @@ export function LibraryPage() {
     navigate("video-detail", { videoId }, { label: library?.name ?? t("page.title") });
   }, [navigate, library, t]);
 
+  // ── Context menu ────────────────────────────────
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    video: VideoListItemDto;
+  } | null>(null);
+
+  const handleContextMenu = useCallback((videoId: string, event: React.MouseEvent) => {
+    const video = data?.items.find((v) => v.videoId === videoId);
+    if (!video) return;
+    setContextMenu({ x: event.clientX, y: event.clientY, video });
+  }, [data]);
+
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const getContextMenuActions = useCallback((video: VideoListItemDto): ContextMenuAction[] => [
+    {
+      key: "detail",
+      label: tc("viewDetail") || "查看详情",
+      icon: "📋",
+      onClick: () => navigate("video-detail", { videoId: video.videoId }, { label: library?.name ?? t("page.title") }),
+    },
+    {
+      key: "play",
+      label: tc("play"),
+      icon: "▶",
+      onClick: async () => {
+        const client = getApiClient();
+        if (!client) return;
+        try {
+          await client.playVideo(video.videoId);
+          showToast({ message: tc("playSuccess"), type: "success" });
+        } catch (err) {
+          showToast({ message: `${tc("playFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+        }
+      },
+    },
+    {
+      key: "openFolder",
+      label: tc("openFolder"),
+      icon: "📂",
+      onClick: async () => {
+        if (!video.path) return;
+        try {
+          await revealItemInDir(video.path);
+        } catch (err) {
+          showToast({ message: `${tc("openFolder")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+        }
+      },
+      disabled: !video.path,
+    },
+    {
+      key: "copyVid",
+      label: tc("copyVid") || "复制 VID",
+      icon: "📎",
+      onClick: () => {
+        navigator.clipboard.writeText(video.vid).catch(() => {});
+        showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
+      },
+    },
+  ], [navigate, library, t, tc]);
+
   // ── Render ────────────────────────────────────────
   const data = videosQuery.data;
   const totalCount = data?.totalCount ?? 0;
@@ -163,6 +228,7 @@ export function LibraryPage() {
               key={video.videoId}
               video={video}
               onClick={handleVideoClick}
+              onContextMenu={handleContextMenu}
               baseUrl={baseUrl}
             />
           ))}
@@ -176,6 +242,16 @@ export function LibraryPage() {
           pageSize={PAGE_SIZE}
           totalCount={totalCount}
           onPageChange={handlePageChange}
+        />
+      )}
+
+      {/* Context menu */}
+      {contextMenu && (
+        <VideoContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          actions={getContextMenuActions(contextMenu.video)}
+          onClose={closeContextMenu}
         />
       )}
     </div>

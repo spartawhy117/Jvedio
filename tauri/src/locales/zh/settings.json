@@ -50,6 +50,7 @@
     "diagSuccess": "连接成功",
     "diagFailed": "连接失败"
   },
+  "comingSoon": "即将推出",
   "resetDefaults": "恢复默认",
   "resetSuccess": "已恢复默认设置",
   "save": "保存设置",

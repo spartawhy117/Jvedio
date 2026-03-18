@@ -9,6 +9,7 @@
 
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
@@ -58,6 +59,15 @@ export function VideoDetailPage() {
   const handlePlay = useCallback(() => {
     playMutation.mutate(undefined as never);
   }, [playMutation]);
+
+  const handleOpenFolder = useCallback(async () => {
+    if (!video?.path) return;
+    try {
+      await revealItemInDir(video.path);
+    } catch (err) {
+      showToast({ message: `${tc("openFolder")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [video?.path, tc]);
 
   const handleActorClick = useCallback((actorId: string) => {
     navigate("actor-detail", { actorId }, { label: video?.vid ?? "Video Detail" });
@@ -171,7 +181,7 @@ export function VideoDetailPage() {
                 key: "openFolder",
                 label: `📂 ${tc("openFolder")}`,
                 variant: "browse",
-                onClick: () => {},
+                onClick: handleOpenFolder,
                 title: tc("openFolder"),
               },
             ]}

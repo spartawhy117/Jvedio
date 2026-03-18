@@ -67,5 +67,7 @@
   "lastPlayed": "Last Played",
   "libraryName": "Library",
   "actorName": "Actor Name",
-  "videoCount": "Videos"
+  "videoCount": "Videos",
+  "viewDetail": "View Detail",
+  "copyVid": "Copy VID"
 }

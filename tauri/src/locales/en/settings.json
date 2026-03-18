@@ -50,6 +50,7 @@
     "diagSuccess": "Connection successful",
     "diagFailed": "Connection failed"
   },
+  "comingSoon": "Coming Soon",
   "resetDefaults": "Reset to Defaults",
   "resetSuccess": "Settings reset to defaults",
   "save": "Save Settings",
