@@ -1,13 +1,32 @@
 /**
- * Library Management Page — Phase 2 skeleton.
+ * Library Management Page — Phase 3 full implementation.
  *
  * Spec: doc/UI/new/pages/library-management-page.md
- * Layout: list with action strip per row
+ * - Library list from API (via BootstrapContext + SSE auto-refresh)
+ * - Create / Edit / Delete / Scan operations
+ * - Action strip per row
+ * - Status badge (synced / scanning / pending)
  */
 
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
+import { getApiClient } from "../api/client";
+import { useApiMutation } from "../hooks/useApiQuery";
+import { useOnLibraryChanged } from "../hooks/useSSESubscription";
+import { showToast } from "../components/GlobalToast";
+import { ConfirmDialog } from "../components/shared/ConfirmDialog";
+import { CreateEditLibraryDialog } from "../components/dialogs/CreateEditLibraryDialog";
+import type {
+  CreateLibraryRequest,
+  CreateLibraryResponse,
+  UpdateLibraryRequest,
+  UpdateLibraryResponse,
+  DeleteLibraryResponse,
+  StartLibraryScanResponse,
+  LibraryListItemDto,
+} from "../api/types";
 import "./pages.css";
 
 export function LibraryManagementPage() {
@@ -16,16 +35,110 @@ export function LibraryManagementPage() {
   const { navigate } = useRouter();
   const { libraries } = useBootstrap();
 
-  const handleOpenLibrary = (libraryId: string) => {
+  // ── Dialog state ──────────────────────────────────
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingLibrary, setEditingLibrary] = useState<LibraryListItemDto | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<LibraryListItemDto | null>(null);
+
+  // SSE auto-refresh is handled by BootstrapContext; we just listen for toast feedback
+  useOnLibraryChanged(() => {
+    // Libraries auto-refresh in context — no additional action needed
+  });
+
+  // ── API mutations ─────────────────────────────────
+  const createMutation = useApiMutation<CreateLibraryResponse, CreateLibraryRequest>({
+    mutationFn: (req) => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.createLibrary(req);
+    },
+    onSuccess: (data) => {
+      showToast({ message: t("toast.created", { name: data.name }), type: "success" });
+      setCreateDialogOpen(false);
+    },
+    onError: (err) => {
+      showToast({ message: err.message, type: "error" });
+    },
+  });
+
+  const updateMutation = useApiMutation<UpdateLibraryResponse, { libraryId: string; req: UpdateLibraryRequest }>({
+    mutationFn: ({ libraryId, req }) => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.updateLibrary(libraryId, req);
+    },
+    onSuccess: () => {
+      showToast({ message: t("toast.updated"), type: "success" });
+      setEditingLibrary(null);
+    },
+    onError: (err) => {
+      showToast({ message: err.message, type: "error" });
+    },
+  });
+
+  const deleteMutation = useApiMutation<DeleteLibraryResponse, string>({
+    mutationFn: (libraryId) => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.deleteLibrary(libraryId);
+    },
+    onSuccess: () => {
+      showToast({ message: t("toast.deleted"), type: "success" });
+      setDeleteTarget(null);
+    },
+    onError: (err) => {
+      showToast({ message: err.message, type: "error" });
+    },
+  });
+
+  const scanMutation = useApiMutation<StartLibraryScanResponse, string>({
+    mutationFn: (libraryId) => {
+      const client = getApiClient();
+      if (!client) throw new Error("API not connected");
+      return client.startLibraryScan(libraryId);
+    },
+    onSuccess: () => {
+      showToast({ message: t("toast.scanStarted"), type: "info" });
+    },
+    onError: (err) => {
+      showToast({ message: err.message, type: "error" });
+    },
+  });
+
+  // ── Handlers ──────────────────────────────────────
+  const handleOpenLibrary = useCallback((libraryId: string) => {
     navigate("library", { libraryId }, { label: t("management.title") });
-  };
+  }, [navigate, t]);
+
+  const handleCreateSubmit = useCallback((data: { name: string; scanPaths: string[] }) => {
+    createMutation.mutate(data);
+  }, [createMutation]);
+
+  const handleEditSubmit = useCallback((data: { name: string; scanPaths: string[] }) => {
+    if (!editingLibrary) return;
+    updateMutation.mutate({
+      libraryId: editingLibrary.libraryId,
+      req: { name: data.name, scanPaths: data.scanPaths },
+    });
+  }, [editingLibrary, updateMutation]);
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget.libraryId);
+  }, [deleteTarget, deleteMutation]);
+
+  const handleScan = useCallback((libraryId: string) => {
+    scanMutation.mutate(libraryId);
+  }, [scanMutation]);
 
   return (
     <div className="page-content-section">
       {/* Header */}
       <div className="page-header">
         <h2 className="page-title">{t("management.title")}</h2>
-        <button className="btn btn-primary">{t("management.createNew")}</button>
+        <button className="btn btn-primary" onClick={() => setCreateDialogOpen(true)}>
+          {t("management.createNew")}
+        </button>
       </div>
 
       {libraries.length === 0 ? (
@@ -39,7 +152,7 @@ export function LibraryManagementPage() {
           {/* Table header */}
           <div className="library-table-header">
             <span className="col-name">{tc("name")}</span>
-            <span className="col-count">{t("management.videoCount")}</span>
+            <span className="col-count">{tc("videos")}</span>
             <span className="col-scan">{t("management.lastScan")}</span>
             <span className="col-status">{tc("status.label")}</span>
             <span className="col-actions">{tc("actions")}</span>
@@ -78,13 +191,23 @@ export function LibraryManagementPage() {
                 >
                   {t("management.open")}
                 </button>
-                <button className="btn btn-sm btn-primary">
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => handleScan(lib.libraryId)}
+                  disabled={lib.hasRunningTask}
+                >
                   {t("management.scan")}
                 </button>
-                <button className="btn btn-sm btn-secondary">
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setEditingLibrary(lib)}
+                >
                   {tc("edit")}
                 </button>
-                <button className="btn btn-sm btn-danger">
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => setDeleteTarget(lib)}
+                >
                   {tc("delete")}
                 </button>
               </span>
@@ -92,6 +215,37 @@ export function LibraryManagementPage() {
           ))}
         </div>
       )}
+
+      {/* Create Library Dialog */}
+      <CreateEditLibraryDialog
+        open={createDialogOpen}
+        mode="create"
+        loading={createMutation.isLoading}
+        onSubmit={handleCreateSubmit}
+        onCancel={() => setCreateDialogOpen(false)}
+      />
+
+      {/* Edit Library Dialog */}
+      <CreateEditLibraryDialog
+        open={!!editingLibrary}
+        mode="edit"
+        initialName={editingLibrary?.name}
+        initialScanPaths={editingLibrary?.scanPaths}
+        loading={updateMutation.isLoading}
+        onSubmit={handleEditSubmit}
+        onCancel={() => setEditingLibrary(null)}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={t("dialog.deleteTitle")}
+        message={t("dialog.deleteMessage", { name: deleteTarget?.name ?? "" })}
+        danger
+        loading={deleteMutation.isLoading}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

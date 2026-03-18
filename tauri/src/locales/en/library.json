@@ -15,6 +15,30 @@
     "title": "Library",
     "filterPlaceholder": "Search videos…",
     "sortBy": "Sort",
-    "noLibrarySelected": "Select a library from the sidebar"
+    "noLibrarySelected": "Select a library from the sidebar",
+    "sortVidAsc": "VID Ascending",
+    "sortVidDesc": "VID Descending",
+    "sortDateAsc": "Release Date Ascending",
+    "sortDateDesc": "Release Date Descending",
+    "sortImportAsc": "Import Time Ascending",
+    "sortImportDesc": "Import Time Descending",
+    "emptyScanHint": "No videos in this library. Go to Library Management to start a scan."
+  },
+  "dialog": {
+    "createTitle": "Create Library",
+    "editTitle": "Edit Library",
+    "deleteTitle": "Delete Library",
+    "deleteMessage": "Are you sure you want to delete library \"{{name}}\"? This will not delete files on disk, but will remove the library and video records from the database.",
+    "nameLabel": "Library Name",
+    "namePlaceholder": "Enter library name",
+    "scanPathsLabel": "Scan Paths",
+    "scanPathsPlaceholder": "One directory path per line",
+    "scanPathsHint": "One directory path per line, will scan recursively"
+  },
+  "toast": {
+    "created": "Library \"{{name}}\" created",
+    "updated": "Library updated",
+    "deleted": "Library deleted",
+    "scanStarted": "Scan task started"
   }
 }

@@ -15,6 +15,30 @@
     "title": "影视库",
     "filterPlaceholder": "搜索影片…",
     "sortBy": "排序",
-    "noLibrarySelected": "请从左侧选择一个媒体库"
+    "noLibrarySelected": "请从左侧选择一个媒体库",
+    "sortVidAsc": "按 VID 正序",
+    "sortVidDesc": "按 VID 倒序",
+    "sortDateAsc": "按发布日期正序",
+    "sortDateDesc": "按发布日期倒序",
+    "sortImportAsc": "按导入时间正序",
+    "sortImportDesc": "按导入时间倒序",
+    "emptyScanHint": "当前库暂无影片，请回到库管理页执行扫描"
+  },
+  "dialog": {
+    "createTitle": "新建媒体库",
+    "editTitle": "编辑媒体库",
+    "deleteTitle": "删除媒体库",
+    "deleteMessage": "确定要删除媒体库「{{name}}」吗？此操作不会删除磁盘上的文件，但会移除数据库中的库及影片记录。",
+    "nameLabel": "媒体库名称",
+    "namePlaceholder": "请输入媒体库名称",
+    "scanPathsLabel": "扫描目录",
+    "scanPathsPlaceholder": "每行输入一个目录路径",
+    "scanPathsHint": "每行一个目录路径，扫描时会递归遍历"
+  },
+  "toast": {
+    "created": "已创建媒体库「{{name}}」",
+    "updated": "媒体库已更新",
+    "deleted": "媒体库已删除",
+    "scanStarted": "扫描任务已启动"
   }
 }
