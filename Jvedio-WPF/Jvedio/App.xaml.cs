@@ -79,7 +79,7 @@ namespace Jvedio
 
 #if DEBUG
 #else
-            if (ElectronShellLauncher.TryLaunch(Logger)) {
+            if (TauriShellLauncher.TryLaunch(Logger)) {
                 Shutdown();
                 return;
             }
@@ -172,63 +172,57 @@ namespace Jvedio
 
 #if DEBUG
 #else
-internal static class ElectronShellLauncher
+internal static class TauriShellLauncher
 {
-    private const string DisableLegacyFallbackEnvironmentVariable = "JVEDIO_FORCE_LEGACY_WPF";
-    private const string ElectronShellDirectoryName = "electron-shell";
+    private const string ForceLegacyWpfEnvVar = "JVEDIO_FORCE_LEGACY_WPF";
+    private const string TauriShellDirectoryName = "tauri-shell";
+    private const string TauriShellExeName = "Jvedio.exe";
 
     public static bool TryLaunch(Jvedio.Core.Logs.Logger logger)
     {
         if (ShouldUseLegacyWpf()) {
-            logger.Info("[Electron-Launcher] Legacy WPF startup forced by environment variable.");
+            logger.Info("[Tauri-Launcher] Legacy WPF startup forced by environment variable.");
             return false;
         }
 
         string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string electronRoot = Path.Combine(appBaseDirectory, ElectronShellDirectoryName);
-        string electronExecutablePath = Path.Combine(electronRoot, "electron-runtime", "electron.exe");
-        string packageJsonPath = Path.Combine(electronRoot, "package.json");
-        string bootstrapPath = Path.Combine(electronRoot, "dist", "main", "app", "bootstrap.js");
+        string tauriRoot = Path.Combine(appBaseDirectory, TauriShellDirectoryName);
+        string tauriExePath = Path.Combine(tauriRoot, TauriShellExeName);
 
-        if (!File.Exists(electronExecutablePath) || !File.Exists(packageJsonPath) || !File.Exists(bootstrapPath)) {
-            logger.Warn($"[Electron-Launcher] Electron shell artifacts were not found under {electronRoot}. Falling back to legacy WPF.");
+        if (!File.Exists(tauriExePath)) {
+            logger.Warn($"[Tauri-Launcher] Tauri shell executable was not found at {tauriExePath}. Falling back to legacy WPF.");
             return false;
         }
 
-        string workerDllPath = Path.Combine(appBaseDirectory, "worker", "Jvedio.Worker.dll");
-
         try {
             ProcessStartInfo startInfo = new ProcessStartInfo {
-                FileName = electronExecutablePath,
-                Arguments = ".",
-                WorkingDirectory = electronRoot,
+                FileName = tauriExePath,
+                WorkingDirectory = tauriRoot,
                 UseShellExecute = false
             };
 
-            startInfo.EnvironmentVariables["JVEDIO_APP_BASE_DIR"] = appBaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            if (File.Exists(workerDllPath)) {
-                startInfo.EnvironmentVariables["JVEDIO_WORKER_DLL"] = workerDllPath;
-                startInfo.EnvironmentVariables["JVEDIO_WORKER_CWD"] = Path.GetDirectoryName(workerDllPath);
-            }
+            // Tauri shell manages Worker lifecycle internally via worker.rs;
+            // no extra environment variables needed for Worker path — it resolves
+            // the Worker relative to its own exe directory (worker/ subfolder).
 
             Process process = Process.Start(startInfo);
             if (process == null) {
-                logger.Warn("[Electron-Launcher] Process.Start returned null. Falling back to legacy WPF.");
+                logger.Warn("[Tauri-Launcher] Process.Start returned null. Falling back to legacy WPF.");
                 return false;
             }
 
-            logger.Info($"[Electron-Launcher] Started Electron shell. pid={process.Id}, shellRoot={electronRoot}");
+            logger.Info($"[Tauri-Launcher] Started Tauri shell. pid={process.Id}, shellRoot={tauriRoot}");
             return true;
         } catch (Exception ex) {
             logger.Error(ex);
-            logger.Warn("[Electron-Launcher] Failed to start Electron shell. Falling back to legacy WPF.");
+            logger.Warn("[Tauri-Launcher] Failed to start Tauri shell. Falling back to legacy WPF.");
             return false;
         }
     }
 
     private static bool ShouldUseLegacyWpf()
     {
-        string value = Environment.GetEnvironmentVariable(DisableLegacyFallbackEnvironmentVariable);
+        string value = Environment.GetEnvironmentVariable(ForceLegacyWpfEnvVar);
         return string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
     }

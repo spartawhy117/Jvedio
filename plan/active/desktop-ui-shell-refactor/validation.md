@@ -164,3 +164,85 @@
 - `tauri/src/hooks/useSSESubscription.ts` — SSE 事件总线 + 订阅 hooks
 - `tauri/src/components/ErrorBoundary.tsx` — 错误边界
 - `tauri/src/components/GlobalToast.tsx` — 全局 toast
+
+## Phase 3 必过验证项
+
+### 业务页迁移（3.1–3.8）
+
+- ✅ MainShell — 导航交互优化 + SSE library.changed 刷新 + 任务摘要 i18n
+- ✅ LibraryManagementPage — 真实 API CRUD + CreateEditLibraryDialog + ConfirmDialog + scan
+- ✅ LibraryPage — video grid + useApiQuery + 6 种排序 + 分页 + SSE 自动刷新
+- ✅ VideoDetailPage — poster + VID + sidecar badge + play mutation + metadata grid + actors
+- ✅ FavoritesPage — 收藏影片网格 + QueryToolbar + 分页
+- ✅ ActorsPage — 演员卡片网格 + search + sort + 分页
+- ✅ ActorDetailPage — 演员详情头部 + 关联视频网格 + QueryToolbar + 分页
+- ✅ SettingsPage — showToast 反馈 + 占位文案用户化 + settings-hint-text 样式
+
+### 共享组件补齐
+
+- ✅ ResultSummary — 统一结果摘要条，替换 4 个页面中的内联 page-count
+- ✅ ActionStrip — 统一行内操作按钮组（browse/execute/edit/danger 四种变体）
+- ✅ StatusBadge — 统一状态标签（pending/running/synced/failed + label/dot 两种展示模式）
+
+## Phase 3 通过标准
+
+- ✅ 所有 8 个业务页已接入真实 API 数据
+- ✅ 9 个共享组件全部独立实现并替换内联写法
+- ✅ tsc --noEmit 零错误通过
+
+## Phase 3 实施记录
+
+### 提交历史
+- `da6b121` Phase 3.1 — MainShell navigation refinement + i18n expansion
+- `687758c` Phase 3.2 — LibraryManagement real API CRUD + dialogs + scan
+- `8402fe2` Phase 3.3 — LibraryPage video grid + query + sort + pagination
+- `9b53650` Phase 3.4 — VideoDetailPage detail + play + sidecar + actors
+- `4b3acd8` Phase 3.5 — FavoritesPage real API video grid + pagination
+- `bcda5fa` Phase 3.6 — ActorsPage real API actor grid + pagination
+- `dfbea32` Phase 3.7 — ActorDetailPage real API actor detail + associated videos grid
+- `7397a8c` Phase 3.8 — SettingsPage toast feedback + i18n polish + hint text styling
+- `e16690d` shared-components — add ResultSummary, ActionStrip, StatusBadge + replace inline usages
+
+## Phase 4 必过验证项
+
+### Launcher 切换
+
+- ✅ `App.xaml.cs` — `ElectronShellLauncher` 类已替换为 `TauriShellLauncher`
+- ✅ Release 模式下 `OnStartup` 优先尝试启动 Tauri 壳，失败时 fallback 到 WPF
+- ✅ `JVEDIO_FORCE_LEGACY_WPF` 环境变量继续可用
+
+### 构建目标切换
+
+- ✅ `Jvedio.csproj` — `PrepareElectronShellArtifacts` Target 已替换为 `PrepareTauriShellArtifacts`
+- ✅ 新 Target 构建 Worker + 调用 `npm run tauri build` + 复制产物到 `tauri-shell/` 和 `worker/`
+- ✅ 不再依赖 `electron/node_modules/electron/dist/electron.exe`
+
+### Tauri Bundle 配置
+
+- ✅ `tauri.conf.json` — `bundle.resources` 将 `worker-dist/` 映射到安装包内 `worker/`
+- ✅ `tauri/scripts/prepare-worker.ps1` — 独立 Worker 预构建脚本
+- ✅ `tauri/package.json` — `build:release` 命令串联 Worker 预构建 + Tauri 构建
+
+### Electron 废弃
+
+- ✅ `electron/README.md` 更新为 DEPRECATED 标记，注明废弃原因与 Phase 5 清理时机
+- ✅ 旧 Electron 构建目标、runtime 检查、产物复制已全部移除
+
+## Phase 4 通过标准
+
+- ✅ Launcher 切换为 Tauri（`TauriShellLauncher`）
+- ✅ 构建目标切换为 Tauri（`PrepareTauriShellArtifacts`）
+- ✅ Tauri bundle 能打包 Worker（通过 `bundle.resources` 配置）
+- ✅ `electron/` 标记为 deprecated
+- ✅ 旧 Electron 构建链已不再是默认产品路径
+
+## Phase 4 实施记录
+
+### 关键文件变更
+- `Jvedio-WPF/Jvedio/App.xaml.cs` — `ElectronShellLauncher` → `TauriShellLauncher`
+- `Jvedio-WPF/Jvedio/Jvedio.csproj` — `PrepareElectronShellArtifacts` → `PrepareTauriShellArtifacts`
+- `tauri/src-tauri/tauri.conf.json` — 添加 `bundle.resources` 配置
+- `tauri/scripts/prepare-worker.ps1` — 新增 Worker 预构建脚本
+- `tauri/package.json` — 新增 `prepare-worker` + `build:release` 脚本
+- `tauri/.gitignore` — 添加 `worker-dist` 忽略规则
+- `electron/README.md` — 标记为 DEPRECATED

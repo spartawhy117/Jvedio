@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Worker build staging directory (produced by scripts/prepare-worker.ps1)
+worker-dist
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

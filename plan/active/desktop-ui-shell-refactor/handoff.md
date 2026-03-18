@@ -35,9 +35,9 @@
 
 ## Recommended Kickoff Command
 
-当前已完成 Phase 1 + Phase 2，后续恢复上下文时的标准口令：
+当前已完成 Phase 1 ~ Phase 4，后续恢复上下文时的标准口令：
 
-> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 3 的业务页迁移阶段。
+> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 5 的旧 Electron 清理阶段。
 
 
 ## Immediate Next Work After Kickoff
@@ -60,21 +60,42 @@ Phase 2 已全部完成 ✅，以下为已完成的实施范围：
 6. ✅ Settings 页面完整读写骨架（左右分栏 + 6 组 + API 读写 + MetaTube 诊断）
 7. ✅ ErrorBoundary（渲染错误兜底）+ GlobalToast（全局通知）
 
-下一步进入 **Phase 3：业务页按优先级迁移**，参见 `plan.md` 阶段 3 定义。
+Phase 3 已全部完成 ✅，以下为已完成的实施范围：
 
-迁移建议顺序：
-1. `main-shell` — 完善导航交互
-2. `library-management-page` — 接入真实 API 数据
-3. `library-page` — 视频列表、筛选、排序、分页
-4. `video-detail-page` — 详情读取、播放、sidecar
-5. `favorites-page` — 收藏列表
-6. `actors-page` — 演员列表
-7. `actor-detail-page` — 演员详情 + 关联影片
-8. `settings-page` — 完善所有设置组
+1. ✅ MainShell — 导航交互优化 + SSE library.changed 刷新 + 任务摘要 i18n
+2. ✅ LibraryManagementPage — 真实 API CRUD + CreateEditLibraryDialog + ConfirmDialog + scan
+3. ✅ LibraryPage — video grid + useApiQuery + 6 种排序 + 分页 + SSE 自动刷新
+4. ✅ VideoDetailPage — poster + VID + sidecar badge + play mutation + metadata grid + actors
+5. ✅ FavoritesPage — 收藏影片网格 + QueryToolbar + 分页
+6. ✅ ActorsPage — 演员卡片网格 + search + sort + 分页
+7. ✅ ActorDetailPage — 演员详情头部 + 关联视频网格 + QueryToolbar + 分页
+8. ✅ SettingsPage — showToast 反馈 + 占位文案用户化 + settings-hint-text 样式
+
+共享组件补齐 ✅：
+- ✅ ResultSummary — 统一结果摘要条，替换 4 个页面中的内联 page-count
+- ✅ ActionStrip — 统一行内操作按钮组（browse/execute/edit/danger 四种变体）
+- ✅ StatusBadge — 统一状态标签（pending/running/synced/failed + label/dot 两种展示模式）
+
+Phase 4 已全部完成 ✅，以下为已完成的实施范围：
+
+1. ✅ `App.xaml.cs` — `ElectronShellLauncher` 替换为 `TauriShellLauncher`
+2. ✅ `Jvedio.csproj` — `PrepareElectronShellArtifacts` 替换为 `PrepareTauriShellArtifacts`
+3. ✅ Tauri bundle 配置 — `bundle.resources` 将 Worker 打包进安装包的 `worker/` 目录
+4. ✅ 构建脚本 — `tauri/scripts/prepare-worker.ps1` + `npm run build:release` 全流程
+5. ✅ `electron/` 标记为 deprecated，README 明确注明废弃原因与清理时机
+
+下一步进入 **Phase 5：旧 Electron 清理**（最终阶段），参见 `plan.md` 阶段 5 定义。
+
+清理前提（须全部满足）：
+1. 所有 `doc/UI/new/` 页面和弹层已在新壳下完成接线
+2. Worker 启动、任务反馈、设置保存、播放链路验证通过
+3. Release 构建、打包、启动链已稳定指向新壳
+4. 关键回归项通过至少一轮完整验证
 
 ## Current Blockers
 
-- 当前**无阻塞项**，可直接进入 Phase 3 的业务页迁移。
-- Phase 2 中未发现新的系统级障碍。
+- 当前**无阻塞项**，可直接进入 Phase 5 的旧 Electron 清理。
+- Phase 4 中未发现新的系统级障碍。
+- Phase 5 清理前需确保上述 4 项前提全部满足。
 
 
