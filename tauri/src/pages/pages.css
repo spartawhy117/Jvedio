@@ -430,6 +430,34 @@
   background: var(--color-surface);
 }
 
+/* ── Video grid ─────────────────────────────────────── */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Page content wide (full width pages) ────────────── */
+.page-content-wide {
+  max-width: 100%;
+}
+
+/* ── Page count label ────────────────────────────────── */
+.page-count {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+}
+
+/* ── Actor grid ─────────────────────────────────────── */
+.actor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 /* ── Video grid placeholder ──────────────────────────── */
 .video-grid-placeholder {
   min-height: 200px;
