@@ -56,8 +56,8 @@
   - 当前 exe UI 的页面级功能说明与共享组件约束
   - 当前 exe UI 的主链路流程图
   - 当前 exe UI 的主题、多语言与静态资源实现规范
-- `../../../plan/archive/desktop-ui-shell-refactor/` 负责：
-  - 已完成的 feature 阶段、验证、交接和实现计划（归档）
+- `../../../plan/active/desktop-ui-shell-refactor/` 负责：
+  - 当前 active feature 的阶段、验证、交接和实现计划
   - 冻结为什么采用这些方案，而不是承载长期实现细则
 - `../old/` 负责：
   - 旧界面基线截图

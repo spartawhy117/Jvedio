@@ -19,7 +19,7 @@
 
 ## 后续执行默认阅读顺序
 
-- 先看 `plan/archive/desktop-ui-shell-refactor/handoff.md`，了解已完成的冻结路线与实施记录。
+- 先看 `plan/active/desktop-ui-shell-refactor/handoff.md`，确认当前进度与冻结路线。
 - 再看 `doc/UI/new/page-index.md` 与 `doc/UI/new/flow/README.md`，明确页面集合、主链路和返回链路。
 - 进入具体实现前，再按需细读：
   - `theme-and-appearance.md`
