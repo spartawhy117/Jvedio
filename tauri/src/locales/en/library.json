@@ -3,10 +3,18 @@
     "title": "Library Management",
     "noLibrary": "No libraries yet",
     "createFirst": "Click \"Create\" to add your first library",
+    "createNew": "New Library",
     "videoCount": "{{count}} videos",
-    "scanning": "Scanning"
+    "scanning": "Scanning",
+    "synced": "Synced",
+    "lastScan": "Last Scan",
+    "open": "Open",
+    "scan": "Scan"
   },
   "page": {
-    "filterPlaceholder": "Filter · Sort · Pagination · Video Cards"
+    "title": "Library",
+    "filterPlaceholder": "Search videos…",
+    "sortBy": "Sort",
+    "noLibrarySelected": "Select a library from the sidebar"
   }
 }

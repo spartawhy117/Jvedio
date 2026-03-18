@@ -1,0 +1,358 @@
+/* ===== Pages — shared styles for page skeletons ===== */
+
+/* ── Page header ─────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── Query toolbar ───────────────────────────────────── */
+.query-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 0 1 280px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--color-accent);
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+/* ── Section heading ─────────────────────────────────── */
+.section-heading {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 12px;
+}
+
+/* ── Pagination ──────────────────────────────────────── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 0;
+}
+
+.pagination-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ── Library management table ────────────────────────── */
+.library-table {
+  margin-top: 16px;
+}
+
+.library-table-header {
+  display: grid;
+  grid-template-columns: 1fr 80px 120px 100px 200px;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.library-table-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 120px 100px 200px;
+  gap: 8px;
+  padding: 10px 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.1s;
+}
+
+.library-table-row:hover {
+  background: var(--color-nav-hover);
+}
+
+.col-name.clickable {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.col-name.clickable:hover .lib-name {
+  color: var(--color-accent);
+}
+
+.lib-name {
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.lib-path {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-count,
+.col-scan {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.col-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Status badge ────────────────────────────────────── */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-badge.synced {
+  background: var(--color-bg-surface-2, #ebebeb);
+  color: var(--color-text-secondary);
+}
+
+.status-badge.running {
+  background: var(--badge-info-bg, #e8f0fe);
+  color: var(--color-accent);
+}
+
+.status-badge.pending {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-badge.failed {
+  background: var(--badge-danger-bg, #fde8e8);
+  color: var(--color-danger, #e05050);
+}
+
+/* ── Settings layout ─────────────────────────────────── */
+.settings-layout {
+  display: flex;
+  height: 100%;
+}
+
+.settings-nav {
+  width: 180px;
+  min-width: 180px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-nav-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.settings-nav-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.settings-nav-item:hover {
+  background: var(--color-nav-hover);
+}
+
+.settings-nav-item.active {
+  background: var(--color-nav-active);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.settings-form-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px;
+  max-width: 640px;
+}
+
+.settings-form-header {
+  margin-bottom: 20px;
+}
+
+.settings-form-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.settings-form-content {
+  flex: 1;
+}
+
+.settings-form-content h4 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text-primary);
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  margin-top: auto;
+}
+
+/* ── Detail pages ────────────────────────────────────── */
+.detail-header-placeholder {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.video-detail-layout {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.poster-placeholder {
+  width: 200px;
+  height: 280px;
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.detail-info {
+  flex: 1;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sidecar-placeholder {
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+/* ── Video grid placeholder ──────────────────────────── */
+.video-grid-placeholder {
+  min-height: 200px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.btn-icon {
+  padding: 6px 10px;
+  min-width: 32px;
+  font-size: 16px;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--color-nav-hover);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--color-danger, #e05050);
+  border-color: var(--color-danger, #e05050);
+}
+
+.btn-danger:hover {
+  background: var(--badge-danger-bg, #fde8e8);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

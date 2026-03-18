@@ -7,6 +7,7 @@ import "./locales/i18n";
 import { ThemeModeProvider } from "./theme/ThemeModeProvider";
 import { WorkerProvider } from "./contexts/WorkerContext";
 import { BootstrapProvider } from "./contexts/BootstrapContext";
+import { RouterProvider } from "./router";
 import App from "./App";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeModeProvider>
       <WorkerProvider>
         <BootstrapProvider>
-          <App />
+          <RouterProvider defaultPage="library-management">
+            <App />
+          </RouterProvider>
         </BootstrapProvider>
       </WorkerProvider>
     </ThemeModeProvider>

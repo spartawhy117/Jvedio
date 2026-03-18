@@ -3,10 +3,18 @@
     "title": "库管理",
     "noLibrary": "还没有媒体库",
     "createFirst": "点击「新建」创建第一个媒体库",
+    "createNew": "新建媒体库",
     "videoCount": "{{count}} 部影片",
-    "scanning": "扫描中"
+    "scanning": "扫描中",
+    "synced": "已同步",
+    "lastScan": "最近扫描",
+    "open": "打开",
+    "scan": "扫描"
   },
   "page": {
-    "filterPlaceholder": "筛选 · 排序 · 分页 · 影片卡片"
+    "title": "影视库",
+    "filterPlaceholder": "搜索影片…",
+    "sortBy": "排序",
+    "noLibrarySelected": "请从左侧选择一个媒体库"
   }
 }

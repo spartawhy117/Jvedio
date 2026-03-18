@@ -1,6 +1,14 @@
 {
   "title": "Settings",
-  "groups": "General · Libraries · Scraping · Playback · Advanced · About",
+  "groups": "General · Image · Scan & Import · Network · Library · MetaTube",
+  "groups_list": {
+    "general": "General",
+    "image": "Image",
+    "scanImport": "Scan & Import",
+    "network": "Network",
+    "library": "Library",
+    "metaTube": "MetaTube"
+  },
   "theme": {
     "label": "Theme",
     "light": "Light",
@@ -11,5 +19,7 @@
     "label": "Language",
     "zh": "中文",
     "en": "English"
-  }
+  },
+  "resetDefaults": "Reset to Defaults",
+  "save": "Save Settings"
 }

@@ -1,6 +1,14 @@
 {
   "title": "设置",
-  "groups": "常规 · 媒体库 · 搜刮 · 播放 · 高级 · 关于",
+  "groups": "基本 · 图片 · 扫描与导入 · 网络 · 库 · MetaTube",
+  "groups_list": {
+    "general": "基本",
+    "image": "图片",
+    "scanImport": "扫描与导入",
+    "network": "网络",
+    "library": "库",
+    "metaTube": "MetaTube"
+  },
   "theme": {
     "label": "主题",
     "light": "浅色",
@@ -11,5 +19,7 @@
     "label": "语言",
     "zh": "中文",
     "en": "English"
-  }
+  },
+  "resetDefaults": "恢复默认",
+  "save": "保存设置"
 }
