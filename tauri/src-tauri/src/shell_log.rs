@@ -1,12 +1,8 @@
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
-use std::sync::Mutex;
 
 use chrono::Local;
-
-/// Global log file handle (lazy initialized).
-static LOG_FILE: Mutex<Option<(String, PathBuf)>> = Mutex::new(None);
 
 /// Resolve the unified log directory.
 ///

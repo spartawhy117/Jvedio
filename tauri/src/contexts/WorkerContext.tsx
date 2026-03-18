@@ -26,7 +26,7 @@ interface WorkerContextValue {
  * In a plain browser (Playwright, Chrome dev, etc.) this returns false.
  */
 function isTauriEnvironment(): boolean {
-  return typeof window !== "undefined" && !!(window as Record<string, unknown>).__TAURI_INTERNALS__;
+  return typeof window !== "undefined" && !!(window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 }
 
 /**
@@ -49,7 +49,7 @@ function resolveWorkerUrlFromBrowser(): string | null {
   if (workerPort) return `http://127.0.0.1:${workerPort}`;
 
   // Injected by test scripts
-  const injected = (window as Record<string, unknown>).__WORKER_BASE_URL__;
+  const injected = (window as unknown as Record<string, unknown>).__WORKER_BASE_URL__;
   if (typeof injected === "string" && injected) return injected.replace(/\/$/, "");
 
   return null;
