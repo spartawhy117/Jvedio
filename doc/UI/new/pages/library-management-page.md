@@ -172,7 +172,7 @@
 
 - 当前 `库管理` 页不保留 `导入 / 恢复` 入口。
 - 原因：
-  - Electron / Worker 当前只有影片扫描导入链
+  - Worker 当前只有影片扫描导入链
   - 没有完整可用的库配置导入 / 数据恢复产品链路
   - 旧 WPF 的 `RestoreDatabase` 是删除 `app_datas.sqlite` 后重建，不是用户可用的恢复产品
   - 旧 WPF 的 `ExportToNFO` 入口当前没有真实导出实现
