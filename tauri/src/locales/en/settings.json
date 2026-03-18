@@ -1,0 +1,15 @@
+{
+  "title": "Settings",
+  "groups": "General · Libraries · Scraping · Playback · Advanced · About",
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "label": "Language",
+    "zh": "中文",
+    "en": "English"
+  }
+}

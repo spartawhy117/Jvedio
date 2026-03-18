@@ -1,0 +1,12 @@
+{
+  "management": {
+    "title": "库管理",
+    "noLibrary": "还没有媒体库",
+    "createFirst": "点击「新建」创建第一个媒体库",
+    "videoCount": "{{count}} 部影片",
+    "scanning": "扫描中"
+  },
+  "page": {
+    "filterPlaceholder": "筛选 · 排序 · 分页 · 影片卡片"
+  }
+}

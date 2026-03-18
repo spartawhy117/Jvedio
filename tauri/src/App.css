@@ -1,19 +1,32 @@
-/* ===== CSS Variables (light / dark foundation skeleton) ===== */
+/* ===== CSS Variables — driven by ThemeModeProvider tokens ===== */
+/* ThemeModeProvider applies --color-* tokens to :root via JS.
+   The fallback below covers the brief moment before JS loads. */
+
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f5;
-  --color-sidebar-bg: #fafafa;
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #666666;
-  --color-border: #e0e0e0;
-  --color-accent: #4a90d9;
+  /* Layout constants */
+  --sidebar-width: 220px;
+
+  /* Light fallback (overridden by ThemeModeProvider) */
+  --color-bg: var(--color-bg-app, #ffffff);
+  --color-surface: var(--color-bg-surface-1, #f5f5f5);
+  --color-sidebar-bg: var(--shell-sidebar-bg, #fafafa);
+  --color-text-primary: var(--color-text-primary, #1a1a1a);
+  --color-text-secondary: var(--color-text-secondary, #666666);
+  --color-border: var(--color-border-default, #e0e0e0);
+  --color-accent: var(--color-accent-primary, #4a90d9);
   --color-nav-hover: #ebebeb;
   --color-nav-active: #e0ecf7;
-  --sidebar-width: 220px;
 }
 
+/* Dark fallback via data-theme attribute (set by ThemeModeProvider) */
+:root[data-theme="dark"] {
+  --color-nav-hover: #2a2a2a;
+  --color-nav-active: #253040;
+}
+
+/* Pre-JS fallback: use system preference */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --color-bg: #1a1a1a;
     --color-surface: #242424;
     --color-sidebar-bg: #1e1e1e;
@@ -445,4 +458,43 @@ body,
 .running-badge {
   color: var(--color-accent);
   font-weight: 500;
+}
+
+/* ===== Settings page (Phase 1.5 minimal) ===== */
+.settings-group {
+  margin-bottom: 24px;
+}
+
+.settings-group h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--color-text-primary);
+}
+
+.settings-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-chip {
+  padding: 6px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.settings-chip:hover {
+  border-color: var(--color-accent);
+}
+
+.settings-chip.active {
+  background: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
 }

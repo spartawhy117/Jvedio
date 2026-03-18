@@ -1,0 +1,21 @@
+{
+  "appName": "Jvedio Next",
+  "loading": "Loading…",
+  "retry": "Retry",
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "create": "Create",
+  "search": "Search",
+  "noData": "No data",
+  "error": "An error occurred",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "status": {
+    "ready": "Ready",
+    "starting": "Starting",
+    "error": "Error"
+  }
+}

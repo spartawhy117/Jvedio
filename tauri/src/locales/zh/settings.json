@@ -1,0 +1,15 @@
+{
+  "title": "设置",
+  "groups": "常规 · 媒体库 · 搜刮 · 播放 · 高级 · 关于",
+  "theme": {
+    "label": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
+  },
+  "language": {
+    "label": "语言",
+    "zh": "中文",
+    "en": "English"
+  }
+}

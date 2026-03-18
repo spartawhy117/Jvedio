@@ -1,0 +1,12 @@
+{
+  "worker": {
+    "starting": "Starting engine…",
+    "startingHint": "Jvedio Worker is initializing, please wait",
+    "startFailed": "Engine failed to start",
+    "startFailedHint": "Please check if Worker is available and restart the app",
+    "loadingData": "Loading data…",
+    "loadingDataHint": "Fetching app configuration and library info",
+    "loadFailed": "Failed to load data",
+    "preparing": "Preparing…"
+  }
+}

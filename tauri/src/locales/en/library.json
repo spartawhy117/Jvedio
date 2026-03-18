@@ -1,0 +1,12 @@
+{
+  "management": {
+    "title": "Library Management",
+    "noLibrary": "No libraries yet",
+    "createFirst": "Click \"Create\" to add your first library",
+    "videoCount": "{{count}} videos",
+    "scanning": "Scanning"
+  },
+  "page": {
+    "filterPlaceholder": "Filter · Sort · Pagination · Video Cards"
+  }
+}

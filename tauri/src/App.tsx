@@ -1,13 +1,14 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useWorker } from "./contexts/WorkerContext";
 import { useBootstrap } from "./contexts/BootstrapContext";
+import { useTheme } from "./theme/ThemeModeProvider";
+import { changeLanguage } from "./locales/i18n";
 import { WorkerStatusOverlay } from "./components/WorkerStatusOverlay";
+import type { ThemeMode } from "./theme/theme-mode-store";
 import "./App.css";
 
 // ── Page keys — 1:1 with doc/UI/new/page-index.md ──────
-// main-shell is the container itself, not a routable page.
-// actor-detail-page and video-detail-page are detail views
-// reached by navigation from list pages.
 
 type PageKey =
   | "settings"
@@ -18,21 +19,8 @@ type PageKey =
   | "actor-detail"
   | "video-detail";
 
-interface NavItem {
-  key: PageKey;
-  label: string;
-  icon: string;
-}
-
-// 一级导航（对齐 main-shell.md 规格）
-const PRIMARY_NAV: NavItem[] = [
-  { key: "settings", label: "设置", icon: "⚙" },
-  { key: "library-management", label: "库管理", icon: "📁" },
-  { key: "favorites", label: "喜欢", icon: "❤" },
-  { key: "actors", label: "演员", icon: "👤" },
-];
-
 function App() {
+  const { t } = useTranslation("navigation");
   const [activePage, setActivePage] = useState<PageKey>("library-management");
   const [activeLibraryId, setActiveLibraryId] = useState<string | null>(null);
   const { status: workerStatus } = useWorker();
@@ -41,7 +29,6 @@ function App() {
     taskSummary,
     libraries,
     sseConnected,
-    recentEvents,
     status: bsStatus,
     error: bsError,
   } = useBootstrap();
@@ -73,23 +60,37 @@ function App() {
 
           {/* 一级导航 */}
           <nav className="primary-nav">
-            {PRIMARY_NAV.map((item) => (
-              <button
-                key={item.key}
-                className={`nav-item ${activePage === item.key ? "active" : ""}`}
-                onClick={() => handleNavClick(item.key)}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-              </button>
-            ))}
+            <NavButton
+              icon="⚙"
+              label={t("settings")}
+              active={activePage === "settings"}
+              onClick={() => handleNavClick("settings")}
+            />
+            <NavButton
+              icon="📁"
+              label={t("libraryManagement")}
+              active={activePage === "library-management"}
+              onClick={() => handleNavClick("library-management")}
+            />
+            <NavButton
+              icon="❤"
+              label={t("favorites")}
+              active={activePage === "favorites"}
+              onClick={() => handleNavClick("favorites")}
+            />
+            <NavButton
+              icon="👤"
+              label={t("actors")}
+              active={activePage === "actors"}
+              onClick={() => handleNavClick("actors")}
+            />
           </nav>
 
           {/* 影视库区 */}
           <div className="library-nav-section">
-            <div className="section-title">影视库</div>
+            <div className="section-title">{t("libraries")}</div>
             {libraries.length === 0 ? (
-              <div className="section-empty">暂无媒体库</div>
+              <div className="section-empty">{t("noLibraries")}</div>
             ) : (
               <div className="library-list">
                 {libraries.map((lib) => (
@@ -108,27 +109,27 @@ function App() {
             )}
           </div>
 
-          {/* 任务摘要（底部） */}
+          {/* 任务摘要 */}
           {taskSummary && (
             <div className="task-summary-bar">
-              <span className="task-badge" title="运行中">
+              <span className="task-badge" title="Running">
                 ▶ {taskSummary.runningCount}
               </span>
-              <span className="task-badge" title="队列中">
+              <span className="task-badge" title="Queued">
                 ⏳ {taskSummary.queuedCount}
               </span>
-              <span className="task-badge" title="今日完成">
+              <span className="task-badge" title="Completed today">
                 ✅ {taskSummary.completedTodayCount}
               </span>
               {taskSummary.failedCount > 0 && (
-                <span className="task-badge failed" title="失败">
+                <span className="task-badge failed" title="Failed">
                   ❌ {taskSummary.failedCount}
                 </span>
               )}
             </div>
           )}
 
-          {/* Worker + SSE 状态指示器 */}
+          {/* Worker 状态指示器 */}
           <div className="worker-indicator">
             <span
               className={`worker-dot ${workerStatus === "ready" ? (sseConnected ? "ready" : "warning") : workerStatus === "error" ? "error" : "starting"}`}
@@ -136,11 +137,11 @@ function App() {
             <span className="worker-status-text">
               {workerStatus === "ready"
                 ? sseConnected
-                  ? "已连接"
-                  : "SSE 断开"
+                  ? t("../common:connected", { ns: "common" })
+                  : "SSE ✗"
                 : workerStatus === "error"
-                  ? "引擎异常"
-                  : "正在连接…"}
+                  ? t("../common:status.error", { ns: "common" })
+                  : t("../common:status.starting", { ns: "common" })}
             </span>
           </div>
         </aside>
@@ -154,9 +155,6 @@ function App() {
             bootstrap={bootstrap}
             bsStatus={bsStatus}
             bsError={bsError}
-            taskSummary={taskSummary}
-            sseConnected={sseConnected}
-            recentEvents={recentEvents}
           />
         </main>
       </div>
@@ -164,7 +162,31 @@ function App() {
   );
 }
 
-// ── Page Router (Phase 1 placeholder pages) ─────────────
+// ── NavButton ───────────────────────────────────────────
+
+function NavButton({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: string;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`nav-item ${active ? "active" : ""}`}
+      onClick={onClick}
+    >
+      <span className="nav-icon">{icon}</span>
+      <span className="nav-label">{label}</span>
+    </button>
+  );
+}
+
+// ── Page Router ─────────────────────────────────────────
 
 function PageRouter(props: {
   page: PageKey;
@@ -173,9 +195,6 @@ function PageRouter(props: {
   bootstrap: ReturnType<typeof useBootstrap>["bootstrap"];
   bsStatus: string;
   bsError: string | null;
-  taskSummary: ReturnType<typeof useBootstrap>["taskSummary"];
-  sseConnected: boolean;
-  recentEvents: ReturnType<typeof useBootstrap>["recentEvents"];
 }) {
   const { page, libraryId, libraries } = props;
 
@@ -195,28 +214,67 @@ function PageRouter(props: {
     case "video-detail":
       return <VideoDetailPagePlaceholder />;
     default:
-      return <PlaceholderPage title="未知页面" />;
+      return <PlaceholderPage title="Unknown" />;
   }
 }
 
 // ── Placeholder Pages ───────────────────────────────────
-// These will be replaced with real implementations in Phase 2+.
 
 function PlaceholderPage({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="page-placeholder">
       <h2>{title}</h2>
-      <p className="placeholder-hint">{subtitle || "Phase 1 — 页面待实现"}</p>
+      <p className="placeholder-hint">{subtitle || "Phase 2 — coming soon"}</p>
     </div>
   );
 }
 
 function SettingsPagePlaceholder() {
+  const { t } = useTranslation("settings");
+  const { t: tc } = useTranslation("common");
+  const { themeMode, setThemeMode } = useTheme();
+  const { i18n } = useTranslation();
+
   return (
-    <div className="page-placeholder">
-      <h2>设置</h2>
-      <p className="placeholder-hint">Phase 2 — 设置页（左侧分组导航 + 右侧表单区）</p>
-      <p className="placeholder-hint">分组：常规 · 媒体库 · 搜刮 · 播放 · 高级 · 关于</p>
+    <div className="page-content-section">
+      <h2 className="page-title">{t("title")}</h2>
+      <p className="page-subtitle">{t("groups")}</p>
+
+      {/* Theme switcher (Phase 1 minimal) */}
+      <section className="settings-group">
+        <h3>{t("theme.label")}</h3>
+        <div className="settings-row">
+          {(["light", "dark", "system"] as ThemeMode[]).map((mode) => (
+            <button
+              key={mode}
+              className={`settings-chip ${themeMode === mode ? "active" : ""}`}
+              onClick={() => setThemeMode(mode)}
+            >
+              {t(`theme.${mode}`)}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Language switcher (Phase 1 minimal) */}
+      <section className="settings-group">
+        <h3>{t("language.label")}</h3>
+        <div className="settings-row">
+          {(["zh", "en"] as const).map((lang) => (
+            <button
+              key={lang}
+              className={`settings-chip ${i18n.language === lang ? "active" : ""}`}
+              onClick={() => changeLanguage(lang)}
+            >
+              {t(`language.${lang}`)}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <p className="placeholder-hint" style={{ marginTop: 24 }}>
+        Phase 2 — {tc("loading")}
+      </p>
     </div>
   );
 }
@@ -226,17 +284,19 @@ function LibraryManagementPagePlaceholder({
 }: {
   libraries: ReturnType<typeof useBootstrap>["libraries"];
 }) {
+  const { t } = useTranslation("library");
+
   return (
     <div className="page-content-section">
-      <h2 className="page-title">库管理</h2>
+      <h2 className="page-title">{t("management.title")}</h2>
       <p className="page-subtitle">
-        管理媒体库 · {libraries.length} 个库
+        {libraries.length} libraries
       </p>
       {libraries.length === 0 ? (
         <div className="empty-state">
           <span className="empty-icon">📁</span>
-          <p>还没有媒体库</p>
-          <p className="placeholder-hint">点击"新建"创建第一个媒体库</p>
+          <p>{t("management.noLibrary")}</p>
+          <p className="placeholder-hint">{t("management.createFirst")}</p>
         </div>
       ) : (
         <div className="library-cards">
@@ -245,8 +305,10 @@ function LibraryManagementPagePlaceholder({
               <div className="library-card-name">{lib.name}</div>
               <div className="library-card-path" title={lib.path}>{lib.path}</div>
               <div className="library-card-stats">
-                <span>{lib.videoCount} 部影片</span>
-                {lib.hasRunningTask && <span className="running-badge">扫描中</span>}
+                <span>{lib.videoCount} videos</span>
+                {lib.hasRunningTask && (
+                  <span className="running-badge">{t("management.scanning")}</span>
+                )}
               </div>
             </div>
           ))}
@@ -263,16 +325,15 @@ function LibraryPagePlaceholder({
   libraryId: string | null;
   libraries: ReturnType<typeof useBootstrap>["libraries"];
 }) {
+  const { t } = useTranslation("library");
   const lib = libraries.find((l) => l.libraryId === libraryId);
   return (
     <div className="page-placeholder">
-      <h2>{lib?.name || "媒体库"}</h2>
-      <p className="placeholder-hint">
-        Phase 2 — 单库内容页（筛选 · 排序 · 分页 · 影片卡片）
-      </p>
+      <h2>{lib?.name || "Library"}</h2>
+      <p className="placeholder-hint">{t("page.filterPlaceholder")}</p>
       {lib && (
         <p className="placeholder-hint">
-          {lib.videoCount} 部影片 · {lib.path}
+          {lib.videoCount} videos · {lib.path}
         </p>
       )}
     </div>
@@ -280,39 +341,21 @@ function LibraryPagePlaceholder({
 }
 
 function FavoritesPagePlaceholder() {
-  return (
-    <PlaceholderPage
-      title="喜欢"
-      subtitle="Phase 2 — 收藏影片聚合页（统一结果区交互）"
-    />
-  );
+  const { t } = useTranslation("navigation");
+  return <PlaceholderPage title={t("favorites")} subtitle="Phase 2 — favorites aggregation page" />;
 }
 
 function ActorsPagePlaceholder() {
-  return (
-    <PlaceholderPage
-      title="演员"
-      subtitle="Phase 2 — 演员聚合列表页（搜索 · 排序 · 分页）"
-    />
-  );
+  const { t } = useTranslation("navigation");
+  return <PlaceholderPage title={t("actors")} subtitle="Phase 2 — actors list page" />;
 }
 
 function ActorDetailPagePlaceholder() {
-  return (
-    <PlaceholderPage
-      title="演员详情"
-      subtitle="Phase 2 — 演员详情页（头部信息 · 关联影片 · 返回链路）"
-    />
-  );
+  return <PlaceholderPage title="Actor Detail" subtitle="Phase 2 — actor detail page" />;
 }
 
 function VideoDetailPagePlaceholder() {
-  return (
-    <PlaceholderPage
-      title="影片详情"
-      subtitle="Phase 2 — 影片详情页（详情信息 · 播放入口 · 返回恢复）"
-    />
-  );
+  return <PlaceholderPage title="Video Detail" subtitle="Phase 2 — video detail page" />;
 }
 
 export default App;
