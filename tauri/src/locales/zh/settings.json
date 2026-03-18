@@ -23,15 +23,15 @@
   "debugMode": "启用调试模式",
   "imageSettings": {
     "posterDisplay": "海报显示",
-    "posterHint": "Phase 3 — 海报尺寸、显示模式、缺失图占位配置",
+    "posterHint": "海报尺寸、显示模式与缺失图片占位将在后续版本中开放配置",
     "cachePolicy": "缓存策略",
-    "cacheHint": "Phase 3 — 图片缓存大小与清理规则"
+    "cacheHint": "图片缓存大小与自动清理规则将在后续版本中开放配置"
   },
   "scanImportSettings": {
     "scanBehavior": "扫描行为",
-    "scanHint": "Phase 3 — 扫描策略、文件类型过滤、排除规则",
+    "scanHint": "扫描策略、文件类型过滤与排除规则将在后续版本中开放配置",
     "organizeRules": "整理规则",
-    "organizeHint": "Phase 3 — 扫描后自动整理规则（目录创建、文件移动）"
+    "organizeHint": "扫描后自动整理规则（目录创建、文件移动）将在后续版本中开放配置"
   },
   "networkSettings": {
     "playerPath": "播放器路径",
@@ -40,7 +40,7 @@
   },
   "librarySettings": {
     "defaultBehavior": "默认行为",
-    "behaviorHint": "Phase 3 — 新建库默认扫描路径、默认排序等"
+    "behaviorHint": "新建库默认扫描路径、默认排序等选项将在后续版本中开放配置"
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube 服务地址",
@@ -51,6 +51,7 @@
     "diagFailed": "连接失败"
   },
   "resetDefaults": "恢复默认",
+  "resetSuccess": "已恢复默认设置",
   "save": "保存设置",
   "saveSuccess": "设置已保存",
   "saveFailed": "保存失败"

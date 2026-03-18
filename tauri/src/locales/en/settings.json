@@ -23,15 +23,15 @@
   "debugMode": "Enable debug mode",
   "imageSettings": {
     "posterDisplay": "Poster Display",
-    "posterHint": "Phase 3 — poster size, display mode, missing image placeholder config",
+    "posterHint": "Poster size, display mode, and missing image placeholder will be configurable in a future update",
     "cachePolicy": "Cache Policy",
-    "cacheHint": "Phase 3 — image cache size and cleanup rules"
+    "cacheHint": "Image cache size and auto-cleanup rules will be configurable in a future update"
   },
   "scanImportSettings": {
     "scanBehavior": "Scan Behavior",
-    "scanHint": "Phase 3 — scan strategy, file type filter, exclude rules",
+    "scanHint": "Scan strategy, file type filters, and exclude rules will be configurable in a future update",
     "organizeRules": "Organize Rules",
-    "organizeHint": "Phase 3 — auto-organize rules after scan (directory creation, file moving)"
+    "organizeHint": "Auto-organize rules after scan (directory creation, file moving) will be configurable in a future update"
   },
   "networkSettings": {
     "playerPath": "Player Path",
@@ -40,7 +40,7 @@
   },
   "librarySettings": {
     "defaultBehavior": "Default Behavior",
-    "behaviorHint": "Phase 3 — default scan paths, default sorting for new libraries"
+    "behaviorHint": "Default scan paths, default sorting for new libraries will be configurable in a future update"
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube Server URL",
@@ -51,6 +51,7 @@
     "diagFailed": "Connection failed"
   },
   "resetDefaults": "Reset to Defaults",
+  "resetSuccess": "Settings reset to defaults",
   "save": "Save Settings",
   "saveSuccess": "Settings saved",
   "saveFailed": "Save failed"

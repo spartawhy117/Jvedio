@@ -1,5 +1,5 @@
 /**
- * Settings Page — Phase 2.5 full base structure.
+ * Settings Page — Phase 3 full implementation.
  *
  * Spec: doc/UI/new/pages/settings-page.md
  * Layout: left group nav + right form area
@@ -16,6 +16,7 @@ import { changeLanguage } from "../locales/i18n";
 import { getApiClient } from "../api/client";
 import { useApiQuery, useApiMutation, invalidateQueries } from "../hooks/useApiQuery";
 import { useOnSettingsChanged } from "../hooks/useSSESubscription";
+import { showToast } from "../components/GlobalToast";
 import type { ThemeMode } from "../theme/theme-mode-store";
 import type {
   GetSettingsResponse,
@@ -135,6 +136,10 @@ export function SettingsPage() {
       setForm(toFormState(data.settings));
       setDirty(false);
       invalidateQueries("settings");
+      showToast({ message: t("saveSuccess"), type: "success" });
+    },
+    onError: (err) => {
+      showToast({ message: `${t("saveFailed")}: ${err.message}`, type: "error" });
     },
   });
 
@@ -149,6 +154,10 @@ export function SettingsPage() {
       setForm(toFormState(data.settings));
       setDirty(false);
       invalidateQueries("settings");
+      showToast({ message: t("resetSuccess"), type: "success" });
+    },
+    onError: (err) => {
+      showToast({ message: `${t("saveFailed")}: ${err.message}`, type: "error" });
     },
   });
 
@@ -165,6 +174,14 @@ export function SettingsPage() {
     },
     onSuccess: (data) => {
       setDiagResult(data);
+      if (data.success) {
+        showToast({ message: t("metaTubeSettings.diagSuccess"), type: "success" });
+      } else {
+        showToast({ message: `${t("metaTubeSettings.diagFailed")}: ${data.errorMessage ?? "Unknown"}`, type: "error" });
+      }
+    },
+    onError: (err) => {
+      showToast({ message: `${t("metaTubeSettings.diagFailed")}: ${err.message}`, type: "error" });
     },
   });
 
@@ -268,11 +285,11 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("imageSettings.posterDisplay")}</h4>
-              <p className="placeholder-hint">{t("imageSettings.posterHint")}</p>
+              <p className="settings-hint-text">{t("imageSettings.posterHint")}</p>
             </section>
             <section className="settings-group">
               <h4>{t("imageSettings.cachePolicy")}</h4>
-              <p className="placeholder-hint">{t("imageSettings.cacheHint")}</p>
+              <p className="settings-hint-text">{t("imageSettings.cacheHint")}</p>
             </section>
           </div>
         )}
@@ -282,11 +299,11 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("scanImportSettings.scanBehavior")}</h4>
-              <p className="placeholder-hint">{t("scanImportSettings.scanHint")}</p>
+              <p className="settings-hint-text">{t("scanImportSettings.scanHint")}</p>
             </section>
             <section className="settings-group">
               <h4>{t("scanImportSettings.organizeRules")}</h4>
-              <p className="placeholder-hint">{t("scanImportSettings.organizeHint")}</p>
+              <p className="settings-hint-text">{t("scanImportSettings.organizeHint")}</p>
             </section>
           </div>
         )}
@@ -322,7 +339,7 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("librarySettings.defaultBehavior")}</h4>
-              <p className="placeholder-hint">{t("librarySettings.behaviorHint")}</p>
+              <p className="settings-hint-text">{t("librarySettings.behaviorHint")}</p>
             </section>
           </div>
         )}
@@ -413,14 +430,6 @@ export function SettingsPage() {
             {isSaving ? tc("loading") : t("save")}
           </button>
         </div>
-
-        {/* Save feedback */}
-        {saveMutation.isSuccess && (
-          <p className="settings-save-feedback success">{t("saveSuccess")}</p>
-        )}
-        {saveMutation.isError && (
-          <p className="settings-save-feedback error">{t("saveFailed")}: {saveMutation.error?.message}</p>
-        )}
       </div>
     </div>
   );
