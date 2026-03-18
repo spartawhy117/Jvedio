@@ -122,6 +122,22 @@ npm run tauri dev
 
 ## Current Blockers
 
-- **Worker.exe 未编译** — 需要 .NET 8 SDK + `dotnet build -c Release`
-- **node_modules 缺失** — 需要 `npm install`
-- **Tauri Rust 端未编译 debug** — 首次 `tauri dev` 需等待 Rust 编译（2-5 分钟）
+- ~~**Worker.exe 未编译**~~ ✅ 已解决 — `dotnet build -c Release` 编译通过
+- ~~**node_modules 缺失**~~ ✅ 已解决 — `npm install` 安装完成
+- ~~**Tauri Rust 端未编译 debug**~~ ✅ 已解决 — 首次 `tauri dev` 编译成功
+- ~~**Playwright 浏览器无法绕过 Tauri IPC**~~ ✅ 已解决 — WorkerContext 浏览器模式检测 + URL 参数传递 Worker 端口
+- ~~**CORS 跨域阻止**~~ ✅ 已解决 — Worker Program.cs 添加 CORS 中间件
+- **SettingsPage useApiQuery 无限重渲染** — `Maximum update depth exceeded`，需修复 hook 依赖（已有 bug，不阻断主流程）
+
+## Playwright 自动化测试方案
+
+详见 `doc/playwright-e2e-test-plan.md`。
+
+核心改动：
+- `tauri/src/contexts/WorkerContext.tsx` — 浏览器模式检测（`window.__TAURI_INTERNALS__`）+ 动态 import Tauri API + URL 参数直连 Worker
+- `Jvedio-WPF/Jvedio.Worker/Program.cs` — 添加 CORS 中间件支持浏览器跨域访问
+
+已验证通过：
+- Playwright 浏览器打开 `localhost:1420?workerPort={port}` → 主界面完整渲染
+- 导航点击（设置按钮）→ 设置页加载、API 数据正常返回
+- 脚本自动化（start/stop-tauri-dev.ps1）→ 进程管理可靠

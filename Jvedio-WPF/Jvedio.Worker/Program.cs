@@ -11,6 +11,15 @@ if (string.IsNullOrWhiteSpace(builder.Configuration[WebHostDefaults.ServerUrlsKe
     builder.WebHost.UseUrls("http://127.0.0.1:0");
 }
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddControllers();
 builder.Services.AddSingleton<WorkerRuntimeState>();
 builder.Services.AddSingleton<WorkerPathResolver>();
@@ -34,6 +43,7 @@ var app = builder.Build();
 
 app.Services.GetRequiredService<WorkerStorageBootstrapper>().EnsureInitialized();
 
+app.UseCors();
 app.UseMiddleware<ApiExceptionMiddleware>();
 app.MapControllers();
 app.MapGet("/", () => Results.Ok(new

@@ -22,25 +22,28 @@
 
 | 验证项 | 状态 | 说明 |
 |--------|------|------|
-| .NET 8 SDK 可用 | ⬜ | `dotnet --version` |
-| Worker Release 编译成功 | ⬜ | `dotnet build -c Release` 在 `Jvedio.Worker/` 下 |
-| Worker.exe 存在 | ⬜ | `Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/Jvedio.Worker.exe` |
-| node_modules 安装 | ⬜ | `npm install` 在 `tauri/` 下 |
-| TypeScript 编译 | ⬜ | `tsc --noEmit` 零错误 |
-| Rust toolchain 可用 | ⬜ | `rustc --version` + `cargo --version` |
+| .NET 8 SDK 可用 | ✅ | `dotnet --version` |
+| Worker Release 编译成功 | ✅ | `dotnet build -c Release` 在 `Jvedio.Worker/` 下 |
+| Worker.exe 存在 | ✅ | `Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/Jvedio.Worker.exe` |
+| node_modules 安装 | ✅ | `npm install` 在 `tauri/` 下 |
+| TypeScript 编译 | ✅ | `tsc --noEmit` 零错误 |
+| Rust toolchain 可用 | ✅ | `rustc --version` + `cargo --version` |
 
 ### 6.2 首次启动验证
 
 | 验证项 | 状态 | 说明 |
 |--------|------|------|
-| Vite dev server 启动 | ⬜ | `http://localhost:1420` 可访问 |
-| Tauri Rust 编译成功 | ⬜ | `cargo build` 在 `src-tauri/` 下无错误 |
-| Tauri 窗口弹出 | ⬜ | 1280x800 窗口正常显示 |
-| Worker 进程启动 | ⬜ | Rust stdout 监控捕获 `JVEDIO_WORKER_READY` |
-| WorkerStatusOverlay 正常 | ⬜ | 启动中显示加载状态 → Worker ready 后消失 |
-| Bootstrap 获取成功 | ⬜ | `GET /api/app/bootstrap` 返回 200 |
-| SSE 连接建立 | ⬜ | `GET /api/events` EventSource 连接 |
-| 主界面渲染 | ⬜ | 左侧导航 + 右侧内容区正常显示 |
+| Vite dev server 启动 | ✅ | `http://localhost:1420` 可访问 |
+| Tauri Rust 编译成功 | ✅ | `cargo build` 在 `src-tauri/` 下无错误 |
+| Tauri 窗口弹出 | ✅ | 1280x800 窗口正常显示 |
+| Worker 进程启动 | ✅ | Rust stdout 监控捕获 `JVEDIO_WORKER_READY` |
+| WorkerStatusOverlay 正常 | ✅ | 启动中显示加载状态 → Worker ready 后消失 |
+| Bootstrap 获取成功 | ✅ | `GET /api/app/bootstrap` 返回 200 |
+| SSE 连接建立 | ✅ | `GET /api/events` EventSource 连接 |
+| 主界面渲染 | ✅ | 左侧导航 + 右侧内容区正常显示 |
+| **浏览器模式检测** | ✅ | `isTauriEnvironment()` 正确区分 Tauri/浏览器环境 |
+| **CORS 跨域访问** | ✅ | 浏览器 → Worker API 跨域 fetch 正常 |
+| **Playwright 浏览器直连** | ✅ | `?workerPort={port}` 参数 → WorkerContext 直连成功 |
 
 ### 6.3 页面流转端到端测试
 
@@ -119,7 +122,7 @@
 
 | 验证项 | 状态 |
 |--------|------|
-| 设置读取 (`GET /api/settings`) | ⬜ |
+| 设置读取 (`GET /api/settings`) | ✅ ⚠️ |
 | 分组切换（6 组） | ⬜ |
 | 主题切换 (light/dark) | ⬜ |
 | 语言切换 (zh/en) | ⬜ |
@@ -127,6 +130,8 @@
 | 恢复默认 → 确认弹窗 → toast | ⬜ |
 | MetaTube 诊断 | ⬜ |
 | settings.changed SSE 回流 | ⬜ |
+
+> ⚠️ 设置读取成功返回数据并正常渲染，但 `useApiQuery` 存在 `Maximum update depth exceeded` 无限重渲染 bug（已有问题，非本次引入），导致不断轮询 `/api/settings`。页面功能不受影响，需后续修复。
 
 ### 6.4 已知功能缺口
 
@@ -138,6 +143,7 @@
 | VideoDetail "打开文件夹" 空函数 | 中 | 是（接入 Tauri shell API） |
 | 右键菜单（ContextMenu）未实现 | 中 | 否（不阻断主流程） |
 | 视频多选/批量操作 | 低 | 否 |
+| **SettingsPage useApiQuery 无限重渲染** | **高** | **是（Maximum update depth exceeded，需修复 hook 依赖）** |
 
 ### 6.5 事件级验证
 
