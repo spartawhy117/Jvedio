@@ -7,6 +7,8 @@ use std::thread;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 
+use crate::shell_log::shell_log;
+
 /// Prefix emitted by Jvedio.Worker on stdout when ready.
 const READY_SIGNAL_PREFIX: &str = "JVEDIO_WORKER_READY";
 
@@ -106,6 +108,7 @@ pub fn spawn_worker(app: &AppHandle) {
             worker_path.display()
         );
         eprintln!("[jvedio-shell] {msg}");
+        shell_log(&format!("[jvedio-shell] ERROR {msg}"));
         let _ = app.emit(
             EVENT_WORKER_ERROR,
             WorkerErrorPayload {
@@ -120,6 +123,7 @@ pub fn spawn_worker(app: &AppHandle) {
         "[jvedio-shell] spawning Worker: {}",
         worker_path.display()
     );
+    shell_log(&format!("[jvedio-shell] spawning Worker: {}", worker_path.display()));
 
     let child_result = Command::new(&worker_path)
         .stdout(Stdio::piped())
@@ -131,6 +135,7 @@ pub fn spawn_worker(app: &AppHandle) {
         Err(e) => {
             let msg = format!("Failed to spawn Worker: {e}");
             eprintln!("[jvedio-shell] {msg}");
+            shell_log(&format!("[jvedio-shell] ERROR {msg}"));
             let _ = app.emit(
                 EVENT_WORKER_ERROR,
                 WorkerErrorPayload {
@@ -207,6 +212,7 @@ pub fn spawn_worker(app: &AppHandle) {
                         eprintln!(
                             "[jvedio-shell] Worker stdout read error: {e}"
                         );
+                        shell_log(&format!("[jvedio-shell] ERROR Worker stdout read error: {e}"));
                         break;
                     }
                 }
@@ -234,6 +240,7 @@ pub fn spawn_worker(app: &AppHandle) {
                 match line {
                     Ok(text) => {
                         eprintln!("[Worker:stderr] {text}");
+                        shell_log(&format!("[Worker:stderr] {text}"));
                         let _ = app_stderr.emit(
                             EVENT_WORKER_LOG,
                             WorkerLogPayload { line: text },
@@ -252,6 +259,7 @@ pub fn kill_worker(app: &AppHandle) {
     let mut guard = state.child.lock().unwrap();
     if let Some(ref mut child) = *guard {
         println!("[jvedio-shell] killing Worker child process");
+        shell_log("[jvedio-shell] killing Worker child process");
         let _ = child.kill();
         let _ = child.wait();
     }

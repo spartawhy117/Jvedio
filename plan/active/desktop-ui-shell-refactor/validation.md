@@ -18,6 +18,18 @@
 
 ## Phase 6 验证矩阵
 
+### 6.0 统一日志目录
+
+| 验证项 | 状态 | 说明 |
+|--------|------|------|
+| Worker Serilog 文件日志 | ✅ | `log/worker-{date}.log` 输出正常 |
+| Shell Rust 文件日志 | ✅ | `log/shell-{date}.log` 输出正常 |
+| 覆盖模式（Shell） | ✅ | 每次启动截断当日 shell 日志 |
+| Worker 日期滚动 | ✅ | Serilog `RollingInterval.Day` |
+| 10 天自动清理 | ✅ | Worker `retainedFileCountLimit: 10` + Shell `clean_old_logs` |
+| `JVEDIO_LOG_DIR` 环境变量 | ✅ | Worker + Shell 均支持覆盖 |
+| 日志规范文档 | ✅ | `doc/logging-convention.md` |
+
 ### 6.1 编译基础设施验证
 
 | 验证项 | 状态 | 说明 |

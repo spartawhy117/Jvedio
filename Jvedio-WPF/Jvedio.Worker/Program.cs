@@ -3,8 +3,30 @@ using Jvedio.Worker.Middleware;
 using Jvedio.Worker.Services;
 
 using Microsoft.AspNetCore.Hosting;
+using Serilog;
+using Serilog.Events;
+
+// ── Resolve unified log directory ───────────────────────
+// Dev:  {repo}/log/      (repo root determined by walking up from Worker exe)
+// Prod: {exe-dir}/log/
+var logDir = ResolveLogDirectory();
+Directory.CreateDirectory(logDir);
+
+// ── Configure Serilog ───────────────────────────────────
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .WriteTo.Console()                                       // keep stdout for Tauri capture
+    .WriteTo.File(
+        path: Path.Combine(logDir, "worker-.log"),           // worker-2026-03-19.log
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 10,                          // auto-clean after 10 days
+        shared: true,
+        outputTemplate: "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();                                   // replace built-in logging
 
 if (string.IsNullOrWhiteSpace(builder.Configuration[WebHostDefaults.ServerUrlsKey]))
 {
@@ -53,4 +75,43 @@ app.MapGet("/", () => Results.Ok(new
     status = "scan-scrape-minimal-loop-ready",
 }));
 
-app.Run();
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+// ── Helpers ─────────────────────────────────────────────
+
+static string ResolveLogDirectory()
+{
+    // Environment variable override (highest priority)
+    var envLogDir = Environment.GetEnvironmentVariable("JVEDIO_LOG_DIR");
+    if (!string.IsNullOrWhiteSpace(envLogDir))
+        return envLogDir;
+
+    // Dev mode: walk up from AppContext.BaseDirectory to locate repo root
+    // Worker exe lives at: {repo}/Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/
+    var baseDir = AppContext.BaseDirectory;
+    var candidates = new[]
+    {
+        Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..")),     // Worker: 5 levels up
+        Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "..")), // deeper
+    };
+
+    foreach (var candidate in candidates)
+    {
+        // Repo root contains Jvedio-WPF/ and tauri/
+        if (Directory.Exists(Path.Combine(candidate, "Jvedio-WPF")) &&
+            Directory.Exists(Path.Combine(candidate, "tauri")))
+        {
+            return Path.Combine(candidate, "log");
+        }
+    }
+
+    // Fallback: next to exe
+    return Path.Combine(baseDir, "log");
+}

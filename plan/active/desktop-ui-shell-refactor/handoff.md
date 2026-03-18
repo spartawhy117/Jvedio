@@ -71,6 +71,16 @@ npm run tauri dev
 4. 所有页面导航流转正常
 5. 核心业务操作可执行（CRUD、播放、收藏、设置保存等）
 
+### 6.0 统一日志目录
+
+- [x] Worker 添加 Serilog 文件日志 → `log/worker-{date}.log`
+- [x] Tauri Shell 添加 `shell_log.rs` 文件日志 → `log/shell-{date}.log`
+- [x] 覆盖模式：Shell 每次启动截断当日日志；Worker Serilog 按天滚动
+- [x] 10 天自动清理（Worker `retainedFileCountLimit`、Shell `clean_old_logs`）
+- [x] `JVEDIO_LOG_DIR` 环境变量支持路径覆盖
+- [x] `.gitignore` 添加 `!/log/` + `!/log/.gitkeep` 例外
+- [x] 日志规范文档：`doc/logging-convention.md`
+
 ### 6.1 编译基础设施
 
 - [ ] `dotnet build -c Release` 编译 Jvedio.Worker

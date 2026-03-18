@@ -1,3 +1,4 @@
+mod shell_log;
 mod worker;
 
 use tauri::Manager;
@@ -5,6 +6,10 @@ use worker::{spawn_worker, kill_worker, WorkerState};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Reset (truncate) today's shell log file — overwrite-per-run semantics
+    shell_log::reset_shell_log();
+    shell_log::shell_log("[jvedio-shell] ====== Shell starting ======");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(WorkerState::new())
