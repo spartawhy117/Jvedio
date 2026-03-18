@@ -222,3 +222,148 @@ body,
   font-size: 11px;
   color: var(--color-text-secondary);
 }
+
+/* ===== Library list in sidebar ===== */
+.library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.library-item {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.library-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+/* ===== Task summary bar (sidebar) ===== */
+.task-summary-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.task-badge {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.task-badge.failed {
+  color: #e05050;
+}
+
+/* ===== Debug page content (Phase 1.3) ===== */
+.page-content-debug {
+  padding: 32px 40px;
+  max-width: 800px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 28px;
+}
+
+.debug-section {
+  margin-bottom: 28px;
+}
+
+.debug-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-badge {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.debug-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 6px 16px;
+  font-size: 13px;
+}
+
+.debug-field {
+  display: contents;
+}
+
+.debug-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.debug-value {
+  color: var(--color-text-primary);
+  font-family: "Cascadia Code", "Fira Code", monospace;
+  word-break: break-all;
+}
+
+.debug-error {
+  color: #e05050;
+}
+
+.debug-empty {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* ===== Event log ===== */
+.event-log {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.event-row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-family: "Cascadia Code", "Fira Code", monospace;
+}
+
+.event-row:last-child {
+  border-bottom: none;
+}
+
+.event-name {
+  color: var(--color-accent);
+  min-width: 160px;
+}
+
+.event-topic {
+  color: var(--color-text-secondary);
+  min-width: 60px;
+}
+
+.event-time {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+}

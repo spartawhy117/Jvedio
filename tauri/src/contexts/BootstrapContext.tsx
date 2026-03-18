@@ -1,0 +1,178 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from "react";
+import { useWorker } from "./WorkerContext";
+import { fetchBootstrap } from "../api/client";
+import { connectEventStream } from "../api/events";
+import type {
+  GetBootstrapResponse,
+  TaskSummaryDto,
+  TaskSummaryChangedEvent,
+  LibraryListItemDto,
+  WorkerEventEnvelopeDto,
+} from "../api/types";
+
+// ── Types ───────────────────────────────────────────────
+
+export type BootstrapStatus = "idle" | "loading" | "ready" | "error";
+
+interface BootstrapContextValue {
+  /** Bootstrap loading/ready state */
+  status: BootstrapStatus;
+  /** Full bootstrap response from Worker */
+  bootstrap: GetBootstrapResponse | null;
+  /** Live task summary (updated via SSE) */
+  taskSummary: TaskSummaryDto | null;
+  /** Live library list (updated via SSE) */
+  libraries: LibraryListItemDto[];
+  /** SSE connection status */
+  sseConnected: boolean;
+  /** Latest SSE events log (for debugging) */
+  recentEvents: WorkerEventEnvelopeDto[];
+  /** Error message if bootstrap fetch failed */
+  error: string | null;
+  /** Manually retry bootstrap fetch */
+  retry: () => void;
+}
+
+// ── Context ─────────────────────────────────────────────
+
+const BootstrapContext = createContext<BootstrapContextValue>({
+  status: "idle",
+  bootstrap: null,
+  taskSummary: null,
+  libraries: [],
+  sseConnected: false,
+  recentEvents: [],
+  error: null,
+  retry: () => {},
+});
+
+export function useBootstrap(): BootstrapContextValue {
+  return useContext(BootstrapContext);
+}
+
+// ── Provider ────────────────────────────────────────────
+
+const MAX_RECENT_EVENTS = 50;
+
+export function BootstrapProvider({ children }: { children: ReactNode }) {
+  const { status: workerStatus, baseUrl } = useWorker();
+
+  const [status, setStatus] = useState<BootstrapStatus>("idle");
+  const [bootstrap, setBootstrap] = useState<GetBootstrapResponse | null>(null);
+  const [taskSummary, setTaskSummary] = useState<TaskSummaryDto | null>(null);
+  const [libraries, setLibraries] = useState<LibraryListItemDto[]>([]);
+  const [sseConnected, setSseConnected] = useState(false);
+  const [recentEvents, setRecentEvents] = useState<WorkerEventEnvelopeDto[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const sseCleanupRef = useRef<(() => void) | null>(null);
+
+  // ── Fetch bootstrap ─────────────────────────────────
+  const doFetchBootstrap = useCallback(async (url: string) => {
+    setStatus("loading");
+    setError(null);
+    try {
+      const data = await fetchBootstrap(url);
+      console.log("[BootstrapProvider] bootstrap data:", data);
+      setBootstrap(data);
+      setTaskSummary(data.taskSummary);
+      setLibraries(data.libraries);
+      setStatus("ready");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[BootstrapProvider] bootstrap fetch failed:", msg);
+      setError(msg);
+      setStatus("error");
+    }
+  }, []);
+
+  // ── SSE event handler ───────────────────────────────
+  const handleEvent = useCallback((envelope: WorkerEventEnvelopeDto) => {
+    console.log("[BootstrapProvider] SSE event:", envelope.eventName, envelope);
+
+    // Append to recent events (ring buffer)
+    setRecentEvents((prev) => {
+      const next = [envelope, ...prev];
+      return next.length > MAX_RECENT_EVENTS ? next.slice(0, MAX_RECENT_EVENTS) : next;
+    });
+
+    // Update live state based on event type
+    switch (envelope.eventName) {
+      case "task.summary.changed": {
+        const payload = envelope.data as TaskSummaryChangedEvent | null;
+        if (payload?.summary) {
+          setTaskSummary(payload.summary);
+        }
+        break;
+      }
+      case "library.changed": {
+        // Re-fetch bootstrap to get updated library list
+        // (a more targeted approach would be a dedicated API, but for Phase 1 this is fine)
+        break;
+      }
+      case "settings.changed": {
+        // For now just log, Phase 2 will react to settings changes
+        break;
+      }
+      default:
+        // task.created, task.completed, task.failed, task.progress, worker.ready, etc.
+        break;
+    }
+  }, []);
+
+  // ── When Worker becomes ready, fetch bootstrap + connect SSE ──
+  useEffect(() => {
+    if (workerStatus !== "ready" || !baseUrl) {
+      return;
+    }
+
+    doFetchBootstrap(baseUrl);
+
+    // Connect SSE
+    const cleanup = connectEventStream({
+      baseUrl,
+      onEvent: handleEvent,
+      onOpen: () => setSseConnected(true),
+      onError: () => setSseConnected(false),
+    });
+    sseCleanupRef.current = cleanup;
+
+    return () => {
+      cleanup();
+      sseCleanupRef.current = null;
+      setSseConnected(false);
+    };
+  }, [workerStatus, baseUrl, doFetchBootstrap, handleEvent]);
+
+  // ── Retry handler ───────────────────────────────────
+  const retry = useCallback(() => {
+    if (baseUrl) {
+      doFetchBootstrap(baseUrl);
+    }
+  }, [baseUrl, doFetchBootstrap]);
+
+  return (
+    <BootstrapContext.Provider
+      value={{
+        status,
+        bootstrap,
+        taskSummary,
+        libraries,
+        sseConnected,
+        recentEvents,
+        error,
+        retry,
+      }}
+    >
+      {children}
+    </BootstrapContext.Provider>
+  );
+}
