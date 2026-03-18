@@ -18,6 +18,7 @@ import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
+import { ResultSummary } from "../components/shared/ResultSummary";
 import type { GetFavoriteVideosResponse } from "../api/types";
 import "./pages.css";
 
@@ -97,9 +98,7 @@ export function FavoritesPage() {
     <div className="page-content-section page-content-wide">
       <div className="page-header">
         <h2 className="page-title">{t("favorites")}</h2>
-        {data && (
-          <span className="page-count">{tc("totalCount", { count: totalCount })}</span>
-        )}
+        {data && <ResultSummary totalCount={totalCount} />}
       </div>
 
       <QueryToolbar

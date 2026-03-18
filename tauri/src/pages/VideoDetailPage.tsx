@@ -15,6 +15,8 @@ import { getApiClient } from "../api/client";
 import { useApiQuery, useApiMutation } from "../hooks/useApiQuery";
 import { showToast } from "../components/GlobalToast";
 import { ResultState } from "../components/shared/ResultState";
+import { ActionStrip } from "../components/shared/ActionStrip";
+import { StatusBadge } from "../components/shared/StatusBadge";
 import type { GetVideoDetailResponse, PlayVideoResponse } from "../api/types";
 import "./pages.css";
 
@@ -137,25 +139,43 @@ export function VideoDetailPage() {
 
           {/* Sidecar status */}
           <div className="sidecar-status-grid">
-            <SidecarBadge label={tc("nfo")} present={video.sidecars.hasNfo} />
-            <SidecarBadge label={tc("poster")} present={video.sidecars.hasPoster} />
-            <SidecarBadge label={tc("thumb")} present={video.sidecars.hasThumb} />
-            <SidecarBadge label={tc("fanart")} present={video.sidecars.hasFanart} />
+            <StatusBadge
+              variant={video.sidecars.hasNfo ? "synced" : "failed"}
+              label={tc("nfo")}
+            />
+            <StatusBadge
+              variant={video.sidecars.hasPoster ? "synced" : "failed"}
+              label={tc("poster")}
+            />
+            <StatusBadge
+              variant={video.sidecars.hasThumb ? "synced" : "failed"}
+              label={tc("thumb")}
+            />
+            <StatusBadge
+              variant={video.sidecars.hasFanart ? "synced" : "failed"}
+              label={tc("fanart")}
+            />
           </div>
 
           {/* Play button */}
-          <div className="detail-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handlePlay}
-              disabled={playMutation.isLoading || !video.playback.canPlay}
-            >
-              ▶ {tc("play")}
-            </button>
-            <button className="btn btn-secondary" title={tc("openFolder")}>
-              📂 {tc("openFolder")}
-            </button>
-          </div>
+          <ActionStrip
+            actions={[
+              {
+                key: "play",
+                label: `▶ ${tc("play")}`,
+                variant: "execute",
+                onClick: handlePlay,
+                disabled: playMutation.isLoading || !video.playback.canPlay,
+              },
+              {
+                key: "openFolder",
+                label: `📂 ${tc("openFolder")}`,
+                variant: "browse",
+                onClick: () => {},
+                title: tc("openFolder"),
+              },
+            ]}
+          />
         </div>
 
         {/* Right column: metadata */}
@@ -256,13 +276,5 @@ function MetadataRow({ label, value }: { label: string; value: string }) {
       <span className="metadata-label">{label}</span>
       <span className="metadata-value">{value}</span>
     </div>
-  );
-}
-
-function SidecarBadge({ label, present }: { label: string; present: boolean }) {
-  return (
-    <span className={`sidecar-badge ${present ? "present" : "missing"}`}>
-      {label}
-    </span>
   );
 }

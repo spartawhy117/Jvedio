@@ -19,6 +19,7 @@ import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
+import { ResultSummary } from "../components/shared/ResultSummary";
 import type {
   GetActorDetailResponse,
   GetActorVideosResponse,
@@ -222,11 +223,7 @@ export function ActorDetailPage() {
       {/* Associated videos section */}
       <h3 className="section-heading">
         {tc("associatedVideos")}
-        {videosData && (
-          <span className="page-count" style={{ marginLeft: 8 }}>
-            {tc("totalCount", { count: totalCount })}
-          </span>
-        )}
+        {videosData && <ResultSummary totalCount={totalCount} />}
       </h3>
 
       <QueryToolbar

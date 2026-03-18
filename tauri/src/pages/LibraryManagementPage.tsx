@@ -17,6 +17,8 @@ import { useApiMutation } from "../hooks/useApiQuery";
 import { useOnLibraryChanged } from "../hooks/useSSESubscription";
 import { showToast } from "../components/GlobalToast";
 import { ConfirmDialog } from "../components/shared/ConfirmDialog";
+import { ActionStrip } from "../components/shared/ActionStrip";
+import { StatusBadge } from "../components/shared/StatusBadge";
 import { CreateEditLibraryDialog } from "../components/dialogs/CreateEditLibraryDialog";
 import type {
   CreateLibraryRequest,
@@ -176,40 +178,45 @@ export function LibraryManagementPage() {
                   : tc("notRecorded")}
               </span>
               <span className="col-status">
-                <span
-                  className={`status-badge ${lib.hasRunningTask ? "running" : "synced"}`}
-                >
-                  {lib.hasRunningTask
-                    ? t("management.scanning")
-                    : t("management.synced")}
-                </span>
+                <StatusBadge
+                  variant={lib.hasRunningTask ? "running" : "synced"}
+                  label={
+                    lib.hasRunningTask
+                      ? t("management.scanning")
+                      : t("management.synced")
+                  }
+                />
               </span>
               <span className="col-actions">
-                <button
-                  className="btn btn-sm btn-secondary"
-                  onClick={() => handleOpenLibrary(lib.libraryId)}
-                >
-                  {t("management.open")}
-                </button>
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() => handleScan(lib.libraryId)}
-                  disabled={lib.hasRunningTask}
-                >
-                  {t("management.scan")}
-                </button>
-                <button
-                  className="btn btn-sm btn-secondary"
-                  onClick={() => setEditingLibrary(lib)}
-                >
-                  {tc("edit")}
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() => setDeleteTarget(lib)}
-                >
-                  {tc("delete")}
-                </button>
+                <ActionStrip
+                  actions={[
+                    {
+                      key: "open",
+                      label: t("management.open"),
+                      variant: "browse",
+                      onClick: () => handleOpenLibrary(lib.libraryId),
+                    },
+                    {
+                      key: "scan",
+                      label: t("management.scan"),
+                      variant: "execute",
+                      onClick: () => handleScan(lib.libraryId),
+                      disabled: lib.hasRunningTask,
+                    },
+                    {
+                      key: "edit",
+                      label: tc("edit"),
+                      variant: "edit",
+                      onClick: () => setEditingLibrary(lib),
+                    },
+                    {
+                      key: "delete",
+                      label: tc("delete"),
+                      variant: "danger",
+                      onClick: () => setDeleteTarget(lib),
+                    },
+                  ]}
+                />
               </span>
             </div>
           ))}

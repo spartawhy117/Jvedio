@@ -1,0 +1,30 @@
+/* ===== ResultSummary — result set summary bar ===== */
+
+.result-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+}
+
+.result-summary-total {
+  white-space: nowrap;
+}
+
+.result-summary-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.result-summary-item-label {
+  color: var(--color-text-secondary);
+}
+
+.result-summary-item-value {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}

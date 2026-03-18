@@ -1,0 +1,11 @@
+/* ===== ActionStrip — inline action button group ===== */
+
+.action-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-strip-compact {
+  gap: 2px;
+}

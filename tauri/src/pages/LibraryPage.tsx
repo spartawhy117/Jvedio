@@ -21,6 +21,7 @@ import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
+import { ResultSummary } from "../components/shared/ResultSummary";
 import type { GetLibraryVideosResponse } from "../api/types";
 import "./pages.css";
 
@@ -127,9 +128,7 @@ export function LibraryPage() {
           </button>
         )}
         <h2 className="page-title">{library?.name || t("page.title")}</h2>
-        {data && (
-          <span className="page-count">{tc("totalCount", { count: totalCount })}</span>
-        )}
+        {data && <ResultSummary totalCount={totalCount} />}
       </div>
 
       {/* Query toolbar */}

@@ -95,6 +95,38 @@
 - 采用短词和数字，不写长句说明。
 - 当结果页支持返回链路恢复时，摘要条可承载当前筛选与当前选择对象的短说明。
 
+### 组件 Props (`ResultSummary`)
+
+| Prop | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `totalCount` | `number` | 是 | 总结果数 |
+| `secondaryItems` | `{ label: string; value: string \| number }[]` | 否 | 附加统计项（如缺资源数、当前筛选条件） |
+| `hidden` | `boolean` | 否 | 为 `true` 时隐藏组件 |
+
+### 使用示例
+
+```tsx
+import { ResultSummary } from "../components/shared/ResultSummary";
+
+{data && <ResultSummary totalCount={totalCount} />}
+
+{data && (
+  <ResultSummary
+    totalCount={totalCount}
+    secondaryItems={[
+      { label: "缺资源", value: missingCount },
+    ]}
+  />
+)}
+```
+
+### 适用页面
+
+- `库内容` — `.page-header` 内
+- `喜欢` — `.page-header` 内
+- `演员` — `.page-header` 内
+- `演员详情` — 关联影片 `.section-heading` 内
+
 ## 结果页查询工具栏
 
 ### 目的
@@ -156,6 +188,53 @@
   - 编辑动作：次按钮
   - 删除动作：危险按钮
 
+### 组件 Props (`ActionStrip`)
+
+| Prop | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `actions` | `ActionStripAction[]` | 是 | 按钮列表，按展示顺序排列 |
+| `compact` | `boolean` | 否 | 紧凑模式，使用更小的 gap |
+
+**`ActionStripAction` 结构：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `key` | `string` | 是 | 唯一标识 |
+| `label` | `string` | 是 | 按钮文字 |
+| `variant` | `"browse" \| "execute" \| "edit" \| "danger"` | 是 | 视觉变体 |
+| `onClick` | `() => void` | 是 | 点击回调 |
+| `disabled` | `boolean` | 否 | 禁用状态 |
+| `title` | `string` | 否 | 悬浮提示 |
+
+**变体映射：**
+
+| Variant | 对应 CSS 类 | 用途 |
+|---------|-----------|------|
+| `browse` | `btn btn-sm btn-secondary` | 打开、查看 |
+| `execute` | `btn btn-sm btn-primary` | 扫描、播放等主操作 |
+| `edit` | `btn btn-sm btn-secondary` | 编辑 |
+| `danger` | `btn btn-sm btn-danger` | 删除 |
+
+### 使用示例
+
+```tsx
+import { ActionStrip } from "../components/shared/ActionStrip";
+
+<ActionStrip
+  actions={[
+    { key: "open", label: "打开", variant: "browse", onClick: handleOpen },
+    { key: "scan", label: "扫描", variant: "execute", onClick: handleScan },
+    { key: "edit", label: "编辑", variant: "edit", onClick: handleEdit },
+    { key: "delete", label: "删除", variant: "danger", onClick: handleDelete },
+  ]}
+/>
+```
+
+### 适用页面
+
+- `库管理` — 每行媒体库的操作列
+- `影片详情` — 播放 / 打开文件夹按钮组
+
 ## 状态 Badge
 
 ### 目的
@@ -171,6 +250,49 @@
   - 蓝色：进行中
   - 灰色：稳定 / 已同步
   - 红色：失败 / 风险
+
+### 组件 Props (`StatusBadge`)
+
+| Prop | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `variant` | `"pending" \| "running" \| "synced" \| "failed"` | 是 | 状态变体，决定颜色 |
+| `display` | `"label" \| "dot"` | 否 | 展示模式：`label`（药丸文字）或 `dot`（小圆点），默认 `label` |
+| `label` | `string` | `label` 模式必填 | 显示文字 / `dot` 模式的 tooltip |
+| `title` | `string` | 否 | 自定义悬浮提示 |
+| `className` | `string` | 否 | 附加 CSS 类名 |
+
+**变体颜色映射：**
+
+| Variant | Label 模式背景 | Label 模式文字 | Dot 模式颜色 | 语义 |
+|---------|---------------|---------------|-------------|------|
+| `pending` | `#e8f5e9` | `#388e3c`（绿） | `#4caf50` | 待执行 / 可处理 |
+| `running` | `--badge-info-bg` | `--color-accent`（蓝） | `--color-accent` + 脉动动画 | 进行中 |
+| `synced` | `--color-bg-surface-2` | `--color-text-secondary`（灰） | `#9e9e9e` | 稳定 / 已同步 |
+| `failed` | `--badge-danger-bg` | `--color-danger`（红） | `--color-danger` | 失败 / 风险 |
+
+### 使用示例
+
+```tsx
+import { StatusBadge } from "../components/shared/StatusBadge";
+
+{/* 标签模式 — 媒体库扫描状态 */}
+<StatusBadge variant="running" label="扫描中" />
+<StatusBadge variant="synced" label="已同步" />
+
+{/* 标签模式 — 影片详情 sidecar 状态 */}
+<StatusBadge variant="synced" label="NFO" />
+<StatusBadge variant="failed" label="Poster" />
+
+{/* 圆点模式 — 紧凑场景 */}
+<StatusBadge variant="pending" display="dot" label="就绪" />
+```
+
+### 适用页面
+
+- `库管理` — 每行媒体库的同步 / 扫描状态
+- `影片详情` — sidecar 文件存在状态（NFO / Poster / Thumb / Fanart）
+- `主壳侧边栏` — Worker 连接状态指示点（可选迁移）
+- 任务行、卡片等其它需要状态语义的位置
 
 ## 结果状态组件
 
