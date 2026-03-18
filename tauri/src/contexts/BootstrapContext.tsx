@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useWorker } from "./WorkerContext";
-import { fetchBootstrap } from "../api/client";
+import { fetchBootstrap, createApiClient } from "../api/client";
 import { connectEventStream } from "../api/events";
 import type {
   GetBootstrapResponse,
@@ -82,6 +82,8 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
     try {
       const data = await fetchBootstrap(url);
       console.log("[BootstrapProvider] bootstrap data:", data);
+      // Initialize the global API client singleton
+      createApiClient(url);
       setBootstrap(data);
       setTaskSummary(data.taskSummary);
       setLibraries(data.libraries);
