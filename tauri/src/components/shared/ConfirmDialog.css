@@ -1,0 +1,62 @@
+/* ===== Confirm Dialog ===== */
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dialog-overlay, rgba(0, 0, 0, 0.4));
+}
+
+.dialog-card {
+  background: var(--color-bg-app, #fff);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  min-width: 360px;
+  max-width: 480px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+
+.dialog-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dialog-close {
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.dialog-close:hover {
+  background: var(--color-nav-hover);
+}
+
+.dialog-body {
+  padding: 0 20px 16px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--color-border);
+}

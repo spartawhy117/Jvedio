@@ -1,0 +1,26 @@
+/* ===== Pagination ===== */
+
+/* Note: base .pagination-bar and .pagination-text are in pages.css */
+
+.pagination-text.clickable {
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.pagination-text.clickable:hover {
+  background: var(--color-nav-hover);
+}
+
+.pagination-input {
+  width: 60px;
+  padding: 2px 6px;
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+}

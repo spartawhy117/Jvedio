@@ -1,0 +1,44 @@
+/* ===== Query Toolbar ===== */
+
+/* Note: base .query-toolbar and .search-input are in pages.css */
+
+.sort-dropdown-wrapper {
+  position: relative;
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  background: var(--color-bg-app, #fff);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  padding: 4px;
+}
+
+.sort-option {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.sort-option:hover {
+  background: var(--color-nav-hover);
+}
+
+.sort-option.active {
+  color: var(--color-accent);
+  font-weight: 500;
+}
