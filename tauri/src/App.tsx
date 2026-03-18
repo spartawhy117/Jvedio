@@ -4,12 +4,19 @@ import { useBootstrap } from "./contexts/BootstrapContext";
 import { WorkerStatusOverlay } from "./components/WorkerStatusOverlay";
 import "./App.css";
 
+// ── Page keys — 1:1 with doc/UI/new/page-index.md ──────
+// main-shell is the container itself, not a routable page.
+// actor-detail-page and video-detail-page are detail views
+// reached by navigation from list pages.
+
 type PageKey =
   | "settings"
   | "library-management"
+  | "library"
   | "favorites"
   | "actors"
-  | "library";
+  | "actor-detail"
+  | "video-detail";
 
 interface NavItem {
   key: PageKey;
@@ -17,7 +24,8 @@ interface NavItem {
   icon: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
+// 一级导航（对齐 main-shell.md 规格）
+const PRIMARY_NAV: NavItem[] = [
   { key: "settings", label: "设置", icon: "⚙" },
   { key: "library-management", label: "库管理", icon: "📁" },
   { key: "favorites", label: "喜欢", icon: "❤" },
@@ -26,32 +34,50 @@ const NAV_ITEMS: NavItem[] = [
 
 function App() {
   const [activePage, setActivePage] = useState<PageKey>("library-management");
+  const [activeLibraryId, setActiveLibraryId] = useState<string | null>(null);
   const { status: workerStatus } = useWorker();
-  const { bootstrap, taskSummary, libraries, sseConnected, recentEvents, status: bsStatus, error: bsError } = useBootstrap();
+  const {
+    bootstrap,
+    taskSummary,
+    libraries,
+    sseConnected,
+    recentEvents,
+    status: bsStatus,
+    error: bsError,
+  } = useBootstrap();
+
+  const handleNavClick = (key: PageKey) => {
+    setActivePage(key);
+    if (key !== "library") {
+      setActiveLibraryId(null);
+    }
+  };
+
+  const handleLibraryClick = (libraryId: string) => {
+    setActivePage("library");
+    setActiveLibraryId(libraryId);
+  };
 
   return (
     <>
       <WorkerStatusOverlay />
 
       <div className="main-shell">
-        {/* 左侧导航 */}
+        {/* ──── 左侧导航（main-shell） ──── */}
         <aside className="nav-sidebar">
           {/* 品牌区 */}
           <div className="brand-area">
             <span className="brand-icon">🎬</span>
-            <span className="brand-name">
-              {bootstrap?.app.name || "Jvedio"}{" "}
-              {bootstrap?.app.version ? `v${bootstrap.app.version}` : ""}
-            </span>
+            <span className="brand-name">Jvedio Next</span>
           </div>
 
           {/* 一级导航 */}
           <nav className="primary-nav">
-            {NAV_ITEMS.map((item) => (
+            {PRIMARY_NAV.map((item) => (
               <button
                 key={item.key}
                 className={`nav-item ${activePage === item.key ? "active" : ""}`}
-                onClick={() => setActivePage(item.key)}
+                onClick={() => handleNavClick(item.key)}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
@@ -59,7 +85,7 @@ function App() {
             ))}
           </nav>
 
-          {/* 影视库区 — 从 bootstrap 填充 */}
+          {/* 影视库区 */}
           <div className="library-nav-section">
             <div className="section-title">影视库</div>
             {libraries.length === 0 ? (
@@ -69,8 +95,8 @@ function App() {
                 {libraries.map((lib) => (
                   <button
                     key={lib.libraryId}
-                    className={`nav-item library-item ${activePage === "library" ? "active" : ""}`}
-                    onClick={() => setActivePage("library")}
+                    className={`nav-item library-item ${activePage === "library" && activeLibraryId === lib.libraryId ? "active" : ""}`}
+                    onClick={() => handleLibraryClick(lib.libraryId)}
                     title={lib.path}
                   >
                     <span className="nav-icon">📀</span>
@@ -85,11 +111,19 @@ function App() {
           {/* 任务摘要（底部） */}
           {taskSummary && (
             <div className="task-summary-bar">
-              <span className="task-badge" title="运行中">▶ {taskSummary.runningCount}</span>
-              <span className="task-badge" title="队列中">⏳ {taskSummary.queuedCount}</span>
-              <span className="task-badge" title="今日完成">✅ {taskSummary.completedTodayCount}</span>
+              <span className="task-badge" title="运行中">
+                ▶ {taskSummary.runningCount}
+              </span>
+              <span className="task-badge" title="队列中">
+                ⏳ {taskSummary.queuedCount}
+              </span>
+              <span className="task-badge" title="今日完成">
+                ✅ {taskSummary.completedTodayCount}
+              </span>
               {taskSummary.failedCount > 0 && (
-                <span className="task-badge failed" title="失败">❌ {taskSummary.failedCount}</span>
+                <span className="task-badge failed" title="失败">
+                  ❌ {taskSummary.failedCount}
+                </span>
               )}
             </div>
           )}
@@ -97,7 +131,7 @@ function App() {
           {/* Worker + SSE 状态指示器 */}
           <div className="worker-indicator">
             <span
-              className={`worker-dot ${workerStatus === "ready" ? "ready" : workerStatus === "error" ? "error" : "starting"}`}
+              className={`worker-dot ${workerStatus === "ready" ? (sseConnected ? "ready" : "warning") : workerStatus === "error" ? "error" : "starting"}`}
             />
             <span className="worker-status-text">
               {workerStatus === "ready"
@@ -111,10 +145,12 @@ function App() {
           </div>
         </aside>
 
-        {/* 右侧内容区 */}
+        {/* ──── 右侧内容区 ──── */}
         <main className="content-area">
-          <PageContent
+          <PageRouter
             page={activePage}
+            libraryId={activeLibraryId}
+            libraries={libraries}
             bootstrap={bootstrap}
             bsStatus={bsStatus}
             bsError={bsError}
@@ -128,18 +164,12 @@ function App() {
   );
 }
 
-// ── Page content (Phase 1 debug view) ───────────────────
+// ── Page Router (Phase 1 placeholder pages) ─────────────
 
-function PageContent({
-  page,
-  bootstrap,
-  bsStatus,
-  bsError,
-  taskSummary,
-  sseConnected,
-  recentEvents,
-}: {
+function PageRouter(props: {
   page: PageKey;
+  libraryId: string | null;
+  libraries: ReturnType<typeof useBootstrap>["libraries"];
   bootstrap: ReturnType<typeof useBootstrap>["bootstrap"];
   bsStatus: string;
   bsError: string | null;
@@ -147,83 +177,141 @@ function PageContent({
   sseConnected: boolean;
   recentEvents: ReturnType<typeof useBootstrap>["recentEvents"];
 }) {
-  const titles: Record<PageKey, string> = {
-    settings: "设置",
-    "library-management": "库管理",
-    favorites: "喜欢",
-    actors: "演员",
-    library: "媒体库",
-  };
+  const { page, libraryId, libraries } = props;
 
+  switch (page) {
+    case "settings":
+      return <SettingsPagePlaceholder />;
+    case "library-management":
+      return <LibraryManagementPagePlaceholder libraries={libraries} />;
+    case "library":
+      return <LibraryPagePlaceholder libraryId={libraryId} libraries={libraries} />;
+    case "favorites":
+      return <FavoritesPagePlaceholder />;
+    case "actors":
+      return <ActorsPagePlaceholder />;
+    case "actor-detail":
+      return <ActorDetailPagePlaceholder />;
+    case "video-detail":
+      return <VideoDetailPagePlaceholder />;
+    default:
+      return <PlaceholderPage title="未知页面" />;
+  }
+}
+
+// ── Placeholder Pages ───────────────────────────────────
+// These will be replaced with real implementations in Phase 2+.
+
+function PlaceholderPage({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="page-content-debug">
-      <h2 className="page-title">{titles[page]}</h2>
-      <p className="page-subtitle">Phase 1.3 — Bootstrap + SSE 验证</p>
-
-      {/* Bootstrap status */}
-      <section className="debug-section">
-        <h3>Bootstrap</h3>
-        <div className="debug-grid">
-          <DebugField label="状态" value={bsStatus} />
-          {bsError && <DebugField label="错误" value={bsError} error />}
-          {bootstrap && (
-            <>
-              <DebugField label="应用" value={`${bootstrap.app.name} v${bootstrap.app.version}`} />
-              <DebugField label="主题" value={bootstrap.shell.theme} />
-              <DebugField label="起始路由" value={bootstrap.shell.startRoute} />
-              <DebugField label="动态端口" value={bootstrap.shell.supportsDynamicWorkerPort ? "✅" : "❌"} />
-              <DebugField label="Worker 状态" value={`${bootstrap.worker.status} (healthy: ${bootstrap.worker.healthy})`} />
-              <DebugField label="Worker URL" value={bootstrap.worker.baseUrl} />
-              <DebugField label="媒体库数量" value={String(bootstrap.libraries.length)} />
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* Task summary (live via SSE) */}
-      <section className="debug-section">
-        <h3>任务摘要 <span className="live-badge">{sseConnected ? "🟢 LIVE" : "⚪ OFFLINE"}</span></h3>
-        {taskSummary ? (
-          <div className="debug-grid">
-            <DebugField label="运行中" value={String(taskSummary.runningCount)} />
-            <DebugField label="队列中" value={String(taskSummary.queuedCount)} />
-            <DebugField label="今日完成" value={String(taskSummary.completedTodayCount)} />
-            <DebugField label="失败" value={String(taskSummary.failedCount)} />
-          </div>
-        ) : (
-          <p className="debug-empty">等待数据…</p>
-        )}
-      </section>
-
-      {/* Recent SSE events */}
-      <section className="debug-section">
-        <h3>最近 SSE 事件 ({recentEvents.length})</h3>
-        {recentEvents.length === 0 ? (
-          <p className="debug-empty">暂无事件</p>
-        ) : (
-          <div className="event-log">
-            {recentEvents.slice(0, 20).map((evt) => (
-              <div key={evt.eventId} className="event-row">
-                <span className="event-name">{evt.eventName}</span>
-                <span className="event-topic">{evt.topic}</span>
-                <span className="event-time">
-                  {new Date(evt.occurredAtUtc).toLocaleTimeString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+    <div className="page-placeholder">
+      <h2>{title}</h2>
+      <p className="placeholder-hint">{subtitle || "Phase 1 — 页面待实现"}</p>
     </div>
   );
 }
 
-function DebugField({ label, value, error }: { label: string; value: string; error?: boolean }) {
+function SettingsPagePlaceholder() {
   return (
-    <div className="debug-field">
-      <span className="debug-label">{label}</span>
-      <span className={`debug-value ${error ? "debug-error" : ""}`}>{value}</span>
+    <div className="page-placeholder">
+      <h2>设置</h2>
+      <p className="placeholder-hint">Phase 2 — 设置页（左侧分组导航 + 右侧表单区）</p>
+      <p className="placeholder-hint">分组：常规 · 媒体库 · 搜刮 · 播放 · 高级 · 关于</p>
     </div>
+  );
+}
+
+function LibraryManagementPagePlaceholder({
+  libraries,
+}: {
+  libraries: ReturnType<typeof useBootstrap>["libraries"];
+}) {
+  return (
+    <div className="page-content-section">
+      <h2 className="page-title">库管理</h2>
+      <p className="page-subtitle">
+        管理媒体库 · {libraries.length} 个库
+      </p>
+      {libraries.length === 0 ? (
+        <div className="empty-state">
+          <span className="empty-icon">📁</span>
+          <p>还没有媒体库</p>
+          <p className="placeholder-hint">点击"新建"创建第一个媒体库</p>
+        </div>
+      ) : (
+        <div className="library-cards">
+          {libraries.map((lib) => (
+            <div key={lib.libraryId} className="library-card">
+              <div className="library-card-name">{lib.name}</div>
+              <div className="library-card-path" title={lib.path}>{lib.path}</div>
+              <div className="library-card-stats">
+                <span>{lib.videoCount} 部影片</span>
+                {lib.hasRunningTask && <span className="running-badge">扫描中</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LibraryPagePlaceholder({
+  libraryId,
+  libraries,
+}: {
+  libraryId: string | null;
+  libraries: ReturnType<typeof useBootstrap>["libraries"];
+}) {
+  const lib = libraries.find((l) => l.libraryId === libraryId);
+  return (
+    <div className="page-placeholder">
+      <h2>{lib?.name || "媒体库"}</h2>
+      <p className="placeholder-hint">
+        Phase 2 — 单库内容页（筛选 · 排序 · 分页 · 影片卡片）
+      </p>
+      {lib && (
+        <p className="placeholder-hint">
+          {lib.videoCount} 部影片 · {lib.path}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function FavoritesPagePlaceholder() {
+  return (
+    <PlaceholderPage
+      title="喜欢"
+      subtitle="Phase 2 — 收藏影片聚合页（统一结果区交互）"
+    />
+  );
+}
+
+function ActorsPagePlaceholder() {
+  return (
+    <PlaceholderPage
+      title="演员"
+      subtitle="Phase 2 — 演员聚合列表页（搜索 · 排序 · 分页）"
+    />
+  );
+}
+
+function ActorDetailPagePlaceholder() {
+  return (
+    <PlaceholderPage
+      title="演员详情"
+      subtitle="Phase 2 — 演员详情页（头部信息 · 关联影片 · 返回链路）"
+    />
+  );
+}
+
+function VideoDetailPagePlaceholder() {
+  return (
+    <PlaceholderPage
+      title="影片详情"
+      subtitle="Phase 2 — 影片详情页（详情信息 · 播放入口 · 返回恢复）"
+    />
   );
 }
 

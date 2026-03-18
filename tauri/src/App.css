@@ -367,3 +367,82 @@ body,
   margin-left: auto;
   color: var(--color-text-secondary);
 }
+
+/* ===== Worker dot: warning state (SSE disconnected) ===== */
+.worker-dot.warning {
+  background: #ff9800;
+}
+
+/* ===== Page content section ===== */
+.page-content-section {
+  padding: 32px 40px;
+  max-width: 900px;
+}
+
+/* ===== Empty state ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 8px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.6;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+/* ===== Library cards (library-management placeholder) ===== */
+.library-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.library-card {
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  transition: border-color 0.15s;
+}
+
+.library-card:hover {
+  border-color: var(--color-accent);
+}
+
+.library-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.library-card-path {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+
+.library-card-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.running-badge {
+  color: var(--color-accent);
+  font-weight: 500;
+}
