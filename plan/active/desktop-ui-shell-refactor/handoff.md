@@ -42,11 +42,15 @@
 
 ## Immediate Next Work After Kickoff
 
-1. 在 `tauri/` 建立最小可运行的 `MainShell` Spike。
-2. 从壳层拉起 `Jvedio.Worker`，并把动态 `baseUrl` 注入 renderer。
-3. 打通 `/api/app/bootstrap` 与 `/api/events`，确认首屏 bootstrap + SSE 能工作。
-4. 先落主壳基础结构：左侧导航、右侧内容区、全局任务 / 提示入口。
-5. 同步建立主题 token、多语言初始化与资源显色接线骨架，但只做最小可运行版本。
+Phase 1 已全部完成 ✅，以下为已完成的实施范围：
+
+1. ✅ `tauri/` 工程初始化与最小窗口启动
+2. ✅ 壳层拉起 `Jvedio.Worker` 并注入动态 `baseUrl`
+3. ✅ renderer 接通 `/api/app/bootstrap` 与 `/api/events`
+4. ✅ 主壳基础布局与 Worker 未就绪 / 加载中 / 连接失败三类基础状态
+5. ✅ `light / dark`、`zh / en` 与资源接线骨架的最小实现
+
+下一步进入 **Phase 2：Renderer 基座重建**，参见 `plan.md` 阶段 2 定义。
 
 ## Current Blockers
 
