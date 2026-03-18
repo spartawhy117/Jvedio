@@ -8,8 +8,10 @@ import {
   type ReactNode,
 } from "react";
 import { useWorker } from "./WorkerContext";
-import { fetchBootstrap, createApiClient } from "../api/client";
+import { fetchBootstrap, createApiClient, getApiClient } from "../api/client";
 import { connectEventStream } from "../api/events";
+import { dispatchSSEEvent } from "../hooks/useSSESubscription";
+import { invalidateQueries } from "../hooks/useApiQuery";
 import type {
   GetBootstrapResponse,
   TaskSummaryDto,
@@ -100,6 +102,9 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
   const handleEvent = useCallback((envelope: WorkerEventEnvelopeDto) => {
     console.log("[BootstrapProvider] SSE event:", envelope.eventName, envelope);
 
+    // Dispatch to global event bus (allows per-page subscriptions via useSSESubscription)
+    dispatchSSEEvent(envelope);
+
     // Append to recent events (ring buffer)
     setRecentEvents((prev) => {
       const next = [envelope, ...prev];
@@ -116,16 +121,30 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
         break;
       }
       case "library.changed": {
-        // Re-fetch bootstrap to get updated library list
-        // (a more targeted approach would be a dedicated API, but for Phase 1 this is fine)
+        // Refresh library list from API
+        const client = getApiClient();
+        if (client) {
+          client.getLibraries().then((libs) => {
+            setLibraries(libs);
+          }).catch((err) => {
+            console.error("[BootstrapProvider] failed to refresh libraries:", err);
+          });
+        }
+        // Invalidate all library-related query caches
+        invalidateQueries("libraries");
         break;
       }
       case "settings.changed": {
-        // For now just log, Phase 2 will react to settings changes
+        // Invalidate settings-related query caches so pages auto-refetch
+        invalidateQueries("settings");
         break;
       }
       default:
         // task.created, task.completed, task.failed, task.progress, worker.ready, etc.
+        // Invalidate task caches
+        if (envelope.eventName.startsWith("task.")) {
+          invalidateQueries("tasks");
+        }
         break;
     }
   }, []);
