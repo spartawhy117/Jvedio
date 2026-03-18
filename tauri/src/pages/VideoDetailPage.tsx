@@ -55,6 +55,12 @@ export function VideoDetailPage() {
     },
   });
 
+  // ── Derived state ──────────────────────────────
+  const video = detailQuery.data?.video;
+  const posterUrl = video && baseUrl
+    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
+    : null;
+
   // ── Handlers ──────────────────────────────────────
   const handlePlay = useCallback(() => {
     playMutation.mutate(undefined as never);
@@ -74,10 +80,6 @@ export function VideoDetailPage() {
   }, [navigate]);
 
   // ── Render ────────────────────────────────────────
-  const video = detailQuery.data?.video;
-  const posterUrl = video && baseUrl
-    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
-    : null;
 
   if (detailQuery.isLoading && !video) {
     return (

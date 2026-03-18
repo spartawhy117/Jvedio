@@ -95,6 +95,10 @@ export function LibraryPage() {
     invalidateQueries(`libraries:${libraryId}`);
   });
 
+  // ── Derived state ──────────────────────────────
+  const data = videosQuery.data;
+  const totalCount = data?.totalCount ?? 0;
+
   // ── Handlers ──────────────────────────────────────
   const handleSearch = useCallback((kw: string) => {
     setQuery({ keyword: kw, pageIndex: 0 });
@@ -180,8 +184,6 @@ export function LibraryPage() {
   ], [navigate, library, t, tc]);
 
   // ── Render ────────────────────────────────────────
-  const data = videosQuery.data;
-  const totalCount = data?.totalCount ?? 0;
 
   return (
     <div className="page-content-section page-content-wide">

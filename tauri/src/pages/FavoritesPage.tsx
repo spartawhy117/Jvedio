@@ -71,6 +71,10 @@ export function FavoritesPage() {
     keepPreviousData: true,
   });
 
+  // ── Derived state ──────────────────────────────
+  const data = favQuery.data;
+  const totalCount = data?.totalCount ?? 0;
+
   // ── Handlers ──────────────────────────────────────
   const handleSearch = useCallback((kw: string) => {
     setQuery({ keyword: kw, pageIndex: 0 });
@@ -156,8 +160,6 @@ export function FavoritesPage() {
   ], [navigate, t, tc]);
 
   // ── Render ────────────────────────────────────────
-  const data = favQuery.data;
-  const totalCount = data?.totalCount ?? 0;
 
   return (
     <div className="page-content-section page-content-wide">
