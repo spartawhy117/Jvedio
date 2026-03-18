@@ -11,7 +11,7 @@
  * for a single-window desktop app where cache scope = single session.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 // ── Types ───────────────────────────────────────────────
 
@@ -106,17 +106,24 @@ export function useApiQuery<T>(options: UseApiQueryOptions<T>): UseApiQueryResul
   const latestKeyRef = useRef(queryKey);
   latestKeyRef.current = queryKey;
 
+  // ── Stable refs for caller-provided functions ──
+  // queryFn is typically an inline arrow created every render.
+  // Storing it in a ref avoids re-creating fetchData on each render.
+  const queryFnRef = useRef(queryFn);
+  queryFnRef.current = queryFn;
+
+  const keepPreviousDataRef = useRef(keepPreviousData);
+  keepPreviousDataRef.current = keepPreviousData;
+
+  // fetchData only depends on queryKey (stable string), not on queryFn reference
   const fetchData = useCallback(async () => {
     if (!mountedRef.current) return;
 
     setStatus("loading");
-    if (!keepPreviousData) {
-      // Don't clear data — allow stale data to remain visible
-    }
     setError(null);
 
     try {
-      const result = await queryFn();
+      const result = await queryFnRef.current();
       if (!mountedRef.current || latestKeyRef.current !== queryKey) return;
 
       // Store in cache
@@ -130,7 +137,7 @@ export function useApiQuery<T>(options: UseApiQueryOptions<T>): UseApiQueryResul
       setError(e);
       setStatus("error");
     }
-  }, [queryKey, queryFn, keepPreviousData]);
+  }, [queryKey]);
 
   // Subscribe to cache invalidation
   useEffect(() => {
@@ -149,8 +156,11 @@ export function useApiQuery<T>(options: UseApiQueryOptions<T>): UseApiQueryResul
   }, [queryKey, fetchData]);
 
   // Fetch on mount / key change / enabled change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stableEnabled = useMemo(() => enabled, [enabled, queryKey]);
+
   useEffect(() => {
-    if (!enabled) {
+    if (!stableEnabled) {
       setStatus("idle");
       return;
     }
@@ -160,12 +170,12 @@ export function useApiQuery<T>(options: UseApiQueryOptions<T>): UseApiQueryResul
     if (cached) {
       setData(cached.data);
       setStatus("success");
-    } else if (!keepPreviousData) {
+    } else if (!keepPreviousDataRef.current) {
       setData(null);
     }
 
     fetchData();
-  }, [queryKey, enabled, fetchData, keepPreviousData]);
+  }, [queryKey, stableEnabled, fetchData]);
 
   // Cleanup on unmount
   useEffect(() => {

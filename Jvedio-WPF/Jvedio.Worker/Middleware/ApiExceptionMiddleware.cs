@@ -25,6 +25,12 @@ public sealed class ApiExceptionMiddleware
         {
             await next(httpContext);
         }
+        catch (OperationCanceledException) when (httpContext.RequestAborted.IsCancellationRequested)
+        {
+            // Client disconnected (e.g. SSE stream closed, browser navigated away).
+            // This is expected behaviour — do not log as error.
+            logger.LogDebug("[Worker-HomeMvp] Request cancelled (client disconnected): {Path}", httpContext.Request.Path);
+        }
         catch (WorkerApiException ex)
         {
             logger.LogWarning(ex, "[Worker-HomeMvp] API error {Code}", ex.Error.Code);
