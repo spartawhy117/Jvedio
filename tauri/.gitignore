@@ -13,7 +13,8 @@ dist-ssr
 *.local
 
 # Worker build staging directory (produced by scripts/prepare-worker.ps1)
-worker-dist
+worker-dist/*
+!worker-dist/.gitkeep
 
 # Editor directories and files
 .vscode/*
