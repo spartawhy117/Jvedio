@@ -9,7 +9,7 @@
 - Worker 策略：动态端口
 - UI 输入：`doc/UI/new/`
 - 主题 / 多语言 / 图片显色长期规范：`doc/UI/new/foundation/`
-- Electron：不再作为产品路径或回退基线
+- Electron：已在 Phase 5 中物理删除
 
 仅当以下情况出现时，再重新打开本文件：
 

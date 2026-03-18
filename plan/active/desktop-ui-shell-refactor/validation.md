@@ -246,3 +246,57 @@
 - `tauri/package.json` — 新增 `prepare-worker` + `build:release` 脚本
 - `tauri/.gitignore` — 添加 `worker-dist` 忽略规则
 - `electron/README.md` — 标记为 DEPRECATED
+
+## Phase 5 必过验证项
+
+### Electron 目录删除
+
+- ✅ `electron/` 目录已物理删除（36 个文件）
+- ✅ 仓库中不再包含任何 Electron 运行时、main process、preload 或 renderer 代码
+
+### 文档清理
+
+- ✅ `doc/UI/new/README.md` — 移除 Electron 引用
+- ✅ `doc/UI/new/pages/library-management-page.md` — 移除 Electron 引用
+- ✅ `doc/UI/new/dialogs/video-context-menu.md` — `Electron shell` 改为 `Tauri shell`
+- ✅ `plan/active/desktop-ui-shell-refactor/plan.md` — 全面更新为 Phase 5 后状态
+- ✅ `plan/active/desktop-ui-shell-refactor/handoff.md` — 全 Phase 完成状态
+- ✅ `plan/active/desktop-ui-shell-refactor/open-questions.md` — Electron 已删除标记
+
+### 编译检查
+
+- ✅ TypeScript 编译零错误（`tsc --noEmit`）
+
+## Phase 5 通过标准
+
+- ✅ `electron/` 已物理删除
+- ✅ 文档中 Electron 主叙事已清退
+- ✅ `plan.md` 已更新为反映 Electron 已删除的事实
+- ✅ 全部 5 个阶段已完成
+
+## Phase 5 实施记录
+
+### 提交历史
+- `df3e125` Phase 5.2 — clean Electron references in UI docs
+- `9461ba2` Phase 5.3 — update plan.md, Electron removed, Tauri is sole shell
+
+### 关键变更
+- 删除 `electron/` 目录（36 个文件）
+- 更新 3 个 `doc/UI/new/` 文档的 Electron 引用
+- 更新 `plan.md` 中 15+ 处 Electron 相关段落为已完成状态
+- 更新 `handoff.md` 为全阶段完成状态
+
+## Feature 完成状态
+
+`desktop-ui-shell-refactor` 全部 5 个阶段已完成 ✅：
+
+| 阶段 | 状态 |
+|------|------|
+| Phase 0 — 方案冻结 | ✅ |
+| Phase 1 — MainShell Spike | ✅ |
+| Phase 2 — Renderer 基座重建 | ✅ |
+| Phase 3 — 业务页按优先级迁移 | ✅ |
+| Phase 4 — Release 切换 | ✅ |
+| Phase 5 — 旧 Electron 清理 | ✅ |
+
+本 feature 可归档到 `plan/archive/desktop-ui-shell-refactor/`。

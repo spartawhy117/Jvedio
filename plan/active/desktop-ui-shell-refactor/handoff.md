@@ -10,7 +10,7 @@
 - Worker 正式继续采用**动态端口**。
 - 新桌面壳目录正式冻结为 `tauri/`。
 - `doc/UI/new/` 是唯一正式 UI 输入；主题、多语言、图片 / 图标长期规范统一看 `doc/UI/new/foundation/`。
-- `electron/` 只保留为历史参考，不再作为产品路径或回退基线。
+- `electron/` 已在 Phase 5 中物理删除，不再存在于仓库中。
 - 当前项目以个人使用为主；第三方图片资源保留最小来源备注即可，不引入重型合规流程。
 
 ## Activation Status
@@ -35,9 +35,9 @@
 
 ## Recommended Kickoff Command
 
-当前已完成 Phase 1 ~ Phase 4，后续恢复上下文时的标准口令：
+当前已完成 Phase 1 ~ Phase 5（全部阶段），`desktop-ui-shell-refactor` feature 已实施完毕。
 
-> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 5 的旧 Electron 清理阶段。
+> `doc/UI/new/` 已完成冻结。`desktop-ui-shell-refactor` 全部 5 个阶段已完成，`electron/` 已删除，`tauri/` 是唯一桌面壳。后续维护请直接按 `tauri/` 工程结构继续推进。
 
 
 ## Immediate Next Work After Kickoff
@@ -84,18 +84,18 @@ Phase 4 已全部完成 ✅，以下为已完成的实施范围：
 4. ✅ 构建脚本 — `tauri/scripts/prepare-worker.ps1` + `npm run build:release` 全流程
 5. ✅ `electron/` 标记为 deprecated，README 明确注明废弃原因与清理时机
 
-下一步进入 **Phase 5：旧 Electron 清理**（最终阶段），参见 `plan.md` 阶段 5 定义。
+Phase 5 已全部完成 ✅，以下为已完成的实施范围：
 
-清理前提（须全部满足）：
-1. 所有 `doc/UI/new/` 页面和弹层已在新壳下完成接线
-2. Worker 启动、任务反馈、设置保存、播放链路验证通过
-3. Release 构建、打包、启动链已稳定指向新壳
-4. 关键回归项通过至少一轮完整验证
+1. ✅ 物理删除 `electron/` 目录（36 个文件）
+2. ✅ 清退 `doc/UI/new/` 文档中残留的 Electron 引用（README.md, library-management-page.md, video-context-menu.md）
+3. ✅ 更新 `plan.md` — 桌面壳现状、Renderer 现状、构建发布策略等段落全部更新为 Phase 5 后状态
+4. ✅ 更新 `handoff.md` + `validation.md` + `open-questions.md` 文档
+
+**本 feature 全部 5 个阶段已完成。** 后续可归档到 `plan/archive/desktop-ui-shell-refactor/`。
 
 ## Current Blockers
 
-- 当前**无阻塞项**，可直接进入 Phase 5 的旧 Electron 清理。
-- Phase 4 中未发现新的系统级障碍。
-- Phase 5 清理前需确保上述 4 项前提全部满足。
+- 当前**无阻塞项**，`desktop-ui-shell-refactor` 全部阶段已完成。
+- 后续维护直接按 `tauri/` 工程结构继续推进。
 
 
