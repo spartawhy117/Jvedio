@@ -1,9 +1,10 @@
 ## Feature Goal
 
-- 在 `doc/UI/new/` 本轮 UI 调整完成并冻结后，再开始实施 `desktop-ui-shell-refactor`；正式主线为 `Tauri 2 + React + TypeScript + Jvedio.Worker + Jvedio.Contracts`。
+- `doc/UI/new/` 本轮 UI 设计已完成并冻结，当前开始实施 `desktop-ui-shell-refactor`；正式主线为 `Tauri 2 + React + TypeScript + Jvedio.Worker + Jvedio.Contracts`。
 
 
 ## Frozen Decisions
+
 
 - `React + TypeScript` 是唯一默认 renderer 路线，不再继续评估并行前端主线。
 - Worker 正式继续采用**动态端口**。
@@ -12,19 +13,19 @@
 - `electron/` 只保留为历史参考，不再作为产品路径或回退基线。
 - 当前项目以个人使用为主；第三方图片资源保留最小来源备注即可，不引入重型合规流程。
 
-## Activation Gate
+## Activation Status
 
-只有在以下条件全部满足后，才正式启动迁移实现：
+当前启动门槛已满足，`desktop-ui-shell-refactor` 可正式进入迁移实现：
 
 1. `doc/UI/new/` 本轮 UI 调整已完成。
 2. 页面、弹层、共享组件、流程和 `foundation/` 规范已达到可直接指导实现的状态。
-3. 你明确发出“现在开始 `desktop-ui-shell-refactor`”的启动指令。
+3. 已明确发出“现在开始 `desktop-ui-shell-refactor`”的启动指令。
 
-在上述条件满足前，当前 feature 只允许继续做 UI 文档收口、命名调整和规格冻结，不进入 `tauri/` 实现落库。
+从现在起，不再停留在 UI 文档收口阶段；默认进入 `tauri/` 的 Phase 1 实现落库。
 
-## Start Here After UI Freeze
+## Start Here Now
 
-当 UI 调整完成并准备正式启动迁移时，默认先读：
+当前默认先读：
 
 1. `plan/active/desktop-ui-shell-refactor/validation.md`
 2. `doc/UI/new/README.md`
@@ -34,9 +35,10 @@
 
 ## Recommended Kickoff Command
 
-当你准备启动本重构时，直接使用这句：
+当前已完成启动，可把下面这句保留为后续恢复上下文时的标准口令：
 
-> 我已完成 `doc/UI/new/` 的本轮 UI 调整并冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 启动 `desktop-ui-shell-refactor`，从 Phase 1 的 `MainShell` Spike 开始实施。
+> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 1 的 `MainShell` Spike。
+
 
 ## Immediate Next Work After Kickoff
 
@@ -48,6 +50,7 @@
 
 ## Current Blockers
 
-- 当前唯一启动门槛是：`doc/UI/new/` 的本轮 UI 调整尚未完成前，不启动迁移实现。
-- 如 UI 已冻结但 Phase 1 发现动态端口注入、Worker 生命周期或壳层打包存在新的系统级障碍，再回写 `open-questions.md`。
+- 当前**无启动门槛阻塞项**，可直接进入 Phase 1。
+- 如 Phase 1 发现动态端口注入、Worker 生命周期或壳层打包存在新的系统级障碍，再回写 `open-questions.md`。
+
 
