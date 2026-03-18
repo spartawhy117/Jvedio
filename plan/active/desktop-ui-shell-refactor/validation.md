@@ -78,3 +78,89 @@
 - `tauri/src/theme/` — 主题系统（ThemeModeProvider + tokens）
 - `tauri/src/locales/` — i18n（zh + en 按模块拆分）
 - `tauri/src/assets/asset-registry.ts` — 资源注册骨架
+
+## Phase 2 必过验证项
+
+### API 类型与客户端层（2.1）
+
+- ✅ TypeScript 类型文件完整镜像 `Jvedio.Contracts` 所有 DTO
+- ✅ ApiClient 覆盖所有 Worker 端点（库、影片、演员、任务、设置、诊断）
+- ✅ WorkerApiError 提供结构化错误（statusCode, requestId, userMessage, retryable）
+- ✅ 全局单例模式（createApiClient / getApiClient）
+
+### 路由与页面骨架（2.2）
+
+- ✅ 轻量路由系统，PageKey 与 `page-index.md` 一一对应（7 页）
+- ✅ 返回导航支持 history stack + query state 恢复（keyword, sortBy, pageIndex）
+- ✅ navigate / goBack / setQuery / replace 四种导航操作
+- ✅ 7 个页面骨架全部创建：settings, library-management, library, favorites, actors, actor-detail, video-detail
+
+### 共享组件骨架（2.3）
+
+- ✅ VideoCard — 16:9 缩略图 + 状态指示 + VID + 日期
+- ✅ ActorCard — 圆形头像 + 名字 + 影片数
+- ✅ QueryToolbar — 搜索框 + 刷新 + 排序下拉
+- ✅ Pagination — ‹ [page/total] › [Go] + 编辑跳转
+- ✅ ConfirmDialog — 模态弹层 + 危险模式 + loading
+- ✅ ResultState — Loading / Empty / Error 三态
+
+### SSE 订阅层 + Query 缓存层（2.4）
+
+- ✅ 全局 SSE 事件总线（dispatchSSEEvent）支持按事件名订阅
+- ✅ useSSESubscription hook + 便捷 hooks（useOnLibraryChanged, useOnSettingsChanged, useOnTaskEvent）
+- ✅ BootstrapContext 集成事件总线分发
+- ✅ library.changed → 刷新 library 列表 + 失效缓存
+- ✅ settings.changed → 失效设置缓存
+- ✅ task.* → 失效任务缓存
+- ✅ useApiQuery — 基于 key 的查询缓存、loading/error/data 状态、refetch、invalidateQueries
+- ✅ useApiMutation — 变更操作 + onSuccess/onError 回调
+
+### Settings 页面基础结构（2.5）
+
+- ✅ 左右分栏布局 + 6 组导航（基本、图片、扫描与导入、网络、库、MetaTube）
+- ✅ 接入 useApiQuery 读取 Worker 设置
+- ✅ 接入 useApiMutation 保存设置 + 恢复默认
+- ✅ MetaTube 诊断功能接入
+- ✅ SSE settings.changed 自动刷新
+- ✅ 表单脏状态追踪 + 保存/失败反馈
+
+### Error Boundary + 全局 Toast（2.6）
+
+- ✅ ErrorBoundary — class component，捕获渲染错误，显示 fallback + retry
+- ✅ GlobalToast — 全局 toast 通知（info/success/warning/error），自动消失
+- ✅ showToast() 函数可在任意组件中调用
+- ✅ ErrorBoundary 包裹整个 App
+- ✅ GlobalToast 渲染在最顶层
+
+## Phase 2 通过标准
+
+满足以下条件即可进入 Phase 3：
+
+- ✅ API client + 类型层完整覆盖 Worker 端点
+- ✅ 路由系统 + 返回链路 + 页面骨架就绪
+- ✅ 共享组件骨架可复用于后续业务页面
+- ✅ SSE 事件总线 + Query 缓存层就绪
+- ✅ Settings 页面具备完整读写骨架
+- ✅ 错误边界 + 全局 toast 就绪
+- ✅ 所有代码通过 TypeScript 编译 + Vite 构建
+
+## Phase 2 实施记录
+
+### 提交历史
+- `0fc0336` Phase 2.1 — complete API types + API client layer
+- `8945004` Phase 2.2 — router system + page skeletons + back navigation
+- `26ce2f9` Phase 2.3 — shared UI component skeletons
+- `685061f` Phase 2.4 — SSE subscription layer and query cache hooks
+- `89b0cfe` Phase 2.5 — settings page full structure with read/write skeleton
+- `0473924` Phase 2.6 — ErrorBoundary + GlobalToast integration
+
+### 关键文件清单
+- `tauri/src/api/types.ts` — 全量 DTO 类型（~440 行）
+- `tauri/src/api/client.ts` — ApiClient 全端点覆盖（~385 行）
+- `tauri/src/router/RouterProvider.tsx` — 轻量路由 + 历史栈
+- `tauri/src/pages/` — 7 个页面骨架
+- `tauri/src/components/shared/` — 6 个共享组件 + barrel export
+- `tauri/src/hooks/useApiQuery.ts` — Query 缓存层
+- `tauri/src/hooks/useSSESubscription.ts` — SSE 事件总线 + 订阅 hooks
+- `tauri/src/components/ErrorBoundary.tsx` — 错误边界
+- `tauri/src/components/GlobalToast.tsx` — 全局 toast

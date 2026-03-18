@@ -35,9 +35,9 @@
 
 ## Recommended Kickoff Command
 
-当前已完成启动，可把下面这句保留为后续恢复上下文时的标准口令：
+当前已完成 Phase 1 + Phase 2，后续恢复上下文时的标准口令：
 
-> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 1 的 `MainShell` Spike。
+> `doc/UI/new/` 已完成冻结，请按 `plan/active/desktop-ui-shell-refactor/handoff.md` 和 `validation.md` 继续推进 `desktop-ui-shell-refactor`，当前处于 Phase 3 的业务页迁移阶段。
 
 
 ## Immediate Next Work After Kickoff
@@ -50,11 +50,31 @@ Phase 1 已全部完成 ✅，以下为已完成的实施范围：
 4. ✅ 主壳基础布局与 Worker 未就绪 / 加载中 / 连接失败三类基础状态
 5. ✅ `light / dark`、`zh / en` 与资源接线骨架的最小实现
 
-下一步进入 **Phase 2：Renderer 基座重建**，参见 `plan.md` 阶段 2 定义。
+Phase 2 已全部完成 ✅，以下为已完成的实施范围：
+
+1. ✅ 完整 API Types + API Client 层（types.ts ~440 行, client.ts ~385 行）
+2. ✅ 轻量路由系统 + 7 个页面骨架 + 返回导航 + query state 恢复
+3. ✅ 6 个共享组件骨架：VideoCard, ActorCard, QueryToolbar, Pagination, ConfirmDialog, ResultState
+4. ✅ SSE 事件总线 + useSSESubscription hooks + library.changed/settings.changed 自动刷新
+5. ✅ Query 缓存层：useApiQuery + useApiMutation + invalidateQueries
+6. ✅ Settings 页面完整读写骨架（左右分栏 + 6 组 + API 读写 + MetaTube 诊断）
+7. ✅ ErrorBoundary（渲染错误兜底）+ GlobalToast（全局通知）
+
+下一步进入 **Phase 3：业务页按优先级迁移**，参见 `plan.md` 阶段 3 定义。
+
+迁移建议顺序：
+1. `main-shell` — 完善导航交互
+2. `library-management-page` — 接入真实 API 数据
+3. `library-page` — 视频列表、筛选、排序、分页
+4. `video-detail-page` — 详情读取、播放、sidecar
+5. `favorites-page` — 收藏列表
+6. `actors-page` — 演员列表
+7. `actor-detail-page` — 演员详情 + 关联影片
+8. `settings-page` — 完善所有设置组
 
 ## Current Blockers
 
-- 当前**无启动门槛阻塞项**，可直接进入 Phase 1。
-- 如 Phase 1 发现动态端口注入、Worker 生命周期或壳层打包存在新的系统级障碍，再回写 `open-questions.md`。
+- 当前**无阻塞项**，可直接进入 Phase 3 的业务页迁移。
+- Phase 2 中未发现新的系统级障碍。
 
 
