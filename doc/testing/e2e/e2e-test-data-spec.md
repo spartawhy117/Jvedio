@@ -9,6 +9,74 @@
 - E2E 执行方案：`doc/testing/e2e/playwright-e2e-test-plan.md`
 - E2E 用例清单：`doc/testing/e2e/playwright-e2e-test-cases.md`
 
+## 1.1 数据架构与设计思路
+
+### 为什么需要独立的 E2E 数据环境？
+
+E2E 测试通过浏览器操作真实 UI，UI 背后会调用 Worker API，Worker 会读写 SQLite 数据库和文件系统。如果使用开发者的正式数据，测试操作（创建/删除库、扫描、收藏）会污染正式数据。因此需要一套**完全隔离的测试数据环境**。
+
+隔离方式：通过环境变量 `JVEDIO_APP_BASE_DIR` 将 Worker 的数据根目录指向 `test-data/e2e/`，使正式数据和测试数据互不影响。
+
+| | 正式使用 | E2E 测试 |
+|---|---------|---------|
+| SQLite 位置 | `data/{user}/` | `test-data/e2e/data/test-user/` |
+| 影片文件 | 用户真实视频 | 假视频（1 KB，不可播放） |
+| 日志位置 | `log/runtime/` | `log/test/e2e/runtime/` |
+| 互相影响 | — | ❌ 完全隔离 |
+| 测试后重置 | — | `git checkout` 一键还原 |
+
+### 完整数据流
+
+```
+seed-e2e-data.ps1 播种
+        │
+        ├─ 创建假视频文件 ──────────────────── 文件系统（test-data/e2e/videos/）
+        ├─ 启动 Worker ─────────────────────── 进程（自动在 data/test-user/ 下建表）
+        ├─ API 创建库 + 触发扫描 ──────────── Worker 写入 SQLite（测试数据库）
+        │       ├─ app_datas.sqlite ────────── 影片记录（VID、路径、标签等）
+        │       └─ app_configs.sqlite ─────── 应用配置（媒体库定义、设置项等）
+        └─ 写出 e2e-env.json ──────────────── 连接信息清单（端口、库 ID、PID）
+                    │
+                    ▼
+           Playwright 跑 UI 测试
+                    │
+                    ├─ 读 e2e-env.json → 知道连哪个端口、操作哪个库
+                    ├─ 浏览器打开页面 → 页面从 Worker 读 SQLite 渲染列表
+                    ├─ 用户操作（收藏、搜索、切换库等）→ Worker 读写 SQLite
+                    └─ 断言页面状态（列表数量、收藏标记、空态提示等）
+                    │
+                    ▼
+           cleanup-e2e-data.ps1 清理
+                    │
+                    ├─ 停止 Worker 进程
+                    ├─ git checkout test-data/e2e/data/ → 重置 SQLite 到基线
+                    ├─ git checkout test-data/e2e/videos/ → 撤销扫描整理
+                    └─ 清除环境变量
+```
+
+### 三类文件的职责
+
+| 文件 | 类型 | 职责 | 谁产生 | 谁消费 |
+|------|------|------|--------|--------|
+| `e2e-env.json` | JSON 配置 | 传递连接信息（端口、库 ID、PID） | 播种脚本 | Playwright 测试 + 清理脚本 |
+| `app_datas.sqlite` | SQLite 数据库 | 存储影片、标签、收藏等业务数据 | Worker（被 API 触发） | Worker（被 UI 操作触发） |
+| `app_configs.sqlite` | SQLite 数据库 | 存储媒体库定义、用户设置 | Worker（被 API 触发） | Worker（被 UI 操作触发） |
+
+**关键区别**：`e2e-env.json` 是播种脚本和 Playwright 之间的"交接清单"——告诉测试"去哪连、操作什么"；SQLite 才是真正的"测试数据库"——存储所有业务数据，E2E 测试全程都在读写它。
+
+### 与 Worker 后端测试的关系
+
+| 维度 | Worker 测试（44 个） | E2E 测试（48 个，计划中） |
+|------|---------------------|------------------------|
+| 测试层 | API 层 + 业务逻辑层 | UI 层（浏览器操作） |
+| 执行方式 | MSTest 内存 HTTP（`WebApplicationFactory`） | Playwright 浏览器自动化 |
+| 验证什么 | API 响应格式、VID 解析算法、文件整理逻辑 | 页面切换、弹层交互、表单、状态恢复 |
+| 数据库 | 内存临时 SQLite（测试后自动清理） | 文件 SQLite（`test-data/e2e/data/`） |
+| 前端 | ❌ 不涉及 | ✅ 核心覆盖 |
+| 关系 | 验证 API 契约正确性 | 验证 UI + API 端到端集成 |
+
+两者是**互补关系**：Worker 测试保证 API 层可靠，E2E 测试保证用户能通过 UI 正确使用这些 API。E2E 播种步骤（创建库→扫描）和 Worker 测试中的 `ScanImportApiTests` 做的事类似，但这种重叠是合理的——E2E 播种只是前置准备（setup），不是被测对象。
+
 ## 2. 目录结构
 
 E2E 测试数据统一放在 `{repo}/test-data/e2e/`，直接提交到 git：

@@ -63,6 +63,7 @@ doc/testing/
 │   ├── test-targets.md                ← 测试目标与通过标准（强/弱断言）
 │   └── test-current-suite.md          ← 当前已实现的 44 个测试清单
 └── e2e/                               ← 前端 E2E 自动化（Playwright）
+    ├── e2e-test-data-spec.md          ← E2E 数据架构、隔离设计、播种/清理流程
     ├── playwright-e2e-test-plan.md    ← Playwright MCP 执行方案、启停流程、已知限制
     └── playwright-e2e-test-cases.md   ← 48 个 E2E 用例（7 张流程图拆解）
 ```
@@ -77,8 +78,9 @@ doc/testing/
 
 ### 了解前端 E2E 测试
 
-1. `e2e/playwright-e2e-test-plan.md` — 执行方案与环境搭建
-2. `e2e/playwright-e2e-test-cases.md` — 48 个具体用例
+1. `e2e/e2e-test-data-spec.md` — 先了解**数据架构与隔离设计**（§1.1）和播种/清理流程
+2. `e2e/playwright-e2e-test-plan.md` — 再了解**执行方案与环境搭建**
+3. `e2e/playwright-e2e-test-cases.md` — 最后查看 48 个具体用例
 
 ## 关联文档
 
