@@ -1,6 +1,6 @@
 # Handoff — 抓取失败优雅降级
 
-## 当前状态：已完成
+## 当前状态：Phase 1-9 已完成
 
 ---
 
@@ -17,6 +17,7 @@
 | 6 | 单元测试 / 契约测试更新（+10 测试，52→62） | ✅ 已完成 |
 | 7 | E2E 脚本更新 | ✅ 已完成 |
 | 8 | 文档更新（7 个文档：AGENTS.md + CHANGELOG + 3 测试文档 + e2e-test-data-spec + desktop-ui-shell handoff） | ✅ 已完成 |
+| 9 | E2E backend verify 链路收口：修复 `seed-e2e-data.ps1` / `verify-backend-apis.ps1` 报错并统一最终产出目录 | ✅ 已完成 |
 
 ---
 
@@ -30,9 +31,11 @@ Phase 4 (API 筛选) ← Phase 4.5 (右键重新搜刮) ← Phase 5 (前端) ←
                                                                 Phase 7 (E2E)
                                                                     ↓
                                                                 Phase 8 (文档)
+                                                                    ↓
+                                                                Phase 9 (seed/verify 收口 + 目录对齐)
 ```
 
-建议执行顺序：`2 → 3 → 1 → 4 → 4.5 → 5 → 6 → 7 → 8`
+建议执行顺序：`2 → 3 → 1 → 4 → 4.5 → 5 → 6 → 7 → 8 → 9`
 
 ---
 
@@ -50,9 +53,14 @@ Phase 4 (API 筛选) ← Phase 4.5 (右键重新搜刮) ← Phase 5 (前端) ←
 | `tauri/src/components/shared/VideoCard.tsx` | 卡片占位图替换 |
 | `tauri/src/components/shared/VideoContextMenu.tsx` | 通用右键菜单组件，actions 由调用方注入，无需修改 |
 | `tauri/src/pages/VideoDetailPage.tsx` | 详情页：sidecar StatusBadge 适配 stub 场景 + SSE 搜刮成功后自动刷新（不新增按钮/横幅） |
-| `tauri/src/pages/LibraryPage.tsx` | 右键菜单补齐"重新抓取元数据"（设计规格已定义，代码待接入 API） |
-| `tauri/src/pages/FavoritesPage.tsx` | 右键菜单补齐"重新抓取元数据"（同上） |
+| `tauri/src/pages/LibraryPage.tsx` | 右键菜单补齐"重新抓取元数据"并已接入 API |
+| `tauri/src/pages/FavoritesPage.tsx` | 右键菜单补齐"重新抓取元数据"并已接入 API |
 | `tauri/src/contexts/BootstrapContext.tsx` | SSE 回调增强：补充 video: / favorites invalidate |
+| `test-data/scripts/seed-e2e-data.ps1` | 已按当前 Contracts 收口；生成真实 `e2e-env.json` 并验证默认测试样本 |
+| `test-data/scripts/verify-backend-apis.ps1` | 已成为后端回归入口；实跑结果 `36 PASS / 2 SKIP / 0 FAIL` |
+| `dotnet/Jvedio.Worker/Services/WorkerPathResolver.cs` | 测试环境固定使用 `test-user`，统一 SQLite / cache/video / actor-avatar 路径 |
+| `doc/testing/e2e/e2e-test-data-spec.md` | 记录默认样本、真实 `test-user` 产物路径和 seed/verify 结论 |
+| `doc/data-directory-convention.md` | 记录正式环境与测试环境的真实 sidecar / 缓存路径差异 |
 
 ## 关键发现（代码调研）
 
@@ -63,3 +71,6 @@ Phase 4 (API 筛选) ← Phase 4.5 (右键重新搜刮) ← Phase 5 (前端) ←
 5. **右键菜单是通用注入式组件**：只需在页面的 `getContextMenuActions()` 中添加新条目
 6. **UI 设计规格已定义"重新抓取元数据"菜单项**：`doc/UI/new/dialogs/video-context-menu.md` 中 6 个标准菜单项已含此项，但代码中 `getContextMenuActions()` 只实现了 5 项（缺 rescrape），本轮补齐实现并接入真实 API
 7. **UI 规格对齐审查（第四轮）**：逐项对比 plan 与 `doc/UI/new/` 定稿后，删除了 5 项超出设计规格的 UI 新增：VideoDetailPage 重新搜刮按钮、VideoDetailPage 失败横幅、VideoCard scrape-failed-badge 文字标签、Toast 弹窗反馈。任务反馈统一走 SSE → invalidateQueries → 行内摘要自动回刷
+8. **Phase 9 已完成**：脚本已全部按当前 `ApiResponse<T>` + `Contracts` 读取，`PUT /api/settings` 改为完整请求体，任务等待改走 `/api/tasks/{id}`。
+9. **默认配置真实结果已确认**：`SNOS-037`、`SDDE-759`、`SDDE-660-C` 产出完整 sidecar 四件套；`FC2-PPV-1788676` 仅产出 stub `.nfo`；演员信息和头像缓存验证已补齐。
+10. **真实产物口径已收敛**：`e2e-env.json` 写出 `effectiveUserName=test-user`、`userDataRoot`、`videoCacheRoot`、`actorAvatarCacheRoot`、`libraries[].libraryId`；最终 verify 结果 `36 PASS / 2 SKIP / 0 FAIL`。

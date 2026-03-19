@@ -6,54 +6,51 @@
 
 | 场景 | 说明 | 需要配置 | 需要联网 |
 |------|------|:--------:|:--------:|
-| **Worker 契约测试**（52 个） | `dotnet test` 直接跑，全自给自足 | ❌ | ❌ |
-| **E2E 播种测试** | 启动 Worker → 创建库 → 扫描 → 可选 MetaTube 抓取 | ✅ | 抓取部分需要 |
+| **Worker 契约测试**（62 个） | `dotnet test` 直接跑，全自给自足 | ❌ | ❌ |
+| **E2E 播种 + 后端验收** | 启动 Worker → 创建库 → 扫描 → 抓取 → verify | ✅ | 抓取部分需要 |
 
 ### 场景 1：Worker 契约测试（零配置）
 
-52 个测试不需要任何配置，直接运行：
+62 个测试不需要任何配置，直接运行：
 
 ```powershell
 cd dotnet/Jvedio.Worker.Tests
 dotnet test --configuration Release
 ```
 
-测试会自动创建临时数据库、临时目录，测完清理，不依赖外部服务。
-
-### 场景 2：E2E 播种测试
+### 场景 2：E2E 播种 + 后端验收
 
 #### 第一步：检查默认配置
 
-默认配置文件 `test-env.json` 已在仓库中提供：
+默认配置文件 [test-env.json](/D:/study/Proj/Jvedio/test-data/config/test-env.json) 已在仓库中提供：
 
 ```json
 {
   "metaTube": {
     "serverUrl": "https://metatube-server.hf.space",
-    "requestTimeoutSeconds": 30
+    "requestTimeoutSeconds": 60
   },
   "seedVideos": {
-    "libA": ["JUR-293-C.mp4", "SNOS-037.mp4", "ABP-001.mp4"],
-    "libB": ["SONE-100.mp4", "MIDV-200.mp4"]
+    "libA": ["SNOS-037.mp4", "SDDE-759.mp4"],
+    "libB": ["sdde-660-c", "FC2-PPV-1788676.mp4"]
   },
-  "scrapeableVids": ["JUR-293-C", "SNOS-037"]
+  "scrapeableVids": ["SNOS-037", "SDDE-759"]
 }
 ```
 
-如果不需要修改默认值，可以直接跳到第三步。
+当前默认样本分三类：
+
+- 成功抓取样本：`SNOS-037`、`SDDE-759`
+- 正常识别样本：`sdde-660-c`，实际会识别为 `SDDE-660-C`
+- 失败抓取样本：`FC2-PPV-1788676`
 
 #### 第二步：（可选）创建本地覆盖
 
-如果你有**自部署的 MetaTube 服务**或想换不同的测试视频：
-
 ```powershell
-# 复制模板
 cp test-data/config/test-env.local.json.example test-data/config/test-env.local.json
-
-# 编辑 test-env.local.json，填入你的配置
 ```
 
-示例 `.local.json`（只需写你想覆盖的字段）：
+示例 `.local.json`：
 
 ```json
 {
@@ -61,79 +58,98 @@ cp test-data/config/test-env.local.json.example test-data/config/test-env.local.
     "serverUrl": "https://your-self-hosted-metatube.example.com"
   },
   "seedVideos": {
-    "libA": ["YOUR-VID-001.mp4", "YOUR-VID-002.mp4"],
-    "libB": ["ANOTHER-VID.mp4"]
+    "libA": ["YOUR-VID-001.mp4"],
+    "libB": ["YOUR-VID-002.mp4"]
   },
   "scrapeableVids": ["YOUR-VID-001"]
 }
 ```
 
-> ⚠️ `.local.json` 已在 `.gitignore` 中排除，不会提交到仓库。
-
 #### 第三步：运行播种脚本
 
 ```powershell
-# 完整播种（含 MetaTube 抓取）
 .\test-data\scripts\seed-e2e-data.ps1
-
-# 跳过 MetaTube 抓取（不需要联网）
 .\test-data\scripts\seed-e2e-data.ps1 -SkipScrape
-
-# 播种后不停 Worker（方便接着手动测试或跑 Playwright）
 .\test-data\scripts\seed-e2e-data.ps1 -SkipWorkerShutdown
-
-# CI / 自动化场景（不等按键）
 .\test-data\scripts\seed-e2e-data.ps1 -NoPause
-
-# 可组合使用
-.\test-data\scripts\seed-e2e-data.ps1 -SkipScrape -NoPause
 ```
 
 播种脚本会自动执行：
 
-1. 创建 `test-data/e2e/videos/lib-a/` 和 `lib-b/` 目录
-2. 根据配置生成 1KB 假视频文件（不可播放，仅供 VID 解析）
-3. 启动 Worker 进程并等待 ready
-4. 通过 API 创建两个媒体库 → 触发扫描
-5. （可选）配置 MetaTube → 触发抓取 → 等待完成 → 验证结果
-   - 抓取成功后产物：
-     - **Sidecar 文件**（NFO + 海报 + 缩略图 + 背景图）→ E2E 目标：`test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/`
-     - **演员头像缓存** → 写入 `test-data/e2e/data/{UserName}/cache/actor-avatar/`
-     - **演员记录** → 回填到 `app_datas.sqlite` 中的 `actor_info` 表
-6. 验证数据入库（视频数量、SQLite、日志）
-7. 输出 `test-data/e2e/e2e-env.json`（供后续 Playwright 使用）
+1. 创建 `test-data/e2e/videos/lib-a/` 和 `lib-b/`。
+2. 根据配置生成测试文件；无扩展名样本会被规范化为可扫描文件名。
+3. 启动 Worker 并等待 ready。
+4. 通过 API 创建两个媒体库、触发两次扫描。
+5. 配置 MetaTube、触发两库抓取，并通过 `/api/tasks/{id}` 等待任务结束。
+6. 写出 `test-data/e2e/e2e-env.json`，包含 `effectiveUserName`、`userDataRoot`、`videoCacheRoot`、`actorAvatarCacheRoot`、`libraries[].libraryId`。
+7. 验证默认样本的真实结果：
+   - `SNOS-037`、`SDDE-759`：标题、`scrapeStatus=full`、演员信息、sidecar 四件套
+   - `sdde-660-c`：被识别为 `SDDE-660-C` 并成功抓取
+   - `FC2-PPV-1788676`：仅生成 stub `.nfo`，不生成 `poster` / `thumb` / `fanart`
+8. 验证演员头像缓存已写入 `test-data/e2e/data/test-user/cache/actor-avatar/`
 
-#### 第四步：清理环境
+#### 第四步：运行后端 verify
 
 ```powershell
-# 基本清理（停 Worker + 重置数据到基线）
-.\test-data\scripts\cleanup-e2e-data.ps1
+.\test-data\scripts\verify-backend-apis.ps1 -NoPause
+```
 
-# 连日志一起清理
+当前默认配置的真实结果：
+
+- `seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 已跑通
+- `verify-backend-apis.ps1 -NoPause` 实跑结果：`36 PASS / 2 SKIP / 0 FAIL`
+- skip 项仅为保护播种环境而保留的删除端点
+
+#### 第五步：清理环境
+
+```powershell
+.\test-data\scripts\cleanup-e2e-data.ps1
 .\test-data\scripts\cleanup-e2e-data.ps1 -CleanLogs
 ```
 
----
+## 真实产物路径
+
+默认配置真实跑通后，`test-user` 下的关键产物路径如下：
+
+```text
+test-data/e2e/data/test-user/
+├─ app_datas.sqlite
+├─ app_configs.sqlite
+└─ cache/
+   ├─ video/
+   │  ├─ E2E-Lib-A/
+   │  │  ├─ SNOS-037/
+   │  │  │  ├─ SNOS-037.nfo
+   │  │  │  ├─ SNOS-037-poster.jpg
+   │  │  │  ├─ SNOS-037-thumb.jpg
+   │  │  │  └─ SNOS-037-fanart.jpg
+   │  │  └─ SDDE-759/
+   │  │     ├─ SDDE-759.nfo
+   │  │     ├─ SDDE-759-poster.jpg
+   │  │     ├─ SDDE-759-thumb.jpg
+   │  │     └─ SDDE-759-fanart.jpg
+   │  └─ E2E-Lib-B/
+   │     ├─ SDDE-660-C/
+   │     │  ├─ SDDE-660-C.nfo
+   │     │  ├─ SDDE-660-C-poster.jpg
+   │     │  ├─ SDDE-660-C-thumb.jpg
+   │     │  └─ SDDE-660-C-fanart.jpg
+   │     └─ FC2-PPV-1788676/
+   │        └─ FC2-PPV-1788676.nfo
+   └─ actor-avatar/
+      └─ *.jpg
+```
 
 ## 自定义测试数据常见场景
 
 | 你想做什么 | 怎么改 |
 |-----------|--------|
 | 换用自己的 MetaTube 服务 | `.local.json` 中覆盖 `metaTube.serverUrl` |
-| 增加 / 减少测试视频 | `.local.json` 中覆盖 `seedVideos.libA` / `libB` 数组 |
+| 增加 / 减少测试视频 | `.local.json` 中覆盖 `seedVideos.libA` / `libB` |
 | 不做 MetaTube 抓取 | 运行时加 `-SkipScrape`，或把 `scrapeableVids` 设为 `[]` |
-| 验证不同 VID 的抓取 | 在 `scrapeableVids` 中填入想验证的 VID（必须同时出现在 `seedVideos` 中） |
+| 验证不同远程可抓取样本 | 在 `scrapeableVids` 中填入远程已确认可命中的 VID |
+| 验证文件名识别能力 | 在 `seedVideos` 中加入无扩展名或大小写变体样本 |
 | 增加请求超时时间 | `.local.json` 中覆盖 `metaTube.requestTimeoutSeconds` |
-
----
-
-## 文件说明
-
-| 文件 | 用途 | 提交到仓库 |
-|------|------|-----------|
-| `test-env.json` | 主配置文件，包含所有测试脚本的默认值 | ✅ 是 |
-| `test-env.local.json` | 本地覆盖（个人自部署地址等），不提交仓库 | ❌ 否 |
-| `test-env.local.json.example` | `.local.json` 的模板，复制后修改即可 | ✅ 是 |
 
 ## 配置项详解
 
@@ -142,68 +158,67 @@ cp test-data/config/test-env.local.json.example test-data/config/test-env.local.
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `serverUrl` | string | `https://metatube-server.hf.space` | MetaTube 服务地址 |
-| `requestTimeoutSeconds` | number | `30` | 单次 HTTP 请求超时秒数 |
+| `requestTimeoutSeconds` | number | `60` | 单次 HTTP 请求超时秒数 |
 
 ### `seedVideos`
 
-播种脚本 (`seed-e2e-data.ps1`) 用于创建假视频文件的文件名列表。
+播种脚本用它生成测试文件，再由扫描链去识别 VID。
 
 | 字段 | 说明 |
 |------|------|
-| `libA` | 媒体库 A 的假视频文件名数组（`{VID}.{ext}` 格式） |
-| `libB` | 媒体库 B 的假视频文件名数组 |
+| `libA` | 媒体库 A 的测试文件名数组 |
+| `libB` | 媒体库 B 的测试文件名数组 |
 
-播种脚本根据这些文件名在 `test-data/e2e/videos/lib-a/` 和 `lib-b/` 下创建 1KB 占位文件。
+说明：
+
+- 支持直接写 `{VID}.{ext}`，例如 `SNOS-037.mp4`
+- 也支持无扩展名输入作为识别样本，例如 `sdde-660-c`
+- 最终验证看的是扫描与抓取后的真实 VID，不是原始输入字符串
 
 ### `scrapeableVids`
 
-MetaTube 上已确认可查到的 VID 列表。
+这里放的是“远端已确认可稳定抓取成功”的样本。
 
-- 抓取验证只检查这些 VID 是否回填了标题、演员等元数据
-- 这些 VID 必须出现在 `seedVideos` 的某个库文件名中（否则库里没有该影片，抓取无效果）
-- 如果为空数组 `[]`，播种脚本跳过抓取验证步骤
+- 当前默认值只包含 `SNOS-037`、`SDDE-759`
+- `sdde-660-c` 不在这个列表里，但仍会在播种链路中验证它能被正确识别并完成抓取
+- 如果为空数组 `[]`，播种脚本跳过抓取验证
 
 ## 覆盖机制
 
-脚本加载顺序：
-
-1. 读取 `test-env.json`（仓库默认值）
-2. 如果存在 `test-env.local.json`，合并覆盖（标量字段直接覆盖，数组字段整体替换）
-3. 最终得到有效配置
-
-> 💡 **合并规则**：标量字段（如 `serverUrl`）逐个覆盖；数组字段（如 `libA`、`scrapeableVids`）整体替换。你只需写想改的字段，未覆盖的字段保持默认值。
+1. 读取 `test-env.json`
+2. 如存在 `test-env.local.json`，则按字段覆盖
+3. 生成最终有效配置
 
 ## 关键文件一览
 
-```
+```text
 test-data/
 ├─ config/
-│  ├─ test-env.json              ← 主配置（提交到仓库）
-│  ├─ test-env.local.json        ← 你的本地覆盖（不提交）
-│  ├─ test-env.local.json.example← 模板
-│  └─ README.md                  ← 本文件
+│  ├─ test-env.json
+│  ├─ test-env.local.json
+│  ├─ test-env.local.json.example
+│  └─ README.md
 ├─ scripts/
-│  ├─ seed-e2e-data.ps1          ← 播种脚本
-│  ├─ verify-backend-apis.ps1    ← 后端 API 校验脚本（31 个端点）
-│  └─ cleanup-e2e-data.ps1       ← 清理脚本
-└─ e2e/                          ← 播种产物（运行时生成）
-   ├─ videos/lib-a/              ← 假视频文件
-   ├─ videos/lib-b/
-   ├─ data/{UserName}/
-   │  ├─ *.sqlite                ← SQLite 数据库
+│  ├─ seed-e2e-data.ps1
+│  ├─ verify-backend-apis.ps1
+│  └─ cleanup-e2e-data.ps1
+└─ e2e/
+   ├─ videos/
+   │  ├─ lib-a/
+   │  └─ lib-b/
+   ├─ data/test-user/
+   │  ├─ *.sqlite
    │  └─ cache/
-   │     ├─ video/{LibName}/{VID}/  ← E2E 目标：sidecar 缓存（NFO/海报等）
-   │     └─ actor-avatar/        ← 演员头像缓存（抓取时自动下载）
-   └─ e2e-env.json               ← Playwright 环境信息
+   │     ├─ video/{LibraryName}/{VID}/
+   │     └─ actor-avatar/
+   └─ e2e-env.json
 ```
-
-> **注**：`test-data/**/cache/` 已在 `.gitignore` 中排除，sidecar 缓存和演员头像缓存都不会提交到仓库。E2E 目标路径下 sidecar 从影片目录迁移到 `data/{UserName}/cache/video/{LibName}/{VID}/`（当前 Release 代码仍写入影片目录，后续 Phase 4 适配）。
 
 ## 消费者
 
 | 消费者 | 消费方式 | 读取字段 |
 |--------|---------|---------|
-| `seed-e2e-data.ps1` | `Get-Content ... \| ConvertFrom-Json` | 全部字段 |
-| `verify-backend-apis.ps1` | 通过 `e2e-env.json` 间接消费 | `baseUrl`、`libraries`（播种后运行） |
-| `ScrapeApiTests.cs` | `JsonSerializer.Deserialize()` | `metaTube.*` + `scrapeableVids` |
-| Playwright E2E | 通过 `e2e-env.json` 间接消费 | 不直接读取 |
+| `seed-e2e-data.ps1` | 直接读取 `test-env.json` / `.local.json` | 全部字段 |
+| `verify-backend-apis.ps1` | 读取 `e2e-env.json` | `baseUrl`、`libraries`、`effectiveUserName`、`userDataRoot`、`videoCacheRoot`、`actorAvatarCacheRoot` |
+| `ScrapeApiTests.cs` | 反序列化配置 | `metaTube.*`、`scrapeableVids` |
+| Playwright E2E | 间接读取 `e2e-env.json` | 不直接读取配置文件 |

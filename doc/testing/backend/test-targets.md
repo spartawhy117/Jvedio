@@ -117,20 +117,21 @@ Worker API 契约测试指：
 - 使用 `VID` 前缀命名
 
 正式缓存：
-- `cache/video/` 仅保留一份当前有效影片缓存
 - `cache/actor-avatar/` 保存正式演员头像缓存
 
 E2E 测试环境（播种脚本运行时）的路径对照：
 
 | 产物 | 正式运行路径 | E2E 测试路径（目标） |
 |------|-------------|-------------------|
-| Sidecar（NFO/海报等） | 影片所在目录 | `test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/` |
-| 演员头像缓存 | `data/{user}/cache/actor-avatar/` | `test-data/e2e/data/{UserName}/cache/actor-avatar/` |
-| 影片 JSON 缓存 | `data/{user}/cache/video/` | `test-data/e2e/data/{UserName}/cache/video/` |
+| Sidecar（NFO/海报等） | 影片所在目录 | `test-data/e2e/data/test-user/cache/video/{LibraryName}/{VID}/` |
+| 演员头像缓存 | `data/{user}/cache/actor-avatar/` | `test-data/e2e/data/test-user/cache/actor-avatar/` |
 
-> **E2E sidecar 目标路径变更**：E2E 环境下 sidecar 从影片目录迁移到 `data/{UserName}/cache/video/{LibName}/{VID}/`（方案 B：按库名分子目录），与演员头像缓存路径统一管理。当前 Release 代码仍写入影片目录，此目标路径将在后续 Worker 测试环境路径适配时实现。
->
-> E2E 测试通过 `JVEDIO_APP_BASE_DIR=test-data/e2e` 实现路径隔离，Worker 的 `WorkerPathResolver` 自动计算出测试环境下的缓存目录。`.gitignore` 中 `test-data/**/cache/` 规则确保这些缓存不被提交。
+说明：
+
+- E2E 环境当前已经真实落到上述 `test-user` 路径，不再停留在历史文档的假设描述
+- `sdde-660-c` 必须被识别为有效样本 `SDDE-660-C`
+- `FC2-PPV-1788676` 必须保留影片并只生成 stub `.nfo`
+- `.gitignore` 中 `test-data/**/cache/` 规则确保这些缓存不被提交
 
 主程序内置调试输出：
 - 只写入 `log/test/<VID>/`
@@ -143,8 +144,8 @@ E2E 测试环境（播种脚本运行时）的路径对照：
 - 日志目录：`log/test/worker-tests/runtime/`
 
 **E2E 播种测试**（`seed-e2e-data.ps1`）：
-- 数据目录：`test-data/e2e/data/{UserName}/`（含 SQLite + 演员头像缓存）
-- 影片 sidecar（E2E 目标）：`test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/`
+- 数据目录：`test-data/e2e/data/test-user/`（含 SQLite + 演员头像缓存）
+- 影片 sidecar：`test-data/e2e/data/test-user/cache/video/{LibraryName}/{VID}/`
 - 日志目录：`log/test/e2e/runtime/`
 
 **后端 API 校验**（`verify-backend-apis.ps1`）：
@@ -152,6 +153,12 @@ E2E 测试环境（播种脚本运行时）的路径对照：
 - 覆盖 Worker 全部 31 个 API 端点（8 个 Controller）
 - 跳过破坏性删除操作，保护播种数据
 - 退出码等于失败数（0 = 全通过）
+
+当前默认配置的真实结论：
+
+- `SNOS-037`、`SDDE-759`、`SDDE-660-C`：`scrapeStatus=full`，有演员信息和 sidecar 四件套
+- `FC2-PPV-1788676`：`scrapeStatus=failed`，仅有 stub `.nfo`
+- `verify-backend-apis.ps1 -NoPause`：`36 PASS / 2 SKIP / 0 FAIL`
 
 这两类测试使用独立的数据目录，互不影响，也不污染主程序正式 `data/` 目录。
 

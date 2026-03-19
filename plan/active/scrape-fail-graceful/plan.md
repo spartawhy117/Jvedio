@@ -96,6 +96,12 @@
 
 ---
 
+### Phase 9：E2E backend verify 链路收口 — 脚本报错修复 + 产出目录对齐 ✅
+
+> **已完成摘要**：先补齐执行环境并打通 Release 构建，再修复 `seed-e2e-data.ps1` / `verify-backend-apis.ps1` 对旧 `ApiResponse<T>` 字段、Settings 半包体、任务轮询和无扩展名样本的错误假设；`WorkerPathResolver.cs` 在测试环境固定落到 `test-user`。基于真实默认配置 `libA=[SNOS-037.mp4, SDDE-759.mp4]`、`libB=[sdde-660-c, FC2-PPV-1788676.mp4]` 实跑通过：`SNOS-037`、`SDDE-759`、`SDDE-660-C` 生成完整 sidecar 四件套，`FC2-PPV-1788676` 仅生成 stub NFO。真实产物路径已收敛为 `test-data/e2e/data/test-user/cache/video/E2E-Lib-A|B/{VID}/` 和 `test-data/e2e/data/test-user/cache/actor-avatar/`，`e2e-env.json` 已写出 `effectiveUserName`、`userDataRoot`、`videoCacheRoot`、`actorAvatarCacheRoot`、`libraries[].libraryId`。最终 `verify-backend-apis.ps1 -NoPause` 结果：`36 PASS / 2 SKIP / 0 FAIL`，跳过项仅为保护播种环境的删除端点。
+
+---
+
 ## 影响面汇总
 
 | 层级 | 修改文件 | 变更类型 |
@@ -122,30 +128,37 @@
 | **测试** | `VideosApiTests.cs` | +3 测试（含重新搜刮后状态） |
 | **E2E 脚本** | `seed-e2e-data.ps1` | 验证 ScrapeStatus |
 | **E2E 脚本** | `verify-backend-apis.ps1` | 新增字段校验 + 单影片搜刮端点校验 |
+| **E2E 脚本** | `seed-e2e-data.ps1` + `verify-backend-apis.ps1` | **Phase 9：修复 Contracts 漂移导致的脚本报错，补齐 e2e-env.json 产物定位信息** |
+| **Worker Service** | `WorkerPathResolver.cs` | **Phase 9：统一测试环境用户目录 / cache/video / actor-avatar 路径口径** |
 | **文档** | 7 个文档 | 同步更新（删除了对不存在的 Phase 10 的引用） |
+| **文档** | `e2e-test-data-spec.md` / `data-directory-convention.md` / `test-data/config/README.md` | **Phase 9：统一播种、verify、Worker 实际产出目录说明** |
 
 ---
 
-## 通过标准
+## 实际验收结果
 
-- [ ] 抓取失败的影片在 sidecar 目录下有 stub NFO 文件
-- [ ] stub NFO 仅含 `<movie><num>VID</num></movie>`，不含其他元数据
-- [ ] `metadata_video.ScrapeStatus` 正确记录 `none` / `full` / `failed`
-- [ ] VideoCard 无海报时显示占位图而非 emoji
-- [ ] ~~VideoCard 抓取失败时显示"抓取失败"标识~~ **已删除**（设计规格：不在卡片上扩展成大 badge 区）
-- [ ] ~~VideoDetailPage 抓取失败时显示提示横幅~~ **已删除**（设计规格中无此元素）
-- [ ] 列表支持按 `scrapeStatus` 筛选
-- [ ] **右键菜单"重新抓取元数据"按设计规格可见且接入真实搜刮 API**（LibraryPage + FavoritesPage + ActorDetailPage）
-- [ ] ~~**VideoDetailPage "重新获取元数据"按钮可见且可点击**~~ **已删除**（设计规格中详情页无此按钮）
-- [ ] **右键重新搜刮 → Worker 只搜刮该单部影片（不全库重刷）**
-- [ ] **搜刮成功后 stub NFO 被完整 NFO 覆盖，poster/thumb/fanart 正确写入**
-- [ ] **搜刮成功后 ScrapeStatus 从 `failed` 更新为 `full`**
-- [ ] **搜刮成功后前端自动刷新：VideoCard 海报从占位图切换为真实图**
-- [ ] **搜刮成功后 VideoDetailPage 自动刷新：sidecar badge 全部 synced + 海报和元数据填充**
-- [ ] 52 + 10 = 62 个测试全部通过
-- [ ] E2E 播种脚本验证 ScrapeStatus 字段
-- [ ] verify 脚本校验新增字段 + 单影片搜刮端点
-- [ ] 7 个文档全部同步（AGENTS.md + CHANGELOG + 3 个测试文档 + e2e-test-data-spec + desktop-ui-shell-refactor handoff）
+### 后端验收
+
+- 已完成运行环境补齐并成功生成 Release 构建。
+- `seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 按真实配置跑通，`e2e-env.json` 已写出当前 worker 地址、库 ID、`test-user` 根目录和缓存路径。
+- 默认测试样本实跑结果：成功抓取 `SNOS-037`、`SDDE-759`；`sdde-660-c` 被正常识别为 `SDDE-660-C` 并完成抓取；`FC2-PPV-1788676` 抓取失败但保留影片并写出 stub NFO。
+- 真实产物路径为：
+
+```text
+test-data/e2e/data/test-user/cache/video/E2E-Lib-A/SNOS-037/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-A/SDDE-759/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-B/SDDE-660-C/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-B/FC2-PPV-1788676/
+test-data/e2e/data/test-user/cache/actor-avatar/
+```
+
+- 成功样本具备标题、`scrapeStatus=full`、演员信息和 sidecar 四件套；失败样本 `FC2-PPV-1788676` 仅保留 stub `.nfo`，不生成 `poster` / `thumb` / `fanart`。
+- `verify-backend-apis.ps1 -NoPause` 实际结果为 `36 PASS / 2 SKIP / 0 FAIL`；skip 仅为保护播种环境而保留的删除端点。
+
+### 前端验收
+
+- 本轮 `ps1` 脚本执行范围仅覆盖后端验收。
+- 前端相关改动只做到 Release 构建打通，不把 UI 表现项计入本轮脚本通过标准。
 
 ---
 
@@ -160,3 +173,5 @@
 | `VideoIds` 单影片搜刮走的仍是全库搜刮端点，任务名显示为"库搜刮" | 可接受（本轮不改任务命名），后续可优化为"单片搜刮"任务类型 |
 | 前端 `StartLibraryScrapeRequest` 字段对齐可能影响其他调用方 | 所有新增字段都是 optional + 有后端默认值，不影响已有调用 |
 | FavoritesPage 右键重新搜刮需要知道影片的 `libraryId` | DTO 新增 `libraryId` 字段（Phase 3 + 5.2），API 层面已经可查 |
+| E2E 脚本继续读取旧返回字段导致播种或 verify 在 StrictMode 下中断 | Phase 9 统一按当前 Contracts 重写关键响应读取，并增加字段存在性保护 |
+| 测试环境目录同时出现 `test-user` 和实际 Windows 用户名，导致 sidecar / SQLite / 头像检查路径漂移 | Phase 9 明确测试环境有效用户目录规则，并把该值写入 `e2e-env.json` 供 verify 复用 |

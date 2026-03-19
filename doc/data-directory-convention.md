@@ -57,8 +57,9 @@
 | 缓存类型 | 路径 | 命名规则 | 写入时机 |
 |---------|------|---------|---------|
 | 演员头像 | `data/{用户名}/cache/actor-avatar/` | `{actorId}.jpg` 或 `{SHA1(name)}.jpg` | MetaTube 搜刮下载 |
+| 测试环境 sidecar 缓存 | `data/test-user/cache/video/{LibraryName}/{VID}/` | `{VID}.nfo`、`{VID}-poster.jpg`、`{VID}-thumb.jpg`、`{VID}-fanart.jpg` | E2E / 测试环境搜刮 |
 
-> **注意**：旧版 WPF `PathManager.cs` 中定义了 `cache/video/` 和 `cache/library-image/`，但当前 Worker 端不使用这两个路径。
+> **注意**：正式环境 sidecar 仍写入影片目录；`cache/video/` 是当前测试环境下的真实 sidecar 输出位置，不再沿用旧文档中的错误表述。
 
 ## 3. 路径推断规则
 
@@ -76,9 +77,11 @@ Release 模式下，Worker exe 位于 `{repo}/dotnet/Jvedio.Worker/bin/Release/n
 
 ### 3.2 CurrentUserFolder（用户目录）
 
-```
+```text
 {SharedAppBaseDirectory}/data/{Environment.UserName}
 ```
+
+默认使用 `Environment.UserName`。当 `JVEDIO_APP_BASE_DIR` 指向测试数据根目录（如 `test-data/e2e/` 或 `test-data/worker/`）时，Worker 当前会固定使用 `test-user`，确保 SQLite、`cache/video/`、`cache/actor-avatar/` 和文档中的测试路径口径一致。
 
 如果创建失败（权限等原因），fallback 到 `{SharedAppBaseDirectory}/data/`。
 
@@ -135,22 +138,29 @@ ABP-001/
 
 命名规则：`{SanitizeFileName(VID)}-{类型}.jpg`，前缀优先级：VID > 文件名 > `"video"`。
 
-#### E2E 测试环境目标路径
+#### E2E 测试环境实际路径
 
-E2E 测试环境下，sidecar 的**目标路径**从影片目录迁移到用户数据缓存目录（方案 B：按库名分子目录）：
+E2E 测试环境下，sidecar 的实际输出路径位于用户数据缓存目录（按库名分子目录）：
 
 ```
-data/{UserName}/cache/video/{LibName}/{VID}/
+data/test-user/cache/video/{LibraryName}/{VID}/
 ├── {VID}.nfo
 ├── {VID}-poster.jpg
 ├── {VID}-thumb.jpg
 └── {VID}-fanart.jpg
 ```
 
-实际示例：`test-data/e2e/data/test-user/cache/video/lib-a/ABP-001/ABP-001.nfo`
+实际示例：
 
-> **当前状态**：Release 代码仍将 sidecar 写入影片目录。此目标路径将在后续 Worker 测试环境路径适配（Phase 4）时实现。
-> `.gitignore` 中 `test-data/**/cache/` 规则确保 E2E sidecar 缓存不被提交。
+- `test-data/e2e/data/test-user/cache/video/E2E-Lib-A/SNOS-037/SNOS-037.nfo`
+- `test-data/e2e/data/test-user/cache/video/E2E-Lib-B/FC2-PPV-1788676/FC2-PPV-1788676.nfo`
+
+说明：
+
+- 正式环境：sidecar 写回影片目录
+- 测试环境：sidecar 写入 `data/test-user/cache/video/{LibraryName}/{VID}/`
+- 失败抓取样本只写 stub `.nfo`，不写三张图片
+- `.gitignore` 中 `test-data/**/cache/` 规则确保这些缓存不被提交
 
 ### 4.4 VID 解析规则
 
@@ -187,7 +197,7 @@ data/{UserName}/cache/video/{LibName}/{VID}/
 | **用户目录** | `data/{Windows用户名}/` | `data/test-user/` | `data/test-user/` |
 | **SQLite** | 同上 + `Mode=ReadWriteCreate` | 空文件 → Worker 自动建表 | 空文件 → Worker 自动建表 |
 | **日志** | `{repo}/log/runtime/` | `{repo}/log/test/worker-tests/runtime/` | `{repo}/log/test/e2e/runtime/` |
-| **生命周期** | 用户手动关闭 | 每次测试先清空再重建，测试后保留 | 持久化到 git，可 `git checkout` 重置 |
+| **生命周期** | 用户手动关闭 | 每次测试先清空再重建，测试后保留 | 由播种脚本生成，清理脚本重置 |
 | **git 跟踪** | ❌ | ✅ 基线 SQLite | ✅ 基线 SQLite + 假视频文件 |
 
 > 详细的后端测试数据隔离方案见 `doc/testing/backend/test-plan.md` §6；E2E 测试数据规范见 `doc/testing/e2e/e2e-test-data-spec.md`。
