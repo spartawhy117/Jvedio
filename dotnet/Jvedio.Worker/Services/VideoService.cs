@@ -40,7 +40,7 @@ public sealed class VideoService
 
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
         var videos = LoadLibraryVideos(connection, library.LibraryId, library.Name);
-        var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly);
+        var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly, request.ScrapeStatus);
         var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
 
         return new GetLibraryVideosResponse
@@ -152,6 +152,7 @@ public sealed class VideoService
             Plot = record.Value.Plot,
             ReleaseDate = NullIfWhiteSpace(record.Value.ReleaseDate),
             Rating = record.Value.Rating,
+            ScrapeStatus = record.Value.ScrapeStatus,
             Series = record.Value.Series,
             Sidecars = sidecars,
             Studio = record.Value.Studio,
@@ -484,7 +485,8 @@ public sealed class VideoService
                    IFNULL(metadata.Rating, 0),
                    IFNULL(metadata_video.VID, ''),
                    IFNULL(metadata_video.Duration, 0),
-                   IFNULL(metadata.FavoriteCount, 0)
+                   IFNULL(metadata.FavoriteCount, 0),
+                   IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DBId = $libraryId
@@ -501,6 +503,7 @@ public sealed class VideoService
             var path = reader.GetString(3);
             var vid = reader.GetString(9);
             var favoriteCount = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11));
+            var scrapeStatus = reader.GetString(12);
             var sidecars = BuildSidecarState(path, vid, libraryName);
             result.Add(new VideoListItemDto
             {
@@ -518,6 +521,7 @@ public sealed class VideoService
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
                 Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
@@ -544,7 +548,8 @@ public sealed class VideoService
                    IFNULL(metadata.Rating, 0),
                    IFNULL(metadata.FavoriteCount, 0),
                    IFNULL(metadata_video.VID, ''),
-                   IFNULL(metadata_video.Duration, 0)
+                   IFNULL(metadata_video.Duration, 0),
+                   IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DataType = 0
@@ -561,6 +566,7 @@ public sealed class VideoService
             var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
             var vid = reader.GetString(10);
+            var scrapeStatus = reader.GetString(12);
             if (!libraryNameCache.TryGetValue(libId, out var libName))
             {
                 libName = libraryService.GetLibrary(libId)?.Name;
@@ -583,6 +589,7 @@ public sealed class VideoService
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
                 Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
@@ -678,7 +685,8 @@ public sealed class VideoService
                    IFNULL(metadata.Genre, ''),
                    IFNULL(metadata_video.VID, ''),
                    IFNULL(metadata_video.Duration, 0),
-                   IFNULL(metadata_video.Series, '')
+                   IFNULL(metadata_video.Series, ''),
+                   IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DataType = 0
@@ -705,6 +713,7 @@ public sealed class VideoService
             var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
             var vid = reader.GetString(10);
+            var scrapeStatus = reader.GetString(13);
             if (!libraryNameCache.TryGetValue(libId, out var libName))
             {
                 libName = libraryService.GetLibrary(libId)?.Name;
@@ -727,6 +736,7 @@ public sealed class VideoService
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
                 Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
@@ -740,7 +750,8 @@ public sealed class VideoService
     private static List<VideoListItemDto> ApplyVideoFilters(
         IEnumerable<VideoListItemDto> videos,
         string? keyword,
-        bool missingSidecarOnly)
+        bool missingSidecarOnly,
+        string? scrapeStatus = null)
     {
         var result = videos.ToList();
         var normalizedKeyword = keyword?.Trim() ?? string.Empty;
@@ -758,6 +769,11 @@ public sealed class VideoService
         if (missingSidecarOnly)
         {
             result = result.Where(video => video.HasMissingAssets).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(scrapeStatus))
+        {
+            result = result.Where(video => string.Equals(video.ScrapeStatus, scrapeStatus, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         return result;
@@ -817,7 +833,8 @@ public sealed class VideoService
                    IFNULL(metadata_video.Plot, ''),
                    IFNULL(metadata_video.Outline, ''),
                    IFNULL(metadata_video.WebUrl, ''),
-                   IFNULL(metadata.FavoriteCount, 0)
+                   IFNULL(metadata.FavoriteCount, 0),
+                   IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DataID = $videoId
@@ -850,7 +867,8 @@ public sealed class VideoService
             reader.GetString(14),
             reader.GetString(15),
             reader.GetString(16),
-            reader.IsDBNull(17) ? 0 : Convert.ToInt32(reader.GetValue(17)));
+            reader.IsDBNull(17) ? 0 : Convert.ToInt32(reader.GetValue(17)),
+            reader.GetString(18));
     }
 
     private List<VideoActorDto> LoadActors(SqliteConnection connection, long dataId)
@@ -1090,7 +1108,8 @@ public sealed class VideoService
         string Plot,
         string Outline,
         string WebUrl,
-        int FavoriteCount);
+        int FavoriteCount,
+        string ScrapeStatus);
 
     private readonly record struct PagedVideoResult(
         IReadOnlyList<VideoListItemDto> Items,

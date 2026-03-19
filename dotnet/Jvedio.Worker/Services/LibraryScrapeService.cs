@@ -92,6 +92,9 @@ public sealed class LibraryScrapeService
                 if (selectedMovie is null)
                 {
                     failedCount++;
+                    if (request.WriteSidecars)
+                        await WriteStubSidecarAsync(candidate.Path, candidate.Vid, library.Name, cancellationToken);
+                    PersistScrapeStatus(connection, candidate.DataId, "failed");
                     continue;
                 }
 
@@ -99,6 +102,9 @@ public sealed class LibraryScrapeService
                 if (movieInfo is null)
                 {
                     failedCount++;
+                    if (request.WriteSidecars)
+                        await WriteStubSidecarAsync(candidate.Path, candidate.Vid, library.Name, cancellationToken);
+                    PersistScrapeStatus(connection, candidate.DataId, "failed");
                     continue;
                 }
 
@@ -135,6 +141,7 @@ public sealed class LibraryScrapeService
 
                 var scrapeResult = MapScrapeResult(movieInfo, actorResults);
                 PersistScrapeResult(connection, candidate, scrapeResult);
+                PersistScrapeStatus(connection, candidate.DataId, "full");
                 if (request.WriteSidecars)
                 {
                     await WriteSidecarsAsync(candidate.Path, candidate.Vid, scrapeResult, request.DownloadActorAvatars, library.Name, cancellationToken);
@@ -147,6 +154,16 @@ public sealed class LibraryScrapeService
             {
                 failedCount++;
                 logger.LogWarning(ex, "[Worker-HomeMvp] Failed to scrape video {Vid}", candidate.Vid);
+                try
+                {
+                    if (request.WriteSidecars)
+                        await WriteStubSidecarAsync(candidate.Path, candidate.Vid, library.Name, cancellationToken);
+                    PersistScrapeStatus(connection, candidate.DataId, "failed");
+                }
+                catch (Exception stubEx)
+                {
+                    logger.LogWarning(stubEx, "[Worker-HomeMvp] Failed to write stub sidecar for {Vid}", candidate.Vid);
+                }
             }
         }
 
@@ -165,7 +182,8 @@ public sealed class LibraryScrapeService
                    IFNULL(metadata.ReleaseDate, ''),
                    IFNULL(metadata_video.VID, ''),
                    IFNULL(metadata_video.WebUrl, ''),
-                   IFNULL(metadata_video.ImageUrls, '')
+                   IFNULL(metadata_video.ImageUrls, ''),
+                   IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DBId = $libraryId
@@ -189,7 +207,8 @@ public sealed class LibraryScrapeService
                 reader.GetString(3),
                 reader.GetString(4),
                 reader.GetString(5),
-                reader.GetString(6));
+                reader.GetString(6),
+                reader.GetString(7));
 
             if (!File.Exists(candidate.Path) || string.IsNullOrWhiteSpace(candidate.Vid))
             {
@@ -198,6 +217,13 @@ public sealed class LibraryScrapeService
 
             if (requestedIds.Count > 0 && !requestedIds.Contains(candidate.DataId.ToString()))
             {
+                continue;
+            }
+
+            // VideoIds specified (right-click rescrape): bypass NeedsScrape and ScrapeStatus check
+            if (requestedIds.Count > 0)
+            {
+                result.Add(candidate);
                 continue;
             }
 
@@ -212,6 +238,12 @@ public sealed class LibraryScrapeService
 
     private bool NeedsScrape(ScrapeCandidate candidate, string libraryName)
     {
+        // Already tried and failed — skip in missing-only mode (user can use mode=all to force retry)
+        if (string.Equals(candidate.ScrapeStatus, "failed", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(candidate.Title) || string.IsNullOrWhiteSpace(candidate.WebUrl))
         {
             return true;
@@ -223,6 +255,30 @@ public sealed class LibraryScrapeService
         var thumbPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}-thumb.jpg");
         var fanartPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}-fanart.jpg");
         return !File.Exists(nfoPath) || !File.Exists(posterPath) || !File.Exists(thumbPath) || !File.Exists(fanartPath);
+    }
+
+    private async Task WriteStubSidecarAsync(string videoPath, string vid, string libraryName, CancellationToken ct)
+    {
+        var sanitizedVid = SanitizeFileName(vid);
+        var sidecarDir = ResolveSidecarDirectory(videoPath, vid, libraryName);
+        Directory.CreateDirectory(sidecarDir);
+
+        var nfoPath = Path.Combine(sidecarDir, $"{sanitizedVid}.nfo");
+        if (!File.Exists(nfoPath))
+        {
+            var stubNfo = $"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<movie>\n  <num>{vid}</num>\n</movie>";
+            await File.WriteAllTextAsync(nfoPath, stubNfo, Encoding.UTF8, ct);
+        }
+        // Do not write poster/thumb/fanart — keep them missing so the frontend shows the placeholder image
+    }
+
+    private static void PersistScrapeStatus(SqliteConnection connection, long dataId, string status)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "UPDATE metadata_video SET ScrapeStatus = $status WHERE DataID = $dataId";
+        cmd.Parameters.AddWithValue("$status", status);
+        cmd.Parameters.AddWithValue("$dataId", dataId);
+        cmd.ExecuteNonQuery();
     }
 
     private void PersistScrapeResult(SqliteConnection connection, ScrapeCandidate candidate, ScrapeResultData scrapeResult)
@@ -568,7 +624,7 @@ public sealed class LibraryScrapeService
         await sourceStream.CopyToAsync(fileStream, cancellationToken);
     }
 
-    private readonly record struct ScrapeCandidate(long DataId, string Path, string Title, string ReleaseDate, string Vid, string WebUrl, string ImageUrls);
+    private readonly record struct ScrapeCandidate(long DataId, string Path, string Title, string ReleaseDate, string Vid, string WebUrl, string ImageUrls, string ScrapeStatus);
 
     private readonly record struct ScrapeResultData(
         string Provider,
