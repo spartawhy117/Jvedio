@@ -161,21 +161,53 @@ videos/lib-a/                        videos/lib-a/
 
 ## 6. 播种脚本（自动化）
 
-**脚本位置**：`tauri/scripts/seed-e2e-data.ps1`（Phase 10 实现，幂等可重跑）
+**脚本位置**：`test-data/scripts/seed-e2e-data.ps1`（幂等可重跑）
 
-脚本自动执行上述步骤 2~4，并输出 `test-data/e2e/e2e-env.json` 供 Playwright 读取。
+脚本一键完成以下全部步骤：
+
+| 步骤 | 动作 |
+|------|------|
+| 1 | 创建 `test-data/e2e/` 目录结构（每次先清空 `videos/` 和 `data/`） |
+| 2 | 生成 5 个假视频文件（各 1 KB） |
+| 3 | 设置 `JVEDIO_APP_BASE_DIR` / `JVEDIO_LOG_DIR` 环境变量 |
+| 4 | 启动 Worker 并等待 `JVEDIO_WORKER_READY` 信号（超时 60s） |
+| 5 | 通过 API 创建 2 个媒体库 + 触发扫描 |
+| 6 | 验证数据入库（库 A=3 部、库 B=2 部、SQLite 存在、日志存在） |
+| 7 | 输出 `test-data/e2e/e2e-env.json`（含 baseUrl、PID、库 ID 等）供 Playwright 读取 |
+
+```powershell
+# 基本用法（播种后停止 Worker）
+.\test-data\scripts\seed-e2e-data.ps1
+
+# CI / 自动化（跳过 "Press any key"）
+.\test-data\scripts\seed-e2e-data.ps1 -NoPause
+
+# 播种后保持 Worker 运行（接着跑 Playwright）
+.\test-data\scripts\seed-e2e-data.ps1 -SkipWorkerShutdown
+```
 
 ## 7. 测试后清理
 
+**脚本位置**：`test-data/scripts/cleanup-e2e-data.ps1`
+
+清理脚本自动执行：
+
+| 步骤 | 动作 |
+|------|------|
+| 1 | 停止 Worker 进程（从 `e2e-env.json` 读 PID，或按进程名查找） |
+| 2 | `git checkout` 重置 `test-data/e2e/data/` 和 `videos/`（撤销扫描整理） |
+| 3 | 清除 `JVEDIO_APP_BASE_DIR` / `JVEDIO_LOG_DIR` 环境变量 |
+| 4 | （可选）清理 `log/test/e2e/` 日志 |
+
 ```powershell
-# 停止 Worker 进程
-# 重置 SQLite 到基线版本（可选）
-git checkout test-data/e2e/data/
-# 重置假视频到播种前状态（可选，撤销扫描整理）
-git checkout test-data/e2e/videos/
-# 清除环境变量
-Remove-Item Env:JVEDIO_APP_BASE_DIR -ErrorAction SilentlyContinue
-Remove-Item Env:JVEDIO_LOG_DIR -ErrorAction SilentlyContinue
+# 基本用法
+.\test-data\scripts\cleanup-e2e-data.ps1
+
+# 同时清理日志
+.\test-data\scripts\cleanup-e2e-data.ps1 -CleanLogs
+
+# CI / 自动化
+.\test-data\scripts\cleanup-e2e-data.ps1 -NoPause -CleanLogs
 ```
 
 ## 8. 维护规则

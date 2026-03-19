@@ -361,12 +361,17 @@ _tauri-jobid.txt
 !/log/**/.gitkeep
 !/log/test/test-output.txt
 
-# Test data — track E2E baseline (fake videos + SQLite), ignore worker (rebuilt each run)
+# Test data — track E2E baseline (fake videos + SQLite) and scripts, ignore worker (rebuilt each run)
 !/test-data/
 !/test-data/e2e/
 !/test-data/e2e/**
+!/test-data/scripts/
+!/test-data/scripts/**
 test-data/worker/
 test-data/**/cache/
+test-data/e2e/e2e-env.json
+test-data/e2e/worker-stdout.log
+test-data/e2e/worker-stderr.log
 
 # Test logs — allow tracking (override *.log rule)
 !/log/test/**

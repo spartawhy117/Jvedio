@@ -45,6 +45,8 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - 全量：`dotnet/Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
 - 单元测试：`dotnet/Jvedio.Worker.Tests/scripts/run-unit-tests.ps1`
 - 集成测试：`dotnet/Jvedio.Worker.Tests/scripts/run-integration-tests.ps1`
+- E2E 播种：`test-data/scripts/seed-e2e-data.ps1`
+- E2E 清理：`test-data/scripts/cleanup-e2e-data.ps1`
 
 支持：
 - 双击运行
