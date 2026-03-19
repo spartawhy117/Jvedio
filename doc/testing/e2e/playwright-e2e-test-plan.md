@@ -195,7 +195,8 @@ WorkerContext 改动约 100 行（含环境检测 + 自动发现），Program.cs
 ## 10. 文档关联
 
 - 验证矩阵：`plan/active/desktop-ui-shell-refactor/validation.md`
-- 已有测试计划：`doc/test-plan.md`
-- 已有测试清单：`doc/test-current-suite.md`
-- 测试目标：`doc/test-targets.md`
+- 后端测试计划：`doc/testing/backend/test-plan.md`
+- 后端测试清单：`doc/testing/backend/test-current-suite.md`
+- 测试目标：`doc/testing/backend/test-targets.md`
+- E2E 用例清单：`doc/testing/e2e/playwright-e2e-test-cases.md`
 - 工作日志：`.codebuddy/memory/2026-03-19.md`

@@ -113,6 +113,6 @@
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：
-  - `doc/test-targets.md`
+  - `doc/testing/backend/test-targets.md`
 - 如果测试工程结构、脚本或配置变化，同时更新：
-  - `doc/test-plan.md`
+  - `doc/testing/backend/test-plan.md`

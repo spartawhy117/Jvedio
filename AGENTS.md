@@ -115,9 +115,12 @@
 ## 文档索引
 - 开发总览：`doc/developer.md`
 - MetaTube 历史计划归档：`plan/archive/metatube-only-plan/README.md`
-- 测试目标文档：`doc/test-targets.md`
-- 测试计划文档：`doc/test-plan.md`
-- 当前测试清单：`doc/test-current-suite.md`
+- 测试文档索引：`doc/testing/README.md`
+- 测试目标文档：`doc/testing/backend/test-targets.md`
+- 测试计划文档：`doc/testing/backend/test-plan.md`
+- 当前测试清单：`doc/testing/backend/test-current-suite.md`
+- Playwright 执行方案：`doc/testing/e2e/playwright-e2e-test-plan.md`
+- E2E 用例清单：`doc/testing/e2e/playwright-e2e-test-cases.md`
 - 变更日志：`doc/CHANGELOG.md`
 
 ## UI 文档规则

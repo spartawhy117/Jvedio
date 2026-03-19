@@ -12,10 +12,10 @@
 - 新增模块测试时要怎么落地？
 
 本文件不负责定义测试目标与断言边界；这些内容统一放在：
-- `doc/test-targets.md`
+- `doc/testing/backend/test-targets.md`
 
 本文件也不负责维护当前测试清单；当前已实现的测试项统一放在：
-- `doc/test-current-suite.md`
+- `doc/testing/backend/test-current-suite.md`
 
 ## 2. 当前测试工程结构
 
@@ -203,11 +203,11 @@ Jvedio.Test/
 3. 如需数据驱动，新增 `config/<suite>/xxx.json`
 4. 如需输出文件，写入 `config/<suite>/output/`
 5. 更新：
-   - `doc/test-current-suite.md`
+   - `doc/testing/backend/test-current-suite.md`
 6. 如果测试目标边界变了，再更新：
-   - `doc/test-targets.md`
+   - `doc/testing/backend/test-targets.md`
 7. 如果目录结构、脚本、执行方式变了，再更新：
-   - `doc/test-plan.md`
+   - `doc/testing/backend/test-plan.md`
 
 ## 10. 文档更新规则
 
