@@ -95,6 +95,9 @@ export function FavoritesPage() {
     setQuery({ pageIndex: pi });
   }, [setQuery]);
 
+  // ── Multi-select state ────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const handleVideoClick = useCallback((videoId: string) => {
     // In select mode, clicking toggles selection instead of navigation
     if (selectedIds.size > 0) {
@@ -108,9 +111,6 @@ export function FavoritesPage() {
     }
     navigate("video-detail", { videoId }, { label: t("favorites") });
   }, [navigate, t, selectedIds]);
-
-  // ── Multi-select state ────────────────────────────
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleSelect = useCallback((videoId: string) => {
     setSelectedIds((prev) => {

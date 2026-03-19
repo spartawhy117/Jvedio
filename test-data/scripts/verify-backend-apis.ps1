@@ -1,38 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    后端 API 校验脚本 — 在 E2E 数据环境下逐一验证所有 Worker API 端点。
+    后端 API 校验脚本 - 在 E2E 数据环境下逐一验证 Worker API 端点。
 
 .DESCRIPTION
     前提：先运行 seed-e2e-data.ps1 -SkipWorkerShutdown 完成数据播种，Worker 保持运行。
     本脚本从 e2e-env.json 读取连接信息，依次调用所有 Worker API 端点并验证响应。
-
-    覆盖范围（31 个端点，8 个 Controller）：
-    1.  Health     — /health/live, /health/ready
-    2.  App        — /api/app/bootstrap
-    3.  Libraries  — CRUD + videos + scan + scrape
-    4.  Videos     — favorites, detail, toggle-favorite, categories, series, batch, delete
-    5.  Actors     — list, detail, actor-videos
-    6.  Tasks      — list, detail
-    7.  Settings   — get, put, meta-tube diagnostics
-    8.  Events     — SSE stream (连接验证)
-
-.PARAMETER NoPause
-    加此开关跳过末尾的 "Press any key"（用于 CI/自动化）。
-
-.PARAMETER BaseUrl
-    手动指定 Worker 地址（跳过 e2e-env.json 读取）。
-
-.EXAMPLE
-    # 标准流程：先播种再校验
-    .\seed-e2e-data.ps1 -SkipWorkerShutdown
-    .\verify-backend-apis.ps1
-
-    # 手动指定端口
-    .\verify-backend-apis.ps1 -BaseUrl "http://127.0.0.1:5000"
-
-    # CI 模式
-    .\verify-backend-apis.ps1 -NoPause
 #>
 param(
     [switch]$NoPause,
@@ -42,16 +15,85 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ─── 统计变量 ───
 $script:passed = 0
 $script:failed = 0
 $script:skipped = 0
 $script:results = @()
+$script:libList = $null
+$script:videoItems = @()
+$script:actorId = $null
+$script:taskId = $null
+$script:tmpLibId = $null
+
+function Test-HasProperty {
+    param(
+        $Object,
+        [string]$Name
+    )
+
+    return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $Name
+}
+
+function Get-RequiredProperty {
+    param(
+        $Object,
+        [string]$Name,
+        [string]$Context
+    )
+
+    if (-not (Test-HasProperty $Object $Name)) {
+        throw "$Context is missing property '$Name'."
+    }
+
+    $value = $Object.$Name
+    if ($null -eq $value) {
+        throw "$Context has null property '$Name'."
+    }
+
+    return $value
+}
+
+function Get-ApiData {
+    param(
+        $Response,
+        [string]$Context
+    )
+
+    if (-not (Test-HasProperty $Response "success") -or -not $Response.success) {
+        throw "$Context returned an unsuccessful API response."
+    }
+
+    return Get-RequiredProperty $Response "data" $Context
+}
+
+function Add-Result {
+    param(
+        [string]$Name,
+        [string]$Status,
+        [string]$Detail
+    )
+
+    $icon = switch ($Status) {
+        "PASS" { "PASS" }
+        "FAIL" { "FAIL" }
+        default { "SKIP" }
+    }
+
+    Write-Host "  [$icon] $Name — $Detail"
+    $script:results += @{
+        Name = $Name
+        Status = $Status
+        Detail = $Detail
+    }
+
+    switch ($Status) {
+        "PASS" { $script:passed++ }
+        "FAIL" { $script:failed++ }
+        default { $script:skipped++ }
+    }
+}
 
 function Test-Api {
-    <#
-    .SYNOPSIS 调用单个 API 并验证响应
-    #>
     param(
         [string]$Name,
         [string]$Method = "GET",
@@ -62,12 +104,10 @@ function Test-Api {
         [int[]]$ExpectedStatus = @(200)
     )
 
-    $entry = @{ Name = $Name; Status = ""; Detail = "" }
-
     try {
         $params = @{
             Method = $Method
-            Uri    = $Uri
+            Uri = $Uri
         }
         if ($Body) {
             $params.Body = $Body
@@ -75,67 +115,64 @@ function Test-Api {
         }
 
         $resp = Invoke-RestMethod @params
-
         if ($Validate) {
             $validationResult = & $Validate $resp
             if ($validationResult -eq $false) {
-                $entry.Status = "FAIL"
-                $entry.Detail = "Validation failed"
-                $script:failed++
+                Add-Result -Name "[$Method] $Name" -Status "FAIL" -Detail "Validation failed"
             }
             else {
-                $entry.Status = "PASS"
-                $entry.Detail = if ($validationResult -is [string]) { $validationResult } else { "OK" }
-                $script:passed++
+                $detail = if ($validationResult -is [string]) { $validationResult } else { "OK" }
+                Add-Result -Name "[$Method] $Name" -Status "PASS" -Detail $detail
             }
         }
         else {
-            $entry.Status = "PASS"
-            $entry.Detail = "Response received"
-            $script:passed++
+            Add-Result -Name "[$Method] $Name" -Status "PASS" -Detail "Response received"
         }
     }
     catch {
         $statusCode = $null
-        if ($_.Exception.Response) {
-            $statusCode = [int]$_.Exception.Response.StatusCode
+        $response = $null
+        try {
+            $response = $_.Exception.Response
         }
-        if ($statusCode -and $ExpectedStatus -contains $statusCode) {
-            $entry.Status = "PASS"
-            $entry.Detail = "Expected status $statusCode"
-            $script:passed++
+        catch {
+            $response = $null
+        }
+
+        if ($null -ne $response) {
+            try {
+                $statusCode = [int]$response.StatusCode
+            }
+            catch {
+                $statusCode = $null
+            }
+        }
+
+        if ($null -ne $statusCode -and $ExpectedStatus -contains $statusCode) {
+            Add-Result -Name "[$Method] $Name" -Status "PASS" -Detail "Expected status $statusCode"
         }
         else {
-            $entry.Status = "FAIL"
-            $entry.Detail = $_.Exception.Message
-            $script:failed++
+            Add-Result -Name "[$Method] $Name" -Status "FAIL" -Detail $_.Exception.Message
         }
     }
-
-    $icon = switch ($entry.Status) {
-        "PASS" { "✅" }
-        "FAIL" { "❌" }
-        "SKIP" { "⏭️" }
-    }
-    Write-Host "  $icon [$Method] $Name — $($entry.Detail)"
-    $script:results += $entry
 }
 
 function Skip-Api {
-    param([string]$Name, [string]$Reason)
-    Write-Host "  ⏭️ $Name — $Reason"
-    $script:skipped++
-    $script:results += @{ Name = $Name; Status = "SKIP"; Detail = $Reason }
+    param(
+        [string]$Name,
+        [string]$Reason
+    )
+
+    Add-Result -Name $Name -Status "SKIP" -Detail $Reason
 }
 
-# ─── 读取连接信息 ───
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..")).Path
 
 if ($BaseUrl) {
     $base = $BaseUrl.TrimEnd("/")
-    Write-Host "[verify-api] Using manual BaseUrl: $base" -ForegroundColor Cyan
     $envData = $null
+    Write-Host "[verify-api] Using manual BaseUrl: $base" -ForegroundColor Cyan
 }
 else {
     $envJsonPath = Join-Path $repoRoot "test-data\e2e\e2e-env.json"
@@ -143,6 +180,7 @@ else {
         Write-Error "e2e-env.json not found. Run seed-e2e-data.ps1 -SkipWorkerShutdown first."
         exit 1
     }
+
     $envData = Get-Content $envJsonPath -Raw | ConvertFrom-Json
     $base = $envData.baseUrl.TrimEnd("/")
     Write-Host "[verify-api] Loaded e2e-env.json — Worker at $base" -ForegroundColor Cyan
@@ -150,78 +188,90 @@ else {
 
 $headers = @{ "Content-Type" = "application/json" }
 
-# ════════════════════════════════════════════
-#  1. Health
-# ════════════════════════════════════════════
 Write-Host "`n── 1. Health ──" -ForegroundColor Yellow
 
-Test-Api -Name "GET /health/live" -Uri "$base/health/live" -Validate {
-    param($r) if ($r.status -eq "live") { "status=live" } else { $false }
+Test-Api -Name "/health/live" -Uri "$base/health/live" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /health/live"
+    if ($data.status -eq "live") { "status=live" } else { $false }
 }
 
-Test-Api -Name "GET /health/ready" -Uri "$base/health/ready" -Validate {
-    param($r) if ($r.isReady -eq $true) { "isReady=true" } else { $false }
+Test-Api -Name "/health/ready" -Uri "$base/health/ready" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /health/ready"
+    if ($data.status -eq "ready" -and $data.healthy -eq $true) { "status=ready healthy=true" } else { $false }
 }
 
-# ════════════════════════════════════════════
-#  2. App — Bootstrap
-# ════════════════════════════════════════════
 Write-Host "`n── 2. App ──" -ForegroundColor Yellow
 
-Test-Api -Name "GET /api/app/bootstrap" -Uri "$base/api/app/bootstrap" -Validate {
-    param($r) if ($r.data) { "bootstrap data present" } else { $false }
+Test-Api -Name "/api/app/bootstrap" -Uri "$base/api/app/bootstrap" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /api/app/bootstrap"
+    $libs = @($data.libraries).Count
+    if ($null -ne $data.app -and $null -ne $data.worker) { "libraries=$libs" } else { $false }
 }
 
-# ════════════════════════════════════════════
-#  3. Libraries
-# ════════════════════════════════════════════
 Write-Host "`n── 3. Libraries ──" -ForegroundColor Yellow
 
-# 获取库列表
-$libList = $null
-Test-Api -Name "GET /api/libraries" -Uri "$base/api/libraries" -Validate {
+Test-Api -Name "/api/libraries" -Uri "$base/api/libraries" -Validate {
     param($r)
-    $script:libList = $r
-    $count = @($r.data).Count
-    if ($count -ge 1) { "libraries=$count" } else { $false }
+    $data = Get-ApiData $r "GET /api/libraries"
+    $libraries = @($data.libraries)
+    $script:libList = $libraries
+    if ($libraries.Count -ge 1) { "libraries=$($libraries.Count)" } else { $false }
 }
 
-# 从库列表取第一个库 ID
 $libId = $null
-if ($envData -and $envData.libraries) {
-    $libId = $envData.libraries[0].dbId
+if ($envData -and $envData.libraries -and $envData.libraries[0]) {
+    if (Test-HasProperty $envData.libraries[0] "libraryId") {
+        $libId = $envData.libraries[0].libraryId
+    }
+    elseif (Test-HasProperty $envData.libraries[0] "dbId") {
+        $libId = $envData.libraries[0].dbId
+    }
 }
-elseif ($libList -and $libList.data) {
-    $libId = @($libList.data)[0].dbId
+if (-not $libId -and $script:libList.Count -ge 1) {
+    $libId = $script:libList[0].libraryId
 }
 
 if ($libId) {
-    # 获取库影片列表
-    $videoItems = $null
-    Test-Api -Name "GET /api/libraries/{id}/videos" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&sortBy=vid&sortOrder=asc" -Validate {
+    Test-Api -Name "/api/libraries/{id}/videos" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=20&sortBy=vid&sortOrder=asc" -Validate {
         param($r)
-        $script:videoItems = $r.data.items
-        $count = @($r.data.items).Count
-        if ($count -ge 1) { "videos=$count" } else { $false }
+        $data = Get-ApiData $r "GET /api/libraries/$libId/videos"
+        $script:videoItems = @($data.items)
+        if ($script:videoItems.Count -ge 1) { "videos=$($script:videoItems.Count)" } else { $false }
     }
 
-    # 创建临时库 → 更新 → 删除（CRUD 测试）
-    $tmpLibId = $null
-    Test-Api -Name "POST /api/libraries (create temp)" -Method "POST" -Uri "$base/api/libraries" `
-        -Body '{"name":"__verify-temp__","scanPaths":[]}' -Validate {
-        param($r)
-        $script:tmpLibId = $r.data.dbId
-        if ($r.data.dbId) { "created dbId=$($r.data.dbId)" } else { $false }
+    if ($envData) {
+        $tempScanPath = Join-Path $envData.e2eDataRoot "videos\verify-temp-lib"
+        New-Item -ItemType Directory -Path $tempScanPath -Force | Out-Null
+        $tempScanPath = $tempScanPath.Replace("\", "/")
+
+        Test-Api -Name "/api/libraries (create temp)" -Method "POST" -Uri "$base/api/libraries" `
+            -Body (@{ name = "__verify-temp__"; scanPaths = @($tempScanPath) } | ConvertTo-Json -Compress) -Validate {
+            param($r)
+            $data = Get-ApiData $r "POST /api/libraries"
+            $library = Get-RequiredProperty $data "library" "POST /api/libraries data"
+            $script:tmpLibId = Get-RequiredProperty $library "libraryId" "temp library"
+            "created libraryId=$($script:tmpLibId)"
+        }
+    }
+    else {
+        Skip-Api -Name "POST /api/libraries (create temp)" -Reason "No e2e-env.json available"
     }
 
-    if ($tmpLibId) {
-        Test-Api -Name "PUT /api/libraries/{id} (update temp)" -Method "PUT" -Uri "$base/api/libraries/$tmpLibId" `
-            -Body '{"name":"__verify-temp-renamed__","scanPaths":[]}' -Validate {
-            param($r) "updated"
+    if ($script:tmpLibId) {
+        Test-Api -Name "/api/libraries/{id} (update temp)" -Method "PUT" -Uri "$base/api/libraries/$($script:tmpLibId)" `
+            -Body (@{ name = "__verify-temp-renamed__"; scanPaths = @() } | ConvertTo-Json -Compress) -Validate {
+            param($r)
+            $data = Get-ApiData $r "PUT /api/libraries/$($script:tmpLibId)"
+            if ($data.library.name -eq "__verify-temp-renamed__") { "renamed" } else { $false }
         }
 
-        Test-Api -Name "DELETE /api/libraries/{id} (delete temp)" -Method "DELETE" -Uri "$base/api/libraries/$tmpLibId" -Validate {
-            param($r) "deleted"
+        Test-Api -Name "/api/libraries/{id} (delete temp)" -Method "DELETE" -Uri "$base/api/libraries/$($script:tmpLibId)" -Validate {
+            param($r)
+            $data = Get-ApiData $r "DELETE /api/libraries/$($script:tmpLibId)"
+            if ($data.libraryId -eq $script:tmpLibId) { "deleted" } else { $false }
         }
     }
     else {
@@ -229,165 +279,145 @@ if ($libId) {
         Skip-Api -Name "DELETE /api/libraries/{id}" -Reason "No temp library created"
     }
 
-    # 扫描（仅验证 202 Accepted，不等完成）
-    Test-Api -Name "POST /api/libraries/{id}/scan" -Method "POST" -Uri "$base/api/libraries/$libId/scan" `
-        -Body '{"organizeBeforeScan":false}' -ExpectedStatus @(200, 202) -Validate {
-        param($r) "scan triggered"
-    }
+    Test-Api -Name "/api/libraries/{id}/scan" -Method "POST" -Uri "$base/api/libraries/$libId/scan" `
+        -Body (@{ organizeBeforeScan = $false } | ConvertTo-Json -Compress) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/libraries/$libId/scan"
+        if ($null -ne $data.task -and -not [string]::IsNullOrWhiteSpace($data.task.id)) { "taskId=$($data.task.id)" } else { $false }
+    } -ExpectedStatus @(200, 202)
 
-    # 等一下让扫描完成再继续
-    Start-Sleep -Seconds 2
+    Test-Api -Name "/api/libraries/{id}/scrape" -Method "POST" -Uri "$base/api/libraries/$libId/scrape" `
+        -Body (@{ mode = "missing-only"; writeSidecars = $false; downloadActorAvatars = $false } | ConvertTo-Json -Compress) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/libraries/$libId/scrape"
+        if ($null -ne $data.task -and -not [string]::IsNullOrWhiteSpace($data.task.id)) { "taskId=$($data.task.id)" } else { $false }
+    } -ExpectedStatus @(200, 202)
 
-    # Scrape（仅验证接受，不等完成）
-    Test-Api -Name "POST /api/libraries/{id}/scrape" -Method "POST" -Uri "$base/api/libraries/$libId/scrape" `
-        -Body '{"mode":"missing-only","writeSidecars":false,"downloadActorAvatars":false}' -ExpectedStatus @(200, 202) -Validate {
-        param($r) "scrape triggered"
-    }
-
-    Start-Sleep -Seconds 2
-
-    # Scrape with videoIds（单影片搜刮端点验证）
-    if ($videoItems -and @($videoItems).Count -ge 1) {
-        $singleVid = @($videoItems)[0].videoId
-        if (-not $singleVid) { $singleVid = @($videoItems)[0].id }
-        if ($singleVid) {
-            Test-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Method "POST" -Uri "$base/api/libraries/$libId/scrape" `
-                -Body "{`"videoIds`":[`"$singleVid`"],`"mode`":`"all`",`"writeSidecars`":false,`"downloadActorAvatars`":false}" `
-                -ExpectedStatus @(200, 202) -Validate {
-                param($r) "single-video scrape triggered"
-            }
-        }
-        else {
-            Skip-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Reason "No videoId available"
-        }
+    if ($script:videoItems.Count -ge 1) {
+        $singleVideoId = $script:videoItems[0].videoId
+        Test-Api -Name "/api/libraries/{id}/scrape (videoIds)" -Method "POST" -Uri "$base/api/libraries/$libId/scrape" `
+            -Body (@{ videoIds = @($singleVideoId); mode = "all"; writeSidecars = $false; downloadActorAvatars = $false } | ConvertTo-Json -Compress) -Validate {
+            param($r)
+            $data = Get-ApiData $r "POST /api/libraries/$libId/scrape (videoIds)"
+            if ($null -ne $data.task -and -not [string]::IsNullOrWhiteSpace($data.task.id)) { "taskId=$($data.task.id)" } else { $false }
+        } -ExpectedStatus @(200, 202, 409)
     }
     else {
         Skip-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Reason "No videos in library"
     }
 }
 else {
-    Skip-Api -Name "Libraries CRUD + scan + scrape" -Reason "No library found"
+    Skip-Api -Name "Libraries suite" -Reason "No library found"
 }
 
-# ════════════════════════════════════════════
-#  4. Videos
-# ════════════════════════════════════════════
 Write-Host "`n── 4. Videos ──" -ForegroundColor Yellow
 
-# 收藏列表
-Test-Api -Name "GET /api/videos/favorites" -Uri "$base/api/videos/favorites?page=1&pageSize=10" -Validate {
-    param($r) "favorites response OK"
+Test-Api -Name "/api/videos/favorites" -Uri "$base/api/videos/favorites?page=1&pageSize=10" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /api/videos/favorites"
+    "favorites=$(@($data.items).Count)"
 }
 
-# 分类列表
-Test-Api -Name "GET /api/videos/categories" -Uri "$base/api/videos/categories" -Validate {
-    param($r) "categories response OK"
+Test-Api -Name "/api/videos/categories" -Uri "$base/api/videos/categories" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /api/videos/categories"
+    "categories=$(@($data.items).Count)"
 }
 
-# 系列列表
-Test-Api -Name "GET /api/videos/series" -Uri "$base/api/videos/series" -Validate {
-    param($r) "series response OK"
+Test-Api -Name "/api/videos/series" -Uri "$base/api/videos/series" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /api/videos/series"
+    "series=$(@($data.items).Count)"
 }
 
-# scrapeStatus 字段验证（列表 DTO）
-if ($videoItems -and @($videoItems).Count -ge 1) {
-    $firstItem = @($videoItems)[0]
-    if ($firstItem.PSObject.Properties["scrapeStatus"]) {
-        $ss = $firstItem.scrapeStatus
-        Write-Host "  ✅ VideoListItemDto.scrapeStatus field present (value='$ss')" -ForegroundColor Green
-        $script:passed++
-        $script:results += @{ Name = "VideoListItemDto.scrapeStatus"; Status = "PASS"; Detail = "value=$ss" }
+if ($script:videoItems.Count -ge 1) {
+    $firstItem = $script:videoItems[0]
+    if (Test-HasProperty $firstItem "scrapeStatus") {
+        Add-Result -Name "VideoListItemDto.scrapeStatus" -Status "PASS" -Detail "value=$($firstItem.scrapeStatus)"
     }
     else {
-        Write-Host "  ❌ VideoListItemDto.scrapeStatus field missing" -ForegroundColor Red
-        $script:failed++
-        $script:results += @{ Name = "VideoListItemDto.scrapeStatus"; Status = "FAIL"; Detail = "field missing" }
-    }
-}
-else {
-    Skip-Api -Name "VideoListItemDto.scrapeStatus" -Reason "No video items to check"
-}
-
-# scrapeStatus 筛选验证
-if ($libId) {
-    Test-Api -Name "GET /api/libraries/{id}/videos?scrapeStatus=none" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=none" -Validate {
-        param($r) "scrapeStatus=none filter OK"
-    }
-    Test-Api -Name "GET /api/libraries/{id}/videos?scrapeStatus=failed" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=failed" -Validate {
-        param($r) "scrapeStatus=failed filter OK"
-    }
-}
-else {
-    Skip-Api -Name "scrapeStatus filter" -Reason "No library ID"
-}
-
-# 单个影片详情 + toggle-favorite + delete（需要有影片）
-$videoId = $null
-if ($videoItems -and @($videoItems).Count -ge 1) {
-    $videoId = @($videoItems)[0].videoId
-    if (-not $videoId) {
-        # 有些返回结构里 key 是 id
-        $videoId = @($videoItems)[0].id
-    }
-}
-
-if ($videoId) {
-    Test-Api -Name "GET /api/videos/{id} (detail)" -Uri "$base/api/videos/$videoId" -Validate {
-        param($r) if ($r.data) { "detail loaded" } else { $false }
+        Add-Result -Name "VideoListItemDto.scrapeStatus" -Status "FAIL" -Detail "field missing"
     }
 
-    # 验证详情 DTO 的 scrapeStatus 字段
+    Test-Api -Name "/api/libraries/{id}/videos?scrapeStatus=none" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=none" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/libraries/$libId/videos?scrapeStatus=none"
+        "items=$(@($data.items).Count)"
+    }
+
+    Test-Api -Name "/api/libraries/{id}/videos?scrapeStatus=failed" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=failed" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/libraries/$libId/videos?scrapeStatus=failed"
+        "items=$(@($data.items).Count)"
+    }
+
+    $videoId = $firstItem.videoId
+
+    Test-Api -Name "/api/videos/{id}" -Uri "$base/api/videos/$videoId" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/videos/$videoId"
+        $video = Get-RequiredProperty $data "video" "GET /api/videos/$videoId data"
+        if ($video.videoId -eq $videoId) { "vid=$($video.vid)" } else { $false }
+    }
+
     try {
         $detailResp = Invoke-RestMethod "$base/api/videos/$videoId"
-        if ($detailResp.data.PSObject.Properties["scrapeStatus"]) {
-            $dss = $detailResp.data.scrapeStatus
-            Write-Host "  ✅ VideoDetailDto.scrapeStatus field present (value='$dss')" -ForegroundColor Green
-            $script:passed++
-            $script:results += @{ Name = "VideoDetailDto.scrapeStatus"; Status = "PASS"; Detail = "value=$dss" }
+        $detailData = Get-ApiData $detailResp "GET /api/videos/$videoId"
+        $video = Get-RequiredProperty $detailData "video" "video detail"
+        if (Test-HasProperty $video "scrapeStatus") {
+            Add-Result -Name "VideoDetailDto.scrapeStatus" -Status "PASS" -Detail "value=$($video.scrapeStatus)"
         }
         else {
-            Write-Host "  ❌ VideoDetailDto.scrapeStatus field missing" -ForegroundColor Red
-            $script:failed++
-            $script:results += @{ Name = "VideoDetailDto.scrapeStatus"; Status = "FAIL"; Detail = "field missing" }
+            Add-Result -Name "VideoDetailDto.scrapeStatus" -Status "FAIL" -Detail "field missing"
         }
     }
     catch {
         Skip-Api -Name "VideoDetailDto.scrapeStatus" -Reason "Detail request failed"
     }
 
-    # 切换收藏
-    Test-Api -Name "POST /api/videos/{id}/toggle-favorite" -Method "POST" -Uri "$base/api/videos/$videoId/toggle-favorite" -Validate {
-        param($r) "toggle OK"
-    }
-    # 再切回来
-    Test-Api -Name "POST /api/videos/{id}/toggle-favorite (revert)" -Method "POST" -Uri "$base/api/videos/$videoId/toggle-favorite" -Validate {
-        param($r) "reverted"
+    Test-Api -Name "/api/videos/{id}/toggle-favorite" -Method "POST" -Uri "$base/api/videos/$videoId/toggle-favorite" -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/videos/$videoId/toggle-favorite"
+        if (Test-HasProperty $data "isFavorite") { "favorite=$($data.isFavorite)" } else { "toggle ok" }
     }
 
-    # 播放（会尝试打开播放器，验证 API 不报错即可）
-    Test-Api -Name "POST /api/videos/{id}/play" -Method "POST" -Uri "$base/api/videos/$videoId/play" -ExpectedStatus @(200, 404, 500) -Validate {
-        param($r) "play triggered"
+    Test-Api -Name "/api/videos/{id}/toggle-favorite (revert)" -Method "POST" -Uri "$base/api/videos/$videoId/toggle-favorite" -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/videos/$videoId/toggle-favorite (revert)"
+        if (Test-HasProperty $data "isFavorite") { "favorite=$($data.isFavorite)" } else { "reverted" }
     }
 
-    # 批量收藏
-    Test-Api -Name "POST /api/videos/batch/favorite" -Method "POST" -Uri "$base/api/videos/batch/favorite?favorite=true" `
-        -Body "[`"$videoId`"]" -Validate {
-        param($r) "batch favorite OK"
-    }
-    # 取消批量收藏
-    Test-Api -Name "POST /api/videos/batch/favorite (unfav)" -Method "POST" -Uri "$base/api/videos/batch/favorite?favorite=false" `
-        -Body "[`"$videoId`"]" -Validate {
-        param($r) "batch unfavorite OK"
+    Test-Api -Name "/api/videos/{id}/play" -Method "POST" -Uri "$base/api/videos/$videoId/play" `
+        -Body (@{ playerProfile = "default"; resume = $false } | ConvertTo-Json -Compress) `
+        -ExpectedStatus @(200, 404, 500) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/videos/$videoId/play"
+        if (Test-HasProperty $data "launched") { "launched=$($data.launched)" } else { "play handled" }
     }
 
-    # 分类下的影片（如果有分类）
+    Test-Api -Name "/api/videos/batch/favorite" -Method "POST" -Uri "$base/api/videos/batch/favorite?favorite=true" `
+        -Body (@{ videoIds = @($videoId) } | ConvertTo-Json -Compress) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/videos/batch/favorite"
+        if (Test-HasProperty $data "successCount") { "success=$($data.successCount)" } else { "batch favorite ok" }
+    }
+
+    Test-Api -Name "/api/videos/batch/favorite (unfav)" -Method "POST" -Uri "$base/api/videos/batch/favorite?favorite=false" `
+        -Body (@{ videoIds = @($videoId) } | ConvertTo-Json -Compress) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/videos/batch/favorite?favorite=false"
+        if (Test-HasProperty $data "successCount") { "success=$($data.successCount)" } else { "batch unfavorite ok" }
+    }
+
     try {
-        $cats = Invoke-RestMethod "$base/api/videos/categories"
-        if ($cats.data -and @($cats.data).Count -ge 1) {
-            $catName = @($cats.data)[0].name
-            if (-not $catName) { $catName = @($cats.data)[0] }
-            Test-Api -Name "GET /api/videos/categories/{name}/videos" -Uri "$base/api/videos/categories/$([uri]::EscapeDataString($catName))/videos?page=1&pageSize=10" -Validate {
-                param($r) "category videos OK"
+        $catsResp = Invoke-RestMethod "$base/api/videos/categories"
+        $catsData = Get-ApiData $catsResp "GET /api/videos/categories"
+        if (@($catsData.items).Count -ge 1) {
+            $catName = $catsData.items[0].name
+            Test-Api -Name "/api/videos/categories/{name}/videos" -Uri "$base/api/videos/categories/$([uri]::EscapeDataString($catName))/videos?page=1&pageSize=10" -Validate {
+                param($r)
+                $data = Get-ApiData $r "GET /api/videos/categories/$catName/videos"
+                "items=$(@($data.items).Count)"
             }
         }
         else {
@@ -398,14 +428,15 @@ if ($videoId) {
         Skip-Api -Name "GET /api/videos/categories/{name}/videos" -Reason "Categories query failed"
     }
 
-    # 系列下的影片
     try {
-        $series = Invoke-RestMethod "$base/api/videos/series"
-        if ($series.data -and @($series.data).Count -ge 1) {
-            $seriesName = @($series.data)[0].name
-            if (-not $seriesName) { $seriesName = @($series.data)[0] }
-            Test-Api -Name "GET /api/videos/series/{name}/videos" -Uri "$base/api/videos/series/$([uri]::EscapeDataString($seriesName))/videos?page=1&pageSize=10" -Validate {
-                param($r) "series videos OK"
+        $seriesResp = Invoke-RestMethod "$base/api/videos/series"
+        $seriesData = Get-ApiData $seriesResp "GET /api/videos/series"
+        if (@($seriesData.items).Count -ge 1) {
+            $seriesName = $seriesData.items[0].name
+            Test-Api -Name "/api/videos/series/{name}/videos" -Uri "$base/api/videos/series/$([uri]::EscapeDataString($seriesName))/videos?page=1&pageSize=10" -Validate {
+                param($r)
+                $data = Get-ApiData $r "GET /api/videos/series/$seriesName/videos"
+                "items=$(@($data.items).Count)"
             }
         }
         else {
@@ -416,75 +447,69 @@ if ($videoId) {
         Skip-Api -Name "GET /api/videos/series/{name}/videos" -Reason "Series query failed"
     }
 
-    # 注意：不测 DELETE /api/videos/{id} 和 batch/delete，避免破坏播种数据
     Skip-Api -Name "DELETE /api/videos/{id}" -Reason "Skipped to preserve seed data"
     Skip-Api -Name "POST /api/videos/batch/delete" -Reason "Skipped to preserve seed data"
 }
 else {
-    Skip-Api -Name "Videos detail/toggle/play/batch" -Reason "No video found"
+    Skip-Api -Name "Videos suite" -Reason "No video found"
 }
 
-# ════════════════════════════════════════════
-#  5. Actors
-# ════════════════════════════════════════════
 Write-Host "`n── 5. Actors ──" -ForegroundColor Yellow
 
-$actorId = $null
-Test-Api -Name "GET /api/actors" -Uri "$base/api/actors?page=1&pageSize=10" -Validate {
+Test-Api -Name "/api/actors" -Uri "$base/api/actors?page=1&pageSize=10" -Validate {
     param($r)
-    if ($r.data -and $r.data.items) {
-        $count = @($r.data.items).Count
-        if ($count -ge 1) {
-            $script:actorId = @($r.data.items)[0].actorId
-            if (-not $script:actorId) { $script:actorId = @($r.data.items)[0].id }
-        }
-        "actors=$count"
+    $data = Get-ApiData $r "GET /api/actors"
+    $items = @($data.items)
+    if ($items.Count -ge 1) {
+        $script:actorId = $items[0].actorId
     }
-    else { "actors=0 (no scrape data)" }
+    "actors=$($items.Count)"
 }
 
-if ($actorId) {
-    Test-Api -Name "GET /api/actors/{id} (detail)" -Uri "$base/api/actors/$actorId" -Validate {
-        param($r) if ($r.data) { "actor detail loaded" } else { $false }
+if ($script:actorId) {
+    Test-Api -Name "/api/actors/{id}" -Uri "$base/api/actors/$($script:actorId)" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/actors/$($script:actorId)"
+        $actor = Get-RequiredProperty $data "actor" "GET /api/actors/$($script:actorId) data"
+        if ($actor.actorId.ToString() -eq $script:actorId.ToString()) { "actor=$($actor.name)" } else { $false }
     }
 
-    Test-Api -Name "GET /api/actors/{id}/videos" -Uri "$base/api/actors/$actorId/videos?page=1&pageSize=10" -Validate {
-        param($r) "actor videos OK"
+    Test-Api -Name "/api/actors/{id}/videos" -Uri "$base/api/actors/$($script:actorId)/videos?page=1&pageSize=10" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/actors/$($script:actorId)/videos"
+        "items=$(@($data.items).Count)"
     }
 }
 else {
-    Skip-Api -Name "GET /api/actors/{id}" -Reason "No actor found (run with scrape to populate)"
+    Skip-Api -Name "GET /api/actors/{id}" -Reason "No actor found"
     Skip-Api -Name "GET /api/actors/{id}/videos" -Reason "No actor found"
 }
 
-# ════════════════════════════════════════════
-#  6. Tasks
-# ════════════════════════════════════════════
 Write-Host "`n── 6. Tasks ──" -ForegroundColor Yellow
 
-$taskId = $null
-Test-Api -Name "GET /api/tasks" -Uri "$base/api/tasks" -Validate {
+Test-Api -Name "/api/tasks" -Uri "$base/api/tasks" -Validate {
     param($r)
-    if ($r.data -and $r.data.tasks) {
-        $count = @($r.data.tasks).Count
-        if ($count -ge 1) {
-            $script:taskId = @($r.data.tasks)[0].taskId
-            if (-not $script:taskId) { $script:taskId = @($r.data.tasks)[0].id }
-        }
-        "tasks=$count"
+    $data = Get-ApiData $r "GET /api/tasks"
+    $tasks = @($data.tasks)
+    if ($tasks.Count -ge 1) {
+        $script:taskId = $tasks[0].id
     }
-    else { "tasks=0" }
+    "tasks=$($tasks.Count)"
 }
 
-if ($taskId) {
-    Test-Api -Name "GET /api/tasks/{id}" -Uri "$base/api/tasks/$taskId" -Validate {
-        param($r) "task detail OK"
+if ($script:taskId) {
+    Test-Api -Name "/api/tasks/{id}" -Uri "$base/api/tasks/$($script:taskId)" -Validate {
+        param($r)
+        $data = Get-ApiData $r "GET /api/tasks/$($script:taskId)"
+        $task = Get-RequiredProperty $data "task" "GET /api/tasks/$($script:taskId) data"
+        if ($task.id -eq $script:taskId) { "status=$($task.status)" } else { $false }
     }
 
-    # retry 只做一次尝试，不一定成功（依赖任务状态），允许多种 status
-    Test-Api -Name "POST /api/tasks/{id}/retry" -Method "POST" -Uri "$base/api/tasks/$taskId/retry" `
-        -ExpectedStatus @(200, 202, 400, 404) -Validate {
-        param($r) "retry accepted"
+    Test-Api -Name "/api/tasks/{id}/retry" -Method "POST" -Uri "$base/api/tasks/$($script:taskId)/retry" `
+        -ExpectedStatus @(200, 202, 400, 404, 409) -Validate {
+        param($r)
+        $data = Get-ApiData $r "POST /api/tasks/$($script:taskId)/retry"
+        if ($null -ne $data.task -and -not [string]::IsNullOrWhiteSpace($data.task.id)) { "taskId=$($data.task.id)" } else { "retry handled" }
     }
 }
 else {
@@ -492,84 +517,100 @@ else {
     Skip-Api -Name "POST /api/tasks/{id}/retry" -Reason "No task found"
 }
 
-# ════════════════════════════════════════════
-#  7. Settings
-# ════════════════════════════════════════════
 Write-Host "`n── 7. Settings ──" -ForegroundColor Yellow
 
-Test-Api -Name "GET /api/settings" -Uri "$base/api/settings" -Validate {
-    param($r) if ($r.data) { "settings loaded" } else { $false }
+$settingsSnapshot = $null
+Test-Api -Name "/api/settings" -Uri "$base/api/settings" -Validate {
+    param($r)
+    $data = Get-ApiData $r "GET /api/settings"
+    $script:settingsSnapshot = $data
+    if ($null -ne $data.general -and $null -ne $data.playback -and $null -ne $data.metaTube) { "settings loaded" } else { $false }
 }
 
-# PUT 写入一个无害字段再写回
-Test-Api -Name "PUT /api/settings" -Method "PUT" -Uri "$base/api/settings" `
-    -Body '{"metaTube":{"requestTimeoutSeconds":30}}' -Validate {
-    param($r) "settings updated"
+if ($settingsSnapshot) {
+    $updateSettingsBody = @{
+        general = $settingsSnapshot.general
+        image = $settingsSnapshot.image
+        scanImport = $settingsSnapshot.scanImport
+        playback = $settingsSnapshot.playback
+        library = $settingsSnapshot.library
+        metaTube = $settingsSnapshot.metaTube
+    }
+
+    if (Test-HasProperty $updateSettingsBody["general"] "debug") {
+        $updateSettingsBody["general"].debug = [bool]$updateSettingsBody["general"].debug
+    }
+    if (Test-HasProperty $updateSettingsBody["metaTube"] "requestTimeoutSeconds") {
+        $updateSettingsBody["metaTube"].requestTimeoutSeconds = [int]$updateSettingsBody["metaTube"].requestTimeoutSeconds
+    }
+
+    Test-Api -Name "/api/settings (update)" -Method "PUT" -Uri "$base/api/settings" `
+        -Body ($updateSettingsBody | ConvertTo-Json -Depth 10 -Compress) -Validate {
+        param($r)
+        $data = Get-ApiData $r "PUT /api/settings"
+        if ($null -ne $data.settings -and $null -ne $data.settings.general -and $null -ne $data.settings.metaTube) { "settings updated" } else { $false }
+    }
+}
+else {
+    Skip-Api -Name "PUT /api/settings" -Reason "Settings snapshot unavailable"
 }
 
-# MetaTube 诊断
-Test-Api -Name "POST /api/settings/meta-tube/diagnostics" -Method "POST" -Uri "$base/api/settings/meta-tube/diagnostics" `
-    -ExpectedStatus @(200, 500) -Validate {
-    param($r) "diagnostics ran"
+$diagBody = @{
+    testVideoId = if ($envData -and $envData.expectedVids -and $envData.expectedVids.scrapeSuccess -and $envData.expectedVids.scrapeSuccess[0]) {
+        $envData.expectedVids.scrapeSuccess[0]
+    }
+    else {
+        "SNOS-037"
+    }
+} | ConvertTo-Json -Compress
+
+Test-Api -Name "/api/settings/meta-tube/diagnostics" -Method "POST" -Uri "$base/api/settings/meta-tube/diagnostics" `
+    -Body $diagBody -ExpectedStatus @(200, 500) -Validate {
+    param($r)
+    $data = Get-ApiData $r "POST /api/settings/meta-tube/diagnostics"
+    if (Test-HasProperty $data "success") { "success=$($data.success)" } else { "diagnostics completed" }
 }
 
-# ════════════════════════════════════════════
-#  8. Events (SSE)
-# ════════════════════════════════════════════
 Write-Host "`n── 8. Events (SSE) ──" -ForegroundColor Yellow
 
-# SSE 不能用 Invoke-RestMethod 正常消费，用 WebRequest 验证连接成功
 try {
     $sseReq = [System.Net.WebRequest]::Create("$base/api/events")
     $sseReq.Method = "GET"
     $sseReq.Accept = "text/event-stream"
     $sseReq.Timeout = 3000
     $sseResp = $sseReq.GetResponse()
+    $contentType = $sseResp.ContentType
     $sseResp.Close()
-    Write-Host "  ✅ GET /api/events (SSE) — connection established (content-type: $($sseResp.ContentType))"
-    $script:passed++
-    $script:results += @{ Name = "GET /api/events (SSE)"; Status = "PASS"; Detail = "SSE connected" }
+    Add-Result -Name "GET /api/events (SSE)" -Status "PASS" -Detail "content-type=$contentType"
 }
 catch [System.Net.WebException] {
     $httpResp = $_.Exception.Response
     if ($httpResp -and [int]$httpResp.StatusCode -eq 200) {
-        Write-Host "  ✅ GET /api/events (SSE) — connection OK (timeout expected)"
-        $script:passed++
-        $script:results += @{ Name = "GET /api/events (SSE)"; Status = "PASS"; Detail = "SSE timeout OK" }
+        Add-Result -Name "GET /api/events (SSE)" -Status "PASS" -Detail "connection established"
     }
     else {
-        Write-Host "  ⏭️ GET /api/events (SSE) — timeout/error (non-blocking): $($_.Exception.Message)"
-        $script:skipped++
-        $script:results += @{ Name = "GET /api/events (SSE)"; Status = "SKIP"; Detail = "SSE connection timeout" }
+        Add-Result -Name "GET /api/events (SSE)" -Status "SKIP" -Detail "timeout/non-blocking: $($_.Exception.Message)"
     }
 }
 
-# ════════════════════════════════════════════
-#  结果汇总
-# ════════════════════════════════════════════
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host "  Backend API Verification Results" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===============================================" -ForegroundColor Cyan
 Write-Host ""
 
 $total = $script:passed + $script:failed + $script:skipped
-
-$passColor = if ($script:passed -gt 0) { "Green" } else { "Gray" }
-$failColor = if ($script:failed -gt 0) { "Red" } else { "Gray" }
-$skipColor = if ($script:skipped -gt 0) { "DarkYellow" } else { "Gray" }
-
-Write-Host "  ✅ Passed:  $($script:passed)" -ForegroundColor $passColor
-Write-Host "  ❌ Failed:  $($script:failed)" -ForegroundColor $failColor
-Write-Host "  ⏭️ Skipped: $($script:skipped)" -ForegroundColor $skipColor
-Write-Host "  ── Total:   $total" -ForegroundColor Cyan
+Write-Host "  Passed:  $($script:passed)" -ForegroundColor Green
+Write-Host "  Failed:  $($script:failed)" -ForegroundColor $(if ($script:failed -gt 0) { "Red" } else { "Gray" })
+Write-Host "  Skipped: $($script:skipped)" -ForegroundColor $(if ($script:skipped -gt 0) { "DarkYellow" } else { "Gray" })
+Write-Host "  Total:   $total" -ForegroundColor Cyan
 Write-Host ""
 
 if ($script:failed -eq 0) {
-    Write-Host "  All verified endpoints passed! ✅" -ForegroundColor Green
+    Write-Host "  All verified endpoints passed." -ForegroundColor Green
 }
 else {
-    Write-Host "  Some endpoints failed. Review output above. ❌" -ForegroundColor Red
+    Write-Host "  Some endpoints failed. Review output above." -ForegroundColor Red
     Write-Host ""
     Write-Host "  Failed items:" -ForegroundColor Red
     foreach ($r in $script:results | Where-Object { $_.Status -eq "FAIL" }) {

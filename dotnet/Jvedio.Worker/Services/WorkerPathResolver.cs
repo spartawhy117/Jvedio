@@ -2,6 +2,7 @@ namespace Jvedio.Worker.Services;
 
 public sealed class WorkerPathResolver
 {
+    private const string TestEnvironmentUserFolderName = "test-user";
     private readonly ILogger<WorkerPathResolver> logger;
 
     public WorkerPathResolver(ILogger<WorkerPathResolver> logger)
@@ -41,7 +42,10 @@ public sealed class WorkerPathResolver
 
     private string ResolveCurrentUserFolder()
     {
-        var userDirectory = Path.Combine(SharedAppBaseDirectory, "data", Environment.UserName);
+        var userFolderName = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JVEDIO_APP_BASE_DIR"))
+            ? TestEnvironmentUserFolderName
+            : Environment.UserName;
+        var userDirectory = Path.Combine(SharedAppBaseDirectory, "data", userFolderName);
         try
         {
             Directory.CreateDirectory(userDirectory);

@@ -926,7 +926,8 @@ XCOPY  "$(ProjectDir)Reference\HtmlAgilityPack.dll"  "$(ProjectDir)bin\Release\p
     <Exec Command="npm run tauri build" WorkingDirectory="$(TauriProjectDir)" />
     <!-- 3. Collect Tauri shell exe and WebView2Loader -->
     <ItemGroup>
-      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\Jvedio.exe" />
+      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\Jvedio.exe" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\Jvedio.exe')" />
+      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\jvedio-shell.exe" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\jvedio-shell.exe')" />
       <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\WebView2Loader.dll" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\WebView2Loader.dll')" />
       <WorkerShellFiles Include="$(WorkerBuildOutputDir)\**\*" Exclude="$(WorkerBuildOutputDir)\**\*.log" />
     </ItemGroup>
