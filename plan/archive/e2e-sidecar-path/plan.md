@@ -68,26 +68,17 @@ E2E sidecar 迁移到：
 - `.gitignore` 的 `test-data/**/cache/` 规则覆盖新路径 ✅
 - `cleanup-e2e-data.ps1` 的 `git checkout -- test-data/e2e/data/` 可重置跟踪文件；cache 目录不被跟踪，清理时自然跳过 ✅
 
-### Phase 4：（后续，本次不执行）Worker 测试环境路径适配
+### Phase 4：Worker 测试环境路径适配 ✅ 已完成
 
-当后续决定让 Worker 在测试环境下将 sidecar 写入 `cache/video/{LibName}/{VID}/` 时：
-- 修改 `WorkerPathResolver.cs` 新增 `VideoCacheFolder` 属性
-- 修改 `LibraryScrapeService.cs` 的 4 个路径方法（通过环境变量或配置判断测试/正式模式）
-- 修改 `SidecarPathTests.cs` 新增测试环境路径断言
-- 修改 `seed-e2e-data.ps1` Step 5.9 的验证逻辑
+Worker 代码 + 测试 + 脚本全部适配，E2E 模式下 sidecar 写入 `cache/video/{LibName}/{VID}/`：
+- `WorkerPathResolver.cs`：新增 `VideoCacheFolder` + `IsTestEnvironment` 属性（通过 `JVEDIO_APP_BASE_DIR` 环境变量判断）
+- `LibraryScrapeService.cs`：新增 `ResolveSidecarDirectory()`，`WriteSidecarsAsync` / `NeedsScrape` 走统一路径路由
+- `VideoService.cs`：`BuildSidecarState` / `DeleteVideo` 同样走 `ResolveSidecarDirectory()`
+- `SidecarPathTests.cs`：+3 测试（属性存在性、方法存在性、正式模式回退）
+- `seed-e2e-data.ps1`：Step 5.9 验证改为 `cache/video/E2E-Lib-A/{VID}/`，保留旧路径 fallback
+- `cleanup-e2e-data.ps1`：新增 `cache/` 目录显式删除（不被 git 跟踪）
 
----
-
-## 不改的内容（明确排除）
-
-| 文件 | 原因 |
-|------|------|
-| `Jvedio.Worker/Services/WorkerPathResolver.cs` | Release 代码不动 |
-| `Jvedio.Worker/Services/LibraryScrapeService.cs` | Release 写入逻辑不动 |
-| `Jvedio.Worker/Services/VideoService.cs` | Release 读取逻辑不动 |
-| `Jvedio.Worker/Services/ActorService.cs` | Release 读取逻辑不动 |
-| `Jvedio/Core/Media/SidecarPathResolver.cs` | WPF 桌面端不动 |
-| `Jvedio.Worker.Tests/BusinessLogicTests/SidecarPathTests.cs` | 测试的是 Release 路径逻辑，不改 |
+提交：`6db3941`，55 个测试全部通过。
 
 ---
 
@@ -95,9 +86,9 @@ E2E sidecar 迁移到：
 
 - [x] 5 个文档中 E2E sidecar 路径描述统一为 `data/{UserName}/cache/video/{LibName}/{VID}/`
 - [x] 文档间路径描述无冲突
-- [x] Release 代码零改动
+- [x] Worker 代码在 E2E 模式下写入 cache/video，正式模式仍写影片目录
 - [x] `.gitignore` 覆盖新路径
-- [x] 52 个后端测试仍全部通过（因为不改代码，这是自然满足的）
+- [x] 55 个后端测试全部通过（含 3 个新增 E2E 路径测试）
 
 ---
 
