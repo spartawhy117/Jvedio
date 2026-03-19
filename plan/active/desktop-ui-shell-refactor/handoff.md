@@ -92,6 +92,7 @@
 - Rust 端 Worker 进程管理（spawn/monitor/kill）完整
 - 主题 (light/dark/system) + 国际化 (zh/en) 完整
 - TypeScript 编译零错误（`tsc --noEmit` 通过）
+- scrape-fail-graceful（抓取失败优雅降级）已完成：DB 新增 `ScrapeStatus` 列、stub sidecar 机制、右键"重新抓取元数据"接入 API、VideoCard 占位图替换、SSE 刷新增强、+10 测试（52→62）
 
 ### 未验证 / 已知缺口
 

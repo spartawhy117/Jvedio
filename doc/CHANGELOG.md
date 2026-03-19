@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 完成 scrape-fail-graceful（抓取失败优雅降级）：Worker 抓取失败时写入 stub sidecar（仅含 VID 的最小 NFO）+ 更新 `metadata_video.ScrapeStatus` 为 `failed`；成功时状态更新为 `full`。DB 迁移新增 `ScrapeStatus` 列（`none`/`full`/`failed`）。Contracts DTO（`VideoListItemDto`、`VideoDetailDto`）和前端类型同步新增 `scrapeStatus` 字段。`GetLibraryVideosRequest` 支持按 `scrapeStatus` 筛选。前端右键菜单补齐「重新抓取元数据」（LibraryPage + FavoritesPage），接入 `POST /api/libraries/{id}/scrape` 的 `videoIds` 单影片搜刮。`VideoCard` 无海报占位图从 emoji 替换为 SVG 占位。SSE `library.changed` 回调增强 `invalidateQueries("video:")` + `invalidateQueries("favorites")`，搜刮成功后前端自动刷新。新增 10 个测试（SidecarPath +3、ScrapeApi +4、VideosApi +3），测试总数 52→62，全部通过。E2E 脚本新增 `scrapeStatus` 验证和 `videoIds` 单影片搜刮端点校验。
 - 新增 `test-data/scripts/verify-backend-apis.ps1` 后端 API 一键校验脚本，覆盖 Worker 全部 31 个端点（8 个 Controller：Health、App、Libraries、Videos、Actors、Tasks、Settings、Events），基于 `seed-e2e-data.ps1` 播种后的 `e2e-env.json` 读取连接信息，支持 `-BaseUrl` 手动指定和 `-NoPause` CI 模式；跳过破坏性删除操作以保护播种数据。
 - 完成 Phase 9.6 数据层流程测试完善：新建 `test-data/config/test-env.json` 统一 MetaTube 地址等可变外部依赖配置（支持 `.local.json` 覆盖机制）；改造 `seed-e2e-data.ps1` 从配置文件读取并新增 MetaTube 抓取步骤（Step 5.5-5.9）；新增 `ActorApiTests.cs`（5 个用例：列表/分页/搜索/详情 404/关联影片 404）和 `ScrapeApiTests.cs`（3 个用例：无效库 scrape 返回 404、有效库 scrape 返回 202、MetaTube diagnostics 契约验证）。测试总数从 44 增长到 52，全部通过。
 - 完成 Phase 9 日志目录统一：`log/` 从平铺结构改为 `runtime/` + `test/` + `dev/` 分层子目录。Worker 和 Shell 运行日志写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，E2E 产物预留 `log/test/e2e/`。`JVEDIO_LOG_DIR` 环境变量覆盖功能自动追加 `runtime/` 子目录。`doc/logging-convention.md` 重写为分层结构。

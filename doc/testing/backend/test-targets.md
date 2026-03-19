@@ -138,7 +138,7 @@ E2E 测试环境（播种脚本运行时）的路径对照：
 
 ### 3.4 测试工程输出目标
 
-**Worker 契约测试**（`Jvedio.Worker.Tests`，52 个）：
+**Worker 契约测试**（`Jvedio.Worker.Tests`，62 个）：
 - 数据目录：`test-data/worker/`（每次清空重建，测试后保留现场）
 - 日志目录：`log/test/worker-tests/runtime/`
 

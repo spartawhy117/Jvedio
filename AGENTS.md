@@ -61,17 +61,22 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - WebApplicationFactory 内置日志（临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`，测试后自动清理）
 
 当前测试规模：
-- 52 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + Actor 5 + Scrape 3 + VidParsing 18 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2）
+- 62 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 7 + Actor 5 + Scrape 7 + VidParsing 18 + SidecarPath 9 + ScanOrganize 5 + ScanImportApi 2）
 - 全部通过
 
 ## 当前关键目录规则
 正式 sidecar：
 - 写入影片目录
 - 命名规则：
-  - `<VID>.nfo`
+  - `<VID>.nfo`（完整抓取：含标题/演员等元数据；抓取失败：仅含 `<movie><num>VID</num></movie>` 最小内容）
   - `<VID>-poster.jpg`
   - `<VID>-thumb.jpg`
   - `<VID>-fanart.jpg`
+
+`metadata_video.ScrapeStatus` 字段值域：
+- `none` — 从未抓取（默认值）
+- `full` — 抓取成功（Title + WebUrl + 4 sidecar 全齐）
+- `failed` — 抓取尝试过但失败（stub NFO 已写入，无图片文件）
 
 正式缓存：
 - `data/<user>/cache/video/`

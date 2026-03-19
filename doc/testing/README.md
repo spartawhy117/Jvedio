@@ -14,7 +14,7 @@
   - DTO 序列化测试
   - 业务逻辑测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）
 - **执行方式**：`dotnet test` 或 PowerShell 脚本（双击运行或 `-NoPause`）
-- **当前规模**：52 个测试用例（全部通过）
+- **当前规模**：62 个测试用例（全部通过）
 - **日志输出**：`{repo}/log/test/worker-tests/runtime/`（保留现场，不自动清理）
 
 > ℹ️ **旧测试工程**：`dotnet/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
@@ -62,7 +62,7 @@ doc/testing/
 ├── backend/                           ← 后端测试（Jvedio.Worker.Tests C# 工程）
 │   ├── test-plan.md                   ← 测试工程组织方式、配置、脚本、执行流程
 │   ├── test-targets.md                ← 测试目标与通过标准（强/弱断言）
-│   └── test-current-suite.md          ← 当前已实现的 52 个测试清单
+│   └── test-current-suite.md          ← 当前已实现的 62 个测试清单
 └── e2e/                               ← 前端 E2E 自动化（Playwright）
     ├── e2e-test-data-spec.md          ← E2E 数据架构、隔离设计、播种/清理流程
     ├── playwright-e2e-test-plan.md    ← Playwright MCP 执行方案、启停流程、已知限制
@@ -75,7 +75,7 @@ doc/testing/
 
 | 我想… | 操作 |
 |--------|------|
-| 跑 52 个 Worker 契约测试 | `cd dotnet/Jvedio.Worker.Tests && dotnet test --configuration Release`（零配置） |
+| 跑 62 个 Worker 契约测试 | `cd dotnet/Jvedio.Worker.Tests && dotnet test --configuration Release`（零配置） |
 | 跑 E2E 播种（含 MetaTube 抓取） | 查看 [`test-data/config/README.md`](../../test-data/config/README.md) 配置说明，然后运行 `.\test-data\scripts\seed-e2e-data.ps1` |
 | 播种后校验全部后端 API | `.\test-data\scripts\seed-e2e-data.ps1 -SkipWorkerShutdown` 然后 `.\test-data\scripts\verify-backend-apis.ps1`（31 个端点） |
 | 自定义 MetaTube 地址 / 测试视频 | 复制 `test-data/config/test-env.local.json.example` → `.local.json`，填入你的配置 |

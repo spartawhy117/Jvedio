@@ -274,6 +274,8 @@ data/{UserName}/
 | 演员头像 | `data/{UserName}/cache/actor-avatar/` | `data/{UserName}/cache/actor-avatar/` | `{actorId}.jpg` 或 `{SHA1(name)}.jpg` | `LibraryScrapeService` |
 | 演员记录 | `app_datas.sqlite` 中 `actor_info` 表 | 同左 | — | `LibraryScrapeService` |
 
+> **Stub sidecar（抓取失败场景）**：当 MetaTube 搜索无结果或获取详情失败时，`LibraryScrapeService` 仍会创建 sidecar 目录并写入仅含 VID 的最小 NFO 文件（`<movie><num>VID</num></movie>`），不写入海报/缩略图/背景图。同时 `metadata_video.ScrapeStatus` 被标记为 `failed`。这样前端可以区分"从未抓取"和"抓取失败"，并在 VideoCard 上显示 SVG 占位图而非 emoji。用户可通过右键菜单"重新抓取元数据"触发单影片重新搜刮。
+
 > ⚠️ E2E 目标路径下，sidecar 和演员头像都在 `data/{UserName}/cache/` 下，统一管理。
 > `.gitignore` 中 `test-data/**/cache/` 规则确保 sidecar 缓存和演员头像都不会被提交到仓库。
 

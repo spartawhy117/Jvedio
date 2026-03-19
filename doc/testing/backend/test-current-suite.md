@@ -3,7 +3,7 @@
 ## 1. 当前状态
 
 当前 `Jvedio.Worker.Tests` 测试统计：
-- 总测试数：52
+- 总测试数：62
 - 全部通过：✅
 
 执行方式：
@@ -198,7 +198,45 @@ dotnet test --configuration Release
 ### `MetaTubeDiagnostics_ReturnsResponseEnvelope`
 - 目标：验证 `POST /api/settings/meta-tube/diagnostics` 返回成功信封，`data.steps` 为数组，`data.summary` 和 `data.serverUrl` 存在（使用不可达地址，不依赖真实 MetaTube 服务）
 
-## 13. 当前维护规则
+### `ScrapeLibrary_WithVideoIds_ReturnsAccepted`
+- 目标：创建临时库 → 传入 `videoIds` 触发单影片搜刮 → 验证返回 202 Accepted → 清理库
+
+### `StartLibraryScrapeRequest_HasAllRequiredFields`
+- 目标：验证 `StartLibraryScrapeRequest` Contract 包含 `VideoIds`、`Mode`、`ForceRefreshMetadata`、`WriteSidecars`、`DownloadActorAvatars` 五个字段
+
+### `VideoListItemDto_HasScrapeStatusField`
+- 目标：验证 `VideoListItemDto` 包含 `ScrapeStatus` 属性
+
+### `VideoDetailDto_HasScrapeStatusField`
+- 目标：验证 `VideoDetailDto` 包含 `ScrapeStatus` 属性
+
+## 13. Sidecar 路径测试（scrape-fail-graceful 扩展）
+
+文件：`BusinessLogicTests/SidecarPathTests.cs`（追加 3 个测试）
+
+### `WriteStubSidecarAsync_MethodExists`
+- 目标：验证 `LibraryScrapeService` 包含 `WriteStubSidecarAsync` 方法（stub sidecar 写入能力）
+
+### `PersistScrapeStatus_MethodExists`
+- 目标：验证 `LibraryScrapeService` 包含 `PersistScrapeStatus` 方法（ScrapeStatus 持久化能力）
+
+### `ScrapeCandidate_HasScrapeStatusField`
+- 目标：验证 `ScrapeCandidate` record 包含 `ScrapeStatus` 字段
+
+## 14. Videos API 契约测试（scrape-fail-graceful 扩展）
+
+文件：`ContractTests/VideosApiTests.cs`（追加 3 个测试）
+
+### `GetLibraryVideosRequest_HasScrapeStatusFilter`
+- 目标：验证 `GetLibraryVideosRequest` 包含 `ScrapeStatus` 可选筛选属性
+
+### `VideoListItemDto_ScrapeStatus_DefaultsToNone`
+- 目标：验证 `VideoListItemDto.ScrapeStatus` 默认值为 `"none"`
+
+### `VideoDetailDto_ScrapeStatus_DefaultsToNone`
+- 目标：验证 `VideoDetailDto.ScrapeStatus` 默认值为 `"none"`
+
+## 15. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：
