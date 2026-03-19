@@ -262,6 +262,27 @@ export function LibraryPage() {
       onClick: () => handleToggleFavorite(video),
     },
     {
+      key: "rescrape",
+      label: tc("rescrapeMetadata"),
+      icon: "🔄",
+      onClick: async () => {
+        const client = getApiClient();
+        if (!client || !libraryId) return;
+        try {
+          await client.startLibraryScrape(libraryId, {
+            videoIds: [video.videoId],
+            mode: "all",
+            forceRefreshMetadata: true,
+            writeSidecars: true,
+            downloadActorAvatars: true,
+          });
+        } catch {
+          // SSE library.changed will refresh the list; errors are silently ignored
+          // as the task feedback comes through inline summary refresh
+        }
+      },
+    },
+    {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
       icon: "📎",

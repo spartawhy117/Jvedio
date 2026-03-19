@@ -87,5 +87,11 @@
   "favoriteSuccess": "Favorited",
   "unfavoriteSuccess": "Unfavorited",
   "deleteSuccess": "Deleted",
-  "operationFailed": "Operation failed"
+  "operationFailed": "Operation failed",
+  "rescrapeMetadata": "Rescrape Metadata",
+  "scrapeStatus": {
+    "none": "Not scraped",
+    "full": "Scraped",
+    "failed": "Scrape failed"
+  }
 }

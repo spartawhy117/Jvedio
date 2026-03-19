@@ -87,5 +87,11 @@
   "favoriteSuccess": "已收藏",
   "unfavoriteSuccess": "已取消收藏",
   "deleteSuccess": "已删除",
-  "operationFailed": "操作失败"
+  "operationFailed": "操作失败",
+  "rescrapeMetadata": "重新抓取元数据",
+  "scrapeStatus": {
+    "none": "未抓取",
+    "full": "已抓取",
+    "failed": "抓取失败"
+  }
 }

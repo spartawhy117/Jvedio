@@ -251,6 +251,26 @@ export function FavoritesPage() {
       onClick: () => handleToggleFavorite(video),
     },
     {
+      key: "rescrape",
+      label: tc("rescrapeMetadata"),
+      icon: "🔄",
+      onClick: async () => {
+        const client = getApiClient();
+        if (!client || !video.libraryId) return;
+        try {
+          await client.startLibraryScrape(video.libraryId, {
+            videoIds: [video.videoId],
+            mode: "all",
+            forceRefreshMetadata: true,
+            writeSidecars: true,
+            downloadActorAvatars: true,
+          });
+        } catch {
+          // SSE library.changed will refresh the list
+        }
+      },
+    },
+    {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
       icon: "📎",

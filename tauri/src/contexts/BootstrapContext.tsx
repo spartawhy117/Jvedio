@@ -132,6 +132,8 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
         }
         // Invalidate all library-related query caches
         invalidateQueries("libraries");
+        invalidateQueries("video:");
+        invalidateQueries("favorites");
         break;
       }
       case "settings.changed": {

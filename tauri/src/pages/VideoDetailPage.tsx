@@ -142,7 +142,14 @@ export function VideoDetailPage() {
             {posterUrl ? (
               <img src={posterUrl} alt={video.vid} loading="lazy" />
             ) : (
-              <div className="video-card-no-image poster-fallback">🎬</div>
+              <div className="video-card-no-image poster-fallback">
+                <svg className="no-poster-placeholder" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 64, height: 64 }}>
+                  <rect x="8" y="6" width="32" height="36" rx="3" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="24" cy="20" r="6" stroke="currentColor" strokeWidth="2" />
+                  <path d="M14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span className="no-poster-text">No Poster</span>
+              </div>
             )}
           </div>
 

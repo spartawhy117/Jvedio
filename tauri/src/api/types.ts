@@ -100,7 +100,11 @@ export interface StartLibraryScanResponse {
 }
 
 export interface StartLibraryScrapeRequest {
-  forceRescrape?: boolean;
+  videoIds?: string[];
+  mode?: "missing-only" | "all";
+  forceRefreshMetadata?: boolean;
+  writeSidecars?: boolean;
+  downloadActorAvatars?: boolean;
 }
 
 export interface StartLibraryScrapeResponse {
@@ -118,6 +122,7 @@ export interface VideoListItemDto {
   displayTitle: string;
   path: string;
   libraryId: string;
+  scrapeStatus: "none" | "full" | "failed";
   releaseDate: string | null;
   durationSeconds: number;
   rating: number;
@@ -139,6 +144,7 @@ export interface GetLibraryVideosRequest {
   pageIndex: number;
   pageSize: number;
   missingSidecarOnly?: boolean;
+  scrapeStatus?: string;
 }
 
 export interface GetLibraryVideosResponse {
@@ -173,6 +179,7 @@ export interface VideoDetailDto {
   path: string;
   libraryId: string;
   libraryName: string;
+  scrapeStatus: "none" | "full" | "failed";
   releaseDate: string | null;
   durationSeconds: number;
   rating: number;
