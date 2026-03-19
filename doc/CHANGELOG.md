@@ -6,6 +6,9 @@
 ## [未发布]
 
 ### 已变更
+- 完成 Phase 7.1 Settings 占位补全：新增 `ImageSettingsDto`、`ScanImportSettingsDto`、`LibrarySettingsDto` 三组 Contracts DTO；更新 `SettingsService` 支持 6 组设置读写与持久化；前端 SettingsPage 三个 "Coming Soon" 占位替换为真实表单控件。
+- 完成 Phase 7.2 视频操作 API：新增 `ToggleFavoriteResponse`、`DeleteVideoResponse`、`BatchOperationRequest`、`BatchOperationResponse` Contracts DTO；`VideoService` 新增 toggle-favorite、delete-video、batch-favorite、batch-delete 四个方法；`VideosController` 新增四个端点；`VideoListItemDto` 和 `VideoDetailDto` 添加 `IsFavorite` 字段。
+- 完成 Phase 7.2b 前端多选与批量操作：`LibraryPage` 和 `FavoritesPage` 接入 multi-select 状态管理和批量操作栏（收藏/取消收藏/删除/全选/取消选择）；右键菜单扩展 toggleFavorite 和 deleteVideo 动作（含 danger 样式）；`VideoCard` VID 行前显示收藏心形标识；`common.json` 新增 20 个 i18n 键。
 - 在 `plan/active/desktop-ui-shell-refactor/plan.md` 与 `handoff.md` 中新增“UI 冻结后的后续候选路线（Tauri 2 三轮收敛版）”，明确后续若切换到 `Tauri 2 + React/Vue + C# Worker + Jvedio.Contracts`，应继续复用 `localhost API + SSE`、保持壳层与业务层分离，并以组件化 renderer 替换当前单大控制器式 renderer。
 - 收口 `doc/UI/new/` 目录结构：页面三件套移动到 `pages/`，弹层三件套移动到 `dialogs/`，共享组件三件套移动到 `shared/`，并新增 `_archive/README.md` 作为退役草稿保留目录说明；`README.md`、`page-index.md`、`ui-todo.md` 与相关页面文档的相对引用已同步更新。
 - 删除 `doc/assets/` 目录及其中历史 `.mmd` / `.svg` / `.jpg` 图示资源；`doc/developer.md`、`doc/modules/*.md` 和 `doc/UI/new/ui-todo.md` 已同步去掉对该目录的直接引用，当前 UI 流程图入口统一以 `doc/UI/new/flow/` 为准。

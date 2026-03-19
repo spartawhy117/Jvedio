@@ -22,6 +22,21 @@
 | Phase 4 — Release 切换 | ✅ | TauriShellLauncher + PrepareTauriShellArtifacts |
 | Phase 5 — 旧 Electron 清理 | ✅ | electron/ 物理删除 + 文档清退 |
 
+## Phase 6 回顾（已完成）
+
+- 端到端可运行验证 ✅
+- 7 个 bug 修复 ✅
+- 日志目录统一（Worker + Shell → `log/`）✅
+- Playwright 方案验证 ✅
+
+## Phase 7 回顾（已完成）
+
+| 子项 | 状态 | 概要 |
+|------|------|------|
+| 7.1 Settings 占位补全 | ✅ | Image/ScanImport/Library 三组真实表单替换 Coming Soon |
+| 7.2 视频操作 API | ✅ | toggle-favorite + delete + batch-favorite + batch-delete 四端点 |
+| 7.2b 前端多选与批量操作 | ✅ | LibraryPage + FavoritesPage 多选态 + 批量操作栏 + 右键菜单扩展 |
+
 ## 当前真实状态（Phase 6 起点）
 
 ### 已完成
