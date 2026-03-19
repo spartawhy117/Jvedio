@@ -234,6 +234,17 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 > 降级用例（播放/打开文件夹/外链）因 Tauri shell API 在浏览器环境不可用，通过手动验证覆盖。
 
+#### 10.3.1 前端验收补充：抓取失败优雅降级链路
+
+以下验收点从已完成的 `scrape-fail-graceful` feature 收口到 Phase 10，执行时归入现有 `Library Workbench`、`Favorites`、`Video Detail Playback` 三组用例，不额外新建独立 flow：
+
+- `VideoCard` 无海报时显示占位图，不再回退到 `🎬` emoji。
+- `LibraryPage` 列表可按 `scrapeStatus` 做筛选，至少覆盖 `failed` / `full` / `none` 的显示切换。
+- `LibraryPage` 与 `FavoritesPage` 右键菜单必须显示“重新抓取元数据”，并确认调用的是单影片搜刮请求，而不是全库重刷。
+- 对抓取失败样本执行重新搜刮后，列表卡片应自动刷新：占位图切换为真实海报，摘要状态同步变化。
+- 对抓取失败样本执行重新搜刮后，`VideoDetailPage` 应自动刷新：sidecar 状态、海报、元数据和演员信息与最新抓取结果一致。
+- 对仍失败的样本，前端必须保持可见、可进入详情、可再次触发重抓，不因 stub sidecar 或缺图进入异常状态。
+
 #### 10.4 测试后清理
 
 > 详细清理流程见 `doc/testing/e2e/e2e-test-data-spec.md` §6。
@@ -246,6 +257,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 - 4 个降级用例有手动验证记录
 - `{repo}/log/test/e2e/reports/` 生成可读的 HTML 测试报告
 - 失败截图自动保存到 `{repo}/log/test/e2e/screenshots/`
+- 抓取失败优雅降级前端链路已覆盖：占位图、`scrapeStatus` 筛选、右键重新抓取、卡片自动刷新、详情页自动刷新均有对应验收记录
 
 #### 关联文档更新
 
