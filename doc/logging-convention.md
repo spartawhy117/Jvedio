@@ -75,9 +75,10 @@
 | 项目 | 值 |
 |------|---|
 | 工程 | `dotnet/Jvedio.Worker.Tests` |
-| 日志路径 | 临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/` |
-| 环境变量 | `JVEDIO_LOG_DIR` = `{TempPath}/jvedio-test-{guid}/log/test/worker-tests` |
-| 生命周期 | 测试后自动清理临时目录 |
+| 日志路径 | `{repo}/log/test/worker-tests/runtime/` |
+| 环境变量 | `JVEDIO_LOG_DIR` = `{repo}/log/test/worker-tests` |
+| 生命周期 | 持久化，不自动清理（多次运行按日滚动覆盖） |
+| git 同步 | `log/test/` 目录参与 git 跟踪（`.gitignore` 中有例外规则） |
 | 备注 | Worker 的 `ResolveLogDirectory()` 会在 `JVEDIO_LOG_DIR` 上追加 `runtime/` 子目录 |
 
 ## 3. 环境变量

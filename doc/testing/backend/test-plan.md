@@ -145,14 +145,18 @@ var videos = await TestBootstrap.Client.GetAsync($"/api/libraries/{id}/videos?..
 ### TestBootstrap
 
 `TestBootstrap.cs` 使用 `[AssemblyInitialize]` 在所有测试运行前：
-1. 创建临时数据目录
-2. 放置空 SQLite 数据库文件
-3. 设置 `JVEDIO_APP_BASE_DIR` 和 `JVEDIO_LOG_DIR` 环境变量（`JVEDIO_LOG_DIR` 指向 `{tempDir}/log/test/worker-tests`，Worker 自动追加 `runtime/` 子目录）
-4. 创建 `WebApplicationFactory<Program>` 和 `HttpClient`
+1. 通过 `FindRepoRoot()` 定位 repo 根目录（向上查找包含 `dotnet/` 和 `tauri/` 的目录）
+2. 清空并重建 `{repo}/test-data/worker/`，创建 `data/test-user/` 子目录
+3. 放置空 SQLite 数据库文件
+4. 设置 `JVEDIO_APP_BASE_DIR` = `{repo}/test-data/worker/`
+5. 设置 `JVEDIO_LOG_DIR` = `{repo}/log/test/worker-tests/`（Worker 自动追加 `runtime/` 子目录）
+6. 创建 `WebApplicationFactory<Program>` 和 `HttpClient`
 
 `[AssemblyCleanup]` 在所有测试运行后：
 1. 释放 HttpClient 和 Factory
-2. 清理临时目录
+2. **不删除** `test-data/worker/`，保留现场供调试和 git 跟踪
+
+> 暴露 `TestBootstrap.TestDataDir` 属性，供需要创建临时文件的测试（如 `ScanImportApiTests`）使用。
 
 ### JSON 序列化
 

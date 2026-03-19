@@ -165,14 +165,15 @@ ABP-001/
 
 | 维度 | Release 正式版 | 后端测试 | E2E 测试 |
 |------|---------------|---------|---------|
-| **数据根目录** | `{exe向上探测}/Jvedio/bin/Release` | `{TempDir}/jvedio-test-{guid}` | `{TempDir}/jvedio-e2e/` |
+| **数据根目录** | `{exe向上探测}/Jvedio/bin/Release` | `{repo}/test-data/worker/` | `{repo}/test-data/e2e/` |
 | **路径注入** | 自动探测 | `JVEDIO_APP_BASE_DIR` 环境变量 | `JVEDIO_APP_BASE_DIR` 环境变量 |
 | **用户目录** | `data/{Windows用户名}/` | `data/test-user/` | `data/test-user/` |
 | **SQLite** | 同上 + `Mode=ReadWriteCreate` | 空文件 → Worker 自动建表 | 空文件 → Worker 自动建表 |
-| **日志** | `{repo}/log/runtime/` | 临时目录下，测试后清理 | 临时目录下，测试后清理 |
-| **生命周期** | 用户手动关闭 | `[AssemblyCleanup]` 自动清理 | 脚本自动清理 |
+| **日志** | `{repo}/log/runtime/` | `{repo}/log/test/worker-tests/runtime/` | `{repo}/log/test/e2e/runtime/` |
+| **生命周期** | 用户手动关闭 | 每次测试先清空再重建，测试后保留 | 持久化到 git，可 `git checkout` 重置 |
+| **git 跟踪** | ❌ | ✅ 基线 SQLite | ✅ 基线 SQLite + 假视频文件 |
 
-> 详细的后端测试数据隔离方案见 `doc/testing/backend/test-plan.md` §5；E2E 测试数据规范见 `doc/testing/e2e/e2e-test-data-spec.md`。
+> 详细的后端测试数据隔离方案见 `doc/testing/backend/test-plan.md` §6；E2E 测试数据规范见 `doc/testing/e2e/e2e-test-data-spec.md`。
 
 ## 7. 关联文档
 

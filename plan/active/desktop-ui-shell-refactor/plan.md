@@ -307,7 +307,7 @@ test-data/**/cache/
 |------|---------|
 | `doc/data-directory-convention.md` | §6 对比表 — 后端测试列 + E2E 列均改为 `test-data/` 方案 |
 | `doc/testing/backend/test-plan.md` | §5 TestBootstrap 说明更新 |
-| `doc/testing/e2e/e2e-test-data-spec.md` | §2 目录结构重写为 `test-data/e2e/` |
+| `doc/testing/e2e/e2e-test-data-spec.md` | §2 目录结构重写为 `test-data/e2e/`；**整体压缩表述**，删除与 `data-directory-convention.md` 重复的内容（对比表、SQLite 表结构、Sidecar 规则等），只保留 E2E 专属信息；**新增独立章节"E2E 测试数据配置指南"**，以可直接执行的步骤写清楚：① 假视频文件放在哪、怎么命名、什么内容 ② 目录怎么建 ③ 环境变量怎么设 ④ 如何验证配置成功——目标是开发者不看其他文档也能按步骤完成 E2E 测试数据的配置 |
 | `doc/logging-convention.md` | 补充测试日志 git 同步说明 |
 | `.gitignore` | 新增 `test-data/` 和 `log/test/` 规则 |
 | `AGENTS.md` | 更新"当前关键目录规则"段落 |

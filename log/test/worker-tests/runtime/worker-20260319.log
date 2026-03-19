@@ -1,0 +1,14 @@
+22:19:05.818 [INF] [Worker-HomeMvp] Worker storage ready at d:\MyProjects\JVedio\test-data\worker\data\Admin\app_datas.sqlite and d:\MyProjects\JVedio\test-data\worker\data\Admin\app_configs.sqlite
+22:19:05.905 [INF] Now listening on: http://127.0.0.1:0
+22:19:05.905 [INF] [Worker-HomeMvp] Worker ready at http://127.0.0.1:0
+22:19:06.002 [INF] [Worker-HomeMvp] Created library 1 Test Library
+22:19:06.029 [INF] [Worker-HomeMvp] Deleted library 1 Test Library
+22:19:06.052 [INF] [Worker-Settings] updated settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+22:19:06.066 [INF] [Worker-Settings] updated settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+22:19:06.084 [INF] [Worker-Settings] reset settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+22:19:06.116 [INF] [Worker-Video] BatchFavorite: 0 success, 0 failed, favorite=true
+22:19:06.138 [INF] [Worker-HomeMvp] Created library 2 Scan Test Library
+22:19:09.180 [INF] [Worker-HomeMvp] Deleted library 2 Scan Test Library
+22:19:09.201 [INF] [Worker-HomeMvp] Created library 3 Empty Scan Library
+22:19:11.236 [INF] [Worker-HomeMvp] Deleted library 3 Empty Scan Library
+22:19:11.259 [INF] [Worker-HomeMvp] Worker stopping
