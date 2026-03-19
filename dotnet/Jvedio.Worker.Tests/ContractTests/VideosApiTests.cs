@@ -64,4 +64,40 @@ public class VideosApiTests
         using var doc = JsonDocument.Parse(json);
         Assert.IsTrue(doc.RootElement.GetProperty("success").GetBoolean());
     }
+
+    // ── Phase 6.3: ScrapeStatus filtering tests ─────────────────
+
+    /// <summary>
+    /// GetLibraryVideosRequest should accept scrapeStatus filter parameter.
+    /// </summary>
+    [TestMethod]
+    public void GetLibraryVideosRequest_HasScrapeStatusFilter()
+    {
+        var requestType = typeof(Jvedio.Contracts.Libraries.GetLibraryVideosRequest);
+        var prop = requestType.GetProperty("ScrapeStatus");
+        Assert.IsNotNull(prop, "GetLibraryVideosRequest should have a ScrapeStatus property");
+        Assert.AreEqual(typeof(string), prop.PropertyType, "ScrapeStatus should be of type string");
+    }
+
+    /// <summary>
+    /// VideoListItemDto.ScrapeStatus default value should be "none".
+    /// </summary>
+    [TestMethod]
+    public void VideoListItemDto_ScrapeStatus_DefaultsToNone()
+    {
+        var dto = new Jvedio.Contracts.Videos.VideoListItemDto();
+        Assert.AreEqual("none", dto.ScrapeStatus,
+            "VideoListItemDto.ScrapeStatus should default to 'none'");
+    }
+
+    /// <summary>
+    /// VideoDetailDto.ScrapeStatus default value should be "none".
+    /// </summary>
+    [TestMethod]
+    public void VideoDetailDto_ScrapeStatus_DefaultsToNone()
+    {
+        var dto = new Jvedio.Contracts.Videos.VideoDetailDto();
+        Assert.AreEqual("none", dto.ScrapeStatus,
+            "VideoDetailDto.ScrapeStatus should default to 'none'");
+    }
 }

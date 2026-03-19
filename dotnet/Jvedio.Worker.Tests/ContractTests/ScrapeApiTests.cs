@@ -138,6 +138,102 @@ public class ScrapeApiTests
         // diagnostics.success may be false (unreachable server), that's expected
     }
 
+    // ── Phase 6.2: ScrapeStatus + VideoIds tests ─────────────────
+
+    /// <summary>
+    /// Scrape request with VideoIds should be accepted (202) — verifies the API
+    /// contract accepts the videoIds field for single-video rescrape.
+    /// </summary>
+    [TestMethod]
+    public async Task ScrapeLibrary_WithVideoIds_ReturnsAccepted()
+    {
+        var tempDir = Path.Combine(TestBootstrap.TestDataDir, "scrape-videoids-temp");
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            // Create temp library
+            var createBody = new StringContent(
+                JsonSerializer.Serialize(new
+                {
+                    name = "ScrapeVideoIdsTest",
+                    scanPaths = new[] { tempDir.Replace("\\", "/") },
+                }),
+                Encoding.UTF8,
+                "application/json");
+            var createResp = await TestBootstrap.Client.PostAsync("/api/libraries", createBody);
+            Assert.AreEqual(HttpStatusCode.OK, createResp.StatusCode);
+            var createJson = await createResp.Content.ReadAsStringAsync();
+            using var createDoc = JsonDocument.Parse(createJson);
+            var libId = createDoc.RootElement
+                .GetProperty("data")
+                .GetProperty("library")
+                .GetProperty("libraryId")
+                .GetString();
+            Assert.IsNotNull(libId);
+
+            // Trigger scrape with VideoIds
+            var scrapeBody = new StringContent(
+                JsonSerializer.Serialize(new
+                {
+                    videoIds = new[] { "99999" },
+                    mode = "all",
+                    forceRefreshMetadata = true,
+                    writeSidecars = false,
+                    downloadActorAvatars = false,
+                }),
+                Encoding.UTF8,
+                "application/json");
+            var scrapeResp = await TestBootstrap.Client.PostAsync($"/api/libraries/{libId}/scrape", scrapeBody);
+            Assert.AreEqual(HttpStatusCode.Accepted, scrapeResp.StatusCode);
+
+            // Clean up
+            await TestBootstrap.Client.DeleteAsync($"/api/libraries/{libId}");
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Verifies that StartLibraryScrapeRequest contract supports all required fields
+    /// for scrape-fail-graceful: videoIds, mode, forceRefreshMetadata, writeSidecars, downloadActorAvatars.
+    /// </summary>
+    [TestMethod]
+    public void StartLibraryScrapeRequest_HasAllRequiredFields()
+    {
+        var requestType = typeof(Jvedio.Contracts.Libraries.StartLibraryScrapeRequest);
+        Assert.IsNotNull(requestType.GetProperty("VideoIds"), "Should have VideoIds property");
+        Assert.IsNotNull(requestType.GetProperty("Mode"), "Should have Mode property");
+        Assert.IsNotNull(requestType.GetProperty("ForceRefreshMetadata"), "Should have ForceRefreshMetadata property");
+        Assert.IsNotNull(requestType.GetProperty("WriteSidecars"), "Should have WriteSidecars property");
+        Assert.IsNotNull(requestType.GetProperty("DownloadActorAvatars"), "Should have DownloadActorAvatars property");
+    }
+
+    /// <summary>
+    /// Verifies VideoListItemDto includes the ScrapeStatus field.
+    /// </summary>
+    [TestMethod]
+    public void VideoListItemDto_HasScrapeStatusField()
+    {
+        var dtoType = typeof(Jvedio.Contracts.Videos.VideoListItemDto);
+        var prop = dtoType.GetProperty("ScrapeStatus");
+        Assert.IsNotNull(prop, "VideoListItemDto should have a ScrapeStatus property");
+        Assert.AreEqual(typeof(string), prop.PropertyType, "ScrapeStatus should be of type string");
+    }
+
+    /// <summary>
+    /// Verifies VideoDetailDto includes the ScrapeStatus field.
+    /// </summary>
+    [TestMethod]
+    public void VideoDetailDto_HasScrapeStatusField()
+    {
+        var dtoType = typeof(Jvedio.Contracts.Videos.VideoDetailDto);
+        var prop = dtoType.GetProperty("ScrapeStatus");
+        Assert.IsNotNull(prop, "VideoDetailDto should have a ScrapeStatus property");
+        Assert.AreEqual(typeof(string), prop.PropertyType, "ScrapeStatus should be of type string");
+    }
+
     /// <summary>
     /// Reads test-env.json to locate the config file path.
     /// Returns null if the config file doesn't exist.

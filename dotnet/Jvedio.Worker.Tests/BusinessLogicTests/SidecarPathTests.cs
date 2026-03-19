@@ -164,4 +164,48 @@ public class SidecarPathTests
         Assert.AreEqual(3, VideoServiceResolveSidecarDirMethod.GetParameters().Length,
             "VideoService.ResolveSidecarDirectory should accept 3 parameters");
     }
+
+    // ── Phase 6.1: Stub sidecar / ScrapeStatus tests ────────────
+
+    private static readonly MethodInfo WriteStubSidecarMethod =
+        typeof(LibraryScrapeService).GetMethod("WriteStubSidecarAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+    private static readonly MethodInfo PersistScrapeStatusMethod =
+        typeof(LibraryScrapeService).GetMethod("PersistScrapeStatus", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    [TestMethod]
+    public void ScrapeService_WriteStubSidecarAsync_MethodExists()
+    {
+        Assert.IsNotNull(WriteStubSidecarMethod,
+            "LibraryScrapeService should have a WriteStubSidecarAsync instance method");
+        // Verify parameters: (string videoPath, string vid, string libraryName, CancellationToken ct)
+        Assert.AreEqual(4, WriteStubSidecarMethod.GetParameters().Length,
+            "WriteStubSidecarAsync should accept 4 parameters");
+        Assert.AreEqual(typeof(Task), WriteStubSidecarMethod.ReturnType,
+            "WriteStubSidecarAsync should return Task");
+    }
+
+    [TestMethod]
+    public void ScrapeService_PersistScrapeStatus_MethodExists()
+    {
+        Assert.IsNotNull(PersistScrapeStatusMethod,
+            "LibraryScrapeService should have a PersistScrapeStatus static method");
+        // Verify parameters: (SqliteConnection connection, long dataId, string status)
+        Assert.AreEqual(3, PersistScrapeStatusMethod.GetParameters().Length,
+            "PersistScrapeStatus should accept 3 parameters");
+    }
+
+    [TestMethod]
+    public void ScrapeCandidate_HasScrapeStatusField()
+    {
+        // Verify ScrapeCandidate record struct includes ScrapeStatus field
+        var scrapeCandidateType = typeof(LibraryScrapeService)
+            .GetNestedType("ScrapeCandidate", BindingFlags.NonPublic)!;
+        Assert.IsNotNull(scrapeCandidateType, "ScrapeCandidate nested type should exist");
+
+        var scrapeStatusProp = scrapeCandidateType.GetProperty("ScrapeStatus");
+        Assert.IsNotNull(scrapeStatusProp, "ScrapeCandidate should have a ScrapeStatus property");
+        Assert.AreEqual(typeof(string), scrapeStatusProp.PropertyType,
+            "ScrapeCandidate.ScrapeStatus should be of type string");
+    }
 }
