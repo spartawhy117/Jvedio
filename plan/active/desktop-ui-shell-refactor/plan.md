@@ -170,54 +170,18 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ## 阶段路线与完成状态
 
-### Phase 0–5：✅ 已全部完成
+### Phase 0–9.6：✅ 已全部完成
 
-| Phase | 内容 | 状态 |
-|-------|------|------|
-| 0 | 方案冻结与审查 | ✅ |
-| 1 | MainShell Spike（窗口 + Worker 拉起 + Bootstrap + SSE） | ✅ |
-| 2 | Renderer 基座（路由 / API client / 查询层 / SSE / 主题 / i18n） | ✅ |
-| 3 | 业务页迁移（7 个页面 + 共享组件） | ✅ |
-| 4 | Release 切换（`TauriShellLauncher` + `PrepareTauriShellArtifacts`） | ✅ |
-| 5 | Electron 物理删除与文档清退 | ✅ |
-
-### Phase 6：端到端验证（API 级）— ✅ 已完成
-
-6.0 统一日志、6.1 编译基础设施、6.2 首次启动验证、6.3 页面流转 API 级测试（7 张流程图）、6.4 Bug 修复（7 个 bug）。覆盖 API 数据链路通畅性，不覆盖 UI 交互完整性。
-
-### Phase 7：UI 交互完整性补全 — ✅ 已完成
-
-- 7.1 Settings 3 个占位子组补全（image / scanImport / library → 真实表单）
-- 7.2 视频多选 / 批量操作（后端 4 API + 前端多选 + 批量操作栏 + 右键菜单 + 收藏心形 + i18n）
-- VideoDetail "打开文件夹"接入 `revealItemInDir`、`VideoContextMenu` 组件已在 LibraryPage + FavoritesPage 接入
-
-### Phase 8：后端测试工程迁移 — ✅ 已完成
-
-新建 `Jvedio.Worker.Tests`（.NET 8 SDK-style / MSTest / `WebApplicationFactory<Program>`），不依赖 WPF 主程序。迁移旧测试逻辑 + 新增 Worker API 契约测试，44 个测试全部通过。旧测试工程 `Jvedio.Test/` 已物理删除。
-
-### Phase 8.5：`Jvedio-WPF/` → `dotnet/` 目录更名 — ✅ 已完成
-
-`git mv` 物理更名 + 修改 4 个源码文件（Program.cs、worker.rs、shell_log.rs、prepare-worker.ps1）+ 批量替换 29 个文档 171 处引用，全局零残留。
-
-### Phase 9：日志目录统一 — ✅ 已完成
-
-`log/` 从平铺改为 `runtime/` + `test/` + `dev/` 分层子目录。Worker 和 Shell 运行日志写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，`JVEDIO_LOG_DIR` 自动追加 `runtime/`。`doc/logging-convention.md` 已重写为分层结构。
-
----
-
-### Phase 9.5：测试数据目录统一到项目根目录 — ✅ 已完成
-
-**前提**：Phase 8 后端测试迁移 + Phase 9 日志统一全部完成。
-
-**已完成** ✅ — commit `adf2c29`
-
-改造 `TestBootstrap.cs`，数据目录从 `%TEMP%/jvedio-test-{GUID}/` 改为 `{repo}/test-data/worker/`（每次清空重建，测试后保留现场），日志改为 `{repo}/log/test/worker-tests/`。新增 `FindRepoRoot()` 方法。创建 `test-data/e2e/` 目录结构和 5 个假视频文件（5 KB），提交到 git。重写 `e2e-test-data-spec.md`（215→133 行），新增"E2E 测试数据配置指南"可执行步骤章节。同步更新 `.gitignore`（E2E 跟踪 / worker 忽略）、`data-directory-convention.md` §6 对比表、`test-plan.md` §6 TestBootstrap、`logging-convention.md` §2.5、`AGENTS.md`。44 个后端测试全部通过。
-
----
-
-### Phase 9.6：数据层流程测试完善（MetaTube 抓取 + Actor 测试覆盖）— ✅ 已完成
-
-新建 `test-data/config/test-env.json` 统一测试环境配置 + `.local.json` 覆盖机制。改造 `seed-e2e-data.ps1` 从配置读取 + 新增 MetaTube 抓取步骤（Step 5.5-5.9）。新增 `ActorApiTests.cs`（5 个用例）和 `ScrapeApiTests.cs`（3 个用例），消除 MetaTube P0 技术债。测试总数 44→52，全部通过。同步更新 test-targets / test-current-suite / test-plan / README / AGENTS / CHANGELOG。
+| Phase | 摘要 |
+|-------|------|
+| 0–5 | 方案冻结 → MainShell Spike → Renderer 基座 → 7 页迁移 → Release 切换 → Electron 删除 |
+| 6 | 端到端 API 验证（日志统一 + 编译基建 + 首次启动 + 7 张流程图 + 7 bug 修复） |
+| 7 | UI 补全（Settings 真实表单 + 视频多选/批量操作 + 右键菜单 + 收藏心形） |
+| 8 | 后端测试迁移：新建 `Jvedio.Worker.Tests`（44 测试），删除旧 `Jvedio.Test/` |
+| 8.5 | `Jvedio-WPF/` → `dotnet/` 目录更名，4 源文件 + 29 文档 171 处引用同步 |
+| 9 | 日志目录统一：`log/` → `runtime/` + `test/` + `dev/` 分层 |
+| 9.5 | 测试数据目录统一到 `test-data/`，E2E 假视频 5 个提交到 git |
+| 9.6 | 数据层测试完善：`test-env.json` 配置 + MetaTube 抓取 + Actor/Scrape 测试，44→52 全通过 + `verify-backend-apis.ps1`（31 端点校验） |
 
 ---
 
@@ -302,27 +266,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ## 验证矩阵（Phase 6 已覆盖）
 
-### 架构级
-
-- ✅ Tauri 拉起 Worker
-- ✅ Renderer 获取 Bootstrap
-- ✅ Renderer 连接 SSE
-- ✅ DTO 与事件在前端正确消费
-
-### 页面级
-
-- ✅ 主壳导航切换
-- ✅ 库管理 CRUD + 扫描
-- ✅ 单库筛选 / 排序 / 分页
-- ✅ 收藏列表与详情往返
-- ✅ 演员列表与演员详情
-- ✅ 影片详情
-- ✅ 设置读写 / 恢复默认 / MetaTube 诊断
-
-### 事件级
-
-- ✅ `worker.ready` / `library.changed` / `settings.changed`
-- ✅ `task.summary.changed` / `task.created` / `task.completed` / `task.failed` / `task.progress`
+✅ 架构级（Tauri→Worker→SSE→DTO 全链路）、页面级（7 页全覆盖）、事件级（8 类 SSE 事件）均已通过。
 
 ---
 
