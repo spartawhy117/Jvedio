@@ -1,0 +1,170 @@
+[start-e2e-env] Resetting previous E2E environment...
+[stop-e2e-env] Stopping frontend acceptance environment...
+[stop-e2e-env] Environment stopped.
+[start-e2e-env] Seeding backend data...
+[seed-e2e] Repo root: D:\study\Proj\Jvedio
+
+[seed-e2e] Step 1: Creating directory structure...
+  Cleaned: videos/
+  Cleaned: data/
+  Created: videos/lib-a, videos/lib-b, data/test-user
+
+[seed-e2e] Step 1.5: Loading test config...
+  Loaded: D:\study\Proj\Jvedio\test-data\config\test-env.json
+  MetaTube URL: https://metatube-server.hf.space
+  Scrapeable VIDs: SNOS-037, SDDE-759
+
+[seed-e2e] Step 2: Creating fake video files (1 KB each) from config...
+  Created: videos/lib-a/SNOS-037.mp4
+  Created: videos/lib-a/SDDE-759.mp4
+  Created: videos/lib-b/sdde-660-c.mp4
+  Created: videos/lib-b/FC2-PPV-1788676.mp4
+  Total: 4 fake video files
+
+[seed-e2e] Step 3: Setting environment variables...
+  JVEDIO_APP_BASE_DIR = D:\study\Proj\Jvedio\test-data\e2e
+  JVEDIO_LOG_DIR      = D:\study\Proj\Jvedio\log\test\e2e
+
+[seed-e2e] Step 4: Starting Worker...
+  Worker PID: 25828
+  Worker ready at: http://localhost:5026
+
+[seed-e2e] Step 5: Seeding data via API...
+  Created library A (libraryId=1)
+  Created library B (libraryId=2)
+  Scanning E2E-Lib-A...
+  E2E-Lib-A scan status: succeeded/completed (2s)
+  Scanning E2E-Lib-B...
+  E2E-Lib-B scan status: succeeded/completed (2s)
+
+[seed-e2e] Step 5.5: Configuring MetaTube...
+  MetaTube configured: https://metatube-server.hf.space
+
+[seed-e2e] Step 5.7: Triggering MetaTube scrape for E2E-Lib-A...
+  E2E-Lib-A scrape status: running/scraping (2s)  E2E-Lib-A scrape status: running/scraping (4s)  E2E-Lib-A scrape status: running/scraping (6s)  E2E-Lib-A scrape status: running/scraping (8s)  E2E-Lib-A scrape status: running/scraping (10s)  E2E-Lib-A scrape status: running/scraping (12s)  E2E-Lib-A scrape status: running/scraping (14s)  E2E-Lib-A scrape status: running/scraping (16s)  E2E-Lib-A scrape status: running/scraping (18s)  E2E-Lib-A scrape status: running/scraping (20s)  E2E-Lib-A scrape status: running/scraping (22s)  E2E-Lib-A scrape status: running/scraping (24s)  E2E-Lib-A scrape status: running/scraping (26s)  E2E-Lib-A scrape status: running/scraping (28s)  E2E-Lib-A scrape status: running/scraping (30s)  E2E-Lib-A scrape status: running/scraping (32s)  E2E-Lib-A scrape status: running/scraping (34s)  E2E-Lib-A scrape status: running/scraping (36s)  E2E-Lib-A scrape status: running/scraping (38s)  E2E-Lib-A scrape status: running/scraping (40s)  E2E-Lib-A scrape status: running/scraping (42s)  E2E-Lib-A scrape status: running/scraping (44s)  E2E-Lib-A scrape status: running/scraping (46s)  E2E-Lib-A scrape status: running/scraping (48s)  E2E-Lib-A scrape status: running/scraping (50s)  E2E-Lib-A scrape status: running/scraping (52s)  E2E-Lib-A scrape status: running/scraping (54s)  E2E-Lib-A scrape status: running/scraping (56s)  E2E-Lib-A scrape status: running/scraping (58s)  E2E-Lib-A scrape status: running/scraping (60s)  E2E-Lib-A scrape status: running/scraping (62s)  E2E-Lib-A scrape status: running/scraping (64s)  E2E-Lib-A scrape status: running/scraping (66s)  E2E-Lib-A scrape status: running/scraping (68s)  E2E-Lib-A scrape status: succeeded/completed (70s)
+
+[seed-e2e] Step 5.7: Triggering MetaTube scrape for E2E-Lib-B...
+  E2E-Lib-B scrape status: running/scraping (2s)  E2E-Lib-B scrape status: running/scraping (4s)  E2E-Lib-B scrape status: running/scraping (6s)  E2E-Lib-B scrape status: running/scraping (8s)  E2E-Lib-B scrape status: running/scraping (10s)  E2E-Lib-B scrape status: running/scraping (12s)  E2E-Lib-B scrape status: running/scraping (14s)  E2E-Lib-B scrape status: running/scraping (16s)  E2E-Lib-B scrape status: running/scraping (18s)  E2E-Lib-B scrape status: running/scraping (20s)  E2E-Lib-B scrape status: running/scraping (22s)  E2E-Lib-B scrape status: running/scraping (24s)  E2E-Lib-B scrape status: running/scraping (26s)  E2E-Lib-B scrape status: running/scraping (28s)  E2E-Lib-B scrape status: running/scraping (30s)  E2E-Lib-B scrape status: running/scraping (32s)  E2E-Lib-B scrape status: running/scraping (34s)  E2E-Lib-B scrape status: running/scraping (36s)  E2E-Lib-B scrape status: succeeded/completed (38s)
+
+[seed-e2e] Step 5.9: Verifying scrape results...
+
+[seed-e2e] Step 6: Verifying...
+  [PASS] Library A videos (expect 2) — got 2
+  [PASS] Library B videos (expect 2) — got 2
+  [PASS] SQLite files exist — got 2
+  [PASS] Log files exist — got 7
+  [PASS] Scrape success sample SNOS-037 has title — title='グラドルと同棲生活しちゃう？ 紫堂るいの完全主観オナニーサポート'
+  [PASS] Scrape success sample SNOS-037 status — scrapeStatus='full'
+  [PASS] Scrape success sample SNOS-037 actors — actors=1
+  [PASS] Scrape success sample SNOS-037 asset .nfo — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SNOS-037\SNOS-037.nfo
+  [PASS] Scrape success sample SNOS-037 asset -poster.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SNOS-037\SNOS-037-poster.jpg
+  [PASS] Scrape success sample SNOS-037 asset -thumb.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SNOS-037\SNOS-037-thumb.jpg
+  [PASS] Scrape success sample SNOS-037 asset -fanart.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SNOS-037\SNOS-037-fanart.jpg
+  [PASS] Scrape success sample SDDE-759 has title — title='洗●ドリル 格闘団体ラウンドガール編 俺を見下した小娘達には中出しスパーリングが必要なんだよ…'
+  [PASS] Scrape success sample SDDE-759 status — scrapeStatus='full'
+  [PASS] Scrape success sample SDDE-759 actors — actors=2
+  [PASS] Scrape success sample SDDE-759 asset .nfo — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SDDE-759\SDDE-759.nfo
+  [PASS] Scrape success sample SDDE-759 asset -poster.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SDDE-759\SDDE-759-poster.jpg
+  [PASS] Scrape success sample SDDE-759 asset -thumb.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SDDE-759\SDDE-759-thumb.jpg
+  [PASS] Scrape success sample SDDE-759 asset -fanart.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-A\SDDE-759\SDDE-759-fanart.jpg
+  [PASS] Recognized sample SDDE-660-C exists — configured='sdde-660-c'
+  [PASS] Recognized sample SDDE-660-C status — scrapeStatus='full'
+  [PASS] Recognized sample SDDE-660-C title — title='洗脳ドリル 美人女子プロゴルファー編'
+  [PASS] Recognized sample SDDE-660-C actors — actors=3
+  [PASS] Recognized sample SDDE-660-C asset .nfo — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\SDDE-660-C\SDDE-660-C.nfo
+  [PASS] Recognized sample SDDE-660-C asset -poster.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\SDDE-660-C\SDDE-660-C-poster.jpg
+  [PASS] Recognized sample SDDE-660-C asset -thumb.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\SDDE-660-C\SDDE-660-C-thumb.jpg
+  [PASS] Recognized sample SDDE-660-C asset -fanart.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\SDDE-660-C\SDDE-660-C-fanart.jpg
+  [PASS] Failure sample FC2-PPV-1788676 exists — configured='FC2-PPV-1788676.mp4'
+  [PASS] Failure sample FC2-PPV-1788676 status — scrapeStatus='failed'
+  [PASS] Failure sample FC2-PPV-1788676 stub nfo — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\FC2-PPV-1788676\FC2-PPV-1788676.nfo
+  [PASS] Failure sample FC2-PPV-1788676 missing -poster.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\FC2-PPV-1788676\FC2-PPV-1788676-poster.jpg
+  [PASS] Failure sample FC2-PPV-1788676 missing -thumb.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\FC2-PPV-1788676\FC2-PPV-1788676-thumb.jpg
+  [PASS] Failure sample FC2-PPV-1788676 missing -fanart.jpg — D:\study\Proj\Jvedio\test-data\e2e\data\test-user\cache\video\E2E-Lib-B\FC2-PPV-1788676\FC2-PPV-1788676-fanart.jpg
+  [PASS] Actors list populated — actors=6
+  [PASS] Actor avatar cache populated — files=6
+
+[seed-e2e] Step 7: Writing e2e-env.json...
+  Saved: D:\study\Proj\Jvedio\test-data\e2e\e2e-env.json
+
+=======================================
+  E2E data seeded successfully
+  MetaTube scrape: succeeded
+=======================================
+[start-e2e-env] Verifying backend APIs...
+[verify-api] Loaded e2e-env.json — Worker at http://localhost:5026
+
+── 1. Health ──
+  [PASS] [GET] /health/live — status=live
+  [PASS] [GET] /health/ready — status=ready healthy=true
+
+── 2. App ──
+  [PASS] [GET] /api/app/bootstrap — libraries=2
+
+── 3. Libraries ──
+  [PASS] [GET] /api/libraries — libraries=2
+  [PASS] [GET] /api/libraries/{id}/videos — videos=2
+  [PASS] [POST] /api/libraries (create temp) — created libraryId=3
+  [PASS] [PUT] /api/libraries/{id} (update temp) — renamed
+  [PASS] [DELETE] /api/libraries/{id} (delete temp) — deleted
+  [PASS] [POST] /api/libraries/{id}/scan — taskId=task_c188faf8d9b340d0930682a501279caa
+  [PASS] [POST] /api/libraries/{id}/scrape — taskId=task_296a582f532a464b8f6f8e47a0ffa1cb
+  [PASS] [POST] /api/libraries/{id}/scrape (videoIds) — Expected status 409
+
+── 4. Videos ──
+  [PASS] [GET] /api/videos/favorites — favorites=0
+  [PASS] [GET] /api/videos/categories — categories=3
+  [PASS] [GET] /api/videos/series — series=2
+  [PASS] VideoListItemDto.scrapeStatus — value=full
+  [PASS] [GET] /api/libraries/{id}/videos?scrapeStatus=none — items=0
+  [PASS] [GET] /api/libraries/{id}/videos?scrapeStatus=failed — items=0
+  [PASS] [GET] /api/videos/{id} — vid=SDDE-759
+  [PASS] VideoDetailDto.scrapeStatus — value=full
+  [PASS] [POST] /api/videos/{id}/toggle-favorite — favorite=True
+  [PASS] [POST] /api/videos/{id}/toggle-favorite (revert) — favorite=False
+  [PASS] [POST] /api/videos/{id}/play — Expected status 500
+  [PASS] [POST] /api/videos/batch/favorite — success=1
+  [PASS] [POST] /api/videos/batch/favorite (unfav) — success=1
+  [PASS] [GET] /api/videos/categories/{name}/videos — items=0
+  [PASS] [GET] /api/videos/series/{name}/videos — items=1
+  [SKIP] DELETE /api/videos/{id} — Skipped to preserve seed data
+  [SKIP] POST /api/videos/batch/delete — Skipped to preserve seed data
+
+── 5. Actors ──
+  [PASS] [GET] /api/actors — actors=6
+  [PASS] [GET] /api/actors/{id} — actor=凛音とうか
+  [PASS] [GET] /api/actors/{id}/videos — items=1
+
+── 6. Tasks ──
+  [PASS] [GET] /api/tasks — tasks=6
+  [PASS] [GET] /api/tasks/{id} — status=succeeded
+  [PASS] [POST] /api/tasks/{id}/retry — Expected status 409
+
+── 7. Settings ──
+  [PASS] [GET] /api/settings — settings loaded
+  [PASS] [PUT] /api/settings (update) — settings updated
+  [PASS] [POST] /api/settings/meta-tube/diagnostics — success=True
+
+── 8. Events (SSE) ──
+  [PASS] GET /api/events (SSE) — content-type=text/event-stream; charset=utf-8
+
+===============================================
+  Backend API Verification Results
+===============================================
+
+  Passed:  36
+  Failed:  0
+  Skipped: 2
+  Total:   38
+
+  All verified endpoints passed.
+
+[start-e2e-env] Starting Vite dev server...
+
+=======================================
+  Phase 10 frontend environment ready
+=======================================
+  Worker:  http://localhost:5026
+  Browser: http://127.0.0.1:1420?workerPort=5026
+  State:   D:\study\Proj\Jvedio\log\test\e2e\runtime\frontend-env.json
+

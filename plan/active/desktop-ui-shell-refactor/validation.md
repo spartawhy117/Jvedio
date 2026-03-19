@@ -187,23 +187,53 @@
 
 ### 10.3 Flow 验收记录
 
-- [ ] Main Shell Navigation
-- [ ] Library Management
-- [ ] Library Workbench
+- [x] Main Shell Navigation
+- [x] Library Management
+- [x] Library Workbench
 - [ ] Favorites
 - [ ] Actors
 - [ ] Actor Detail / Video Detail 返回链路
 - [ ] Settings
 
+### 10.3.1 已完成记录（2026-03-20）
+
+#### Main Shell Navigation
+
+- 通过：左侧稳定显示 `设置 / 库管理 / 喜欢 / 演员` 和 `E2E-Lib-A / E2E-Lib-B` 两个库入口。
+- 通过：一级导航与库入口切换后，右侧内容区可稳定切页，未再出现 `App.tsx` 中 `libraries.length` 崩溃。
+- 通过：本轮失败样本单影片重抓、批量重抓后，`library.changed` 回流仅触发列表刷新，不再进入 `ErrorBoundary`。
+
+#### Library Management
+
+- 通过：库管理页正常加载 `E2E-Lib-A`、`E2E-Lib-B`，行内包含名称、影片数、最近扫描、状态和操作区。
+- 通过：新建 / 编辑复用同一弹层，固定展示 3 条扫描目录输入，提交按钮文案为 `保存媒体库`。
+- 通过：删除确认弹层已补齐库摘要块，现可显示名称、路径、影片数，并保留“不删除磁盘影片文件”说明。
+- 通过：点击 `扫描` 后有 toast 和任务计数反馈；本轮环境下未观察到同库扫描按钮无限重复触发。
+
+#### Library Workbench
+
+- 通过：`E2E-Lib-B` 单库页可稳定显示 `FC2-PPV-1788676` 与 `SDDE-660-C`，查询栏包含搜索、刷新、排序。
+- 通过：输入 `SDDE` 后进入 `SDDE-660-C` 详情，再返回时仍保留搜索条件。
+- 通过：单卡右键菜单包含 `查看详情 / 播放 / 打开文件夹 / 收藏 / 重新抓取元数据 / 复制 VID / 删除影片`，失败样本卡片保持 `No Poster` 占位。
+- 通过：多选态现已补齐 `批量收藏 / 批量取消收藏 / 批量重抓 / 批量删除 / 取消选择`；批量重抓已触发任务和列表回刷。
+- 保留差异：多选动作当前承载形态仍是顶部动作条，不是 `video-batch-context-menu` 规格要求的右键批量菜单，留待后续子任务继续收口。
+
 ### 10.4 抓取失败优雅降级记录
 
-- [ ] `FC2-PPV-1788676` 卡片显示 `No Poster` 占位图
-- [ ] `FC2-PPV-1788676` 在列表中保持可见且可进详情
+- [x] `FC2-PPV-1788676` 卡片显示 `No Poster` 占位图
+- [x] `FC2-PPV-1788676` 在列表中保持可见且可进详情
 - [ ] 列表单卡菜单存在“重新抓取元数据”
 - [ ] 单影片重抓调用口径正确
-- [ ] 重抓后列表页状态已刷新
+- [x] 重抓后列表页状态已刷新
 - [ ] 重抓后详情页状态已刷新或已记录缺口
-- [ ] `SDDE-660-C` 作为正常识别样本在 UI 中展示为成功抓取影片
+- [x] `SDDE-660-C` 作为正常识别样本在 UI 中展示为成功抓取影片
+
+### 10.4.1 当前专项结论
+
+- 通过：`FC2-PPV-1788676` 在单库页保持可见，卡片展示 `No Poster`，且单卡菜单可再次触发 `重新抓取元数据`。
+- 通过：单影片重抓和批量重抓都会调用 `POST /api/libraries/{id}/scrape` + `videoIds` 路径，未退化成全库重抓。
+- 通过：重抓完成后列表页通过 `library.changed` 自动回刷，当前不再复现 `Cannot read properties of undefined (reading 'length')`。
+- 通过：`SDDE-660-C` 以成功抓取影片展示，具备海报、详情信息和演员入口。
 
 ### 10.5 人工降级项
 
@@ -213,6 +243,12 @@
 
 ### 10.6 产物
 
-- [ ] 执行日志写入 `log/test/e2e/`
-- [ ] 必要截图已保存
+- [x] 执行日志写入 `log/test/e2e/`
+- [x] 必要截图已保存
 - [ ] `validation.md`、`doc/testing/e2e/playwright-e2e-test-plan.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 已按真实结果回写
+
+### 10.6.1 当前已落地产物
+
+- 日志：`log/test/e2e/runtime/phase10-subtask2.log`
+- 截图：`log/test/e2e/runtime/phase10-subtask2-library-batch-actions.png`
+- 截图：`log/test/e2e/runtime/phase10-subtask2-delete-library-dialog.png`

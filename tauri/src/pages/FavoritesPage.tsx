@@ -6,7 +6,7 @@
  * - QueryToolbar with search, refresh, sort
  * - Pagination
  * - Click to video detail with backTo state
- * - Multi-select with batch unfavorite / delete
+ * - Multi-select with batch unfavorite / rescrape / delete
  * - Right-click: detail, play, openFolder, unfavorite, delete, copyVid
  */
 
@@ -193,6 +193,39 @@ export function FavoritesPage() {
     }
   }, [selectedIds, tc]);
 
+  const handleBatchRescrape = useCallback(async () => {
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0 || !data) return;
+
+    const selectedVideos = data.items.filter((video) => selectedIds.has(video.videoId));
+    const videoIdsByLibrary = new Map<string, string[]>();
+    for (const video of selectedVideos) {
+      const existing = videoIdsByLibrary.get(video.libraryId);
+      if (existing) {
+        existing.push(video.videoId);
+      } else {
+        videoIdsByLibrary.set(video.libraryId, [video.videoId]);
+      }
+    }
+
+    try {
+      await Promise.all(Array.from(videoIdsByLibrary.entries()).map(([libraryId, videoIds]) =>
+        client.startLibraryScrape(libraryId, {
+          videoIds,
+          mode: "all",
+          forceRefreshMetadata: true,
+          writeSidecars: true,
+          downloadActorAvatars: true,
+        })
+      ));
+      showToast({ message: tc("rescrapeMetadata"), type: "success" });
+      setSelectedIds(new Set());
+      invalidateQueries("favorites");
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, data, tc]);
+
   // ── Context menu ────────────────────────────────
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -312,6 +345,7 @@ export function FavoritesPage() {
           <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
           <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
           <button className="btn btn-sm btn-secondary" onClick={handleBatchUnfavorite}>💔 {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}>🔄 {tc("rescrapeMetadata")}</button>
           <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
           <div className="toolbar-spacer" />
           <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>

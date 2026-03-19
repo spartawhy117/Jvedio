@@ -29,6 +29,7 @@
     "editTitle": "编辑媒体库",
     "deleteTitle": "删除媒体库",
     "deleteMessage": "确定要删除媒体库「{{name}}」吗？此操作不会删除磁盘上的文件，但会移除数据库中的库及影片记录。",
+    "pathLabel": "路径",
     "nameLabel": "媒体库名称",
     "namePlaceholder": "请输入媒体库名称",
     "scanPathsLabel": "扫描目录",

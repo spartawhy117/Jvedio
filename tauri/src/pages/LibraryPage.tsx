@@ -7,7 +7,7 @@
  * - Pagination
  * - Back navigation with state restoration
  * - SSE library.changed auto-refresh
- * - Multi-select with batch favorite / delete
+ * - Multi-select with batch favorite / rescrape / delete
  * - Right-click: detail, play, openFolder, toggleFavorite, delete, copyVid
  */
 
@@ -204,6 +204,25 @@ export function LibraryPage() {
     }
   }, [selectedIds, tc, libraryId]);
 
+  const handleBatchRescrape = useCallback(async () => {
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0 || !libraryId) return;
+    try {
+      await client.startLibraryScrape(libraryId, {
+        videoIds: Array.from(selectedIds),
+        mode: "all",
+        forceRefreshMetadata: true,
+        writeSidecars: true,
+        downloadActorAvatars: true,
+      });
+      showToast({ message: tc("rescrapeMetadata"), type: "success" });
+      setSelectedIds(new Set());
+      invalidateQueries(`libraries:${libraryId}`);
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, tc, libraryId]);
+
   // ── Context menu ────────────────────────────────
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -333,6 +352,7 @@ export function LibraryPage() {
           <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
           <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}>❤ {tc("batchFavorite")}</button>
           <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}>💔 {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}>🔄 {tc("rescrapeMetadata")}</button>
           <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
           <div className="toolbar-spacer" />
           <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>

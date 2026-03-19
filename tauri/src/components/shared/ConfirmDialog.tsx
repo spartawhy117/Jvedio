@@ -9,12 +9,14 @@
  */
 
 import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
 import "./ConfirmDialog.css";
 
 export interface ConfirmDialogProps {
   open: boolean;
   title: string;
   message: string;
+  details?: ReactNode;
   /** Use danger styling for confirm button */
   danger?: boolean;
   /** Disable confirm while processing */
@@ -27,6 +29,7 @@ export function ConfirmDialog({
   open,
   title,
   message,
+  details,
   danger = false,
   loading = false,
   onConfirm,
@@ -47,6 +50,7 @@ export function ConfirmDialog({
         </div>
         <div className="dialog-body">
           <p>{message}</p>
+          {details && <div className="dialog-details">{details}</div>}
         </div>
         <div className="dialog-footer">
           <button className="btn btn-secondary" onClick={onCancel}>

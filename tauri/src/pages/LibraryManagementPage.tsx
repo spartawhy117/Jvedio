@@ -248,6 +248,22 @@ export function LibraryManagementPage() {
         open={!!deleteTarget}
         title={t("dialog.deleteTitle")}
         message={t("dialog.deleteMessage", { name: deleteTarget?.name ?? "" })}
+        details={deleteTarget ? (
+          <>
+            <div className="dialog-detail-row">
+              <span className="dialog-detail-label">{tc("name")}</span>
+              <span className="dialog-detail-value">{deleteTarget.name}</span>
+            </div>
+            <div className="dialog-detail-row">
+              <span className="dialog-detail-label">{t("dialog.pathLabel")}</span>
+              <span className="dialog-detail-value">{deleteTarget.path}</span>
+            </div>
+            <div className="dialog-detail-row">
+              <span className="dialog-detail-label">{tc("videos")}</span>
+              <span className="dialog-detail-value">{deleteTarget.videoCount}</span>
+            </div>
+          </>
+        ) : null}
         danger
         loading={deleteMutation.isLoading}
         onConfirm={handleDeleteConfirm}

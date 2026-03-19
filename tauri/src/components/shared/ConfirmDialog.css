@@ -53,6 +53,33 @@
   line-height: 1.5;
 }
 
+.dialog-details {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--color-bg-subtle, rgba(0, 0, 0, 0.04));
+  color: var(--color-text-primary);
+}
+
+.dialog-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-detail-row + .dialog-detail-row {
+  margin-top: 8px;
+}
+
+.dialog-detail-label {
+  color: var(--color-text-secondary);
+}
+
+.dialog-detail-value {
+  text-align: right;
+  word-break: break-all;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

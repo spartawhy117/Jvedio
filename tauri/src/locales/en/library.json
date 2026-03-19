@@ -29,6 +29,7 @@
     "editTitle": "Edit Library",
     "deleteTitle": "Delete Library",
     "deleteMessage": "Are you sure you want to delete library \"{{name}}\"? This will not delete files on disk, but will remove the library and video records from the database.",
+    "pathLabel": "Path",
     "nameLabel": "Library Name",
     "namePlaceholder": "Enter library name",
     "scanPathsLabel": "Scan Paths",
