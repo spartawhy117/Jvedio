@@ -135,6 +135,23 @@ ABP-001/
 
 命名规则：`{SanitizeFileName(VID)}-{类型}.jpg`，前缀优先级：VID > 文件名 > `"video"`。
 
+#### E2E 测试环境目标路径
+
+E2E 测试环境下，sidecar 的**目标路径**从影片目录迁移到用户数据缓存目录（方案 B：按库名分子目录）：
+
+```
+data/{UserName}/cache/video/{LibName}/{VID}/
+├── {VID}.nfo
+├── {VID}-poster.jpg
+├── {VID}-thumb.jpg
+└── {VID}-fanart.jpg
+```
+
+实际示例：`test-data/e2e/data/test-user/cache/video/lib-a/ABP-001/ABP-001.nfo`
+
+> **当前状态**：Release 代码仍将 sidecar 写入影片目录。此目标路径将在后续 Worker 测试环境路径适配（Phase 4）时实现。
+> `.gitignore` 中 `test-data/**/cache/` 规则确保 E2E sidecar 缓存不被提交。
+
 ### 4.4 VID 解析规则
 
 文件名必须能被 `ExtractVideoId()` 正则解析出合法 VID：

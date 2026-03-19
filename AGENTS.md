@@ -76,6 +76,11 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - `data/<user>/cache/video/`
 - `data/<user>/cache/actor-avatar/`
 
+E2E 测试 sidecar（目标路径，后续 Worker 适配后生效）：
+- `test-data/e2e/data/<user>/cache/video/<LibName>/<VID>/` — 按库名分子目录
+- 与正式 sidecar（写入影片目录）路径独立，Release 代码不受影响
+- `.gitignore` 中 `test-data/**/cache/` 规则覆盖
+
 统一日志目录：
 - `log/runtime/` — Worker + Shell 运行日志
 - `log/test/` — 测试日志与输出

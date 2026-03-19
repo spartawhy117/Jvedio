@@ -96,6 +96,10 @@ cp test-data/config/test-env.local.json.example test-data/config/test-env.local.
 3. 启动 Worker 进程并等待 ready
 4. 通过 API 创建两个媒体库 → 触发扫描
 5. （可选）配置 MetaTube → 触发抓取 → 等待完成 → 验证结果
+   - 抓取成功后产物：
+     - **Sidecar 文件**（NFO + 海报 + 缩略图 + 背景图）→ E2E 目标：`test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/`
+     - **演员头像缓存** → 写入 `test-data/e2e/data/{UserName}/cache/actor-avatar/`
+     - **演员记录** → 回填到 `app_datas.sqlite` 中的 `actor_info` 表
 6. 验证数据入库（视频数量、SQLite、日志）
 7. 输出 `test-data/e2e/e2e-env.json`（供后续 Playwright 使用）
 
@@ -184,9 +188,15 @@ test-data/
 └─ e2e/                          ← 播种产物（运行时生成）
    ├─ videos/lib-a/              ← 假视频文件
    ├─ videos/lib-b/
-   ├─ data/                      ← SQLite 数据库
+   ├─ data/{UserName}/
+   │  ├─ *.sqlite                ← SQLite 数据库
+   │  └─ cache/
+   │     ├─ video/{LibName}/{VID}/  ← E2E 目标：sidecar 缓存（NFO/海报等）
+   │     └─ actor-avatar/        ← 演员头像缓存（抓取时自动下载）
    └─ e2e-env.json               ← Playwright 环境信息
 ```
+
+> **注**：`test-data/**/cache/` 已在 `.gitignore` 中排除，sidecar 缓存和演员头像缓存都不会提交到仓库。E2E 目标路径下 sidecar 从影片目录迁移到 `data/{UserName}/cache/video/{LibName}/{VID}/`（当前 Release 代码仍写入影片目录，后续 Phase 4 适配）。
 
 ## 消费者
 

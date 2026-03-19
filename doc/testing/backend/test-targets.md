@@ -120,20 +120,34 @@ Worker API 契约测试指：
 - `cache/video/` 仅保留一份当前有效影片缓存
 - `cache/actor-avatar/` 保存正式演员头像缓存
 
+E2E 测试环境（播种脚本运行时）的路径对照：
+
+| 产物 | 正式运行路径 | E2E 测试路径（目标） |
+|------|-------------|-------------------|
+| Sidecar（NFO/海报等） | 影片所在目录 | `test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/` |
+| 演员头像缓存 | `data/{user}/cache/actor-avatar/` | `test-data/e2e/data/{UserName}/cache/actor-avatar/` |
+| 影片 JSON 缓存 | `data/{user}/cache/video/` | `test-data/e2e/data/{UserName}/cache/video/` |
+
+> **E2E sidecar 目标路径变更**：E2E 环境下 sidecar 从影片目录迁移到 `data/{UserName}/cache/video/{LibName}/{VID}/`（方案 B：按库名分子目录），与演员头像缓存路径统一管理。当前 Release 代码仍写入影片目录，此目标路径将在后续 Worker 测试环境路径适配时实现。
+>
+> E2E 测试通过 `JVEDIO_APP_BASE_DIR=test-data/e2e` 实现路径隔离，Worker 的 `WorkerPathResolver` 自动计算出测试环境下的缓存目录。`.gitignore` 中 `test-data/**/cache/` 规则确保这些缓存不被提交。
+
 主程序内置调试输出：
 - 只写入 `log/test/<VID>/`
 - 不污染正式缓存
 
 ### 3.4 测试工程输出目标
 
-当通过 `Jvedio.Test` 运行自动化测试时：
+**Worker 契约测试**（`Jvedio.Worker.Tests`，52 个）：
+- 数据目录：`test-data/worker/`（每次清空重建，测试后保留现场）
+- 日志目录：`log/test/worker-tests/runtime/`
 
-- MetaTube suite 输出写入：
-  - `config/meta-tube/output/`
-- 扫描链 suite 输出写入：
-  - `config/scan/output/`
+**E2E 播种测试**（`seed-e2e-data.ps1`）：
+- 数据目录：`test-data/e2e/data/{UserName}/`（含 SQLite + 演员头像缓存）
+- 影片 sidecar（E2E 目标）：`test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/`
+- 日志目录：`log/test/e2e/runtime/`
 
-这类输出属于测试工程自己的业务产物，不等同于主程序运行时的 `data/<user>/log/test/<VID>/` 调试输出。
+这两类测试使用独立的数据目录，互不影响，也不污染主程序正式 `data/` 目录。
 
 ### 4.5 日志目标
 
