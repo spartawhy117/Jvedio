@@ -2,11 +2,11 @@
   "_comment": "测试环境配置 — 所有可变的外部依赖地址统一配置在此。详见 README.md。",
   "metaTube": {
     "serverUrl": "https://metatube-server.hf.space",
-    "requestTimeoutSeconds": 30
+    "requestTimeoutSeconds": 60
   },
   "seedVideos": {
-    "libA": ["JUR-293-C.mp4", "SNOS-037.mp4", "ABP-001.mp4"],
-    "libB": ["SONE-100.mp4", "MIDV-200.mp4"]
+    "libA": ["SNOS-037.mp4", "SDDE-759.mp4"],
+    "libB": ["sdde-660-c", "FC2-PPV-1788676.mp4"]
   },
-  "scrapeableVids": ["JUR-293-C", "SNOS-037"]
+  "scrapeableVids": ["SNOS-037", "SDDE-759"]
 }
