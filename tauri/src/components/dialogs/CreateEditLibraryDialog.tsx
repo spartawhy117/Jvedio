@@ -11,6 +11,12 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import "./CreateEditLibraryDialog.css";
 
+const FIXED_SCAN_PATH_COUNT = 3;
+
+function normalizeScanPaths(paths: string[]): string[] {
+  return Array.from({ length: FIXED_SCAN_PATH_COUNT }, (_, index) => paths[index] ?? "");
+}
+
 export interface CreateEditLibraryDialogProps {
   open: boolean;
   mode: "create" | "edit";
@@ -35,7 +41,7 @@ export function CreateEditLibraryDialog({
   const { t: tc } = useTranslation("common");
 
   const [name, setName] = useState(initialName);
-  const [scanPathsText, setScanPathsText] = useState(initialScanPaths.join("\n"));
+  const [scanPaths, setScanPaths] = useState<string[]>(() => normalizeScanPaths(initialScanPaths));
 
   // Track previous open state so we only reset the form on the
   // false → true transition, not on every parent re-render.
@@ -45,7 +51,7 @@ export function CreateEditLibraryDialog({
     if (open && !prevOpenRef.current) {
       // Dialog just opened — populate with initial values
       setName(initialName);
-      setScanPathsText(initialScanPaths.join("\n"));
+      setScanPaths(normalizeScanPaths(initialScanPaths));
     }
     prevOpenRef.current = open;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,14 +59,17 @@ export function CreateEditLibraryDialog({
 
   const handleSubmit = () => {
     const trimmedName = name.trim();
-    if (!trimmedName) return;
+    if (!trimmedName || !scanPaths[0]?.trim()) return;
 
-    const scanPaths = scanPathsText
-      .split("\n")
+    const normalizedPaths = scanPaths
       .map((p) => p.trim())
       .filter((p) => p.length > 0);
 
-    onSubmit({ name: trimmedName, scanPaths });
+    onSubmit({ name: trimmedName, scanPaths: normalizedPaths });
+  };
+
+  const handleScanPathChange = (index: number, value: string) => {
+    setScanPaths((current) => current.map((item, itemIndex) => (itemIndex === index ? value : item)));
   };
 
   if (!open) return null;
@@ -92,17 +101,24 @@ export function CreateEditLibraryDialog({
           </label>
 
           {/* Scan paths */}
-          <label className="dialog-field">
+          <div className="dialog-field">
             <span className="dialog-label">{t("dialog.scanPathsLabel")}</span>
-            <textarea
-              className="dialog-textarea"
-              value={scanPathsText}
-              onChange={(e) => setScanPathsText(e.target.value)}
-              placeholder={t("dialog.scanPathsPlaceholder")}
-              rows={4}
-            />
+            {scanPaths.map((scanPath, index) => (
+              <label key={index} className="dialog-scan-path-row">
+                <span className="dialog-scan-path-label">
+                  {t("dialog.scanPathItemLabel", { index: index + 1 })}
+                </span>
+                <input
+                  className="dialog-input"
+                  type="text"
+                  value={scanPath}
+                  onChange={(e) => handleScanPathChange(index, e.target.value)}
+                  placeholder={t("dialog.scanPathPlaceholder", { index: index + 1 })}
+                />
+              </label>
+            ))}
             <span className="dialog-hint">{t("dialog.scanPathsHint")}</span>
-          </label>
+          </div>
         </div>
         <div className="dialog-footer">
           <button className="btn btn-secondary" onClick={onCancel} disabled={loading}>
@@ -111,9 +127,9 @@ export function CreateEditLibraryDialog({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading || !name.trim()}
+            disabled={loading || !name.trim() || !scanPaths[0]?.trim()}
           >
-            {loading ? tc("loading") : mode === "create" ? tc("create") : tc("save")}
+            {loading ? tc("loading") : t("dialog.submit")}
           </button>
         </div>
       </div>

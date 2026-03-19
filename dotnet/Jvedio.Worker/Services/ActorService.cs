@@ -70,7 +70,7 @@ public sealed class ActorService
             Actor = new ActorDetailDto
             {
                 ActorId = actor.ActorId.ToString(),
-                AvatarPath = ResolveActorAvatarPath(actor.ActorId, actor.Name, actor.ImageUrl),
+                AvatarPath = ResolveActorAvatarPath(actor.ActorId, actor.Name, actor.ImageUrl, actor.WebUrl),
                 LibraryCount = libraries.Count,
                 LibraryIds = libraries.Select(item => item.LibraryId).ToList(),
                 LibraryNames = libraries.Select(item => item.LibraryName).ToList(),
@@ -82,6 +82,19 @@ public sealed class ActorService
                 WebUrl = actor.WebUrl,
             },
         };
+    }
+
+    public string GetActorAvatarPath(string actorId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var actor = LoadActorRecord(connection, actorId) ?? throw CreateNotFoundException("actor.avatar.not_found", $"Actor {actorId} was not found.");
+        var avatarPath = ResolveActorAvatarPath(actor.ActorId, actor.Name, actor.ImageUrl, actor.WebUrl);
+        if (string.IsNullOrWhiteSpace(avatarPath))
+        {
+            throw CreateNotFoundException("actor.avatar.not_found", $"Avatar for actor {actorId} was not found.");
+        }
+
+        return avatarPath;
     }
 
     public GetActorVideosResponse GetActorVideos(string actorId, GetActorVideosRequest request)
@@ -209,7 +222,7 @@ public sealed class ActorService
             result.Add(new ActorListItemDto
             {
                 ActorId = reader.GetInt64(0).ToString(),
-                AvatarPath = ResolveActorAvatarPath(reader.GetInt64(0), name, reader.GetString(2)),
+                AvatarPath = ResolveActorAvatarPath(reader.GetInt64(0), name, reader.GetString(2), reader.GetString(4)),
                 LibraryCount = reader.IsDBNull(6) ? 0 : Convert.ToInt32(reader.GetValue(6)),
                 LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
                 LastScanAt = NullIfWhiteSpace(reader.GetString(8)),
@@ -259,7 +272,8 @@ public sealed class ActorService
             var libraryId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
             var vid = reader.GetString(9);
-            var sidecars = BuildSidecarState(path, vid);
+            var libraryName = libraries.TryGetValue(libraryId, out var library) ? library.Name : string.Empty;
+            var sidecars = BuildSidecarState(path, vid, libraryName);
             result.Add(new ActorVideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
@@ -270,7 +284,7 @@ public sealed class ActorService
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
                 LibraryId = libraryId,
-                LibraryName = libraries.TryGetValue(libraryId, out var library) ? library.Name : string.Empty,
+                LibraryName = libraryName,
                 LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
                 LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
                 Path = path,
@@ -359,13 +373,14 @@ public sealed class ActorService
         return result;
     }
 
-    private static SidecarStateDto BuildSidecarState(string videoPath, string vid)
+    private SidecarStateDto BuildSidecarState(string videoPath, string vid, string? libraryName)
     {
         var normalizedVid = NormalizeSidecarPrefix(videoPath, vid);
-        var nfoPath = BuildAssetPath(videoPath, normalizedVid, ".nfo");
-        var posterPath = BuildAssetPath(videoPath, normalizedVid, "-poster.jpg");
-        var thumbPath = BuildAssetPath(videoPath, normalizedVid, "-thumb.jpg");
-        var fanartPath = BuildAssetPath(videoPath, normalizedVid, "-fanart.jpg");
+        var sidecarDir = ResolveSidecarDirectory(videoPath, normalizedVid, libraryName);
+        var nfoPath = Path.Combine(sidecarDir, $"{normalizedVid}.nfo");
+        var posterPath = Path.Combine(sidecarDir, $"{normalizedVid}-poster.jpg");
+        var thumbPath = Path.Combine(sidecarDir, $"{normalizedVid}-thumb.jpg");
+        var fanartPath = Path.Combine(sidecarDir, $"{normalizedVid}-fanart.jpg");
 
         var state = new SidecarStateDto
         {
@@ -394,10 +409,14 @@ public sealed class ActorService
         return state;
     }
 
-    private static string BuildAssetPath(string videoPath, string prefix, string suffix)
+    private string ResolveSidecarDirectory(string videoPath, string normalizedVid, string? libraryName)
     {
-        var directoryPath = Path.GetDirectoryName(videoPath) ?? string.Empty;
-        return Path.Combine(directoryPath, $"{prefix}{suffix}");
+        if (workerPathResolver.IsTestEnvironment && !string.IsNullOrWhiteSpace(libraryName))
+        {
+            return Path.Combine(workerPathResolver.VideoCacheFolder, SanitizeLibraryName(libraryName), normalizedVid);
+        }
+
+        return Path.GetDirectoryName(videoPath) ?? string.Empty;
     }
 
     private static string BuildDisplayTitle(string title, string vid, string path)
@@ -440,7 +459,7 @@ public sealed class ActorService
         return string.IsNullOrWhiteSpace(candidate) ? "video" : candidate;
     }
 
-    private string? ResolveActorAvatarPath(long actorId, string actorName, string imageUrl)
+    private string? ResolveActorAvatarPath(long actorId, string actorName, string imageUrl, string webUrl)
     {
         if (!string.IsNullOrWhiteSpace(imageUrl))
         {
@@ -451,26 +470,68 @@ public sealed class ActorService
             }
         }
 
-        foreach (var extension in AvatarExtensions)
+        foreach (var cacheKey in GetActorAvatarCacheKeys(actorId, actorName, imageUrl, webUrl))
         {
-            var actorIdPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{actorId}{extension}");
-            if (File.Exists(actorIdPath))
+            foreach (var extension in AvatarExtensions)
             {
-                return actorIdPath;
-            }
-        }
-
-        var fallbackKey = ComputeActorNameFallbackKey(actorName);
-        foreach (var extension in AvatarExtensions)
-        {
-            var fallbackPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{fallbackKey}{extension}");
-            if (File.Exists(fallbackPath))
-            {
-                return fallbackPath;
+                var cachedPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{cacheKey}{extension}");
+                if (File.Exists(cachedPath))
+                {
+                    return cachedPath;
+                }
             }
         }
 
         return null;
+    }
+
+    private IEnumerable<string> GetActorAvatarCacheKeys(long actorId, string actorName, string imageUrl, string webUrl)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var candidate in new[]
+        {
+            actorId.ToString(),
+            TryExtractAvatarCacheKey(imageUrl),
+            TryExtractAvatarCacheKey(webUrl),
+            ComputeActorNameFallbackKey(actorName),
+        })
+        {
+            if (!string.IsNullOrWhiteSpace(candidate) && seen.Add(candidate))
+            {
+                yield return candidate;
+            }
+        }
+    }
+
+    private static string? TryExtractAvatarCacheKey(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            var uriFileName = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
+            if (!string.IsNullOrWhiteSpace(uriFileName))
+            {
+                return uriFileName;
+            }
+        }
+
+        var localFileName = Path.GetFileNameWithoutExtension(value.Trim());
+        return string.IsNullOrWhiteSpace(localFileName) ? null : localFileName;
+    }
+
+    private static string SanitizeLibraryName(string value)
+    {
+        var result = value.Trim();
+        foreach (var invalid in Path.GetInvalidFileNameChars())
+        {
+            result = result.Replace(invalid, '_');
+        }
+
+        return result;
     }
 
     private static string ComputeActorNameFallbackKey(string actorName)

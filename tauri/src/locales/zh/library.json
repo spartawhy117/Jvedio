@@ -32,8 +32,10 @@
     "nameLabel": "媒体库名称",
     "namePlaceholder": "请输入媒体库名称",
     "scanPathsLabel": "扫描目录",
-    "scanPathsPlaceholder": "每行输入一个目录路径",
-    "scanPathsHint": "每行一个目录路径，扫描时会递归遍历"
+    "scanPathItemLabel": "目录 {{index}}",
+    "scanPathPlaceholder": "请输入目录路径",
+    "scanPathsHint": "固定展示 3 条目录输入，第 1 条必填，其余可留空",
+    "submit": "保存媒体库"
   },
   "toast": {
     "created": "已创建媒体库「{{name}}」",

@@ -63,7 +63,10 @@ export interface LibraryListItemDto {
   hasRunningTask: boolean;
 }
 
-export type GetLibrariesResponse = LibraryListItemDto[];
+export interface GetLibrariesResponse {
+  libraries: LibraryListItemDto[];
+  totalCount: number;
+}
 
 export interface CreateLibraryRequest {
   name: string;
@@ -211,15 +214,17 @@ export interface PlaybackAvailabilityDto {
   reason: string;
 }
 
+export interface VideoAssetStateDto {
+  exists: boolean;
+  path: string;
+}
+
 export interface SidecarStateDto {
-  hasNfo: boolean;
-  hasPoster: boolean;
-  hasThumb: boolean;
-  hasFanart: boolean;
-  nfoPath: string | null;
-  posterPath: string | null;
-  thumbPath: string | null;
-  fanartPath: string | null;
+  hasMissingAssets: boolean;
+  nfo: VideoAssetStateDto;
+  poster: VideoAssetStateDto;
+  thumb: VideoAssetStateDto;
+  fanart: VideoAssetStateDto;
 }
 
 export interface GetVideoDetailResponse {

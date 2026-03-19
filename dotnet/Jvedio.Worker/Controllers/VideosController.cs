@@ -64,6 +64,15 @@ public sealed class VideosController : ControllerBase
         return ApiResponse<GetVideoDetailResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
 
+    [HttpGet("{videoId}/poster")]
+    public IActionResult GetPoster(
+        string videoId,
+        [FromServices] VideoService videoService)
+    {
+        var posterPath = videoService.GetPosterPath(videoId);
+        return PhysicalFile(posterPath, GetImageContentType(posterPath));
+    }
+
     [HttpPost("{videoId}/play")]
     public ActionResult<ApiResponse<PlayVideoResponse>> PlayVideo(
         string videoId,
@@ -111,5 +120,17 @@ public sealed class VideosController : ControllerBase
     {
         var response = videoService.BatchDelete(request, deleteFiles);
         return ApiResponse<BatchOperationResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    private static string GetImageContentType(string path)
+    {
+        return Path.GetExtension(path).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".bmp" => "image/bmp",
+            ".gif" => "image/gif",
+            _ => "image/jpeg",
+        };
     }
 }

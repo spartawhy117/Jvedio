@@ -57,7 +57,7 @@ export function VideoDetailPage() {
 
   // ── Derived state ──────────────────────────────
   const video = detailQuery.data?.video;
-  const posterUrl = video && baseUrl
+  const posterUrl = video?.sidecars.poster.exists && baseUrl
     ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
     : null;
 
@@ -159,19 +159,19 @@ export function VideoDetailPage() {
           {/* Sidecar status */}
           <div className="sidecar-status-grid">
             <StatusBadge
-              variant={video.sidecars.hasNfo ? "synced" : "failed"}
+              variant={video.sidecars.nfo.exists ? "synced" : "failed"}
               label={tc("nfo")}
             />
             <StatusBadge
-              variant={video.sidecars.hasPoster ? "synced" : "failed"}
+              variant={video.sidecars.poster.exists ? "synced" : "failed"}
               label={tc("poster")}
             />
             <StatusBadge
-              variant={video.sidecars.hasThumb ? "synced" : "failed"}
+              variant={video.sidecars.thumb.exists ? "synced" : "failed"}
               label={tc("thumb")}
             />
             <StatusBadge
-              variant={video.sidecars.hasFanart ? "synced" : "failed"}
+              variant={video.sidecars.fanart.exists ? "synced" : "failed"}
               label={tc("fanart")}
             />
           </div>

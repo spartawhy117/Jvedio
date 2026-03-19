@@ -63,6 +63,17 @@
   gap: 6px;
 }
 
+.dialog-scan-path-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialog-scan-path-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
 .dialog-label {
   font-size: 13px;
   font-weight: 500;

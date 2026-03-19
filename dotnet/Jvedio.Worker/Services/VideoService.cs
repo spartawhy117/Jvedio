@@ -169,6 +169,25 @@ public sealed class VideoService
         };
     }
 
+    public string GetPosterPath(string videoId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = LoadVideoDetailRecord(connection, videoId);
+        if (record is null)
+        {
+            throw CreateNotFoundException("video.poster.not_found", $"Video {videoId} was not found.");
+        }
+
+        var library = libraryService.GetLibrary(record.Value.LibraryId.ToString());
+        var sidecars = BuildSidecarState(record.Value.Path, record.Value.Vid, library?.Name);
+        if (!sidecars.Poster.Exists || string.IsNullOrWhiteSpace(sidecars.Poster.Path))
+        {
+            throw CreateNotFoundException("video.poster.not_found", $"Poster for video {videoId} was not found.");
+        }
+
+        return sidecars.Poster.Path;
+    }
+
     public ToggleFavoriteResponse ToggleFavorite(string videoId)
     {
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();

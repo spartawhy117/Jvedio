@@ -124,8 +124,9 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
         // Refresh library list from API
         const client = getApiClient();
         if (client) {
-          client.getLibraries().then((libs) => {
-            setLibraries(libs);
+          client.getLibraries().then((response) => {
+            setLibraries(response.libraries);
+            setBootstrap((prev) => (prev ? { ...prev, libraries: response.libraries } : prev));
           }).catch((err) => {
             console.error("[BootstrapProvider] failed to refresh libraries:", err);
           });

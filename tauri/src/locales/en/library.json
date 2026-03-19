@@ -32,8 +32,10 @@
     "nameLabel": "Library Name",
     "namePlaceholder": "Enter library name",
     "scanPathsLabel": "Scan Paths",
-    "scanPathsPlaceholder": "One directory path per line",
-    "scanPathsHint": "One directory path per line, will scan recursively"
+    "scanPathItemLabel": "Path {{index}}",
+    "scanPathPlaceholder": "Enter directory path",
+    "scanPathsHint": "Show 3 fixed path inputs. Path 1 is required, paths 2-3 are optional.",
+    "submit": "Save Library"
   },
   "toast": {
     "created": "Library \"{{name}}\" created",
