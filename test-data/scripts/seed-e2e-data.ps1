@@ -319,6 +319,15 @@ if (-not $SkipScrape -and $scrapeableVids.Count -gt 0) {
                     $matched = $videos | Where-Object { $_.vid -eq $vid }
                     if ($matched -and $matched.title) {
                         Write-Host "  ✅ $vid — title: $($matched.title)" -ForegroundColor Green
+
+                        # 验证 scrapeStatus 字段
+                        $ss = $matched.scrapeStatus
+                        if ($ss -eq "full") {
+                            Write-Host "  ✅ $vid — scrapeStatus: full" -ForegroundColor Green
+                        }
+                        else {
+                            Write-Host "  ⚠️ $vid — scrapeStatus: $ss (expected 'full')" -ForegroundColor DarkYellow
+                        }
                     }
                     else {
                         Write-Host "  ⚠️ $vid — no title after scrape" -ForegroundColor DarkYellow

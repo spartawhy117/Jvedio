@@ -243,6 +243,27 @@ if ($libId) {
         -Body '{"mode":"missing-only","writeSidecars":false,"downloadActorAvatars":false}' -ExpectedStatus @(200, 202) -Validate {
         param($r) "scrape triggered"
     }
+
+    Start-Sleep -Seconds 2
+
+    # Scrape with videoIds（单影片搜刮端点验证）
+    if ($videoItems -and @($videoItems).Count -ge 1) {
+        $singleVid = @($videoItems)[0].videoId
+        if (-not $singleVid) { $singleVid = @($videoItems)[0].id }
+        if ($singleVid) {
+            Test-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Method "POST" -Uri "$base/api/libraries/$libId/scrape" `
+                -Body "{`"videoIds`":[`"$singleVid`"],`"mode`":`"all`",`"writeSidecars`":false,`"downloadActorAvatars`":false}" `
+                -ExpectedStatus @(200, 202) -Validate {
+                param($r) "single-video scrape triggered"
+            }
+        }
+        else {
+            Skip-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Reason "No videoId available"
+        }
+    }
+    else {
+        Skip-Api -Name "POST /api/libraries/{id}/scrape (videoIds)" -Reason "No videos in library"
+    }
 }
 else {
     Skip-Api -Name "Libraries CRUD + scan + scrape" -Reason "No library found"
@@ -268,6 +289,38 @@ Test-Api -Name "GET /api/videos/series" -Uri "$base/api/videos/series" -Validate
     param($r) "series response OK"
 }
 
+# scrapeStatus 字段验证（列表 DTO）
+if ($videoItems -and @($videoItems).Count -ge 1) {
+    $firstItem = @($videoItems)[0]
+    if ($firstItem.PSObject.Properties["scrapeStatus"]) {
+        $ss = $firstItem.scrapeStatus
+        Write-Host "  ✅ VideoListItemDto.scrapeStatus field present (value='$ss')" -ForegroundColor Green
+        $script:passed++
+        $script:results += @{ Name = "VideoListItemDto.scrapeStatus"; Status = "PASS"; Detail = "value=$ss" }
+    }
+    else {
+        Write-Host "  ❌ VideoListItemDto.scrapeStatus field missing" -ForegroundColor Red
+        $script:failed++
+        $script:results += @{ Name = "VideoListItemDto.scrapeStatus"; Status = "FAIL"; Detail = "field missing" }
+    }
+}
+else {
+    Skip-Api -Name "VideoListItemDto.scrapeStatus" -Reason "No video items to check"
+}
+
+# scrapeStatus 筛选验证
+if ($libId) {
+    Test-Api -Name "GET /api/libraries/{id}/videos?scrapeStatus=none" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=none" -Validate {
+        param($r) "scrapeStatus=none filter OK"
+    }
+    Test-Api -Name "GET /api/libraries/{id}/videos?scrapeStatus=failed" -Uri "$base/api/libraries/$libId/videos?page=1&pageSize=10&scrapeStatus=failed" -Validate {
+        param($r) "scrapeStatus=failed filter OK"
+    }
+}
+else {
+    Skip-Api -Name "scrapeStatus filter" -Reason "No library ID"
+}
+
 # 单个影片详情 + toggle-favorite + delete（需要有影片）
 $videoId = $null
 if ($videoItems -and @($videoItems).Count -ge 1) {
@@ -281,6 +334,25 @@ if ($videoItems -and @($videoItems).Count -ge 1) {
 if ($videoId) {
     Test-Api -Name "GET /api/videos/{id} (detail)" -Uri "$base/api/videos/$videoId" -Validate {
         param($r) if ($r.data) { "detail loaded" } else { $false }
+    }
+
+    # 验证详情 DTO 的 scrapeStatus 字段
+    try {
+        $detailResp = Invoke-RestMethod "$base/api/videos/$videoId"
+        if ($detailResp.data.PSObject.Properties["scrapeStatus"]) {
+            $dss = $detailResp.data.scrapeStatus
+            Write-Host "  ✅ VideoDetailDto.scrapeStatus field present (value='$dss')" -ForegroundColor Green
+            $script:passed++
+            $script:results += @{ Name = "VideoDetailDto.scrapeStatus"; Status = "PASS"; Detail = "value=$dss" }
+        }
+        else {
+            Write-Host "  ❌ VideoDetailDto.scrapeStatus field missing" -ForegroundColor Red
+            $script:failed++
+            $script:results += @{ Name = "VideoDetailDto.scrapeStatus"; Status = "FAIL"; Detail = "field missing" }
+        }
+    }
+    catch {
+        Skip-Api -Name "VideoDetailDto.scrapeStatus" -Reason "Detail request failed"
     }
 
     # 切换收藏
