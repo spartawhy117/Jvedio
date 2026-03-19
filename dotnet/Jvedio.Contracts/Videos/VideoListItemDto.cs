@@ -30,6 +30,8 @@ public sealed class VideoListItemDto
 
     public double Rating { get; set; }
 
+    public string ScrapeStatus { get; set; } = "none";
+
     public string Title { get; set; } = string.Empty;
 
     public string Vid { get; set; } = string.Empty;

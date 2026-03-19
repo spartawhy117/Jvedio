@@ -10,6 +10,8 @@ public sealed class GetLibraryVideosRequest
 
     public int PageSize { get; set; } = 60;
 
+    public string? ScrapeStatus { get; set; }
+
     public string SortBy { get; set; } = "lastScanDate";
 
     public string SortOrder { get; set; } = "desc";

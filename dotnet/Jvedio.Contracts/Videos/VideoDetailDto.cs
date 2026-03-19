@@ -32,6 +32,8 @@ public sealed class VideoDetailDto
 
     public double Rating { get; set; }
 
+    public string ScrapeStatus { get; set; } = "none";
+
     public string Series { get; set; } = string.Empty;
 
     public SidecarStateDto Sidecars { get; set; } = new();
