@@ -451,16 +451,16 @@ foreach ($fileName in $testEnv.seedVideos.libB) {
 | `ScrapeLibrary_CreatesActors` | 抓取后 `GET /api/actors` 返回非空列表 |
 | `MetaTubeDiagnostics_ReturnsSteps` | `POST /api/settings/meta-tube/diagnostics` 返回诊断步骤 |
 
-#### 9.6.4 补充测试文档
+#### 9.6.4 补充测试文档 ✅
 
-| 文档 | 更新内容 |
-|------|---------|
-| `doc/testing/backend/test-targets.md` | 新增 §3.6 Actor API 测试目标 + §3.7 MetaTube 抓取集成测试目标 |
-| `doc/testing/backend/test-current-suite.md` | 新增 §12 Actor API 契约测试 + §13 MetaTube 抓取集成测试 |
-| `doc/testing/backend/test-plan.md` | §11 技术债清单中 MetaTube P0 标记为已解决 |
-| `doc/testing/e2e/e2e-test-data-spec.md` | §3 播种流程更新为含抓取的完整版本 |
-| `doc/testing/README.md` | 阅读顺序中注明 Actor 和 Scrape 测试依赖关系 |
-| `AGENTS.md` | 测试规模数字从 44 更新为实际数字（预计 ~52） |
+已完成。更新了以下文档：
+- `test-targets.md`：新增 Actor API 和 Scrape API 目标范围
+- `test-current-suite.md`：新增 §11 Actor API（5 个）+ §12 Scrape API（3 个），总数 44→52
+- `test-plan.md`：目录结构新增两个文件、数据策略表扩展、MetaTube P0 技术债标记已解决
+- `e2e-test-data-spec.md`：Worker 测试数量更新
+- `README.md`：测试规模和分层描述更新
+- `AGENTS.md`：测试规模数字更新
+- `CHANGELOG.md`：追加 Phase 9.6 变更条目
 
 #### 9.6.5 执行顺序
 

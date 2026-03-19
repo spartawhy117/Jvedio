@@ -66,7 +66,7 @@ seed-e2e-data.ps1 播种
 
 ### 与 Worker 后端测试的关系
 
-| 维度 | Worker 测试（44 个） | E2E 测试（48 个，计划中） |
+| 维度 | Worker 测试（52 个） | E2E 测试（48 个，计划中） |
 |------|---------------------|------------------------|
 | 测试层 | API 层 + 业务逻辑层 | UI 层（浏览器操作） |
 | 执行方式 | MSTest 内存 HTTP（`WebApplicationFactory`） | Playwright 浏览器自动化 |

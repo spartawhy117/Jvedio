@@ -25,6 +25,8 @@ Worker API 契约测试指：
 - Libraries API（`/api/libraries`）— 库 CRUD 操作
 - Settings API（`/api/settings`）— 设置读写、恢复默认
 - Videos API（`/api/videos`）— 收藏列表、类别列表、系列列表、批量操作
+- Actor API（`/api/actors`）— 演员列表、分页、搜索、详情、关联影片
+- Scrape API（`/api/libraries/{id}/scrape`、`/api/settings/meta-tube/diagnostics`）— 抓取触发与 MetaTube 诊断
 - DTO 序列化 — Contracts DTO 与 JSON 的正确转换
 
 ### 2.2 当前要求
@@ -56,7 +58,7 @@ Worker API 契约测试指：
 - ✅ Sidecar 命名规则（`NormalizeSidecarPrefix`、`GetMovieNfoPath` 等）— 6 个用例
 - ✅ 扫描整理规则（`TryOrganize`）— 5 个文件系统用例
 - ✅ 扫描导入端到端（API 创建库 → 触发扫描 → 验证导入）— 2 个用例
-- ⏳ MetaTube 网络集成测试（需外部 MetaTube 服务，暂未迁移）
+- ✅ MetaTube 抓取集成测试（`ScrapeApiTests`）— 3 个用例（触发/有效库/诊断端点）
 
 ### 3.2 当前要求
 

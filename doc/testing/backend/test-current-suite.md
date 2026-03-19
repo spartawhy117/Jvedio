@@ -3,7 +3,7 @@
 ## 1. 当前状态
 
 当前 `Jvedio.Worker.Tests` 测试统计：
-- 总测试数：44
+- 总测试数：52
 - 全部通过：✅
 
 执行方式：
@@ -164,7 +164,41 @@ dotnet test --configuration Release
 ### `ScanLibrary_EmptyDirectory_ImportsNothing`
 - 目标：空目录扫描不导入任何视频
 
-## 11. 当前维护规则
+## 11. Actor API 契约测试
+
+文件：`ContractTests/ActorApiTests.cs`
+数据来源：空数据库（`TestBootstrap` 自动创建），演员列表为空，验证空态响应格式和无效 ID 的 404 行为。
+
+### `GetActors_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/actors` 返回成功信封，`data.items` 为数组，`data.totalCount` 存在
+
+### `GetActors_SupportsPagination`
+- 目标：验证 `GET /api/actors?page=1&pageSize=10` 分页参数正确处理
+
+### `GetActors_SearchByKeyword_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/actors?keyword=nonexistent` 搜索不存在关键词返回空结果
+
+### `GetActorDetail_InvalidId_ReturnsNotFound`
+- 目标：验证 `GET /api/actors/{invalidId}` 返回 404
+
+### `GetActorVideos_InvalidId_ReturnsNotFound`
+- 目标：验证 `GET /api/actors/{invalidId}/videos` 返回 404
+
+## 12. MetaTube 抓取集成测试
+
+文件：`ContractTests/ScrapeApiTests.cs`
+数据来源：测试方法内通过 API 创建临时库，触发 scrape 后清理；diagnostics 测试使用不可达地址验证 API 契约。
+
+### `ScrapeLibrary_InvalidId_ReturnsNotFound`
+- 目标：验证 `POST /api/libraries/{invalidId}/scrape` 返回 404
+
+### `ScrapeLibrary_ValidLibrary_ReturnsAccepted`
+- 目标：创建临时库 → 触发 scrape → 验证返回 202 Accepted + `data.acceptedAtUtc` 存在 → 清理库
+
+### `MetaTubeDiagnostics_ReturnsResponseEnvelope`
+- 目标：验证 `POST /api/settings/meta-tube/diagnostics` 返回成功信封，`data.steps` 为数组，`data.summary` 和 `data.serverUrl` 存在（使用不可达地址，不依赖真实 MetaTube 服务）
+
+## 13. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：

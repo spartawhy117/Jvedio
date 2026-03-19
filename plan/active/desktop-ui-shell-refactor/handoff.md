@@ -68,30 +68,17 @@
 | 日志规范 | ✅ | `doc/logging-convention.md` 重写为分层结构 |
 | 关联文档 | ✅ | AGENTS.md + testing/README + handoff.md + .gitignore + CHANGELOG |
 
-## Phase 9.6（待执行）— 数据层流程测试完善
-
-**定位**：E2E 自动化测试（Phase 10）的必要前置。补全 MetaTube 抓取 + Actor 数据测试覆盖。
+## Phase 9.6 回顾（已完成）— 数据层流程测试完善
 
 | 子项 | 状态 | 概要 |
 |------|------|------|
-| 9.6.0 测试环境配置基础设施 | 🔲 | 新建 `test-data/config/test-env.json`（含 `metaTube` + `seedVideos` + `scrapeableVids`）+ `.local.json` 覆盖机制 |
-| 9.6.1 播种脚本改造 | 🔲 | seed-e2e-data.ps1 从 test-env.json 读取假视频列表 + MetaTube 地址→创建假文件→扫描→触发抓取→验证结果 |
-| 9.6.2 Actor API 契约测试 | 🔲 | 新建 ActorApiTests.cs（3-5 个测试，覆盖列表/详情/关联/搜索） |
-| 9.6.3 MetaTube 抓取集成测试 | 🔲 | 新建 ScrapeApiTests.cs（3-4 个测试，标记 RequiresNetwork，地址和 VID 从 test-env.json 读取） |
-| 9.6.4 测试文档更新 | 🔲 | test-targets + test-current-suite + test-plan + e2e-test-data-spec + AGENTS.md |
+| 9.6.0 测试环境配置基础设施 | ✅ | `test-data/config/test-env.json` + `.local.json` 覆盖机制 + `.gitignore` 更新 |
+| 9.6.1 播种脚本改造 | ✅ | `seed-e2e-data.ps1` 从 `test-env.json` 读取 + MetaTube 抓取步骤（Step 5.5-5.9） |
+| 9.6.2 Actor API 契约测试 | ✅ | `ActorApiTests.cs` — 5 个用例（列表/分页/搜索/详情404/关联影片404） |
+| 9.6.3 MetaTube 抓取集成测试 | ✅ | `ScrapeApiTests.cs` — 3 个用例（无效库404/有效库202/diagnostics 契约） |
+| 9.6.4 测试文档更新 | ✅ | test-targets + test-current-suite + test-plan + README + AGENTS + CHANGELOG 全部同步 |
 
-**关键决策待定**：
-- Actor 测试数据方案：推荐预置 SQLite 基线（不依赖网络）
-
-**已决策**：
-- MetaTube 地址不再硬编码，统一从 `test-data/config/test-env.json` 读取
-- 配置采用方案 B（平铺结构）：`seedVideos`（控制假视频文件创建和库分配）+ `scrapeableVids`（标记 MetaTube 可查 VID），不再维护两套独立 VID 列表
-- 播种脚本 Step 2 不再硬编码假视频文件列表，改为从配置读取
-- 支持 `.local.json` 覆盖（个人自部署地址不提交仓库）
-- 后端 `LibraryScrapeService` 已原生支持环境变量 `JVEDIO_METATUBE_SERVER_URL` 覆盖
-- 演员头像目录无需额外配置：测试环境中 Worker 自动写入 `test-data/e2e/data/{UserName}/cache/actor-avatar/`，与扫描目录同级，`.gitignore` 已排除 `test-data/**/cache/`
-
-详细计划见 `plan.md` Phase 9.6 章节。
+测试总数：44 → 52，全部通过。MetaTube P0 技术债已消除。
 
 ## 当前真实状态（Phase 6 起点）
 

@@ -60,7 +60,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - WebApplicationFactory 内置日志（临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`，测试后自动清理）
 
 当前测试规模：
-- 44 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + VidParsing 17 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2 + UrlParamBypassed 1）
+- 52 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + Actor 5 + Scrape 3 + VidParsing 17 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2 + UrlParamBypassed 1）
 - 全部通过
 
 ## 当前关键目录规则

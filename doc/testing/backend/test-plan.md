@@ -22,9 +22,11 @@
 ```text
 Jvedio.Worker.Tests/
 ├─ ContractTests/
+│  ├─ ActorApiTests.cs          ← /api/actors 端点契约测试
 │  ├─ BootstrapApiTests.cs      ← /api/bootstrap 端点契约测试
 │  ├─ DtoSerializationTests.cs  ← Contracts DTO 序列化/反序列化测试
 │  ├─ LibrariesApiTests.cs      ← /api/libraries 端点契约测试
+│  ├─ ScrapeApiTests.cs         ← /api/libraries/{id}/scrape + MetaTube 诊断契约测试
 │  ├─ SettingsApiTests.cs       ← /api/settings 端点契约测试
 │  └─ VideosApiTests.cs         ← /api/videos 端点契约测试
 ├─ scripts/
@@ -54,7 +56,7 @@ Jvedio.Worker.Tests/
 
 ## 4. 测试数据策略
 
-所有 44 个测试都是**自给自足**的，不需要开发者预先准备任何 VID 文件、库数据或 SQLite 数据库。根据测试类型，采用三种不同的数据构造方式：
+所有 52 个测试都是**自给自足**的，不需要开发者预先准备任何 VID 文件、库数据或 SQLite 数据库。根据测试类型，采用三种不同的数据构造方式：
 
 ### 4.1 纯函数测试 — 内联数据，不碰文件系统
 
@@ -126,7 +128,9 @@ var videos = await TestBootstrap.Client.GetAsync($"/api/libraries/{id}/videos?..
 | `SidecarPathTests` | 硬编码路径字符串 | ❌ | ❌ |
 | `ScanOrganizeTests` | `[TestInitialize]` 临时创建假文件 | ❌ | ❌ |
 | `ScanImportApiTests` | 测试方法内造假文件 + API 创建库 | ❌ | ❌ |
-| 契约测试（5 个文件） | 空数据库 + 测试方法内 API 调用 | ❌ | ❌ |
+| `ActorApiTests` | 空数据库 + 验证空态/404 响应格式 | ❌ | ❌ |
+| `ScrapeApiTests` | 测试方法内创建临时库 + 不可达地址 | ❌ | ❌ |
+| 契约测试（7 个文件） | 空数据库 + 测试方法内 API 调用 | ❌ | ❌ |
 
 > **关键原则**：每个测试方法负责自己的数据生命周期（创建 → 使用 → 清理），不依赖其他测试的副作用，也不依赖任何外部环境。
 
@@ -198,7 +202,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~BootstrapApiTes
 
 ### 7.2 提交前全量验证
 1. 运行 `scripts/run-all-tests.ps1`
-2. 确认全部 13 个测试通过
+2. 确认全部 52 个测试通过
 3. 再进行提交
 
 ## 8. 新增模块测试流程
@@ -250,7 +254,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~BootstrapApiTes
 | 优先级 | 旧测试 | 方向 |
 |--------|--------|------|
 | P0 | LibraryOrganizerRuleTests / ScanTaskImportTests | 为 `LibraryScanService` 编写 VID 解析单元测试 |
-| P0 | MetaTubeIntegrationTests | 为 MetaTube 刮削全流程编写 Worker 层集成测试 |
+| ~~P0~~ | ~~MetaTubeIntegrationTests~~ | ✅ 已完成：`ScrapeApiTests.cs`（3 个用例，Phase 9.6.3） |
 | P1 | SidecarPathResolverTests | 为 Sidecar 路径命名规则编写单元测试 |
 | P1 | LibraryOrganizeTests | 为扫描+整理全流程编写 Worker 层集成测试 |
 
@@ -260,5 +264,5 @@ dotnet test --configuration Release --filter "FullyQualifiedName~BootstrapApiTes
 
 1. 增加 Worker 服务层单元测试（Mock 数据库）
 2. 增加 SSE 事件流契约测试（`/api/events`）
-3. 增加 MetaTube 诊断端点测试
+3. ~~增加 MetaTube 诊断端点测试~~ ✅ 已完成（`ScrapeApiTests.MetaTubeDiagnostics_ReturnsResponseEnvelope`）
 4. 增加错误响应格式验证
