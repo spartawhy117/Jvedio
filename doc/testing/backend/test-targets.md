@@ -12,41 +12,73 @@
 
 - `doc/testing/backend/test-plan.md`
 
-## 2. 快速功能测试目标
+## 2. Worker API 契约测试目标
 
-快速功能测试指：
-- 不依赖真实网络
-- 不依赖主程序 UI
-- 用最短时间验证本地规则和纯逻辑不回归
+Worker API 契约测试指：
+- 通过 `WebApplicationFactory<Program>` 在进程内启动 Worker
+- 验证 HTTP 端点的请求/响应格式与业务行为
+- 不依赖外部网络或 WPF 上下文
 
 ### 2.1 目标范围
 
-- sidecar 命名规则
-- 演员头像缓存路径规则
-- MetaTube JSON cache 读写规则
-- `ScrapeResult -> Dictionary<string, object>` 映射规则
-- 自动整理目录命名回退规则
-- 启动日志覆盖规则
+- Bootstrap API（`/api/bootstrap`）— 返回 Worker 状态与基础信息
+- Libraries API（`/api/libraries`）— 库 CRUD 操作
+- Settings API（`/api/settings`）— 设置读写、恢复默认
+- Videos API（`/api/videos`）— 收藏列表、类别列表、系列列表、批量操作
+- DTO 序列化 — Contracts DTO 与 JSON 的正确转换
 
 ### 2.2 当前要求
 
-- sidecar 必须统一使用 `VID` 前缀：
+- 所有端点返回统一 `ApiResponse<T>` 信封（`success`、`data`、`requestId`、`timestamp`）
+- 设置更新需要 `general`、`playback`、`metaTube` 三个必填组
+- 库创建返回嵌套 `data.library.libraryId`
+- JSON 序列化使用 camelCase 命名
+
+### 2.3 强断言
+
+- Bootstrap 返回成功信封且包含 `workerInfo.baseUrl`
+- 库 CRUD 往返正确（创建 → 查列表 → 删除）
+- 设置读写持久化正确
+- 恢复默认值后设置回到初始状态
+- DTO 序列化/反序列化字段不丢失
+
+## 3. 业务逻辑测试目标
+
+业务逻辑测试指：
+- 不依赖真实网络或外部服务
+- 不依赖 WPF 上下文
+- 通过反射调用 Worker 私有静态方法或通过 API 端到端验证
+- 用最短时间验证核心业务规则不回归
+
+### 3.1 目标范围
+
+- ✅ VID 解析规则（`ExtractVideoId`）— 17 个数据驱动用例
+- ✅ Sidecar 命名规则（`NormalizeSidecarPrefix`、`GetMovieNfoPath` 等）— 6 个用例
+- ✅ 扫描整理规则（`TryOrganize`）— 5 个文件系统用例
+- ✅ 扫描导入端到端（API 创建库 → 触发扫描 → 验证导入）— 2 个用例
+- ⏳ MetaTube 网络集成测试（需外部 MetaTube 服务，暂未迁移）
+
+### 3.2 当前要求
+
+- VID 解析支持：标准 `XX-123`、FC2 `FC2-PPV-123456`、后缀 `-A`、无分隔符、大小写不敏感
+- Sidecar 必须统一使用 VID 前缀：
   - `<VID>.nfo`
   - `<VID>-poster.jpg`
   - `<VID>-thumb.jpg`
   - `<VID>-fanart.jpg`
-- 正式缓存必须写入：
-  - `data/<user>/cache/video/<VID>.json`
-  - `data/<user>/cache/actor-avatar/<actorId>.jpg`
-- 测试输出必须写入：
-  - `data/<user>/log/test/<VID>/`
-- 日志初始化必须覆盖当日日志，而不是无限追加
+- VID 为空时回退到文件名，文件名也为空时回退到 `"video"`
+- 写入路径（LibraryScrapeService）与读取路径（VideoService）必须一致
+- 扫描整理：多视频平铺目录 → 按 VID 创建子目录 → 移动视频和字幕
+- 扫描整理冲突：目标位置已有同名文件时不移动，标记失败
 
-### 2.3 强断言
+### 3.3 强断言
 
-- sidecar 路径命名正确
-- actor-avatar 路径命名正确
-- cache 可保存与读取
+- ✅ VID 解析正确（标准/FC2/后缀/无分隔/大小写）
+- ✅ Sidecar 路径命名正确
+- ✅ 写入/读取路径一致
+- ✅ 扫描整理文件移动正确
+- ✅ 整理冲突时不丢文件
+- ✅ 字幕文件随视频移动
 - `ScrapeResult` 映射字段不丢失
 - 日志覆盖逻辑可工作
 

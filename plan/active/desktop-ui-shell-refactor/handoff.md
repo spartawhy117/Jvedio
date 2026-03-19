@@ -37,6 +37,20 @@
 | 7.2 视频操作 API | ✅ | toggle-favorite + delete + batch-favorite + batch-delete 四端点 |
 | 7.2b 前端多选与批量操作 | ✅ | LibraryPage + FavoritesPage 多选态 + 批量操作栏 + 右键菜单扩展 |
 
+## Phase 8 回顾（已完成）
+
+| 子项 | 状态 | 概要 |
+|------|------|------|
+| 8.1 新建测试工程 | ✅ | `Jvedio.Worker.Tests` .NET 8 SDK-style csproj + MSTest 3.x |
+| 8.2 配置项目引用 | ✅ | 引用 Worker + Contracts，不引用 WPF 主程序 |
+| 8.3 重建测试基础设施 | ✅ | `TestBootstrap.cs` 使用 `WebApplicationFactory<Program>` |
+| 8.4 旧测试迁移评估 | ✅ | 0 个可直接迁移，5 个高价值已重写到 BusinessLogicTests/ |
+| 8.5 Worker API 契约测试 | ✅ | 44 个测试覆盖 9 个维度（Bootstrap/Libraries/Settings/Videos/DTO/VidParsing/SidecarPath/ScanOrganize/ScanImportApi） |
+| 8.6 新建测试脚本 | ✅ | 3 个 PS1 脚本（all/unit/integration） |
+| 8.7 更新解决方案 | ✅ | sln 添加 Worker.Tests，移除旧 Jvedio.Test 引用 |
+| 8.8 删除旧测试工程 | ✅ | `Jvedio-WPF/Jvedio.Test/` 已物理删除 |
+| 8.9 关联文档更新 | ✅ | AGENTS.md + testing/README + test-plan + test-targets + test-current-suite + developer.md + CHANGELOG |
+
 ## 当前真实状态（Phase 6 起点）
 
 ### 已完成

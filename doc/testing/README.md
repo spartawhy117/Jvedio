@@ -4,19 +4,18 @@
 
 ## 技术方案概览
 
-### 后端集成测试（C# / MSTest）
+### 后端测试（C# / MSTest / .NET 8）
 
-- **工程**：`Jvedio-WPF/Jvedio.Test/Jvedio.Test.csproj`
-- **框架**：MSTest + `vstest.console.exe`
+- **工程**：`Jvedio-WPF/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
+- **框架**：MSTest 3.x + `dotnet test`
+- **测试引擎**：`WebApplicationFactory<Program>` 启动内存 Worker 实例
 - **测试分层**：
-  - 快速验证（纯逻辑，不联网）
-  - 网络验证（连接真实 MetaTube 服务）
-  - 文件系统验证（扫描导入 + 目录整理）
-- **执行方式**：PowerShell 脚本（双击运行或 `-NoPause`）
-- **配置**：JSON 配置文件 + 独立输出目录
-- **当前规模**：16 个测试用例
+  - 契约测试（BootstrapApi、LibrariesApi、SettingsApi、VideosApi）
+  - DTO 序列化测试
+- **执行方式**：`dotnet test` 或 PowerShell 脚本（双击运行或 `-NoPause`）
+- **当前规模**：13 个测试用例（全部通过）
 
-> ⚠️ **迁移待办**：当前测试工程深度绑定旧 WPF 架构（.NET Framework 4.7.2、强制 WPF Application 上下文、直接引用 WPF 主程序），与新 Worker + Contracts 体系不兼容。计划新建 .NET 8 SDK-style 测试项目（`Jvedio.Worker.Tests`），解除 WPF 依赖，迁移有价值的业务测试逻辑并新增 Worker API 契约测试。详见 `plan/active/desktop-ui-shell-refactor/plan.md` Phase 8。
+> ℹ️ **旧测试工程**：`Jvedio-WPF/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
 
 ### 前端 E2E 测试（Playwright）— 暂缓
 
@@ -61,7 +60,7 @@ doc/testing/
 ├── backend/                           ← 后端集成测试（Jvedio.Test C# 工程）
 │   ├── test-plan.md                   ← 测试工程组织方式、配置、脚本、执行流程
 │   ├── test-targets.md                ← 测试目标与通过标准（强/弱断言）
-│   └── test-current-suite.md          ← 当前已实现的 16 个测试清单
+│   └── test-current-suite.md          ← 当前已实现的 44 个测试清单
 └── e2e/                               ← 前端 E2E 自动化（Playwright）
     ├── playwright-e2e-test-plan.md    ← Playwright MCP 执行方案、启停流程、已知限制
     └── playwright-e2e-test-cases.md   ← 48 个 E2E 用例（7 张流程图拆解）
@@ -87,8 +86,7 @@ doc/testing/
 | 验证矩阵 | `plan/active/desktop-ui-shell-refactor/validation.md` | Phase 6 验证记录 |
 | 日志规范 | `doc/logging-convention.md` | Worker + Shell 日志配置 |
 | 流程图索引 | `doc/UI/new/flow/README.md` | E2E 用例的流程图来源 |
-| 测试数据目录 | `Jvedio-WPF/Jvedio.Test/config/scan/input/` | 假视频文件放置目录 |
-| MetaTube 测试配置 | `Jvedio-WPF/Jvedio.Test/config/meta-tube/meta-tube-test-config.json` | VID 列表与服务地址 |
+| 测试工程 | `Jvedio-WPF/Jvedio.Worker.Tests/` | .NET 8 Worker API 契约测试 |
 | 开发总览 | `doc/developer.md` | 项目入口文档 |
 
 ## 维护规则

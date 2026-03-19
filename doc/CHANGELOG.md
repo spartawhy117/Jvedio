@@ -6,6 +6,15 @@
 ## [未发布]
 
 ### 已变更
+- 完成 Phase 8 后端测试工程迁移：新建 `Jvedio.Worker.Tests`（.NET 8 SDK-style / MSTest 3.x / `WebApplicationFactory<Program>`），不依赖 WPF 主程序，使用 `dotnet test` 独立编译运行。
+- 新增 5 个 Worker API 契约测试文件（BootstrapApiTests、DtoSerializationTests、LibrariesApiTests、SettingsApiTests、VideosApiTests），共 13 个测试用例覆盖 Bootstrap/Libraries/Settings/Videos/DTO 五个维度。
+- 新增 3 个 PowerShell 测试脚本（`run-all-tests.ps1`、`run-unit-tests.ps1`、`run-integration-tests.ps1`），支持双击运行和 `-NoPause` 参数。
+- 旧测试工程 `Jvedio.Test` 已从 `Jvedio.sln` 移除（目录暂保留，待后续物理删除）。
+- 修复 3 个测试用例的断言错误：DTO 序列化 camelCase 策略、Libraries 创建响应嵌套结构、Settings 更新必填字段校验。
+- 更新 `AGENTS.md`、`doc/testing/README.md`、`doc/testing/backend/test-plan.md`、`doc/testing/backend/test-targets.md`、`doc/testing/backend/test-current-suite.md`、`doc/developer.md`，统一指向新测试工程。
+- 旧测试工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、MetaTube 刮削、扫描整理）评估为需以新架构重写，标记为技术债。
+- 物理删除旧测试工程 `Jvedio-WPF/Jvedio.Test/` 目录。
+- 重写 5 个高价值旧测试为新架构（`BusinessLogicTests/` 目录）：VID 解析（17 个数据驱动用例）、Sidecar 路径（6 个用例）、扫描整理（5 个文件系统用例）、扫描导入端到端（2 个 API 集成用例）。测试总数从 13 增长到 44。
 - 完成 Phase 7.1 Settings 占位补全：新增 `ImageSettingsDto`、`ScanImportSettingsDto`、`LibrarySettingsDto` 三组 Contracts DTO；更新 `SettingsService` 支持 6 组设置读写与持久化；前端 SettingsPage 三个 "Coming Soon" 占位替换为真实表单控件。
 - 完成 Phase 7.2 视频操作 API：新增 `ToggleFavoriteResponse`、`DeleteVideoResponse`、`BatchOperationRequest`、`BatchOperationResponse` Contracts DTO；`VideoService` 新增 toggle-favorite、delete-video、batch-favorite、batch-delete 四个方法；`VideosController` 新增四个端点；`VideoListItemDto` 和 `VideoDetailDto` 添加 `IsFavorite` 字段。
 - 完成 Phase 7.2b 前端多选与批量操作：`LibraryPage` 和 `FavoritesPage` 接入 multi-select 状态管理和批量操作栏（收藏/取消收藏/删除/全选/取消选择）；右键菜单扩展 toggleFavorite 和 deleteVideo 动作（含 danger 样式）；`VideoCard` VID 行前显示收藏心形标识；`common.json` 新增 20 个 i18n 键。

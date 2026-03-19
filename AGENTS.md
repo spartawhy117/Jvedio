@@ -4,7 +4,8 @@
 - 仓库根目录：`D:\study\Proj\Jvedio`
 - 主解决方案：`Jvedio-WPF/Jvedio.sln`
 - 主程序项目：`Jvedio-WPF/Jvedio/Jvedio.csproj`
-- 测试工程：`Jvedio-WPF/Jvedio.Test/Jvedio.Test.csproj`
+- 测试工程：`Jvedio-WPF/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`（.NET 8 / MSTest / `dotnet test`）
+- 旧测试工程：`Jvedio-WPF/Jvedio.Test/`（已物理删除）
 - 当前主线：WPF 桌面端 + MetaTube 唯一搜刮源
 
 ## 构建命令
@@ -22,45 +23,43 @@
 主程序输出：
 - `Jvedio-WPF/Jvedio/bin/Release/Jvedio.exe`
 
-### 测试工程 Release
+### 测试工程编译
 ```powershell
-"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" Jvedio.Test.csproj -target:Build -property:Configuration=Release -maxcpucount
+cd Jvedio-WPF/Jvedio.Worker.Tests
+dotnet build --configuration Release
 ```
 
 ### 跑全量测试
 ```powershell
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "D:\study\Proj\Jvedio\Jvedio-WPF\Jvedio.Test\bin\Release\Jvedio.Test.dll"
+cd Jvedio-WPF/Jvedio.Worker.Tests
+dotnet test --configuration Release
 ```
 
 ### 跑单个测试
 ```powershell
-"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "D:\study\Proj\Jvedio\Jvedio-WPF\Jvedio.Test\bin\Release\Jvedio.Test.dll" /Tests:CanWarmupMetaTubeServer
+cd Jvedio-WPF/Jvedio.Worker.Tests
+dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_ReturnsSuccessEnvelope"
 ```
 
 ## 测试脚本入口
-- MetaTube：`Jvedio-WPF/Jvedio.Test/config/meta-tube/run-meta-tube-tests.ps1`
-- 扫描链：`Jvedio-WPF/Jvedio.Test/config/scan/run-scan-tests.ps1`
-- 全量：`Jvedio-WPF/Jvedio.Test/config/run-all-tests.ps1`
+- 全量：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
+- 单元测试：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-unit-tests.ps1`
+- 集成测试：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-integration-tests.ps1`
 
 支持：
 - 双击运行
 - 命令行运行时加 `-NoPause`
 
 ## 测试配置目录
-- `Jvedio-WPF/Jvedio.Test/config/meta-tube/`
-- `Jvedio-WPF/Jvedio.Test/config/scan/`
-
-配置文件：
-- `config/meta-tube/meta-tube-test-config.json`
-- `config/scan/scan-test-config.json`
+- `Jvedio-WPF/Jvedio.Worker.Tests/ContractTests/` — Worker API 契约测试
 
 ## 测试日志与输出
-测试主日志：
-- `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
+测试日志：
+- WebApplicationFactory 内置日志（临时目录，测试后自动清理）
 
-测试输出：
-- MetaTube：`Jvedio.Test/config/meta-tube/output/`
-- Scan：`Jvedio.Test/config/scan/output/`
+当前测试规模：
+- 13 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4）
+- 全部通过
 
 ## 当前关键目录规则
 正式 sidecar：

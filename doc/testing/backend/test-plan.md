@@ -20,188 +20,116 @@
 ## 2. 当前测试工程结构
 
 ```text
-Jvedio.Test/
-├─ config/
-│  ├─ meta-tube/
-│  │  ├─ meta-tube-test-config.json
-│  │  ├─ output/
-│  │  └─ run-meta-tube-tests.ps1
-│  ├─ scan/
-│  │  ├─ scan-test-config.json
-│  │  ├─ output/
-│  │  └─ run-scan-tests.ps1
-│  └─ run-all-tests.ps1
-├─ IntegrationTests/
-│  ├─ MetaTube/
-│  └─ Scan/
-├─ UnitTests/
-│  └─ Core/
-│     ├─ Logs/
-│     ├─ Media/
-│     ├─ Scan/
-│     └─ Scraper/
-├─ Properties/
-├─ TestBootstrap.cs
-└─ TestAssemblyBootstrap.cs
+Jvedio.Worker.Tests/
+├─ ContractTests/
+│  ├─ BootstrapApiTests.cs      ← /api/bootstrap 端点契约测试
+│  ├─ DtoSerializationTests.cs  ← Contracts DTO 序列化/反序列化测试
+│  ├─ LibrariesApiTests.cs      ← /api/libraries 端点契约测试
+│  ├─ SettingsApiTests.cs       ← /api/settings 端点契约测试
+│  └─ VideosApiTests.cs         ← /api/videos 端点契约测试
+├─ scripts/
+│  ├─ run-all-tests.ps1
+│  ├─ run-unit-tests.ps1
+│  └─ run-integration-tests.ps1
+├─ TestBootstrap.cs             ← WebApplicationFactory<Program> 初始化
+└─ Jvedio.Worker.Tests.csproj   ← .NET 8 SDK-style 项目
 ```
 
 说明：
-- 当前不再保留单独的 `ScanTest/` 旧目录；扫描导入相关快速验证位于 `UnitTests/Core/Scan/`，文件系统整理链验证位于 `IntegrationTests/Scan/`。
+- 测试工程使用 `WebApplicationFactory<Program>` 在进程内启动完整 Worker HTTP 管道
+- 所有测试共享 `TestBootstrap` 中的 `HttpClient` 实例
+- 每次测试运行使用临时目录中的空 SQLite 数据库，测试后自动清理
+- 不依赖 WPF、不依赖外部网络服务
 
 ## 3. 当前测试分层
 
-### 3.1 快速验证
-- 纯逻辑
-- 不联网
-- 运行快
+### 3.1 契约测试（ContractTests）
+- 通过 HTTP 调用 Worker API 端点
+- 验证请求/响应格式、状态码、业务逻辑
+- 在进程内运行，不需要外部进程
 
-### 3.2 网络验证
-- 访问真实 MetaTube 服务
-- 验证 warmup、搜索、详情、头像、输出
+### 3.2 DTO 序列化测试
+- 验证 `Jvedio.Contracts` 中的 DTO 在 System.Text.Json 下正确序列化/反序列化
+- 确保前端 TypeScript 类型与后端 C# 类型一致
 
-### 3.3 扫描链验证
-- 模拟平铺目录
-- 验证自动整理与跳过策略
+## 4. 项目引用
 
-## 4. 配置目录规则
+```xml
+<ProjectReference Include="..\Jvedio.Worker\Jvedio.Worker.csproj" />
+<ProjectReference Include="..\Jvedio.Contracts\Jvedio.Contracts.csproj" />
+```
 
-### 4.1 MetaTube 配置
-位置：
-- `config/meta-tube/meta-tube-test-config.json`
+- **不引用** `Jvedio.csproj`（WPF 主程序）
+- 测试引擎：MSTest 3.x + Microsoft.NET.Test.Sdk + Microsoft.AspNetCore.Mvc.Testing
 
-输出：
-- `config/meta-tube/output/`
+## 5. 测试基础设施
 
-脚本：
-- `config/meta-tube/run-meta-tube-tests.ps1`
+### TestBootstrap
 
-### 4.2 Scan 配置
-位置：
-- `config/scan/scan-test-config.json`
+`TestBootstrap.cs` 使用 `[AssemblyInitialize]` 在所有测试运行前：
+1. 创建临时数据目录
+2. 放置空 SQLite 数据库文件
+3. 设置 `JVEDIO_APP_BASE_DIR` 和 `JVEDIO_LOG_DIR` 环境变量
+4. 创建 `WebApplicationFactory<Program>` 和 `HttpClient`
 
-输出：
-- `config/scan/output/`
+`[AssemblyCleanup]` 在所有测试运行后：
+1. 释放 HttpClient 和 Factory
+2. 清理临时目录
 
-脚本：
-- `config/scan/run-scan-tests.ps1`
+### JSON 序列化
 
-### 4.3 全量测试脚本
-位置：
-- `config/run-all-tests.ps1`
+`TestBootstrap.JsonOptions` 使用 camelCase 命名策略，与 ASP.NET Core 默认行为保持一致。
 
-## 5. 主日志与 output 的关系
+## 6. 执行方式
 
-### 主日志位置
-测试主日志写入：
-- `Jvedio.Test/bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
+### 命令行
+```powershell
+cd Jvedio-WPF/Jvedio.Worker.Tests
+dotnet test --configuration Release
+```
 
-### suite 输出位置（测试工程）
-测试工程业务输出写入：
-- `config/meta-tube/output/`
-- `config/scan/output/`
+### 运行单个测试
+```powershell
+dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_ReturnsSuccessEnvelope"
+```
 
-说明：
-- 主日志仍按正式程序的日志路径工作
-- suite 的 `output/` 只负责保存该类测试的业务输出文件
-- 当前不将主日志迁移到 `config/<suite>/output/`
+### 按类运行
+```powershell
+dotnet test --configuration Release --filter "FullyQualifiedName~BootstrapApiTests"
+```
 
-### 主程序内置调试输出位置
-当运行主程序 `Jvedio.exe` 并在设置页中执行 MetaTube 搜刮测试时：
+### PowerShell 脚本
+- `scripts/run-all-tests.ps1` — 全量测试
+- `scripts/run-unit-tests.ps1` — 仅序列化等纯单元测试
+- `scripts/run-integration-tests.ps1` — 仅 API 集成测试
 
-- 调试输出写入：
-  - `data/<user>/log/test/<VID>/`
+脚本支持：
+- 双击执行
+- 命令行加 `-NoPause` 参数
 
-说明：
-- 这是主程序运行时的调试输出路径
-- 不应与 `Jvedio.Test` 的 suite 输出目录混淆
+## 7. 推荐执行流程
 
-## 6. 配置文件说明
+### 7.1 开发期快速验证
+1. 修改代码后 `dotnet build --configuration Release`
+2. `dotnet test --configuration Release`
+3. 确认全部通过
 
-### 6.1 MetaTube 配置
-字段重点：
-- `enabled`
-- `serverUrl`
-- `requestTimeoutSeconds`
-- `warmupBeforeScrape`
-- `clearOutputBeforeRun`
-- `testOutputRoot`
-- `cacheRoot`
-- `logToConsole`
-- `cases`
-
-说明：
-- `cases` 中每个对象对应一个要测试的影片
-- `testOutputRoot` 指向 MetaTube suite 输出目录
-- `cacheRoot` 指向测试缓存目录
-
-### 6.2 Scan 配置
-字段重点：
-- `enabled`
-- `cleanOutputBeforeRun`
-- `warmupBeforeScan`
-- `serverUrl`
-- `requestTimeoutSeconds`
-- `inputRoot`
-- `outputRoot`
-- `report`
-
-说明：
-- scan 测试不再维护 case 列表；只需要把待测影片直接放进 `inputRoot`
-- 运行脚本后，能在 MetaTube 命中的影片会被整理到 `outputRoot/<VID>/`
-- 未命中的影片保持在 `inputRoot`
-- `report` 用于输出最终 JSON/TXT 汇总文件
-
-## 7. PowerShell 脚本入口
-
-### MetaTube
-- `config/meta-tube/run-meta-tube-tests.ps1`
-
-### Scan
-- `config/scan/run-scan-tests.ps1`
-
-### 全量
-- `config/run-all-tests.ps1`
-
-### 脚本行为
-- 自动 build `Jvedio.Test`
-- 自动运行对应测试
-- 支持双击执行
-- 支持参数：
-  - `-NoPause`
-
-## 8. 推荐执行流程
-
-### 8.1 快速验证
-1. build `Jvedio.Test`
-2. 跑纯单元测试
-3. 检查 sidecar/cache/path 逻辑
-
-### 8.2 网络验证
-1. 检查 `config/meta-tube/meta-tube-test-config.json`
-2. 清理 `config/meta-tube/output/`
-3. 跑 `run-meta-tube-tests.ps1`
-4. 检查 output 和日志
-
-### 8.3 扫描链验证
-1. 检查 `config/scan/scan-test-config.json`
-2. 将待测影片放入 `config/scan/input/`
-3. 跑 `run-scan-tests.ps1`
-4. 检查 `config/scan/output/` 中的整理结果与 `scan-result.json` / `txt`
-
-### 8.4 全量回归
-1. 运行 `run-all-tests.ps1`
-2. 确认全部测试通过
+### 7.2 提交前全量验证
+1. 运行 `scripts/run-all-tests.ps1`
+2. 确认全部 13 个测试通过
 3. 再进行提交
 
-## 9. 新增模块测试流程
+## 8. 新增模块测试流程
 
 当新增一个功能模块测试时，建议按下面步骤做：
 
 1. 判断测试分类：
-   - Unit / Integration / Scan
-2. 新增测试类文件
-3. 如需数据驱动，新增 `config/<suite>/xxx.json`
-4. 如需输出文件，写入 `config/<suite>/output/`
+   - ContractTests（API 端点）
+   - DTO 序列化测试
+   - 服务层单元测试（未来新增）
+2. 在对应目录新增测试类文件
+3. 使用 `TestBootstrap.Client` 发送 HTTP 请求
+4. 使用 `TestBootstrap.JsonOptions` 处理 JSON
 5. 更新：
    - `doc/testing/backend/test-current-suite.md`
 6. 如果测试目标边界变了，再更新：
@@ -209,7 +137,7 @@ Jvedio.Test/
 7. 如果目录结构、脚本、执行方式变了，再更新：
    - `doc/testing/backend/test-plan.md`
 
-## 10. 文档更新规则
+## 9. 文档更新规则
 
 ### 更新 `test-current-suite.md`
 当测试清单发生变化时更新：
@@ -226,17 +154,29 @@ Jvedio.Test/
 
 ### 更新 `test-plan.md`
 当测试工程结构和执行方式变化时更新：
-- 新增 config
+- 新增测试类别
 - 新增脚本
-- 输出目录变更
-- 测试流程变化
+- 执行方式变化
+- 项目引用变化
 
-## 11. 后续演进建议
+## 10. 技术债与后续演进
 
-后续继续扩展测试体系时，优先级建议是：
+### 旧测试工程迁移评估
 
-1. 强化现有 18 个测试的断言
-2. 增加更多 actor/avatar 场景
-3. 增加多分段视频扫描整理场景
-4. 增加图片下载失败容错验证
-5. 保持脚本入口和 output 目录结构稳定
+旧 `Jvedio.Test` 中以下测试用例的业务逻辑值得参考重写：
+
+| 优先级 | 旧测试 | 方向 |
+|--------|--------|------|
+| P0 | LibraryOrganizerRuleTests / ScanTaskImportTests | 为 `LibraryScanService` 编写 VID 解析单元测试 |
+| P0 | MetaTubeIntegrationTests | 为 MetaTube 刮削全流程编写 Worker 层集成测试 |
+| P1 | SidecarPathResolverTests | 为 Sidecar 路径命名规则编写单元测试 |
+| P1 | LibraryOrganizeTests | 为扫描+整理全流程编写 Worker 层集成测试 |
+
+以上均需重写（旧测试依赖 WPF 上下文，无法直接迁移），标记为技术债。
+
+### 后续扩展建议
+
+1. 增加 Worker 服务层单元测试（Mock 数据库）
+2. 增加 SSE 事件流契约测试（`/api/events`）
+3. 增加 MetaTube 诊断端点测试
+4. 增加错误响应格式验证

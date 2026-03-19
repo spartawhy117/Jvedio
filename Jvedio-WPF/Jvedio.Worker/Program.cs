@@ -115,3 +115,6 @@ static string ResolveLogDirectory()
     // Fallback: next to exe
     return Path.Combine(baseDir, "log");
 }
+
+// ── Expose Program class for WebApplicationFactory<Program> in tests ──
+public partial class Program { }

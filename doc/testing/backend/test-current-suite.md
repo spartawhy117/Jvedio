@@ -2,114 +2,160 @@
 
 ## 1. 当前状态
 
-当前 `Jvedio.Test` 当前登记测试数：
-- 总测试数：16
-- 最近一次定向验证通过：3
-- 最近一次定向验证失败：0
+当前 `Jvedio.Worker.Tests` 测试统计：
+- 总测试数：44
+- 全部通过：✅
 
-测试配置目录：
-- `Jvedio.Test/config/`
+执行方式：
+```powershell
+cd Jvedio-WPF/Jvedio.Worker.Tests
+dotnet test --configuration Release
+```
 
-主日志目录：
-- `Jvedio.Test/bin/Release/data/<user>/log/`
+## 2. Bootstrap API 契约测试
 
-## 2. 快速验证测试
+文件：`ContractTests/BootstrapApiTests.cs`
 
-当前快速验证中的扫描导入类测试统一放在 `UnitTests/Core/Scan/`，不再使用旧的 `ScanTest/` 目录。
+### `GetBootstrap_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/bootstrap` 返回成功信封（`success: true`、`data` 存在）
 
-### `BasicImport`
-- 目标：验证 `ScanTask` 基础导入结果对象可生成
+### `GetBootstrap_WorkerInfoHasBaseUrl`
+- 目标：验证 bootstrap 响应中 `data.workerInfo.baseUrl` 非空
 
-### `SubSectionImport`
-- 目标：验证分段影片扫描场景可正常完成
+## 3. DTO 序列化测试
 
-### `MetaTubeCacheCanSaveAndReadVideo`
-- 目标：验证 `cache/video/<VID>.json` 的保存与读取
+文件：`ContractTests/DtoSerializationTests.cs`
 
-### `ScrapeResultCanBeMappedToDictionary`
-- 目标：验证 `ScrapeResult -> Dictionary<string, object>` 映射
+### `GetSettingsResponse_CanDeserializeFromJson`
+- 目标：验证 `GetSettingsResponse` 能从 JSON 正确反序列化所有 6 组设置
 
-### `OrganizerShouldFallbackToFileNameWhenVidMissing`
-- 目标：验证 `VID` 缺失时目录整理器回退为文件主名
+### `UpdateSettingsRequest_CanSerializePartialUpdate`
+- 目标：验证 `UpdateSettingsRequest` 部分更新时序列化为 camelCase JSON
 
-### `ActorAvatarPathShouldPreferActorId`
-- 目标：验证正式演员头像路径优先使用 `actorId`
+## 4. Libraries API 契约测试
 
-### `SidecarPathShouldUseVidPrefix`
-- 目标：验证正式 sidecar 使用 `VID` 前缀命名
+文件：`ContractTests/LibrariesApiTests.cs`
 
-### `LoggerShouldResetDailyLogOnStartup`
-- 目标：验证程序启动时覆盖当日日志
+### `GetLibraries_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/libraries` 返回成功信封，`data.libraries` 为数组
 
-## 3. 扫描链验证测试
+### `CreateAndDeleteLibrary_RoundTrip`
+- 目标：验证创建库 → 列表查看 → 删除库的完整 CRUD 往返
 
-当前文件系统整理与导入后路径变更类测试统一放在 `IntegrationTests/Scan/`。
+## 5. Settings API 契约测试
 
-### `CanLookupAndOrganizeVideosFromInputDirectory`
-- 目标：验证输入目录中的影片可按 MetaTube 命中结果整理到输出目录，并生成未命中报告
+文件：`ContractTests/SettingsApiTests.cs`
 
-### `ScanTaskUsesOrganizedPathAfterMove`
-- 目标：验证整理成功后 `Video.Path` 更新
+### `GetSettings_ReturnsAllGroups`
+- 目标：验证 `GET /api/settings` 返回所有 6 组设置（general/playback/metaTube/image/scanImport/library）
 
-### `FailedOrganizationMovieIsMarkedAsNotImport`
-- 目标：验证整理失败影片进入 `ScanResult.NotImport`
+### `UpdateSettings_PersistsAndReturns`
+- 目标：验证 `PUT /api/settings` 能正确持久化设置并读回验证
 
-## 4. 网络验证测试
+### `ResetSettings_RestoresDefaults`
+- 目标：验证 `PUT /api/settings` 带 `resetToDefaults: true` 能恢复默认值
 
-### `CanWarmupMetaTubeServer`
-- 目标：验证根地址与 `/v1/providers` 预热成功
+## 6. Videos API 契约测试
 
-### `CanSearchMovieByVid`
-- 目标：验证根据 `VID` 搜索电影
+文件：`ContractTests/VideosApiTests.cs`
 
-### `CanFetchMovieDetailAndConvert`
-- 目标：验证电影详情获取并转换为 `ScrapeResult`
+### `GetFavorites_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/videos/favorites` 返回成功信封
 
-### `CanFetchActorAvatarWhenAvailable`
-- 目标：验证演员搜索、actor detail 与头像获取链
+### `GetCategories_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/videos/categories` 返回成功信封
 
-### `CanWriteTestOutputFiles`
-- 目标：验证测试输出目录中生成：
-  - `meta.json`
-  - `*.nfo`
-  - 海报/缩略图/背景图
-  - 演员头像文件（如成功）
+### `GetSeries_ReturnsSuccessEnvelope`
+- 目标：验证 `GET /api/videos/series` 返回成功信封
 
-## 5. 当前脚本入口
+### `BatchFavorite_WithEmptyList_ReturnsSuccess`
+- 目标：验证 `POST /api/videos/batch-favorite` 空列表时返回成功
 
-### MetaTube
-- `config/meta-tube/run-meta-tube-tests.ps1`
+## 7. VID 解析测试
 
-### Scan
-- `config/scan/run-scan-tests.ps1`
-- 使用方式：将待测影片放入 `config/scan/input/` 后执行脚本
+文件：`BusinessLogicTests/VidParsingTests.cs`
 
-### 全量
-- `config/run-all-tests.ps1`
+通过反射调用 `LibraryScanService.ExtractVideoId` 私有静态方法。
 
-## 6. 当前配置文件
+### `ExtractVideoId_StandardVids` × 4
+- 目标：标准 VID 格式（`ABP-001`、`STARS-123`、`SSIS-456`、`IPX-789`）
 
-### MetaTube
-- `config/meta-tube/meta-tube-test-config.json`
+### `ExtractVideoId_Fc2Variants` × 4
+- 目标：FC2 变体（标准 `FC2-PPV-1234567`、无分隔符、下划线、空格）
 
-### Scan
-- `config/scan/scan-test-config.json`
+### `ExtractVideoId_WithSuffix` × 3
+- 目标：带后缀的 VID（`ABP-001-A`、`STARS-123-B`、下划线后缀）
 
-## 7. 当前输出位置
+### `ExtractVideoId_CaseInsensitive` × 2
+- 目标：大小写不敏感（小写 → 大写输出、混合大小写）
 
-### MetaTube 输出（测试工程）
-- `config/meta-tube/output/`
+### `ExtractVideoId_NoHyphenSeparator` × 3
+- 目标：无连字符分隔（`ABP001`、`ABP_001`、`ABP 001`）
 
-### Scan 输出（测试工程）
-- `config/scan/output/`
+### `ExtractVideoId_NoMatch_ReturnsEmpty`
+- 目标：纯数字文件名返回空字符串
 
-### 测试工程主日志
-- `bin/Release/data/<user>/log/<yyyy-MM-dd>.log`
+### `ExtractVideoId_SingleCharPrefix_ReturnsEmpty`
+- 目标：单字符前缀不匹配（前缀最少 2 字符）
 
-### 主程序内置调试输出
-- `data/<user>/log/test/<VID>/`
+## 8. Sidecar 路径测试
 
-## 8. 当前维护规则
+文件：`BusinessLogicTests/SidecarPathTests.cs`
+
+通过反射调用 `LibraryScrapeService` 和 `VideoService` 的私有静态路径方法。
+
+### `ScrapeService_SidecarPaths_UseVidPrefix`
+- 目标：验证 NFO/poster/thumb/fanart 路径以 VID 为前缀命名
+
+### `VideoService_NormalizeSidecarPrefix_UsesVidWhenPresent`
+- 目标：有 VID 时使用 VID 作为前缀
+
+### `VideoService_NormalizeSidecarPrefix_FallsBackToFileName`
+- 目标：VID 为空时回退到文件名
+
+### `VideoService_NormalizeSidecarPrefix_NullVid_FallsBackToFileName`
+- 目标：VID 为空白字符串时回退到文件名
+
+### `VideoService_NormalizeSidecarPrefix_EmptyBoth_ReturnsFallback`
+- 目标：VID 和文件名都为空时回退到 "video"
+
+### `ScrapeService_SidecarPaths_ConsistentWithVideoService`
+- 目标：验证写入路径（ScrapeService）与读取路径（VideoService）一致
+
+## 9. 扫描整理测试
+
+文件：`BusinessLogicTests/ScanOrganizeTests.cs`
+
+通过反射调用 `LibraryScanService.TryOrganize` 私有静态方法，操作临时文件系统。
+
+### `TryOrganize_MovesVideoToVidSubdirectory`
+- 目标：平铺目录中多个视频文件时，按 VID 创建子目录并移动
+
+### `TryOrganize_FallsBackToFileName_WhenVidEmpty`
+- 目标：VID 为空时使用文件名作为目录名
+
+### `TryOrganize_FailsGracefully_WhenTargetFileExists`
+- 目标：目标位置已有同名文件时，整理失败但不抛异常
+
+### `TryOrganize_SingleFileNonVidDir_StillOrganizes`
+- 目标：单个视频在非 VID 目录中仍会整理到 VID 子目录
+
+### `TryOrganize_MovesMatchingSubtitles`
+- 目标：同名字幕文件（.srt/.ass）随视频一起移动
+
+## 10. 扫描导入 API 集成测试
+
+文件：`BusinessLogicTests/ScanImportApiTests.cs`
+
+通过 Worker API 端到端测试扫描导入流程。
+
+### `ScanLibrary_ImportsVideos_WithExtractedVids`
+- 目标：创建库 → 放入假视频 → 触发扫描 → 验证视频被导入
+
+### `ScanLibrary_EmptyDirectory_ImportsNothing`
+- 目标：空目录扫描不导入任何视频
+
+## 11. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：

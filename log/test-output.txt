@@ -1,0 +1,61 @@
+生成启动时间为 2026/3/19 14:22:19。
+d:\MyProjects\JVedio\Jvedio-WPF\Jvedio.Worker.Tests\bin\Release\net8.0\Jvedio.Worker.Tests.dll (.NETCoreApp,Version=v8.0)的测试运行
+VSTest 版本 17.14.1 (x64)
+
+正在启动测试执行，请稍候...
+总共 1 个测试文件与指定模式相匹配。
+  已通过 GetBootstrap_ReturnsSuccessEnvelope [47 ms]
+  已通过 GetBootstrap_WorkerInfoHasBaseUrl [2 ms]
+  已通过 GetSettingsResponse_CanDeserializeFromJson [2 ms]
+  已通过 UpdateSettingsRequest_CanSerializePartialUpdate [< 1 ms]
+  已通过 GetLibraries_ReturnsSuccessEnvelope [3 ms]
+  已通过 CreateAndDeleteLibrary_RoundTrip [37 ms]
+  已通过 GetSettings_ReturnsAllGroups [3 ms]
+  已通过 UpdateSettings_PersistsAndReturns [13 ms]
+  已通过 ResetSettings_RestoresDefaults [12 ms]
+  已通过 GetFavorites_ReturnsSuccessEnvelope [6 ms]
+  已通过 GetCategories_ReturnsSuccessEnvelope [3 ms]
+  已通过 GetSeries_ReturnsSuccessEnvelope [1 ms]
+  已通过 BatchFavorite_WithEmptyList_ReturnsSuccess [4 ms]
+  已通过 ScanLibrary_ImportsVideos_WithExtractedVids [3 s]
+  已通过 ScanLibrary_EmptyDirectory_ImportsNothing [2 s]
+  已通过 TryOrganize_MovesVideoToVidSubdirectory [2 ms]
+  已通过 TryOrganize_FallsBackToFileName_WhenVidEmpty [2 ms]
+  已通过 TryOrganize_FailsGracefully_WhenTargetFileExists [1 ms]
+  已通过 TryOrganize_SingleFileNonVidDir_StillOrganizes [1 ms]
+  已通过 TryOrganize_MovesMatchingSubtitles [2 ms]
+  已通过 ScrapeService_SidecarPaths_UseVidPrefix [< 1 ms]
+  已通过 VideoService_NormalizeSidecarPrefix_UsesVidWhenPresent [< 1 ms]
+  已通过 VideoService_NormalizeSidecarPrefix_FallsBackToFileName [< 1 ms]
+  已通过 VideoService_NormalizeSidecarPrefix_NullVid_FallsBackToFileName [< 1 ms]
+  已通过 VideoService_NormalizeSidecarPrefix_EmptyBoth_ReturnsFallback [< 1 ms]
+  已通过 ScrapeService_SidecarPaths_ConsistentWithVideoService [< 1 ms]
+  已通过 ExtractVideoId_StandardVids ("ABP-001.mp4","ABP-001","标准 VID（字母-数字）") [< 1 ms]
+  已通过 ExtractVideoId_StandardVids ("STARS-123.mkv","STARS-123","4+ 字母前缀") [< 1 ms]
+  已通过 ExtractVideoId_StandardVids ("SSIS-456.avi","SSIS-456","4 字母前缀") [< 1 ms]
+  已通过 ExtractVideoId_StandardVids ("IPX-789.mp4","IPX-789","3 字母前缀") [< 1 ms]
+  已通过 ExtractVideoId_Fc2Variants ("FC2-PPV-1234567.mp4","FC2-PPV-1234567","FC2 标准格式") [< 1 ms]
+  已通过 ExtractVideoId_Fc2Variants ("fc2ppv1234567.mp4","FC2-PPV-1234567","FC2 无分隔符") [< 1 ms]
+  已通过 ExtractVideoId_Fc2Variants ("FC2_PPV_1234567.mp4","FC2-PPV-1234567","FC2 下划线分隔") [< 1 ms]
+  已通过 ExtractVideoId_Fc2Variants ("FC2 PPV 1234567.mp4","FC2-PPV-1234567","FC2 空格分隔") [< 1 ms]
+  已通过 ExtractVideoId_WithSuffix ("ABP-001-A.mp4","ABP-001-A","带后缀 A") [< 1 ms]
+  已通过 ExtractVideoId_WithSuffix ("STARS-123-B.mkv","STARS-123-B","带后缀 B") [< 1 ms]
+  已通过 ExtractVideoId_WithSuffix ("SSIS-456_C.avi","SSIS-456-C","下划线后缀") [< 1 ms]
+  已通过 ExtractVideoId_CaseInsensitive ("abp-001.mp4","ABP-001","小写输入应转为大写") [< 1 ms]
+  已通过 ExtractVideoId_CaseInsensitive ("AbP-001.mp4","ABP-001","混合大小写") [< 1 ms]
+  已通过 ExtractVideoId_NoHyphenSeparator ("ABP001.mp4","ABP-001","无分隔符") [< 1 ms]
+  已通过 ExtractVideoId_NoHyphenSeparator ("ABP_001.mp4","ABP-001","下划线分隔") [< 1 ms]
+  已通过 ExtractVideoId_NoHyphenSeparator ("ABP 001.mp4","ABP-001","空格分隔") [< 1 ms]
+  已通过 ExtractVideoId_NoMatch_ReturnsEmpty [< 1 ms]
+  已通过 ExtractVideoId_SingleCharPrefix_ReturnsEmpty [< 1 ms]
+
+测试运行成功。
+测试总数: 44
+     通过数: 44
+总时间: 6.0778 秒
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:00:06.44

@@ -23,7 +23,10 @@
 |--|--|
 | 解决方案 | `Jvedio-WPF/Jvedio.sln` |
 | 主程序 | `Jvedio-WPF/Jvedio` |
-| 测试 | `Jvedio-WPF/Jvedio.Test` |
+| Worker | `Jvedio-WPF/Jvedio.Worker` |
+| Contracts | `Jvedio-WPF/Jvedio.Contracts` |
+| 测试 | `Jvedio-WPF/Jvedio.Worker.Tests`（.NET 8 / MSTest / `dotnet test`）|
+| 旧测试 | `Jvedio-WPF/Jvedio.Test`（已物理删除）|
 | 编译目标 | `x86` |
 | 运行依赖 | `FFmpeg` |
 
