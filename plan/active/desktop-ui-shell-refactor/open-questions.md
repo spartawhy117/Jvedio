@@ -7,10 +7,9 @@
 
 ### OQ-1: E2E 启停入口
 
-- **状态**: 待落地
-- **问题**: 当前仓库已有后端播种脚本，但还缺少统一启动前端验收环境的入口。
-- **需要确认**: 以 `tauri/scripts/start-e2e-env.ps1` / `tauri/scripts/stop-e2e-env.ps1` 收口，统一串起播种后的 Worker 与 Vite。
-- **落点**: Phase 10 期间补齐脚本并同步到 `doc/testing/e2e/playwright-e2e-test-plan.md`。
+- **状态**: 已落地
+- **结论**: 已新增 `tauri/scripts/start-e2e-env.ps1` / `tauri/scripts/stop-e2e-env.ps1`，统一串起播种后的 Worker、后端 verify 和 Vite dev server。
+- **后续**: Phase 10 执行记录直接复用该入口，不再额外讨论脚本路径。
 
 ### OQ-2: 自动化与人工降级边界
 

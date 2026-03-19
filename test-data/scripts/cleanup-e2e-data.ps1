@@ -46,15 +46,15 @@ $workerStopped = $false
 if (Test-Path $envJsonPath) {
     try {
         $envData = Get-Content $envJsonPath -Raw | ConvertFrom-Json
-        $pid = $envData.workerPid
-        if ($pid) {
-            $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+        $workerProcessId = $envData.workerPid
+        if ($workerProcessId) {
+            $proc = Get-Process -Id $workerProcessId -ErrorAction SilentlyContinue
             if ($proc -and -not $proc.HasExited) {
-                Stop-Process -Id $pid -Force
-                Write-Host "  Stopped Worker (PID $pid from e2e-env.json)"
+                Stop-Process -Id $workerProcessId -Force
+                Write-Host "  Stopped Worker (PID $workerProcessId from e2e-env.json)"
                 $workerStopped = $true
             } else {
-                Write-Host "  Worker PID $pid already exited"
+                Write-Host "  Worker PID $workerProcessId already exited"
                 $workerStopped = $true
             }
         }

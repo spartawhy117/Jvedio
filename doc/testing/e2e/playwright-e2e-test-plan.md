@@ -122,10 +122,11 @@ http://localhost:1420?workerUrl=http://127.0.0.1:{port}
 
 1. 运行 `test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
 2. 运行 `test-data/scripts/verify-backend-apis.ps1 -NoPause`
-3. 拉起前端验收环境
+3. 运行 `tauri/scripts/start-e2e-env.ps1`
 4. 用 Playwright MCP 按 flow 执行页面验收
 5. 保存截图、日志和人工降级记录到 `log/test/e2e/`
-6. 回写 `plan/active/desktop-ui-shell-refactor/validation.md`
+6. 执行完后运行 `tauri/scripts/stop-e2e-env.ps1`
+7. 回写 `plan/active/desktop-ui-shell-refactor/validation.md`
 
 ## 7. Flow 覆盖
 
@@ -160,6 +161,7 @@ http://localhost:1420?workerUrl=http://127.0.0.1:{port}
 - 必要截图
 - 人工降级结论
 - 问题记录与修复后复验结论
+- `tauri/scripts/start-e2e-env.ps1` 写出的 `log/test/e2e/runtime/frontend-env.json`
 
 ## 10. 通过标准
 
