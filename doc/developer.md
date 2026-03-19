@@ -54,6 +54,7 @@
 | 工具与外部依赖 | `doc/modules/10-utils-extern.md` |
 | 样式与主题 | `doc/modules/11-style-theme.md` |
 | 日志编辑器支持 | `doc/modules/12-avalonedit.md` |
+| Tauri Shell 与 Worker 连接 | `doc/modules/13-tauri-shell-worker.md` |
 
 ## 核心规则
 

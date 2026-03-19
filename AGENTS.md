@@ -168,3 +168,4 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - 旧的计划或进度文档完成迁移后应收敛到 `plan/archive/` 或 `doc/_legacy/`，避免继续占用 `doc/` 主索引位置。
 - 同一时间只维护一个 active feature；切换 feature 时优先恢复已有 plan，而不是新建重复计划。
 - 如果存在多个可行方案，必须输出单独的 `方案路径` 区块，并在用户明确确认前保持规划状态。
+- **Plan 已完成内容简化**：每当一个 Phase / 步骤被标记为已完成并提交后，必须回到对应的 `plan.md`，将该 Phase 的详细执行步骤、子任务表格、通过标准、关联文档更新等内容压缩为 2-5 行摘要（保留"做了什么 + 关键数字"），删除冗余的执行细节。目的是让 plan.md 保持精简，未完成的 Phase 保留完整细节，已完成的只留结论。
