@@ -1,26 +1,35 @@
 # Open Questions
 
-## 当前阻断项（Phase 6 进入前必须解决）
+## 当前阶段
 
-### OQ-1: Worker.exe 编译
-- **状态**: 待验证
-- **问题**: `Jvedio.Worker.exe` 不存在于 `bin/Release/net8.0/`，需要 .NET 8 SDK 和 `dotnet build -c Release`
-- **前提**: .NET 8 SDK 已安装
-- **解决方案**: `cd dotnet/Jvedio.Worker && dotnet build -c Release`
+- 当前已不再是 Phase 6 的启动阻断排查。
+- 当前 open questions 仅保留 **Phase 10：E2E 自动化测试** 还需要在执行中确认的问题。
 
-### OQ-2: Rust toolchain
-- **状态**: 待验证
-- **问题**: Tauri dev 模式需要 Rust 编译器，`target/debug/` 不存在说明从未以 debug 模式编译过
-- **前提**: Rust stable toolchain 已安装
-- **解决方案**: `rustup update stable` + 首次 `tauri dev` 会自动触发编译
+### OQ-1: E2E 启停入口
 
-### OQ-3: 前端代码与 Worker API 的匹配度
-- **状态**: 未验证
-- **风险**: 前端 `api/types.ts` 中的 DTO 是在 Phase 2 期间基于 Contracts 代码手工镜像的，从未与真实 Worker 响应做过对照。可能存在：
-  - 字段名大小写不匹配（C# PascalCase vs JSON camelCase）
-  - 缺失字段或多余字段
-  - 枚举值表示差异
-- **验证方式**: 启动后在 DevTools Network 面板对照真实 API 响应
+- **状态**: 待落地
+- **问题**: 当前仓库已有后端播种脚本，但还缺少统一启动前端验收环境的入口。
+- **需要确认**: 以 `tauri/scripts/start-e2e-env.ps1` / `tauri/scripts/stop-e2e-env.ps1` 收口，统一串起播种后的 Worker 与 Vite。
+- **落点**: Phase 10 期间补齐脚本并同步到 `doc/testing/e2e/playwright-e2e-test-plan.md`。
+
+### OQ-2: 自动化与人工降级边界
+
+- **状态**: 待执行
+- **问题**: 浏览器模式能验证页面流转，但桌面外部能力仍需要人工降级。
+- **需要确认**:
+  - 播放器启动
+  - 打开系统文件夹
+  - 打开外部来源页
+- **落点**: 在 Phase 10 执行记录里明确哪些项用 Playwright MCP 断言，哪些项只保留人工验收结论。
+
+### OQ-3: 抓取失败优雅降级验收口径
+
+- **状态**: 待执行
+- **问题**: 前端验收需要围绕真实默认样本 `SNOS-037`、`SDDE-759`、`SDDE-660-C`、`FC2-PPV-1788676` 展开，而不是继续沿用旧的假样本。
+- **需要确认**:
+  - 失败样本 `FC2-PPV-1788676` 的占位图、详情页状态、单卡重抓入口是否符合预期
+  - 正常识别样本 `sdde-660-c -> SDDE-660-C` 是否能在 UI 上完整呈现为成功抓取影片
+  - 列表与详情在重抓后是否存在自动刷新缺口
 
 ## 已冻结决策（无需再讨论）
 

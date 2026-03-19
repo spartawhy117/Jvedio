@@ -185,79 +185,103 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ---
 
-### Phase 10：E2E 自动化测试（暂缓）
+### Phase 10：前端 E2E 验收与收口（进行中）
 
-**前提**：Phase 7 UI 补全 + Phase 8 后端测试迁移 + Phase 9 日志统一 + Phase 9.5 测试数据目录统一 + **Phase 9.6 数据层流程测试完善**全部完成。
+**前提**：Phase 7 UI 补全 + Phase 8 后端测试迁移 + Phase 9 日志统一 + Phase 9.5 测试数据目录统一 + **Phase 9.6 数据层流程测试完善**已全部完成。当前 Phase 10 不再重复证明后端接口“是否存在”，而是复用已跑通的播种链路，对照 `doc/UI/new/` 做前端流程验收。
 
-> ⚠️ **敏感性说明**：当前为公共电脑环境，E2E 自动化涉及的测试数据模拟（视频文件、媒体库、播种脚本等）可能产生敏感内容痕迹，暂缓执行，待环境条件合适时再启动。
-
-#### 10.1 环境准备
+#### 10.1 环境基线
 
 | 项目 | 说明 |
 |------|------|
-| Playwright 安装 | `npx playwright install chromium`（仅需 Chromium） |
-| WorkerContext 浏览器模式 | 确认 `?workerPort=xxx` URL 参数传递正常（Phase 6.2 已验证） |
-| Worker CORS | 确认 `AllowAnyOrigin` 中间件仍启用（供 Playwright `localhost:1420` 跨域） |
-| 启停脚本 | 新建 `tauri/scripts/start-e2e-env.ps1`：启动 Worker → 等待 ready → 启动 Vite dev → 返回端口 |
+| .NET / Node / Rust | 若当前机器缺少 `.NET 8 SDK`、Node 或 Rust，先补安装，再进入后续步骤 |
+| Worker 浏览器模式 | 继续使用 `WorkerContext` 的 `?workerPort=` / `?workerUrl=` 浏览器直连模式 |
+| Worker CORS | 维持 Worker 的浏览器跨域访问能力，供 `localhost:1420` 直连 Worker API |
+| E2E 启停脚本 | 使用 `tauri/scripts/start-e2e-env.ps1` / `tauri/scripts/stop-e2e-env.ps1` 统一拉起与回收 Worker + Vite |
+| 前端验收方式 | 浏览器模式下用 Playwright MCP 执行点击、表单填写、截图与结果校验；桌面外部能力项保留人工降级记录 |
 
-#### 10.2 测试数据与环境
+#### 10.2 数据准备链路
 
-> 详细的测试数据目录结构、假视频文件要求、播种脚本流程见 [`doc/testing/e2e/e2e-test-data-spec.md`](../../../doc/testing/e2e/e2e-test-data-spec.md)。
-> Release 版与测试版数据目录对比、路径推断规则、环境变量机制见 [`doc/data-directory-convention.md`](../../../doc/data-directory-convention.md)。
+数据链路固定复用 `scrape-fail-graceful` 已归档 feature 的真实播种结果，不再额外构造“计划假设样本”：
 
-**核心策略**：E2E 测试数据统一放在 `{repo}/test-data/e2e/`（Phase 9.5 已建立目录结构），假视频文件和基线 SQLite 直接提交到 git，多台电脑 `git pull` 即可用，无需重新播种。
+- 默认配置文件：`test-data/config/test-env.json`
+- 播种脚本：`test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
+- 后端 verify：`test-data/scripts/verify-backend-apis.ps1 -NoPause`
+- 真实测试用户目录：`test-data/e2e/data/test-user/`
+- 真实 sidecar 根目录：`test-data/e2e/data/test-user/cache/video/`
+- 真实演员头像目录：`test-data/e2e/data/test-user/cache/actor-avatar/`
 
-**播种概要**（脚本位于 `test-data/scripts/seed-e2e-data.ps1`）：
-1. （可选）重置 SQLite 为基线版本（`git checkout test-data/e2e/data/`）
-2. 启动 Worker（`JVEDIO_APP_BASE_DIR={repo}/test-data/e2e`）
-3. API 播种（创建 2 个媒体库 → 触发扫描 → 收藏 2 部影片）
-4. 输出 `e2e-env.json` 供 Playwright 读取
-5. （可选）运行 `verify-backend-apis.ps1` 校验全部 31 个 API 端点
+默认样本必须按真实配置准备并验收：
 
-> 假视频文件（5 个，约 5 KB）已在 Phase 9.5 提交到 `test-data/e2e/videos/`，无需脚本创建。
+| 分类 | 输入样本 | 预期结果 |
+|------|----------|----------|
+| 成功抓取 | `SNOS-037.mp4` | `SNOS-037`，完整 sidecar 四件套 + 标题 + 演员 |
+| 成功抓取 | `SDDE-759.mp4` | `SDDE-759`，完整 sidecar 四件套 + 标题 + 演员 |
+| 正常识别 | `sdde-660-c` | 必须识别为 `SDDE-660-C`，且完成抓取 |
+| 失败抓取 | `FC2-PPV-1788676.mp4` | 影片仍保留，`scrapeStatus=failed`，仅写 stub `.nfo` |
 
-#### 10.3 用例执行
+前端进入步骤 10 前，播种链路至少满足以下基线：
 
-- 48 个用例（44 全自动 + 4 降级为手动），覆盖 7 张流程图
-- 详细用例清单见 `doc/testing/e2e/playwright-e2e-test-cases.md`
-- 测试产物写入 `{repo}/log/test/e2e/`（traces / screenshots / reports）
+1. `seed-e2e-data.ps1` 跑通并写出 `test-data/e2e/e2e-env.json`
+2. `verify-backend-apis.ps1` 结果维持 `36 PASS / 2 SKIP / 0 FAIL`
+3. `E2E-Lib-A`、`E2E-Lib-B` 两个媒体库与真实 sidecar 产物路径可复用
+4. 失败样本 `FC2-PPV-1788676` 在库内可见，可供 UI 验证占位图与重抓动作
 
-| Flow | 用例数 | 可自动化 | 降级 |
-|------|--------|---------|------|
-| Main Shell Navigation | 8 | 8 | 0 |
-| Library Management | 8 | 8 | 0 |
-| Library Workbench | 8 | 6 | 2 |
-| Favorites | 5 | 5 | 0 |
-| Actors | 6 | 6 | 0 |
-| Video Detail Playback | 5 | 3 | 2 |
-| Settings | 8 | 8 | 0 |
+#### 10.3 前端验收拆分
 
-> 降级用例（播放/打开文件夹/外链）因 Tauri shell API 在浏览器环境不可用，通过手动验证覆盖。
+Phase 10 的验收只拆成两大部分：
 
-#### 10.3.1 前端验收补充：抓取失败优雅降级链路
+| 验收部分 | 范围 | 执行方式 |
+|----------|------|----------|
+| 后端验收 | `seed-e2e-data.ps1` + `verify-backend-apis.ps1` 的数据准备与接口口径 | 已完成，作为 Phase 10 前置基线复用 |
+| 前端验收 | `doc/UI/new/` 流程图、页面规格、弹层规格、共享组件规格 | 当前 Phase 10 主体，用 Playwright MCP + 必要人工降级项执行 |
 
-以下验收点从已完成的 `scrape-fail-graceful` feature 收口到 Phase 10，执行时归入现有 `Library Workbench`、`Favorites`、`Video Detail Playback` 三组用例，不额外新建独立 flow：
+#### 10.4 前端流程验收矩阵
 
-- `VideoCard` 无海报时显示占位图，不再回退到 `🎬` emoji。
-- `LibraryPage` 列表可按 `scrapeStatus` 做筛选，至少覆盖 `failed` / `full` / `none` 的显示切换。
-- `LibraryPage` 与 `FavoritesPage` 右键菜单必须显示“重新抓取元数据”，并确认调用的是单影片搜刮请求，而不是全库重刷。
-- 对抓取失败样本执行重新搜刮后，列表卡片应自动刷新：占位图切换为真实海报，摘要状态同步变化。
-- 对抓取失败样本执行重新搜刮后，`VideoDetailPage` 应自动刷新：sidecar 状态、海报、元数据和演员信息与最新抓取结果一致。
-- 对仍失败的样本，前端必须保持可见、可进入详情、可再次触发重抓，不因 stub sidecar 或缺图进入异常状态。
+前端验收以 `doc/UI/new/flow/README.md` 的 7 组正式流程为主线，按页面和返回链路逐组落地：
 
-#### 10.4 测试后清理
+| Flow | 关键验收点 |
+|------|-----------|
+| Main Shell Navigation | 左侧稳定呈现 `设置 / 库管理 / 喜欢 / 演员`；影视库入口能切换右侧内容区；切页后上下文不崩 |
+| Library Management | 库列表加载；新建/编辑复用同一弹层；删除确认正确；扫描状态和行内动作带回列表反馈 |
+| Library Workbench | 单库结果集、搜索/刷新/排序/分页、单卡右键动作、详情返回状态恢复 |
+| Favorites | 收藏结果集、搜索/刷新/排序/分页、详情返回状态恢复 |
+| Actors | 演员搜索/排序/分页、演员详情下钻 |
+| Actor Detail + Video Detail | `Actors -> Actor Detail -> Video Detail -> Actor Detail -> Actors` 返回链路；关联影片结果集可继续下钻 |
+| Settings | 6 个分组加载、保存、恢复默认、MetaTube diagnostics、`settings.changed` 回流 |
 
-> 详细清理流程见 `doc/testing/e2e/e2e-test-data-spec.md` §6。
+#### 10.5 抓取失败优雅降级前端验收
 
-概要：关闭 Playwright → 停止 Vite dev → 停止 Worker → （可选）`git checkout test-data/e2e/data/` 重置 SQLite 到基线。
+`scrape-fail-graceful` 的前端能力不再单独开新 feature，统一并入本阶段的 `Library Workbench`、`Favorites`、`Video Detail` 验收：
+
+- 失败样本卡片必须显示 `No Poster` 占位图，而不是回退到 `🎬`
+- 失败样本必须在列表中保持可见、可进入详情、可再次触发重抓
+- `LibraryPage` 与 `FavoritesPage` 的单卡菜单必须包含“重新抓取元数据”
+- 触发重抓时要验证调用的是单影片搜刮请求，而不是全库搜刮
+- 重抓后的列表页与详情页必须通过事件/回刷拿到最新状态
+- 若样本仍失败，则详情页 sidecar 状态与占位图保持可解释，不进入异常空白页
+
+#### 10.6 降级项
+
+浏览器模式下无法完整自动断言的桌面外部能力，不计入 Playwright MCP 的“自动通过”，但必须保留人工验收记录：
+
+- 播放器真实启动
+- 打开系统文件夹
+- 打开外部来源页
+
+#### 10.7 测试产物与清理
+
+- E2E 运行日志、截图、人工验收记录统一落到 `log/test/e2e/`
+- `validation.md` 记录每组 flow 的执行结果、失败点、回归结论
+- 结束后统一执行环境回收：关闭浏览器 / 停止 Vite / 停止 Worker
+- 如本轮修改了测试数据或生成了额外临时目录，结束后恢复到可再次播种的干净状态
 
 #### 通过标准
 
-- 44 个可自动化用例全部绿色
-- 4 个降级用例有手动验证记录
-- `{repo}/log/test/e2e/reports/` 生成可读的 HTML 测试报告
-- 失败截图自动保存到 `{repo}/log/test/e2e/screenshots/`
-- 抓取失败优雅降级前端链路已覆盖：占位图、`scrapeStatus` 筛选、右键重新抓取、卡片自动刷新、详情页自动刷新均有对应验收记录
+- 后端播种和 verify 基线维持通过，不引入新的接口级回归
+- 7 组正式流程都有前端验收记录，不留“只看截图未执行”的空白项
+- 抓取失败优雅降级链路有单独验收记录，明确失败样本与正常样本的预期显示
+- `log/test/e2e/` 下保留本轮实际产物或执行日志
+- `doc/testing/e2e/playwright-e2e-test-plan.md`、`doc/testing/e2e/playwright-e2e-test-cases.md`、`validation.md` 与实际执行结果保持一致
 
 #### 关联文档更新
 

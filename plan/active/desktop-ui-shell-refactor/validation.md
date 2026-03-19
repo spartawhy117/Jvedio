@@ -3,8 +3,8 @@
 ## 当前阶段
 
 - **Phase 6：端到端可运行验证** — ✅ 完成
-- Phase 1–5 已完成（架构搭建、代码实现、构建切换、Electron 清理）
-- Phase 6 目标：从"代码已写完"推进到"完整可运行、可端到端测试"
+- **Phase 10：E2E 自动化测试** — ⏳ 当前进行阶段
+- Phase 1–9.6 已完成；当前目标是补齐前端 UI 自动化验收和测试产物记录
 
 ## Phase 1–5 完成状态（历史记录）
 
@@ -166,82 +166,53 @@
 
 ---
 
-## Phase 7 — E2E 测试数据播种与 Playwright 自动化（早期规划，部分已重新分配）
+## Phase 10 验证基线
 
-> ⚠️ **注意**：本 Phase 7 是早期规划文档。其中 7.1 的"播种脚本基础版"已在 Phase 9.5 中实现为 `test-data/scripts/seed-e2e-data.ps1`（仅扫描，不含抓取）。**MetaTube 抓取步骤 + Actor 数据验证 + 相关测试覆盖**已正式分配到 `plan.md` 的 **Phase 9.6** 章节执行。7.3 Playwright 自动化对应 Phase 10。
+> 当前 Phase 10 先复用已跑通的后端播种链路，再补齐前端流程验收。以下清单是执行记录模板，不再写“旧计划假设”。
 
-### 概述
+### 10.1 数据准备基线
 
-Phase 6 完成了 API 级端到端验证，但所有列表页（影片、收藏、演员）均为空态。Phase 7 目标是准备真实测试数据并接入 Playwright UI 自动化回归。
+- [ ] `test-data/config/test-env.json` 仍为默认样本配置
+- [ ] `seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 跑通
+- [ ] `verify-backend-apis.ps1 -NoPause` 维持 `36 PASS / 2 SKIP / 0 FAIL`
+- [ ] `test-data/e2e/e2e-env.json` 已写出 `effectiveUserName`、`videoCacheRoot`、`actorAvatarCacheRoot`
+- [ ] `test-data/e2e/data/test-user/cache/video/E2E-Lib-A/` 与 `E2E-Lib-B/` 真实产物路径存在
 
-### 7.1 测试数据播种
+### 10.2 前端环境基线
 
-#### 目录结构（已创建）
+- [ ] `tauri/scripts/start-e2e-env.ps1` 可用
+- [ ] 浏览器模式可通过 `?workerPort=` 或 `?workerUrl=` 连上 Worker
+- [ ] Vite 页面正常渲染，`WorkerStatusOverlay` 消失
+- [ ] `log/test/e2e/` 目录可接收本轮执行产物
 
-```
-dotnet/Jvedio.Test/config/scan/input/
-├── lib-a/          ← 媒体库 A 的扫描目录
-│   └── .gitkeep
-└── lib-b/          ← 媒体库 B 的扫描目录
-    └── .gitkeep
-```
+### 10.3 Flow 验收记录
 
-复用现有测试资产：
+- [ ] Main Shell Navigation
+- [ ] Library Management
+- [ ] Library Workbench
+- [ ] Favorites
+- [ ] Actors
+- [ ] Actor Detail / Video Detail 返回链路
+- [ ] Settings
 
-| 资产 | 来源 | 复用方式 |
-|------|------|---------|
-| 测试 VID | `meta-tube-test-config.json` 的 `cases` | `JUR-293-C`、`SNOS-037` 已验证 MetaTube 有数据 |
-| MetaTube 服务地址 | `test-data/config/test-env.json` | 默认 `https://metatube-server.hf.space`，可通过 `.local.json` 覆盖 |
-| 已缓存元数据 | `config/meta-tube/output/` | 确认抓取可达性的参考，不直接导入 Worker |
+### 10.4 抓取失败优雅降级记录
 
-#### 假视频文件规划（待创建）
+- [ ] `FC2-PPV-1788676` 卡片显示 `No Poster` 占位图
+- [ ] `FC2-PPV-1788676` 在列表中保持可见且可进详情
+- [ ] 列表单卡菜单存在“重新抓取元数据”
+- [ ] 单影片重抓调用口径正确
+- [ ] 重抓后列表页状态已刷新
+- [ ] 重抓后详情页状态已刷新或已记录缺口
+- [ ] `SDDE-660-C` 作为正常识别样本在 UI 中展示为成功抓取影片
 
-| 文件 | 放置目录 | VID | 用途 |
-|------|---------|-----|------|
-| `JUR-293-C.mp4` | `input/lib-a/` | JUR-293-C | scan + scrape（MetaTube 已验证） |
-| `SNOS-037.mp4` | `input/lib-a/` | SNOS-037 | scan + scrape（MetaTube 已验证） |
-| `ABP-001.mp4` | `input/lib-a/` | ABP-001 | scan-only，验证扫描链路 |
-| `SONE-100.mp4` | `input/lib-b/` | SONE-100 | 第二个库的扫描数据 |
-| `MIDV-200.mp4` | `input/lib-b/` | MIDV-200 | 第二个库的扫描数据 |
+### 10.5 人工降级项
 
-要求：假文件只需扩展名正确 + 文件大小超过 `MinFileSize`（默认 0MB，可配置），不需要是真实视频内容。
+- [ ] 播放器真实启动
+- [ ] 打开系统文件夹
+- [ ] 打开外部来源页
 
-#### 播种脚本流程（待实现）
+### 10.6 产物
 
-```
-PowerShell 播种脚本：config/scan/seed-e2e-data.ps1
-
-Step 1: 确保 Worker 已启动
-Step 2: PUT /api/settings → MetaTubeConfig.ServerUrl = https://metatube-server.hf.space
-Step 3: POST /api/libraries → 创建库 A（scanPaths 指向 input/lib-a/）
-Step 4: POST /api/libraries → 创建库 B（scanPaths 指向 input/lib-b/）
-Step 5: POST /api/libraries/{libA}/scan → 扫描库 A（导入 3 部影片记录）
-Step 6: POST /api/libraries/{libB}/scan → 扫描库 B（导入 2 部影片记录）
-Step 7: POST /api/libraries/{libA}/scrape → 抓取库 A（MetaTube 在线拉取元数据）
-Step 8: 轮询 GET /api/tasks/{taskId} 等待完成
-Step 9: POST /api/videos/{id}/favorite → 收藏 2 部影片
-Step 10: 验证 GET /api/libraries/{id}/videos 有数据
-Step 11: 验证 GET /api/actors 有数据
-```
-
-#### 数据就绪后预期状态
-
-| 数据类型 | 数量 | 来源 |
-|---------|------|------|
-| 媒体库 | 2 个 | Step 3-4 创建 |
-| 影片记录 | 5 部（3 + 2） | Step 5-6 扫描导入 |
-| 已抓取元数据 | 2 部（JUR-293-C、SNOS-037） | Step 7 MetaTube 抓取 |
-| 已收藏影片 | 2 部 | Step 9 |
-| 已关联演员 | ≥ 2 位 | Step 7 抓取时自动写入 |
-
-### 7.2 scan-test-config.json 路径更新（待执行）
-
-当前配置中的路径硬编码为 `D:\study\Proj\Jvedio\...`（原开发环境），需要更新为相对路径或当前工作区路径。
-
-### 7.3 Playwright UI 自动化
-
-依赖 7.1 数据播种完成后执行。测试用例清单见 `doc/testing/e2e/playwright-e2e-test-cases.md`（48 个用例）。
-
-### 7.4 验证矩阵（待填充）
-
-Phase 7 完成后在此补充验证矩阵，格式同 Phase 6。
+- [ ] 执行日志写入 `log/test/e2e/`
+- [ ] 必要截图已保存
+- [ ] `validation.md`、`doc/testing/e2e/playwright-e2e-test-plan.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 已按真实结果回写
