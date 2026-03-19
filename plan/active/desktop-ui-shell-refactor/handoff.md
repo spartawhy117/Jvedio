@@ -77,6 +77,7 @@
 | 9.6.2 Actor API 契约测试 | ✅ | `ActorApiTests.cs` — 5 个用例（列表/分页/搜索/详情404/关联影片404） |
 | 9.6.3 MetaTube 抓取集成测试 | ✅ | `ScrapeApiTests.cs` — 3 个用例（无效库404/有效库202/diagnostics 契约） |
 | 9.6.4 测试文档更新 | ✅ | test-targets + test-current-suite + test-plan + README + AGENTS + CHANGELOG 全部同步 |
+| 9.6.5 后端 API 校验脚本 | ✅ | `verify-backend-apis.ps1` — 31 个端点 / 8 个 Controller，播种后一键校验 |
 
 测试总数：44 → 52，全部通过。MetaTube P0 技术债已消除。
 

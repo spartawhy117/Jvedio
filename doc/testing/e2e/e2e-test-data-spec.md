@@ -309,6 +309,27 @@ data/{UserName}/
 .\test-data\scripts\seed-e2e-data.ps1 -SkipWorkerShutdown
 ```
 
+## 6.5 后端 API 校验（可选）
+
+**脚本位置**：`test-data/scripts/verify-backend-apis.ps1`
+
+播种完成后、跑 Playwright E2E 之前，可先通过此脚本校验 Worker 全部 31 个 API 端点是否正常工作：
+
+```powershell
+# 播种后 Worker 仍在运行（-SkipWorkerShutdown），直接校验
+.\test-data\scripts\verify-backend-apis.ps1
+
+# 或手动指定 Worker 地址
+.\test-data\scripts\verify-backend-apis.ps1 -BaseUrl http://127.0.0.1:12345
+
+# CI / 自动化
+.\test-data\scripts\verify-backend-apis.ps1 -NoPause
+```
+
+校验覆盖 8 个 Controller（Health / App / Libraries / Videos / Actors / Tasks / Settings / Events），每个端点断言 HTTP 状态码和关键响应字段。脚本退出码等于失败数（0 = 全通过）。
+
+> ⚠️ 为保护播种数据，脚本跳过 `DELETE /api/videos/{videoId}` 和批量删除端点。库 CRUD 校验使用临时库（创建 → 更新 → 删除）。
+
 ## 7. 测试后清理
 
 **脚本位置**：`test-data/scripts/cleanup-e2e-data.ps1`
@@ -337,4 +358,5 @@ data/{UserName}/
 
 - 假视频文件清单变化时，同步更新 §3 和 §5
 - 播种脚本变化时，同步更新 §6
+- API 校验脚本变化时（新增/删除端点），同步更新 §6.5
 - 目录结构变化时，先更新 `data-directory-convention.md`，再更新本文件 §2

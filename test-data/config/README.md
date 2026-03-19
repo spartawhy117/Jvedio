@@ -184,6 +184,7 @@ test-data/
 │  └─ README.md                  ← 本文件
 ├─ scripts/
 │  ├─ seed-e2e-data.ps1          ← 播种脚本
+│  ├─ verify-backend-apis.ps1    ← 后端 API 校验脚本（31 个端点）
 │  └─ cleanup-e2e-data.ps1       ← 清理脚本
 └─ e2e/                          ← 播种产物（运行时生成）
    ├─ videos/lib-a/              ← 假视频文件
@@ -203,5 +204,6 @@ test-data/
 | 消费者 | 消费方式 | 读取字段 |
 |--------|---------|---------|
 | `seed-e2e-data.ps1` | `Get-Content ... \| ConvertFrom-Json` | 全部字段 |
+| `verify-backend-apis.ps1` | 通过 `e2e-env.json` 间接消费 | `baseUrl`、`libraries`（播种后运行） |
 | `ScrapeApiTests.cs` | `JsonSerializer.Deserialize()` | `metaTube.*` + `scrapeableVids` |
 | Playwright E2E | 通过 `e2e-env.json` 间接消费 | 不直接读取 |

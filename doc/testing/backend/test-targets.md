@@ -147,6 +147,12 @@ E2E 测试环境（播种脚本运行时）的路径对照：
 - 影片 sidecar（E2E 目标）：`test-data/e2e/data/{UserName}/cache/video/{LibName}/{VID}/`
 - 日志目录：`log/test/e2e/runtime/`
 
+**后端 API 校验**（`verify-backend-apis.ps1`）：
+- 基于播种后环境运行，读取 `e2e-env.json` 获取连接信息
+- 覆盖 Worker 全部 31 个 API 端点（8 个 Controller）
+- 跳过破坏性删除操作，保护播种数据
+- 退出码等于失败数（0 = 全通过）
+
 这两类测试使用独立的数据目录，互不影响，也不污染主程序正式 `data/` 目录。
 
 ### 4.5 日志目标

@@ -243,11 +243,12 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 **核心策略**：E2E 测试数据统一放在 `{repo}/test-data/e2e/`（Phase 9.5 已建立目录结构），假视频文件和基线 SQLite 直接提交到 git，多台电脑 `git pull` 即可用，无需重新播种。
 
-**播种概要**（简化，脚本位于 `tauri/scripts/seed-e2e-data.ps1`）：
+**播种概要**（脚本位于 `test-data/scripts/seed-e2e-data.ps1`）：
 1. （可选）重置 SQLite 为基线版本（`git checkout test-data/e2e/data/`）
 2. 启动 Worker（`JVEDIO_APP_BASE_DIR={repo}/test-data/e2e`）
 3. API 播种（创建 2 个媒体库 → 触发扫描 → 收藏 2 部影片）
 4. 输出 `e2e-env.json` 供 Playwright 读取
+5. （可选）运行 `verify-backend-apis.ps1` 校验全部 31 个 API 端点
 
 > 假视频文件（5 个，约 5 KB）已在 Phase 9.5 提交到 `test-data/e2e/videos/`，无需脚本创建。
 

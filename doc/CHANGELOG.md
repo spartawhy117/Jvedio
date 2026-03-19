@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 新增 `test-data/scripts/verify-backend-apis.ps1` 后端 API 一键校验脚本，覆盖 Worker 全部 31 个端点（8 个 Controller：Health、App、Libraries、Videos、Actors、Tasks、Settings、Events），基于 `seed-e2e-data.ps1` 播种后的 `e2e-env.json` 读取连接信息，支持 `-BaseUrl` 手动指定和 `-NoPause` CI 模式；跳过破坏性删除操作以保护播种数据。
 - 完成 Phase 9.6 数据层流程测试完善：新建 `test-data/config/test-env.json` 统一 MetaTube 地址等可变外部依赖配置（支持 `.local.json` 覆盖机制）；改造 `seed-e2e-data.ps1` 从配置文件读取并新增 MetaTube 抓取步骤（Step 5.5-5.9）；新增 `ActorApiTests.cs`（5 个用例：列表/分页/搜索/详情 404/关联影片 404）和 `ScrapeApiTests.cs`（3 个用例：无效库 scrape 返回 404、有效库 scrape 返回 202、MetaTube diagnostics 契约验证）。测试总数从 44 增长到 52，全部通过。
 - 完成 Phase 9 日志目录统一：`log/` 从平铺结构改为 `runtime/` + `test/` + `dev/` 分层子目录。Worker 和 Shell 运行日志写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，E2E 产物预留 `log/test/e2e/`。`JVEDIO_LOG_DIR` 环境变量覆盖功能自动追加 `runtime/` 子目录。`doc/logging-convention.md` 重写为分层结构。
 - 完成 Phase 8.5 目录更名：`Jvedio-WPF/` → `dotnet/`，与 `tauri/` 形成前后端对称命名。修改 4 个源码文件（Program.cs、worker.rs、shell_log.rs、prepare-worker.ps1），批量替换 29 个文档文件 171 处引用，全局零残留。
