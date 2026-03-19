@@ -1,626 +1,569 @@
 ## 文档定位
 
-本文件是 `desktop-ui-shell-refactor` 的**完整版迁移与重构方案（实施冻结版）**。
+本文件是 `desktop-ui-shell-refactor` 的**迁移与重构方案（存活文档）**。
 
-目标不再是继续修补当前 `Electron` 叙事，而是以一条已经冻结的正式主线推进后续实现：在不推翻既有 `Worker + Contracts + API + SSE` 底座的前提下，将桌面壳与 renderer 迁移为 `Tauri 2 + React + TypeScript` 组件化前端，并以 `doc/UI/new/` 作为唯一 UI 输入。
+技术主线：`Tauri 2 + React 19 + TypeScript 5.8 + Vite 7`，桌面壳与 renderer 已全新重建；业务底座 `Worker + Contracts + HTTP API + SSE` 保持不变。
 
+---
 
 ## 结论先行
 
-- 桌面主线已切换为：`Tauri 2 + React + TypeScript + Jvedio.Worker + Jvedio.Contracts`
-- `electron/` 已在 Phase 5 中物理删除；`tauri/` 是当前唯一桌面壳实现
+| 维度 | 当前状态 |
+|------|---------|
+| 桌面壳 | `tauri/` — Tauri 2 Rust 壳层，已可编译运行 |
+| Renderer | `tauri/src/` — React 19 + TS，82 个源文件，7 个业务页 + 10 个共享组件 |
+| 业务服务 | `Jvedio-WPF/Jvedio.Worker` — ASP.NET Core，动态端口 |
+| 跨层合同 | `Jvedio-WPF/Jvedio.Contracts` — DTO / 事件 envelope / 错误模型 |
+| UI 输入 | `doc/UI/new/` — 唯一正式 UI 输入，已冻结 |
+| Electron | **已物理删除**，不再作为任何路径 |
 
-- `Jvedio.Worker`、`Jvedio.Contracts`、`localhost API`、`SSE` 继续保留并作为真相源
-- `doc/UI/new/` 已冻结为唯一正式 UI 输入，后续页面、弹层、共享组件、流程和回归口径都以这里为准
-
-## 冻结输入与边界
-
-### 已冻结输入
-
-- 正式 UI 输入：`doc/UI/new/`
-- 当前 active feature 入口：`plan/active/desktop-ui-shell-refactor/`
-- 本地业务服务：`Jvedio-WPF/Jvedio.Worker`
-- 跨层合同：`Jvedio-WPF/Jvedio.Contracts`
-- 当前 Release 启动入口：`Jvedio-WPF/Jvedio/App.xaml.cs`
-- 当前 Release 打包与壳产物复制入口：`Jvedio-WPF/Jvedio/Jvedio.csproj`
-
-### 外部参考边界
-
-允许有限参考 `clash-verge-rev` 的局部 UI 组织方式，例如：
-
-- 左侧导航层级与收纳方式
-- 设置页左右分栏的版式组织
-- 桌面壳的区域切分节奏
-- 桌面应用常见的主壳、子页与设置入口节奏
-
-但这些参考**只限视觉组织与页面编排**，不继承：
-
-- 产品信息架构
-- 业务语义与页面职责定义
-- 路由语义与返回链路
-- 后端实现与跨层契约边界
-
-Jvedio 的页面职责、流程链路、共享组件规则与数据来源，仍以 `doc/UI/new/` 为唯一准绳。
-
-## 当前真实状态
-
-### 桌面壳现状（Phase 5 后更新）
-
-- `electron/` 已在 Phase 5 中物理删除
-- `Jvedio.exe` 的 Release 启动通过 `App.xaml.cs` 中的 `TauriShellLauncher` 优先拉起 `tauri-shell/Jvedio.exe`
-- `Jvedio.csproj` 在 Release 构建后执行 `PrepareTauriShellArtifacts`，构建并复制：
-  - Tauri shell exe
-  - `Jvedio.Worker` 输出
-- 旧 Electron 产物链已不复存在
-
-### Worker 与 Contracts 现状
-
-已验证的代码事实：
-
-- `Jvedio.Worker/Program.cs` 当前是本地 ASP.NET Core 宿主
-- 当未显式传入 `--urls` 时，默认使用 `http://127.0.0.1:0`，即**动态端口**
-- `Jvedio.Worker/Controllers/EventsController.cs` 已稳定提供 `text/event-stream` 事件流
-- `Jvedio.Worker/Controllers/AppController.cs` 已提供 `/api/app/bootstrap`
-- `AppBootstrapService` 当前已明确返回 `SupportsDynamicWorkerPort = true`
-- `Jvedio.Contracts` 已覆盖：
-  - App bootstrap 与 worker 状态
-  - Libraries
-  - Videos
-  - Actors
-  - Tasks
-  - Settings
-  - 通用 API envelope 与错误模型
-  - Worker 事件 envelope
-
-这说明：**新的桌面主线没有必要重写本地业务边界，核心是替换壳层与前端表达层，而不是重做服务合同。**
-
-### Renderer 现状（Phase 5 后更新）
-
-Renderer 已在 `tauri/src/` 下以 React + TypeScript 全新重建（Phase 2 + Phase 3）。旧 Electron renderer 已随 `electron/` 目录一同删除。
-
-新 renderer 覆盖范围：
-- API client + 类型层（`tauri/src/api/`）
-- 轻量路由系统 + 7 个业务页面（`tauri/src/pages/`）
-- 9 个共享组件（`tauri/src/components/shared/`）
-- SSE 事件总线 + Query 缓存层（`tauri/src/hooks/`）
-- 主题 / 多语言 / 资源骨架（`tauri/src/theme/` + `tauri/src/locales/`）
-
-## 迁移目标
-
-### 目标一：替换桌面壳，但不替换业务底座
-
-用 `Tauri 2` 替换当前 `Electron main + preload + runtime packaging` 这层职责；保留 `Worker + Contracts + HTTP API + SSE` 这条业务主链。
-
-### 目标二：重建 renderer，但不重定产品范围
-
-后续前端页面、弹层、共享组件、流程图、交互规则和回归点全部以 `doc/UI/new/` 为准，不再让实现代码倒逼产品结构。
-
-### 目标三：把迁移变成可审查、可切换、可回退的阶段方案
-
-本次方案必须同时给出：
-
-- 明确技术主线
-- 明确阶段路线
-- 验证矩阵
-- 发布切换点
-- 失败时的回退方式
-- Electron 废弃与清理策略
-
-## 非目标
-
-本轮迁移方案**不做**以下事情：
-
-- 不把 `Jvedio.Worker` 全量迁入 Rust
-- 不把现有 HTTP API 全量改写成 Tauri command
-- 不在壳层内重新实现扫描、抓取、sidecar、数据库逻辑
-- 不重做产品页面范围
-- 不推翻 `doc/UI/new/` 已冻结的页面职责与流程关系
-- 不再为旧 Electron 半成品补测试、补发布链或继续演进为正式产品壳（已删除）
+---
 
 ## 目标架构
 
-### 总体分层
+### 分层总览
 
-- `doc/UI/new/`
-  - 唯一 UI 输入
-  - 定义页面职责、弹层、共享组件、流程与回归口径
-- `Tauri 2` 壳层
-  - 窗口生命周期
-  - 单实例
-  - 文件对话框 / 菜单 / 托盘 / 更新 / 深链接等桌面能力
-  - Worker 拉起与关闭
-  - 少量桌面桥接能力
-- 组件化 Renderer（React 主线）
-  - 路由
-
-  - 页面布局
-  - 表单与交互
-  - 查询缓存
-  - SSE 订阅
-  - 局部状态
-- `Jvedio.Worker`
-  - 数据库、扫描、抓取、播放、sidecar、配置、任务编排
-- `Jvedio.Contracts`
-  - DTO
-  - 事件 envelope
-  - 错误模型
-  - 跨层合同真相源
+```
+doc/UI/new/           ← 唯一 UI 输入
+  ↓
+Tauri 2 壳层          ← 窗口 / 单实例 / 托盘 / Worker 拉起与关闭 / 桌面桥接
+  ↓
+React Renderer        ← 路由 / 页面 / 组件 / 查询缓存 / SSE 订阅 / 主题 / i18n
+  ↓
+Jvedio.Worker         ← 数据库 / 扫描 / 抓取 / sidecar / 任务编排 / SSE 广播
+  ↓
+Jvedio.Contracts      ← DTO / 事件 envelope / 错误模型（跨层真相源）
+```
 
 ### 分层原则
 
 - 壳层只做桌面能力与进程编排，不做业务决策
-- renderer 只做页面表达与状态协作，不做重业务运算
-- `Worker` 继续做所有本地业务服务
-- `Contracts` 是唯一合同定义，不允许 renderer 自行发散 DTO
-- 事件通知继续优先使用 SSE，不退回到轮询主导
-
-## 技术路线
-
-### `Tauri 2 + React + TypeScript`
-
-#### 适用性
-
-- 更适合复杂列表页、筛选、分页、局部刷新和详情联动
-- 更适合 settings 左右分栏、任务反馈、上下文返回链路
-- 更利于 AI 协作下快速拆分组件、hooks、状态层与回归点
-
-#### 优点
-
-- 组件边界清晰，适合长期维护
-- 对大页面和共享组件复用更稳
-- 查询缓存、虚拟列表、局部刷新等常见策略更成熟
-- 与现有 TypeScript API 客户端和测试心智更连续
-
-#### 风险
-
-- 需要完整重建 renderer 结构，不能平移当前大控制器
-- 迁移初期需要额外做组件边界与状态约束，否则容易出现"React 外壳下继续写大控制器"
-
-#### 当前冻结路线
-
-- 正式 renderer 路线固定为 **React + TypeScript**。
-- 后续落库与实施默认继续沿 React 路线推进，不再并行保留多套前端主线评估。
-
-
-## UI 组织策略
-
-### 页面组织原则
-
-新的 renderer 页面组织应直接对应 `doc/UI/new/page-index.md` 中已经冻结的页面集合，而不是继续围绕旧实现习惯拆页面。
-
-建议的页面组织粒度：
-
-- `AppShell`
-  - 品牌区
-  - 左侧一级导航
-  - 智能分类入口
-  - 媒体库导航区
-  - 全局任务/提示入口
-- `LibraryManagementPage`
-- `LibraryPage`
-- `FavoritesPage`
-- `ActorsPage`
-- `ActorDetailPage`
-- `CategoriesPage`
-- `SeriesPage`
-- `VideoDetailPage`
-- `SettingsPage`
-
-### 布局策略
-
-可以有限借鉴 `clash-verge-rev` 的桌面组织感，但必须映射到 Jvedio 自己的页面职责：
-
-- 主壳采用稳定左侧导航 + 右侧内容区结构
-- 设置页采用左侧分组导航 + 右侧表单区结构
-- 聚合页与单页详情保持一致的返回与状态反馈方式
-- 页面间的返回链路、筛选状态与分页状态严格跟随 `doc/UI/new/flow/*`
-
-### 状态策略
-
-- 远端状态（这里指本地 Worker 返回的服务状态）
-  - 使用查询缓存管理
-  - 以失效刷新和局部更新为主
-- 事件状态
-  - 继续走 SSE
-  - 任务和设置变更优先事件驱动
-- 本地 UI 状态
-  - 路由参数
-  - 当前页筛选草稿
-  - 弹层开关
-  - 返回来源 `backTo`
-  - 局部 loading/submitting/error 状态
-
-## 主题、多语言与图片资源策略
-
-### 主题策略
-
-- 当前实现层明确支持 `light` 与 `dark` 两套主题。
-- `doc/UI/new/` 中的线框图、流程图和共享组件图仍只保留白色背景正式图；暗色主题属于实现层能力，不额外派生第二套暗色文档资产。
-- 主题实现框架参考 `clash-verge-rev` 的分层方式：
-  - preload 阶段先解析配置中的 theme mode
-  - renderer 侧用全局 theme state 持有当前 mode
-  - 设计 token 输出到 CSS variables
-  - 组件层再接各自的 theme adapter / component theme
-- 如实施成本可控，可预留 `system` 跟随系统主题的兼容位；但当前审查口径先锁 `light / dark`。
-
-### 多语言策略
-
-- 多语言实现参考 `clash-verge-rev` 的 `src/locales/{lang}/index.ts + *.json` 结构。
-- 当前首批只落 `zh` 与 `en` 两套语言包。
-- 建议初始化顺序：
-  1. 本地缓存语言
-  2. 用户设置中的语言
-  3. 系统 / 浏览器语言
-  4. fallback 语言
-- 建议 fallback 语言当前优先使用 `zh`。
-- 文案 key 按页面 / 模块拆分，不把全部文案堆进单个大文件。
-- 如果新壳采用 React，优先采用 `i18next + react-i18next` 或等价方案，保持与参考项目接近的懒加载、缓存和 fallback 心智。
-
-### 图片与图标资源策略
-
-- 图片与图标资源建议拆成三层：
-  - 品牌与应用资产：`logo`、应用 icon、tray icon
-  - 业务与页面图标：导航图标、页面专属 SVG
-  - 通用操作图标：新增、编辑、删除、返回、设置、播放等基础动作图标
-- `clash-verge-rev` 当前实现中：
-  - 通用功能图标大量使用 `@mui/icons-material`
-  - 品牌与部分导航图标使用自定义 SVG
-  - 整体风格更接近 `Material Symbols Rounded / MUI Icons`，不是 Fluent 风格
-- 当前阶段建议：
-  - 通用操作图标优先直接使用组件库 / icon package，不手工拷贝大量 SVG
-  - 品牌图、导航图和业务特有图标再单独绘制或维护自有 SVG
-  - 新壳目录建议预留：`assets/image/brand`、`assets/image/itemicon`、`assets/image/component` 与 `src-tauri/icons`
-- 对 `clash-verge-rev` 图片的复用策略：
-  - 可以优先复用其**组织方式与风格判断**
-  - 当前项目以个人使用为主，如需直接复用原始图片，至少保留最小来源备注，不额外引入重型流程
-  - 若来源不明或后续准备公开分发，再优先自绘或替换为本项目自有 SVG
-- 上述主题、多语言与图片 / 图标的长期实施细则，不再继续堆在 `plan.md` 中；统一收口到：
-  - `doc/UI/new/foundation/theme-and-appearance.md`
-  - `doc/UI/new/foundation/localization.md`
-  - `doc/UI/new/foundation/assets-icons-and-coloring.md`
-
-
-## Worker 与 Contracts 保留边界
-
-### 必须保留的 Worker 职责
-
-- 库管理与库扫描
-- 影片抓取与写回
-- Sidecar 输出
-- 图片与缓存路径管理
-- 外部播放器调用
-- 设置读写
-- 任务队列与任务摘要
-- SSE 事件广播
-- Bootstrap 与健康检查
-
-### 不建议迁移到壳层或前端的职责
-
-- SQLite 查询与数据整形逻辑
-- 扫描导入 IO 主链
-- MetaTube 抓取逻辑
-- sidecar 与图片落盘
-- 任务编排与失败重试
-
-### Contracts 的后续要求
-
-- 所有前端 API 类型继续从 `Jvedio.Contracts` 对齐生成或镜像
-- 不允许 renderer 自己新增与 Contracts 脱节的"临时 DTO"
-- 若 Tauri 壳层需要桥接少量桌面能力，也不得绕开 `Worker` 合同去承担业务合同真相源角色
-
-## 目录与工程建议
-
-### 当前阶段的推荐目录方向
-
-当前审查阶段不强行冻结最终目录树，但建议按以下方向收口：
-
-- 新桌面壳目录：`tauri/`
-- renderer 代码：作为 `tauri/` 内部前端工程
-- `electron/`：已在 Phase 5 中物理删除
-- `Jvedio.Worker`、`Jvedio.Contracts`：继续保留在 `Jvedio-WPF/` 现有位置
-- `Jvedio` WPF 主项目：短期内仅作为现有启动链改造入口（`TauriShellLauncher`）
-
-### 为什么当前不立即冻结全部目录名
-
-因为真正需要先冻结的是：
-
-- 架构边界
-- 技术路线
-- UI 输入
-- 阶段切换点
-
-而不是在审查通过前把所有目录命名一次写死，导致后续在落库时反复返工。
-
-## 阶段路线
-
-### 阶段 0：方案冻结与审查通过
-
-目标：
-
-- 确认 React 主线的接受范围
-- 确认 Worker 端口策略写法
-- 确认新壳目录名
-- 确认 Electron 废弃边界与清理时机（已完成 — Phase 5 已删除 `electron/`）
-
-产出：
-
-- 审查通过版 `plan.md`
-- 更新后的 `handoff.md`
-- 收敛后的 `open-questions.md`
-- 可执行验证矩阵
-
-### 阶段 1：`MainShell` 壳层 Spike
-
-目标：
-
-- 建立最小可运行的新 `MainShell`
-- 验证窗口启动、单实例与基础菜单能力
-- 验证从壳层拉起 `Jvedio.Worker`
-- 验证将 worker baseUrl 注入 renderer
-- 验证 renderer 能连接 `/api/app/bootstrap` 与 `/api/events`
-
-通过标准：
-
-- 能显示主壳空页面
-- 能读到 bootstrap
-- 能收到至少 `worker.ready` 与 `task.summary.changed` 事件
-- 不依赖任何 Electron 运行时或回退逻辑即可独立启动（✅ Electron 已删除）
-
-### 阶段 2：Renderer 基座重建
-
-目标：
-
-- 建立路由、页面骨架、共享组件骨架
-- 建立 API client、query 层、SSE 订阅层
-- 建立全局 shell、左侧导航、设置页两栏基础布局
-- 建立错误提示、worker 未就绪提示和基础空态
-
-通过标准：
-
-- 页面集合与 `doc/UI/new/page-index.md` 一一对应
-- 路由、返回链路和 settings group 结构与当前文档一致
-- 主壳、设置页和任务反馈基础结构可见
-
-### 阶段 3：业务页按优先级迁移
-
-建议迁移顺序：
-
-1. `main-shell`
-2. `library-management-page`
-3. `library-page`
-4. `video-detail-page`
-5. `favorites-page`
-6. `actors-page`
-7. `actor-detail-page`
-8. `categories-page`
-9. `series-page`
-10. `settings-page`
-
-原因：
-
-- 先打通主壳和库主链路
-- 再打通详情与返回链路
-- 最后收口聚合页、演员页与设置页的复杂边界
-
-每页迁移都必须满足：
-
-- UI 与 `doc/UI/new/` 一致
-- API 只走现有 Worker 合同
-- 事件更新不退化为全量轮询
-- 返回态、分页态、筛选态可恢复
-
-### 阶段 4：Release 切换与旧启动链替换
-
-目标：
-
-- 让新壳成为唯一继续建设的桌面入口
-- 在 `Jvedio.exe` 启动链或替代发布入口中接入新壳
-- 调整 `Jvedio.csproj` 或新的构建脚本，把产物复制链从 Electron 切到新壳（✅ 已完成）
-- 停止 `PrepareElectronShellArtifacts` / `ElectronShellLauncher` 继续作为默认产品路径（✅ 已替换为 Tauri）
-
-建议切换策略：
-
-- 先让 `MainShell` 具备最小可运行 Release 产物
-- 再切启动器或发布入口，使其指向新壳
-- 旧 Electron 代码可以继续留在仓库里作对照，但不再承担发布回退
-- 启动链切换完成后，尽快开始清理 Electron 相关构建脚本与文档叙事
-
-### 阶段 5：旧 Electron 清理 ✅
-
-清理前提（全部满足）：
-
-清理动作（全部完成）：
-
-- ✅ 删除 `electron/` 目录
-- ✅ 清退文档中残留的 Electron 主叙事
-- ✅ `Jvedio.csproj` 已替换为 `PrepareTauriShellArtifacts`，不再准备 Electron 壳产物
-- ✅ `App.xaml.cs` 已替换为 `TauriShellLauncher`
+- Renderer 只做页面表达与状态协作，不做重业务运算
+- Worker 继续做所有本地业务服务
+- Contracts 是唯一合同定义，Renderer 不允许自行发散 DTO
+- 事件通知继续优先使用 SSE，不退回轮询
+
+---
+
+## 当前工程结构
+
+### `tauri/` 核心目录
+
+```
+tauri/
+├── package.json          # jvedio-shell v5.0.0
+├── vite.config.ts
+├── tsconfig.json
+├── index.html
+├── src-tauri/
+│   ├── Cargo.toml
+│   ├── tauri.conf.json
+│   ├── capabilities/default.json
+│   └── src/
+│       ├── main.rs       # 入口 → jvedio_shell_lib::run()
+│       ├── lib.rs         # Tauri Builder / Worker 管理 / 桌面桥接
+│       └── shell_log.rs   # 壳层日志（文件 + 10 天清理）
+├── src/
+│   ├── App.tsx            # 主壳：左侧导航 + 右侧内容区
+│   ├── main.tsx
+│   ├── api/
+│   │   ├── client.ts      # 所有 Worker 端点的 fetch 封装
+│   │   ├── events.ts      # SSE 事件总线
+│   │   └── types.ts       # TS DTO（镜像 Contracts）
+│   ├── hooks/
+│   │   ├── useApiQuery.ts
+│   │   └── useSSESubscription.ts
+│   ├── contexts/
+│   │   ├── BootstrapContext.tsx
+│   │   └── WorkerContext.tsx
+│   ├── pages/             # 7 个业务页 + PageRouter
+│   ├── components/        # 10 个共享组件 + 3 个全局组件 + 1 个弹层
+│   ├── theme/             # light/dark 主题
+│   ├── locales/           # zh + en（i18next）
+│   ├── router/
+│   └── assets/
+├── scripts/
+│   └── prepare-worker.ps1
+└── worker-dist/
+```
+
+### 依赖（极简）
+
+```json
+{
+  "@tauri-apps/api": "^2",
+  "@tauri-apps/plugin-opener": "^2",
+  "i18next": "^25.8.18",
+  "react": "^19.1.0",
+  "react-dom": "^19.1.0",
+  "react-i18next": "^16.5.8"
+}
+```
+
+当前未引入第三方 UI 组件库，样式为手写 CSS；后续视 UI 精细化需求可按需引入。
+
+---
+
+## 页面与组件清单
+
+### 业务页面（7 个）
+
+| 页面 | 文件 | 职责 |
+|------|------|------|
+| LibraryManagementPage | `pages/LibraryManagementPage.tsx` | 建库 / 编辑 / 删除 / 扫描 |
+| LibraryPage | `pages/LibraryPage.tsx` | 单库影片列表 / 筛选 / 排序 / 分页 |
+| VideoDetailPage | `pages/VideoDetailPage.tsx` | 影片详情 / 播放 / sidecar 状态 |
+| FavoritesPage | `pages/FavoritesPage.tsx` | 收藏列表浏览与详情往返 |
+| ActorsPage | `pages/ActorsPage.tsx` | 演员列表 |
+| ActorDetailPage | `pages/ActorDetailPage.tsx` | 演员详情与关联影片 |
+| SettingsPage | `pages/SettingsPage.tsx` | 设置读写 / 恢复默认 / MetaTube 诊断 |
+
+### 共享组件（10 个）
+
+ActionStrip / ActorCard / ConfirmDialog / Pagination / QueryToolbar / ResultState / ResultSummary / StatusBadge / VideoCard / VideoContextMenu
+
+### 全局组件
+
+ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
+
+---
 
 ## 端口与进程策略
 
-### Worker 端口策略建议
+### Worker 端口
 
-当前推荐：**继续采用动态端口作为正式主线**。
+- **正式策略：动态端口**
+- `Program.cs` 默认 `http://127.0.0.1:0`（未传 `--urls` 时）
+- `AppBootstrapService` 返回 `SupportsDynamicWorkerPort = true`
+- Tauri 壳层启动 Worker 后从 stdout 读取实际端口，注入 Renderer
 
-理由：
+### 进程编排
 
-- 现有 `Program.cs` 默认已支持动态端口
-- `AppBootstrapService` 已明确声明 `SupportsDynamicWorkerPort = true`
-- 现有 Electron 代码中已经实现"启动前分配可用端口并等待 Worker ready signal"的逻辑，可作为协议参考，但不能视为经过交付验证的正式链路
-- 动态端口更适合避免用户机器上端口冲突
+- 壳层负责拉起与关闭 Worker
+- Renderer 不直接管理子进程
+- `Worker ready` 是 Renderer 可交互的门槛
+- Worker 未就绪时展示明确状态覆盖层（`WorkerStatusOverlay`）
 
-需要收敛的点：
+---
 
-- Tauri 壳层如何把 `baseUrl` 稳定传给 renderer
-- Release 模式下日志与诊断如何暴露当前 `baseUrl`
-- 测试与自动化如何读取当前 worker 地址
+## 状态策略
 
-### 进程策略建议
+| 类别 | 方案 |
+|------|------|
+| 远端状态（Worker API） | `useApiQuery` 查询缓存，失效刷新 + 局部更新 |
+| 事件状态 | SSE（`useSSESubscription`），任务/设置变更事件驱动 |
+| 本地 UI 状态 | 路由参数 / 筛选草稿 / 弹层开关 / backTo / loading·error |
 
-- 壳层负责拉起与关闭 `Worker`
-- renderer 不直接负责启动子进程
-- `Worker ready` 作为渲染层可进入可交互状态的重要门槛
-- renderer 在 worker 未就绪时必须展示明确提示，而不是静默失败
+---
 
-## 构建与发布策略
+## 主题、多语言与资源
 
-### 当前现实（Phase 5 后更新）
+| 维度 | 方案 |
+|------|------|
+| 主题 | `light` / `dark`，CSS Variables，`theme/theme-tokens.ts` |
+| 多语言 | `i18next + react-i18next`，`zh` + `en`，按模块拆分 JSON |
+| 图标 | 通用操作图标走 icon package，品牌/导航图标自有 SVG |
 
-`Jvedio.csproj` 已切换为 `PrepareTauriShellArtifacts`，Electron 产物构建与复制已不复存在。
+长期实施细则收口于 `doc/UI/new/foundation/` 下对应文档。
 
-### 目标策略（已完成）
+---
 
-- ✅ 新 `MainShell` 具备独立可验证构建链
-- ✅ 已切断对 Electron runtime、renderer 打包和启动器逻辑的依赖
-- ✅ `Jvedio` WPF 主项目只作为 `TauriShellLauncher` 启动链入口
-- ✅ 发布主线已切到新壳
+## 阶段路线与完成状态
 
-### 不建议的切换方式（历史记录）
+### Phase 0–5：✅ 已全部完成
 
-- 继续投入时间给 Electron 半成品补测试、补壳层和补发布链
-- 继续把 Electron 写成可兜底的过渡产品路径
-- 在没有新 `MainShell` 最小可运行产物前，直接把所有旧启动链物理删空
+| Phase | 内容 | 状态 |
+|-------|------|------|
+| 0 | 方案冻结与审查 | ✅ |
+| 1 | MainShell Spike（窗口 + Worker 拉起 + Bootstrap + SSE） | ✅ |
+| 2 | Renderer 基座（路由 / API client / 查询层 / SSE / 主题 / i18n） | ✅ |
+| 3 | 业务页迁移（7 个页面 + 共享组件） | ✅ |
+| 4 | Release 切换（`TauriShellLauncher` + `PrepareTauriShellArtifacts`） | ✅ |
+| 5 | Electron 物理删除与文档清退 | ✅ |
 
-## 验证矩阵
+### Phase 6：端到端验证（API 级）— ✅ 已全部通过
 
-### 架构级验证
+- 6.0 统一日志 ✅
+- 6.1 编译基础设施 ✅
+- 6.2 首次启动验证 ✅
+- 6.3 页面流转 API 级测试（7 张流程图，验证"调 API → 正确响应 → 页面可渲染"链路）✅
+- 6.4 Bug 修复（7 个 bug 已修复）✅
 
-- Tauri 能拉起 `Jvedio.Worker`
-- renderer 能获取 bootstrap
-- renderer 能连接 SSE
-- `WorkerStatusDto` 和事件 envelope 在新前端中被正确消费
+> Phase 6 覆盖的是 API 数据链路通畅性，不覆盖 UI 交互完整性。
 
-### 页面级验证
+### Phase 7：UI 交互完整性补全（执行中）
 
-- 主壳导航切换
-- 库管理页建库 / 编辑 / 删除 / 扫描 / 打开单库
-- 单库页筛选 / 排序 / 分页 / 右键动作 / 返回恢复
-- 喜欢页结果集浏览与详情往返
-- Actors 列表、演员详情与关联影片返回
-- Categories / Series 左右分栏与详情返回
-- 影片详情读取、播放、返回和 sidecar 状态显示
-- 设置读取、保存、恢复默认与 MetaTube diagnostics
+补完 Phase 6 未覆盖的 UI 交互层缺口。以下为经核实的真实待办项（已剔除过期条目）：
 
-### 事件级验证
+#### 7.1 Settings 占位子组补全
 
-- `worker.ready`
-- `library.changed`
-- `settings.changed`
-- `task.summary.changed`
-- `task.created`
-- `task.completed`
-- `task.failed`
-- `task.progress`
+3 个子组已从 "Coming Soon" 占位升级为真实表单：
 
-### 发布级验证
+| 子组 | 状态 | 已实现 |
+|------|------|--------|
+| **image**（图片） | ✅ 已完成 | 海报优先来源（remote/local）、缓存大小上限、自动清理开关 |
+| **scanImport**（扫描与导入） | ✅ 已完成 | 递归深度、排除规则、整理模式（none/byVid/byActor） |
+| **library**（库） | ✅ 已完成 | 默认自动扫描开关、默认排序字段、默认排序方向 |
 
-- Debug / Release 构建
-- 启动器或替代发布入口能正确拉起新壳
-- Worker 启停正常
-- 旧 Electron 启动链已不再是默认产品路径（✅ 已删除）
-- 日志可定位壳层、renderer、worker 启动问题
+> **已确认完整**的子组：general（主题/语言/调试）、network（播放器路径）、metaTube（URL/超时/诊断）。
+>
+> Settings 读写机制（`useApiQuery` + `useApiMutation` + SSE 刷新 + dirty 状态）已通，补全只需添加表单控件和对应的 Worker API 字段。
+
+**前置依赖**：确认 Worker `SettingsController` 是否已暴露 image/scanImport/library 的 API 字段；如果未暴露，需在 Worker + Contracts 同步新增。
+
+#### 7.2 视频多选 / 批量操作
+
+| 项目 | 说明 |
+|------|------|
+| 多选交互 | `VideoCard` 增加选中态，列表页增加全选/反选控制 |
+| 批量操作栏 | 选中 ≥1 时显示批量操作条（删除/移动/收藏/取消收藏） |
+| 批量右键菜单 | `doc/UI/new/dialogs/video-batch-context-menu.*` 已有规格，需实现 |
+| Worker API | 确认批量操作端点是否已有（如 `POST /api/videos/batch-delete`） |
+
+#### 已完成项（不再列为待办）
+
+| 项目 | 状态 | 说明 |
+|------|------|------|
+| VideoDetail "打开文件夹" | ✅ 已完成 | 已接入 `@tauri-apps/plugin-opener` 的 `revealItemInDir`，带错误 toast |
+| 右键菜单 | ✅ 已完成 | `VideoContextMenu` 组件 + CSS 已实现，已在 LibraryPage 和 FavoritesPage 接入 |
+
+#### 通过标准
+
+- 所有页面的可交互控件均有实际响应，不存在空函数或 "Coming Soon" 占位
+- 对照 `doc/UI/new/pages/settings-page.md` 的元素清单，Settings 无遗漏的交互项
+- 对照 `doc/UI/new/dialogs/video-batch-context-menu.*`，批量操作菜单与规格一致
+- 代码中搜索 "Coming Soon" / "placeholder-hint" 确认无残留占位
+
+#### 关联文档更新
+
+| 文档 | 更新内容 |
+|------|---------|
+| `plan/active/desktop-ui-shell-refactor/handoff.md` | 更新 Phase 7 完成状态，移除"打开文件夹"和"右键菜单"的遗留标注 |
+| `plan/active/desktop-ui-shell-refactor/validation.md` | 新增 Phase 7 验证记录（每个子组的测试截图/操作确认） |
+| `doc/UI/new/ui-todo.md` | 标记已完成的 UI 项，更新剩余待办 |
+| `doc/CHANGELOG.md` | 追加 Phase 7 变更条目 |
+| `doc/testing/backend/test-targets.md` | 如新增了 Worker API 字段，同步更新测试目标 |
+
+---
+
+### Phase 8：后端测试工程迁移
+
+#### 当前问题
+
+| 问题 | 表现 |
+|------|------|
+| 引用 WPF 主程序 | `ProjectReference` → `Jvedio.csproj`（WPF exe），非独立 Core 库 |
+| 强制 WPF 上下文 | `EnsureWpfContext()` → `new Application()` + `Jvedio.App.Init()` |
+| 框架版本不兼容 | 测试 .NET Framework 4.7.2 vs Worker .NET 8 |
+| Worker / Contracts 零覆盖 | 无任何对 Worker API 或 Contracts DTO 的测试 |
+| 旧式 csproj | 非 SDK-style，`packages.config`，不兼容 `dotnet test` |
+| 测试脚本硬编码路径 | 3 个 PS1 硬编码 VS 2022 Community 的 MSBuild / vstest 路径 |
+| Appium / Selenium 残留 | csproj 引用了 Appium 4.4.5 + Selenium 3.141，实际未使用 |
+
+#### 迁移计划
+
+**步骤 1：新建测试工程**
+
+- 在 `Jvedio-WPF/` 下新建 `Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
+- .NET 8 SDK-style，`<TargetFramework>net8.0</TargetFramework>`
+- 测试框架：MSTest（`Microsoft.NET.Test.Sdk` + `MSTest.TestAdapter` + `MSTest.TestFramework`）
+- Mock 库：Moq（沿用旧工程选择）
+- JSON 库：`System.Text.Json`（与 Worker 统一，不再用 Newtonsoft）
+
+**步骤 2：配置项目引用**
+
+- `ProjectReference` 指向：
+  - `Jvedio.Worker/Jvedio.Worker.csproj`
+  - `Jvedio.Contracts/Jvedio.Contracts.csproj`
+- **不引用** `Jvedio.csproj`（WPF 主程序）
+- 如 Worker 中有核心逻辑未从主程序剥离（PathManager 等），需先抽取到 Worker 或新建 `Jvedio.Core` 共享库
+
+**步骤 3：重建测试基础设施**
+
+- 新建 `TestBootstrap.cs`：纯服务初始化（DI 容器 / 配置加载 / 日志），不依赖 WPF Application
+- 测试配置迁移：`config/` 目录结构保持，JSON 配置文件内容评估是否需更新路径
+- 测试输出目录：暂写入 `config/{suite}/output/`（Phase 9 再统一到 `log/`）
+
+**步骤 4：迁移有价值的测试逻辑（16 → 新工程）**
+
+| 原测试 | 类型 | 迁移注意 |
+|--------|------|---------|
+| SidecarPathResolverTests (3) | Unit | 纯逻辑，需解除 PathManager 静态依赖 |
+| ActorAvatarPathResolverTests (1) | Unit | 同上 |
+| LibraryOrganizerRuleTests (1) | Unit | 纯逻辑，直接迁移 |
+| ScanTaskImportTests (2) | Unit | 涉及 DB 初始化，需改用 DI 注入 |
+| MetaTubeCacheTests (1) | Unit | 文件 I/O，需更新缓存路径配置 |
+| ScrapeResultMappingTests (1) | Unit | 纯映射逻辑，直接迁移 |
+| LoggerInitializationTests (1) | Unit | 改用 Serilog 验证（与 Worker 统一） |
+| ScanImportIntegrationTests (1) | Integration | 需 Worker 的扫描服务 DI 初始化 |
+| LibraryOrganizeTests (2) | Integration | 需文件系统 + DB |
+| MetaTubeIntegrationTests (5) | Integration | 需网络，连接真实 MetaTube 服务 |
+
+> 反射调用私有方法的 2 个测试（`TestBootstrap.OverridePathManagerPath`）需重新评估，如无法消除反射则标记为技术债。
+
+**步骤 5：新增 Worker API 契约层测试**
+
+- 启动 `Jvedio.Worker` 进程（`WebApplicationFactory<T>` 或手动启动）
+- 测试关键 HTTP 端点：`/api/bootstrap`、`/api/libraries`、`/api/videos`、`/api/settings`
+- 测试 SSE 端点：`/api/events` 事件格式与 Contracts 定义一致
+- 验证 DTO 序列化/反序列化与 `Jvedio.Contracts` 类型匹配
+
+**步骤 6：新建测试脚本**
+
+- 新建 `Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
+- 改用 `dotnet test` 命令（不再硬编码 VS 路径）
+- 保留 `-NoPause` 参数兼容
+- 分 suite 脚本：`run-unit-tests.ps1`、`run-integration-tests.ps1`、`run-metatube-tests.ps1`
+
+**步骤 7：更新解决方案**
+
+- `Jvedio.sln` 添加 `Jvedio.Worker.Tests` 项目
+- `Jvedio.sln` 移除 `Jvedio.Test` 项目引用
+
+**步骤 8：删除旧测试工程**
+
+- 物理删除整个 `Jvedio-WPF/Jvedio.Test/` 目录（项目文件、代码、配置、脚本、输出、`测试记录/` Excel）
+- 确认 `Jvedio.sln` 中无残留引用
+
+#### 通过标准
+
+- `dotnet test Jvedio.Worker.Tests.csproj` 可独立编译运行
+- 迁移的测试用例全部通过（16 个 → 绿色）
+- Worker API 契约测试覆盖 ≥4 个关键端点
+- 旧测试工程完全删除，无残留文件
+- `dotnet build Jvedio.sln` 不报错
+
+#### 关联文档更新
+
+| 文档 | 更新内容 |
+|------|---------|
+| `AGENTS.md` | 更新测试工程路径（`Jvedio.Worker.Tests`）、构建命令（`dotnet test`）、测试脚本入口、测试配置目录 |
+| `doc/testing/README.md` | 后端测试章节改为新工程描述，移除迁移待办警告，更新目录结构 |
+| `doc/testing/backend/test-plan.md` | 重写：新工程结构、`dotnet test` 执行方式、DI 初始化、配置文件 |
+| `doc/testing/backend/test-targets.md` | 新增 Worker API 契约测试目标 |
+| `doc/testing/backend/test-current-suite.md` | 更新为新工程的测试清单 |
+| `doc/developer.md` | 更新测试相关入口路径 |
+| `doc/CHANGELOG.md` | 追加 Phase 8 变更条目 |
+| `plan/active/desktop-ui-shell-refactor/handoff.md` | 更新 Phase 8 完成状态 |
+| `plan/active/desktop-ui-shell-refactor/validation.md` | 新增 Phase 8 验证记录 |
+
+---
+
+### Phase 9：日志目录统一
+
+**执行前提**：Phase 8 完成后，先重新收集整理当前所有组件的日志输出实际路径，再确定最终目录结构和具体改动项。
+
+#### 启动时收集清单
+
+执行前必须确认以下信息（Phase 8 可能已改变现状）：
+
+| 收集项 | 查看方式 |
+|--------|---------|
+| Worker 运行日志实际路径 | 读 `Program.cs` 的 `ResolveLogDirectory()` |
+| Shell 运行日志实际路径 | 读 `shell_log.rs` 的 `resolve_log_dir()` |
+| 新测试工程日志输出路径 | 读 `Jvedio.Worker.Tests` 的测试配置 / Bootstrap |
+| 新测试工程 suite 输出路径 | 读各 suite 的 JSON 配置文件 |
+| WPF Legacy 日志路径 | 读 `PathManager.cs`（确认是否还在使用） |
+| `.gitignore` 当前日志规则 | 读 `.gitignore` 搜索 `log` 相关行 |
+| `doc/logging-convention.md` 当前内容 | 与实际路径交叉验证 |
+
+#### 目标结构（初步方案，启动时根据实际情况调整）
+
+```
+{repo}/log/
+├── runtime/                         ← 正式运行日志
+│   ├── worker-{yyyy-MM-dd}.log          ← Worker (.NET) — Serilog
+│   └── shell-{yyyy-MM-dd}.log          ← Tauri Shell (Rust)
+├── test/                            ← 测试日志与输出
+│   ├── worker-tests/                    ← 后端测试工程运行日志
+│   │   ├── {yyyy-MM-dd}.log
+│   │   ├── meta-tube/                   ← MetaTube suite 输出
+│   │   └── scan/                        ← 扫描链 suite 输出
+│   └── e2e/                             ← Playwright 产物（Phase 10 使用）
+│       ├── traces/
+│       ├── screenshots/
+│       └── reports/
+├── dev/                             ← 开发流程日志（可选，按需启用）
+└── .gitkeep
+```
+
+#### 涉及代码改动（预估）
+
+| 组件 | 文件 | 改动 |
+|------|------|------|
+| Worker | `Program.cs` | `ResolveLogDirectory()` 返回 `{repo}/log/runtime/` |
+| Shell | `shell_log.rs` | `resolve_log_dir()` 返回 `{repo}/log/runtime/` |
+| Shell | `shell_log.rs` | `clean_old_logs()` 清理范围适配新子目录 |
+| 新测试工程 | Bootstrap / 配置 | 日志输出 → `{repo}/log/test/worker-tests/` |
+| 新测试工程 | suite JSON 配置 | `testOutputRoot` / `cacheRoot` 指向新路径 |
+| 环境变量 | `JVEDIO_LOG_DIR` | 评估是否需要支持 `JVEDIO_LOG_DIR/runtime/` 自动补全 |
+| .gitignore | 根 `.gitignore` | 添加 `!/log/runtime/`、`!/log/test/`、`!/log/dev/` 等例外规则 |
+
+#### 通过标准
+
+- Worker 运行日志写入 `log/runtime/worker-*.log`
+- Shell 运行日志写入 `log/runtime/shell-*.log`
+- 新测试工程日志写入 `log/test/worker-tests/`
+- 旧路径（`log/worker-*.log`、`data/{user}/log/`）无新日志产生
+- 10 天自动清理策略在新子目录下正常工作
+- `JVEDIO_LOG_DIR` 环境变量覆盖功能正常
+- `doc/logging-convention.md` 与实际路径完全一致
+
+#### 关联文档更新
+
+| 文档 | 更新内容 |
+|------|---------|
+| `doc/logging-convention.md` | 重写目录结构、更新各组件路径、更新调试指南命令 |
+| `AGENTS.md` | 更新测试日志与输出路径段落 |
+| `doc/testing/README.md` | 更新日志输出位置说明 |
+| `doc/testing/backend/test-plan.md` | 更新测试输出目录描述 |
+| `.gitignore` | 更新日志目录例外规则 |
+| `doc/CHANGELOG.md` | 追加 Phase 9 变更条目 |
+| `plan/active/desktop-ui-shell-refactor/handoff.md` | 更新 Phase 9 完成状态 |
+
+---
+
+### Phase 10：E2E 自动化测试（暂缓）
+
+**前提**：Phase 7 UI 补全 + Phase 8 后端测试迁移 + Phase 9 日志统一全部完成。
+
+> ⚠️ **敏感性说明**：当前为公共电脑环境，E2E 自动化涉及的测试数据模拟（视频文件、媒体库、播种脚本等）可能产生敏感内容痕迹，暂缓执行，待环境条件合适时再启动。
+
+#### 10.1 环境准备
+
+| 项目 | 说明 |
+|------|------|
+| Playwright 安装 | `npx playwright install chromium`（仅需 Chromium） |
+| WorkerContext 浏览器模式 | 确认 `?workerPort=xxx` URL 参数传递正常（Phase 6.2 已验证） |
+| Worker CORS | 确认 `AllowAnyOrigin` 中间件仍启用（供 Playwright `localhost:5173` 跨域） |
+| 启停脚本 | 新建 `tauri/scripts/start-e2e-env.ps1`：启动 Worker → 等待 ready → 启动 Vite dev → 返回端口 |
+
+#### 10.2 测试数据播种
+
+- 创建 5 个假视频文件（空 mp4，带合规文件名）
+- 通过 Worker API 创建 2 个媒体库，指向假视频目录
+- 触发扫描导入，确认 5 部影片入库
+- 收藏其中 2 部，关联 2 位演员
+- **播种脚本**：`tauri/scripts/seed-e2e-data.ps1`（10 步，幂等可重跑）
+
+#### 10.3 用例执行
+
+- 48 个用例（44 全自动 + 4 降级为手动），覆盖 7 张流程图
+- 详细用例清单见 `doc/testing/e2e/playwright-e2e-test-cases.md`
+- 测试产物写入 `{repo}/log/test/e2e/`（traces / screenshots / reports）
+
+| Flow | 用例数 | 可自动化 | 降级 |
+|------|--------|---------|------|
+| Main Shell Navigation | 8 | 8 | 0 |
+| Library Management | 8 | 8 | 0 |
+| Library Workbench | 8 | 6 | 2 |
+| Favorites | 5 | 5 | 0 |
+| Actors | 6 | 6 | 0 |
+| Video Detail Playback | 5 | 3 | 2 |
+| Settings | 8 | 8 | 0 |
+
+> 降级用例（播放/打开文件夹/外链）因 Tauri shell API 在浏览器环境不可用，通过手动验证覆盖。
+
+#### 通过标准
+
+- 44 个可自动化用例全部绿色
+- 4 个降级用例有手动验证记录
+- `log/test/e2e/reports/` 生成可读的 HTML 测试报告
+- 失败截图自动保存到 `log/test/e2e/screenshots/`
+
+#### 关联文档更新
+
+| 文档 | 更新内容 |
+|------|---------|
+| `doc/testing/e2e/playwright-e2e-test-plan.md` | 更新启停脚本路径、测试产物输出路径 |
+| `doc/testing/e2e/playwright-e2e-test-cases.md` | 标注实际执行结果（通过/失败/跳过） |
+| `doc/testing/README.md` | 前端 E2E 章节移除"暂缓"标注，更新为实际状态 |
+| `AGENTS.md` | 新增 E2E 测试脚本入口、测试数据播种说明 |
+| `doc/developer.md` | 新增 E2E 环境搭建 / 运行指南 |
+| `doc/CHANGELOG.md` | 追加 Phase 10 变更条目 |
+| `plan/active/desktop-ui-shell-refactor/handoff.md` | 更新 Phase 10 完成状态 |
+| `plan/active/desktop-ui-shell-refactor/validation.md` | 新增 Phase 10 验证记录（测试报告摘要） |
+
+---
+
+## 验证矩阵（Phase 6 已覆盖）
+
+### 架构级
+
+- ✅ Tauri 拉起 Worker
+- ✅ Renderer 获取 Bootstrap
+- ✅ Renderer 连接 SSE
+- ✅ DTO 与事件在前端正确消费
+
+### 页面级
+
+- ✅ 主壳导航切换
+- ✅ 库管理 CRUD + 扫描
+- ✅ 单库筛选 / 排序 / 分页
+- ✅ 收藏列表与详情往返
+- ✅ 演员列表与演员详情
+- ✅ 影片详情
+- ✅ 设置读写 / 恢复默认 / MetaTube 诊断
+
+### 事件级
+
+- ✅ `worker.ready` / `library.changed` / `settings.changed`
+- ✅ `task.summary.changed` / `task.created` / `task.completed` / `task.failed` / `task.progress`
+
+---
+
+## 非目标
+
+- 不把 Worker 全量迁入 Rust
+- 不把 HTTP API 全量改写成 Tauri command
+- 不在壳层重新实现扫描、抓取、sidecar、数据库逻辑
+- 不重做产品页面范围
+- 不推翻 `doc/UI/new/` 已冻结的页面职责与流程
+
+---
+
+## Worker 与 Contracts 保留边界
+
+### Worker 职责（不迁移到壳层或前端）
+
+库管理 / 库扫描 / 影片抓取与写回 / Sidecar 输出 / 图片与缓存 / 外部播放器 / 设置读写 / 任务队列 / SSE 广播 / Bootstrap / 健康检查 / SQLite 查询 / MetaTube 逻辑
+
+### Contracts 要求
+
+- 所有前端 API 类型从 `Jvedio.Contracts` 对齐
+- Renderer 不允许新增脱节的"临时 DTO"
+- Tauri 壳层桥接能力不得绕开 Worker 合同
+
+---
 
 ## 风险与缓解
 
-### 风险一：重新写成"新外壳下的旧控制器"
+| 风险 | 缓解 |
+|------|------|
+| 页面逻辑堆回超大单文件 | 按页面/区域/组件/查询层/事件层拆分 |
+| UI 文档与实现分叉 | 所有页面先对照 `doc/UI/new/`；新需求先改文档再改实现 |
+| 端口与启动链不稳定 | Phase 1 Spike + Phase 6 端到端验证已覆盖 |
 
-表现：
-
-- 虽然切到 React，但依旧把页面逻辑堆回单个超大文件
-
-缓解：
-
-- 强制按页面、区域、共享组件、查询层、事件层拆分
-- 将状态管理和事件订阅从页面展示层剥离
-
-### 风险二：UI 文档与实现再次分叉
-
-表现：
-
-- 实现过程中重新发明页面职责或新增未冻结入口
-
-缓解：
-
-- 所有页面实现先对照 `doc/UI/new/`
-- 新需求先改 UI 文档，再改实现
-
-### 风险三：端口与启动链不稳定
-
-表现：
-
-- Tauri 启动了，但 renderer 拿不到 worker baseUrl
-- Worker ready 与页面首屏加载节奏错位
-
-缓解：
-
-- 先完成阶段 1 Spike
-- 把 worker ready、health check、baseUrl 注入、异常提示做成单独验证点
-
-### 风险四：旧启动链切断时机错误
-
-表现：
-
-- 在新 `MainShell` 尚未跑通最小 Release 前就贸然删空旧 Electron 启动链，导致当前分支暂时不可交付
-
-缓解：
-
-- 先完成阶段 1 的 `MainShell` Spike 与最小 Release 产物
-- 再替换启动链与构建脚本
-- `electron/` 可以先冻结不用，再在启动链切换后做物理清理
+---
 
 ## 回退策略
 
-- 本方案中的"回退"不再指回退到 Electron 产品壳
-- 任一阶段如果出现：
-  - Worker 无法稳定拉起
-  - 页面主链未打通
-  - 新壳 Release 打包不可交付
-  - 关键回归失败
-  则回退到**上一阶段已验证的新架构里程碑**，而不是恢复 Electron 为正式产品路径
-- 如确需保留旧代码，仅作为历史参考或对照样本，不作为继续交付路径
+- 任一阶段出现阻断问题，回退到**上一阶段已验证的新架构里程碑**
+- 不再回退到任何旧架构路径
 
-## 本轮已冻结结论
+---
 
-以下结论本轮已默认执行并冻结：
+## 冻结输入与边界
 
-- **`Tauri 2 + React + TypeScript`** 作为唯一主线
-- **动态端口** 作为 Worker 正式主线策略
-- `doc/UI/new/` 继续作为唯一 UI 输入，不让实现反向修改文档边界
-- **直接废弃当前 Electron 半成品作为产品路径与回退基线**
-- 新壳目录正式命名为 `tauri/`
+| 输入 | 路径 |
+|------|------|
+| 正式 UI 输入 | `doc/UI/new/` |
+| Feature 入口 | `plan/active/desktop-ui-shell-refactor/` |
+| 本地业务服务 | `Jvedio-WPF/Jvedio.Worker` |
+| 跨层合同 | `Jvedio-WPF/Jvedio.Contracts` |
+| 启动入口 | `Jvedio-WPF/Jvedio/App.xaml.cs`（`TauriShellLauncher`） |
+| 打包入口 | `Jvedio-WPF/Jvedio/Jvedio.csproj`（`PrepareTauriShellArtifacts`） |
 
-## 当前执行起点
+### 外部参考
 
-`doc/UI/new/` 的本轮 UI 设计已完成并冻结，当前 feature 已满足启动门槛，可正式按冻结方案进入 **Phase 1：`MainShell` Spike**。
-
-从现在起，默认按以下顺序推进落库：
-
-- 先读 `handoff.md`，按其中的启动口径进入 Phase 1
-- 读 `validation.md`，以 `MainShell` Spike 的必过项和通过标准作为第一轮验收口径
-- 在 `tauri/` 建立最小可运行壳层、renderer 基座与 Worker 注入链
-- 打通 `/api/app/bootstrap` 与 `/api/events`，先验证 bootstrap + SSE 主链
-- 落主壳基础结构：左侧导航、右侧内容区、全局任务 / 提示入口
-- 同步建立主题、多语言与资源显色的最小骨架，但暂不扩展到完整业务页
-- `electron/` 已物理删除，不再作历史对照
-
-建议首批实施范围：
-
-1. `tauri/` 工程初始化与最小窗口启动
-2. 壳层拉起 `Jvedio.Worker` 并注入动态 `baseUrl`
-3. renderer 接通 `/api/app/bootstrap` 与 `/api/events`
-4. 主壳基础布局与 Worker 未就绪 / 加载中 / 连接失败三类基础状态
-5. `light / dark`、`zh / en` 与资源接线骨架的最小实现
-
-
-
-
-## 当前结论
-
-这次迁移本质上不是"把 Electron 换成另一个壳"这么简单，而是：
-
-- 用 `Tauri 2` 重建桌面壳
-- 从全新的 `MainShell` 外壳开始搭建新的前端结构
-- 继续依托 `Worker + Contracts + API + SSE` 作为稳定底座
-- 让 `doc/UI/new/` 成为后续实现与回归的唯一 UI 真相源
-
-在这个前提下，**React 主线 + 动态端口 + 从全新 `MainShell` 开始重写 + 直接废弃 Electron 半成品作为产品路径**，是当前更符合仓库现实、也更干净的方案。
+允许有限参考 `clash-verge-rev` 的视觉组织与页面编排方式，但不继承其产品架构、业务语义、路由语义或后端实现。

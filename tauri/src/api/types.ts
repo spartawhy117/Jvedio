@@ -381,6 +381,18 @@ export interface GeneralSettingsDto {
   debug: boolean;
 }
 
+export interface ImageSettingsDto {
+  posterPriority: string; // "remote" | "local"
+  cacheSizeLimitMb: number;
+  autoCleanExpiredCache: boolean;
+}
+
+export interface ScanImportSettingsDto {
+  scanDepth: number;
+  excludePatterns: string;
+  organizeMode: string; // "none" | "byVid" | "byActor"
+}
+
 export interface MetaTubeSettingsDto {
   serverUrl: string;
   requestTimeoutSeconds: number;
@@ -391,16 +403,28 @@ export interface PlaybackSettingsDto {
   useSystemDefaultFallback: boolean;
 }
 
+export interface LibrarySettingsDto {
+  defaultAutoScan: boolean;
+  defaultSortBy: string;
+  defaultSortOrder: string;
+}
+
 export interface GetSettingsResponse {
   general: GeneralSettingsDto;
-  metaTube: MetaTubeSettingsDto;
+  image: ImageSettingsDto;
+  scanImport: ScanImportSettingsDto;
   playback: PlaybackSettingsDto;
+  library: LibrarySettingsDto;
+  metaTube: MetaTubeSettingsDto;
 }
 
 export interface UpdateSettingsRequest {
   general?: GeneralSettingsDto;
-  metaTube?: MetaTubeSettingsDto;
+  image?: ImageSettingsDto;
+  scanImport?: ScanImportSettingsDto;
   playback?: PlaybackSettingsDto;
+  library?: LibrarySettingsDto;
+  metaTube?: MetaTubeSettingsDto;
   resetToDefaults?: boolean;
 }
 

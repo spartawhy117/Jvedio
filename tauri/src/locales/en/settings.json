@@ -23,15 +23,22 @@
   "debugMode": "Enable debug mode",
   "imageSettings": {
     "posterDisplay": "Poster Display",
-    "posterHint": "Poster size, display mode, and missing image placeholder will be configurable in a future update",
+    "posterPriority_remote": "Remote First",
+    "posterPriority_local": "Local First",
     "cachePolicy": "Cache Policy",
-    "cacheHint": "Image cache size and auto-cleanup rules will be configurable in a future update"
+    "cacheSizeHint": "0 means unlimited",
+    "autoClean": "Auto-clean expired cache"
   },
   "scanImportSettings": {
     "scanBehavior": "Scan Behavior",
-    "scanHint": "Scan strategy, file type filters, and exclude rules will be configurable in a future update",
+    "scanDepthLabel": "Recursion Depth",
+    "scanDepthHint": "0 means unlimited recursion",
+    "excludeLabel": "Exclude Patterns",
+    "excludePlaceholder": "*.tmp, Thumbs.db (comma-separated)",
     "organizeRules": "Organize Rules",
-    "organizeHint": "Auto-organize rules after scan (directory creation, file moving) will be configurable in a future update"
+    "organizeMode_none": "No Organize",
+    "organizeMode_byVid": "By VID",
+    "organizeMode_byActor": "By Actor"
   },
   "networkSettings": {
     "playerPath": "Player Path",
@@ -40,7 +47,14 @@
   },
   "librarySettings": {
     "defaultBehavior": "Default Behavior",
-    "behaviorHint": "Default scan paths, default sorting for new libraries will be configurable in a future update"
+    "autoScanLabel": "Enable auto-scan for new libraries",
+    "defaultSort": "Default Sort",
+    "sortBy_releaseDate": "Release Date",
+    "sortBy_title": "Title",
+    "sortBy_lastPlayedAt": "Last Played",
+    "sortBy_lastScanAt": "Last Scanned",
+    "sortOrder_asc": "Ascending",
+    "sortOrder_desc": "Descending"
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube Server URL",

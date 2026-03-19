@@ -2,6 +2,57 @@
 
 本目录收拢项目所有测试相关文档，按测试层次分为两个子目录。
 
+## 技术方案概览
+
+### 后端集成测试（C# / MSTest）
+
+- **工程**：`Jvedio-WPF/Jvedio.Test/Jvedio.Test.csproj`
+- **框架**：MSTest + `vstest.console.exe`
+- **测试分层**：
+  - 快速验证（纯逻辑，不联网）
+  - 网络验证（连接真实 MetaTube 服务）
+  - 文件系统验证（扫描导入 + 目录整理）
+- **执行方式**：PowerShell 脚本（双击运行或 `-NoPause`）
+- **配置**：JSON 配置文件 + 独立输出目录
+- **当前规模**：16 个测试用例
+
+> ⚠️ **迁移待办**：当前测试工程深度绑定旧 WPF 架构（.NET Framework 4.7.2、强制 WPF Application 上下文、直接引用 WPF 主程序），与新 Worker + Contracts 体系不兼容。计划新建 .NET 8 SDK-style 测试项目（`Jvedio.Worker.Tests`），解除 WPF 依赖，迁移有价值的业务测试逻辑并新增 Worker API 契约测试。详见 `plan/active/desktop-ui-shell-refactor/plan.md` Phase 8。
+
+### 前端 E2E 测试（Playwright）— 暂缓
+
+- **框架**：Playwright（通过浏览器直连 Vite dev/preview server）
+- **测试对象**：React SPA（`tauri/src/`）
+- **当前规模**：规划 48 个用例，覆盖 7 张流程图
+- **状态**：暂缓执行 — 当前为公共电脑环境，测试数据模拟涉及敏感内容痕迹，待环境条件合适时启动
+
+#### Tauri 壳层与 Playwright 的关系
+
+Playwright 支持 Chromium / Firefox / WebKit，但 **无法直接 attach 到 Tauri 窗口**（Tauri 使用系统 WebView2，不暴露 CDP 端口）。
+
+项目的解决方案是利用架构分离的优势：
+
+```
+Tauri 壳层 → 加载 React SPA → HTTP 调用 Worker API
+                ↑
+Playwright → 直连 Vite dev server（同一个 SPA）
+```
+
+`WorkerContext.tsx` 检测 `window.__TAURI_INTERNALS__` 是否存在：
+- **Tauri 窗口**：通过 IPC 获取 Worker 端口
+- **浏览器 / Playwright**：通过 URL 参数 `?workerPort=xxx` 或轮询获取
+
+这样 Playwright 可以测到除 Tauri 原生桌面能力外的所有功能：
+
+| 可测（浏览器模式） | 不可测（需 Tauri 原生环境） |
+|-------------------|--------------------------|
+| 页面导航、列表、筛选、分页 | 系统文件对话框 |
+| API 调用、数据展示 | 系统托盘 / 原生菜单 |
+| SSE 事件接收与 UI 更新 | 单实例检测 |
+| 主题切换、多语言 | "打开文件夹"等 shell API |
+| 表单交互、弹层 | 窗口最小化/最大化/关闭行为 |
+
+不可测的部分通过手动验证覆盖。
+
 ## 目录结构
 
 ```
@@ -33,7 +84,7 @@ doc/testing/
 
 | 文档 | 位置 | 说明 |
 |------|------|------|
-| 验证矩阵 | `plan/active/desktop-ui-shell-refactor/validation.md` | Phase 6 / Phase 7 验证记录 |
+| 验证矩阵 | `plan/active/desktop-ui-shell-refactor/validation.md` | Phase 6 验证记录 |
 | 日志规范 | `doc/logging-convention.md` | Worker + Shell 日志配置 |
 | 流程图索引 | `doc/UI/new/flow/README.md` | E2E 用例的流程图来源 |
 | 测试数据目录 | `Jvedio-WPF/Jvedio.Test/config/scan/input/` | 假视频文件放置目录 |

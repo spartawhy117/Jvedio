@@ -47,6 +47,15 @@ public sealed class SettingsService
             document["Debug"] = snapshot.General.Debug;
             document["VideoPlayerPath"] = snapshot.Playback.PlayerPath;
             document["UseSystemDefaultFallback"] = snapshot.Playback.UseSystemDefaultFallback;
+            document["PosterPriority"] = snapshot.Image.PosterPriority;
+            document["CacheSizeLimitMb"] = snapshot.Image.CacheSizeLimitMb;
+            document["AutoCleanExpiredCache"] = snapshot.Image.AutoCleanExpiredCache;
+            document["ScanDepth"] = snapshot.ScanImport.ScanDepth;
+            document["ExcludePatterns"] = snapshot.ScanImport.ExcludePatterns;
+            document["OrganizeMode"] = snapshot.ScanImport.OrganizeMode;
+            document["DefaultAutoScan"] = snapshot.Library.DefaultAutoScan;
+            document["DefaultSortBy"] = snapshot.Library.DefaultSortBy;
+            document["DefaultSortOrder"] = snapshot.Library.DefaultSortOrder;
         });
 
         configStoreService.UpsertConfigObject(MetaTubeConfigName, document =>
@@ -194,6 +203,29 @@ public sealed class SettingsService
                 CurrentLanguage = configStoreService.ReadString(settings, "CurrentLanguage", defaults.General.CurrentLanguage),
                 Debug = configStoreService.ReadBoolean(settings, "Debug", defaults.General.Debug),
             },
+            Image = new ImageSettingsDto
+            {
+                PosterPriority = configStoreService.ReadString(settings, "PosterPriority", defaults.Image.PosterPriority),
+                CacheSizeLimitMb = (int)configStoreService.ReadInt64(settings, "CacheSizeLimitMb", defaults.Image.CacheSizeLimitMb),
+                AutoCleanExpiredCache = configStoreService.ReadBoolean(settings, "AutoCleanExpiredCache", defaults.Image.AutoCleanExpiredCache),
+            },
+            ScanImport = new ScanImportSettingsDto
+            {
+                ScanDepth = (int)configStoreService.ReadInt64(settings, "ScanDepth", defaults.ScanImport.ScanDepth),
+                ExcludePatterns = configStoreService.ReadString(settings, "ExcludePatterns", defaults.ScanImport.ExcludePatterns),
+                OrganizeMode = configStoreService.ReadString(settings, "OrganizeMode", defaults.ScanImport.OrganizeMode),
+            },
+            Playback = new PlaybackSettingsDto
+            {
+                PlayerPath = configStoreService.ReadString(settings, "VideoPlayerPath", defaults.Playback.PlayerPath),
+                UseSystemDefaultFallback = configStoreService.ReadBoolean(settings, "UseSystemDefaultFallback", defaults.Playback.UseSystemDefaultFallback),
+            },
+            Library = new LibrarySettingsDto
+            {
+                DefaultAutoScan = configStoreService.ReadBoolean(settings, "DefaultAutoScan", defaults.Library.DefaultAutoScan),
+                DefaultSortBy = configStoreService.ReadString(settings, "DefaultSortBy", defaults.Library.DefaultSortBy),
+                DefaultSortOrder = configStoreService.ReadString(settings, "DefaultSortOrder", defaults.Library.DefaultSortOrder),
+            },
             MetaTube = new MetaTubeSettingsDto
             {
                 RequestTimeoutSeconds = (int)Math.Clamp(
@@ -201,11 +233,6 @@ public sealed class SettingsService
                     MinTimeoutSeconds,
                     MaxTimeoutSeconds),
                 ServerUrl = configStoreService.ReadString(metaTube, "ServerUrl", defaults.MetaTube.ServerUrl),
-            },
-            Playback = new PlaybackSettingsDto
-            {
-                PlayerPath = configStoreService.ReadString(settings, "VideoPlayerPath", defaults.Playback.PlayerPath),
-                UseSystemDefaultFallback = configStoreService.ReadBoolean(settings, "UseSystemDefaultFallback", defaults.Playback.UseSystemDefaultFallback),
             },
         };
     }
@@ -219,15 +246,33 @@ public sealed class SettingsService
                 CurrentLanguage = "zh-CN",
                 Debug = false,
             },
-            MetaTube = new MetaTubeSettingsDto
+            Image = new ImageSettingsDto
             {
-                RequestTimeoutSeconds = 60,
-                ServerUrl = string.Empty,
+                PosterPriority = "remote",
+                CacheSizeLimitMb = 0,
+                AutoCleanExpiredCache = true,
+            },
+            ScanImport = new ScanImportSettingsDto
+            {
+                ScanDepth = 0,
+                ExcludePatterns = string.Empty,
+                OrganizeMode = "none",
             },
             Playback = new PlaybackSettingsDto
             {
                 PlayerPath = string.Empty,
                 UseSystemDefaultFallback = true,
+            },
+            Library = new LibrarySettingsDto
+            {
+                DefaultAutoScan = true,
+                DefaultSortBy = "releaseDate",
+                DefaultSortOrder = "desc",
+            },
+            MetaTube = new MetaTubeSettingsDto
+            {
+                RequestTimeoutSeconds = 60,
+                ServerUrl = string.Empty,
             },
         };
     }
@@ -236,8 +281,11 @@ public sealed class SettingsService
     {
         var defaults = CreateDefaultSettings();
         var general = request.General ?? throw CreateValidationException("settings.save.general_missing", "General settings payload is required.");
-        var metaTube = request.MetaTube ?? throw CreateValidationException("settings.save.meta_tube_missing", "MetaTube settings payload is required.");
+        var image = request.Image ?? defaults.Image;
+        var scanImport = request.ScanImport ?? defaults.ScanImport;
         var playback = request.Playback ?? throw CreateValidationException("settings.save.playback_missing", "Playback settings payload is required.");
+        var library = request.Library ?? defaults.Library;
+        var metaTube = request.MetaTube ?? throw CreateValidationException("settings.save.meta_tube_missing", "MetaTube settings payload is required.");
 
         return new GetSettingsResponse
         {
@@ -246,15 +294,33 @@ public sealed class SettingsService
                 CurrentLanguage = NormalizeLanguage(general.CurrentLanguage, defaults.General.CurrentLanguage),
                 Debug = general.Debug,
             },
-            MetaTube = new MetaTubeSettingsDto
+            Image = new ImageSettingsDto
             {
-                RequestTimeoutSeconds = Math.Clamp(metaTube.RequestTimeoutSeconds, MinTimeoutSeconds, MaxTimeoutSeconds),
-                ServerUrl = NormalizeString(metaTube.ServerUrl),
+                PosterPriority = NormalizePosterPriority(image.PosterPriority),
+                CacheSizeLimitMb = Math.Max(0, image.CacheSizeLimitMb),
+                AutoCleanExpiredCache = image.AutoCleanExpiredCache,
+            },
+            ScanImport = new ScanImportSettingsDto
+            {
+                ScanDepth = Math.Max(0, scanImport.ScanDepth),
+                ExcludePatterns = NormalizeString(scanImport.ExcludePatterns),
+                OrganizeMode = NormalizeOrganizeMode(scanImport.OrganizeMode),
             },
             Playback = new PlaybackSettingsDto
             {
                 PlayerPath = NormalizeString(playback.PlayerPath),
                 UseSystemDefaultFallback = playback.UseSystemDefaultFallback,
+            },
+            Library = new LibrarySettingsDto
+            {
+                DefaultAutoScan = library.DefaultAutoScan,
+                DefaultSortBy = NormalizeSortBy(library.DefaultSortBy),
+                DefaultSortOrder = NormalizeSortOrder(library.DefaultSortOrder),
+            },
+            MetaTube = new MetaTubeSettingsDto
+            {
+                RequestTimeoutSeconds = Math.Clamp(metaTube.RequestTimeoutSeconds, MinTimeoutSeconds, MaxTimeoutSeconds),
+                ServerUrl = NormalizeString(metaTube.ServerUrl),
             },
         };
     }
@@ -268,6 +334,30 @@ public sealed class SettingsService
     private static string NormalizeString(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static string NormalizePosterPriority(string? value)
+    {
+        var normalized = NormalizeString(value);
+        return normalized is "remote" or "local" ? normalized : "remote";
+    }
+
+    private static string NormalizeOrganizeMode(string? value)
+    {
+        var normalized = NormalizeString(value);
+        return normalized is "none" or "byVid" or "byActor" ? normalized : "none";
+    }
+
+    private static string NormalizeSortBy(string? value)
+    {
+        var normalized = NormalizeString(value);
+        return normalized is "releaseDate" or "title" or "lastPlayedAt" or "lastScanAt" ? normalized : "releaseDate";
+    }
+
+    private static string NormalizeSortOrder(string? value)
+    {
+        var normalized = NormalizeString(value);
+        return normalized is "asc" or "desc" ? normalized : "desc";
     }
 
     private static WorkerApiException CreateValidationException(string code, string message)

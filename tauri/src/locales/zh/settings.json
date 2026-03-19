@@ -23,15 +23,22 @@
   "debugMode": "启用调试模式",
   "imageSettings": {
     "posterDisplay": "海报显示",
-    "posterHint": "海报尺寸、显示模式与缺失图片占位将在后续版本中开放配置",
+    "posterPriority_remote": "远程优先",
+    "posterPriority_local": "本地优先",
     "cachePolicy": "缓存策略",
-    "cacheHint": "图片缓存大小与自动清理规则将在后续版本中开放配置"
+    "cacheSizeHint": "0 表示不限制",
+    "autoClean": "自动清理过期缓存"
   },
   "scanImportSettings": {
     "scanBehavior": "扫描行为",
-    "scanHint": "扫描策略、文件类型过滤与排除规则将在后续版本中开放配置",
+    "scanDepthLabel": "递归深度",
+    "scanDepthHint": "0 表示无限递归",
+    "excludeLabel": "排除规则",
+    "excludePlaceholder": "*.tmp, Thumbs.db（逗号分隔）",
     "organizeRules": "整理规则",
-    "organizeHint": "扫描后自动整理规则（目录创建、文件移动）将在后续版本中开放配置"
+    "organizeMode_none": "不整理",
+    "organizeMode_byVid": "按番号整理",
+    "organizeMode_byActor": "按演员整理"
   },
   "networkSettings": {
     "playerPath": "播放器路径",
@@ -40,7 +47,14 @@
   },
   "librarySettings": {
     "defaultBehavior": "默认行为",
-    "behaviorHint": "新建库默认扫描路径、默认排序等选项将在后续版本中开放配置"
+    "autoScanLabel": "新建库时默认启用自动扫描",
+    "defaultSort": "默认排序",
+    "sortBy_releaseDate": "发行日期",
+    "sortBy_title": "标题",
+    "sortBy_lastPlayedAt": "最近播放",
+    "sortBy_lastScanAt": "最近扫描",
+    "sortOrder_asc": "升序",
+    "sortOrder_desc": "降序"
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube 服务地址",

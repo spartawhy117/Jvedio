@@ -45,22 +45,43 @@ interface SettingsFormState {
   // General
   currentLanguage: string;
   debug: boolean;
-  // MetaTube
-  metaTubeServerUrl: string;
-  metaTubeTimeoutSeconds: number;
+  // Image
+  posterPriority: string;
+  cacheSizeLimitMb: number;
+  autoCleanExpiredCache: boolean;
+  // ScanImport
+  scanDepth: number;
+  excludePatterns: string;
+  organizeMode: string;
   // Playback (mapped to network group in UI)
   playerPath: string;
   useSystemDefaultFallback: boolean;
+  // Library
+  defaultAutoScan: boolean;
+  defaultSortBy: string;
+  defaultSortOrder: string;
+  // MetaTube
+  metaTubeServerUrl: string;
+  metaTubeTimeoutSeconds: number;
 }
 
 function toFormState(settings: GetSettingsResponse): SettingsFormState {
   return {
     currentLanguage: settings.general.currentLanguage,
     debug: settings.general.debug,
-    metaTubeServerUrl: settings.metaTube.serverUrl,
-    metaTubeTimeoutSeconds: settings.metaTube.requestTimeoutSeconds,
+    posterPriority: settings.image.posterPriority,
+    cacheSizeLimitMb: settings.image.cacheSizeLimitMb,
+    autoCleanExpiredCache: settings.image.autoCleanExpiredCache,
+    scanDepth: settings.scanImport.scanDepth,
+    excludePatterns: settings.scanImport.excludePatterns,
+    organizeMode: settings.scanImport.organizeMode,
     playerPath: settings.playback.playerPath,
     useSystemDefaultFallback: settings.playback.useSystemDefaultFallback,
+    defaultAutoScan: settings.library.defaultAutoScan,
+    defaultSortBy: settings.library.defaultSortBy,
+    defaultSortOrder: settings.library.defaultSortOrder,
+    metaTubeServerUrl: settings.metaTube.serverUrl,
+    metaTubeTimeoutSeconds: settings.metaTube.requestTimeoutSeconds,
   };
 }
 
@@ -70,13 +91,28 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
       currentLanguage: form.currentLanguage,
       debug: form.debug,
     },
-    metaTube: {
-      serverUrl: form.metaTubeServerUrl,
-      requestTimeoutSeconds: form.metaTubeTimeoutSeconds,
+    image: {
+      posterPriority: form.posterPriority,
+      cacheSizeLimitMb: form.cacheSizeLimitMb,
+      autoCleanExpiredCache: form.autoCleanExpiredCache,
+    },
+    scanImport: {
+      scanDepth: form.scanDepth,
+      excludePatterns: form.excludePatterns,
+      organizeMode: form.organizeMode,
     },
     playback: {
       playerPath: form.playerPath,
       useSystemDefaultFallback: form.useSystemDefaultFallback,
+    },
+    library: {
+      defaultAutoScan: form.defaultAutoScan,
+      defaultSortBy: form.defaultSortBy,
+      defaultSortOrder: form.defaultSortOrder,
+    },
+    metaTube: {
+      serverUrl: form.metaTubeServerUrl,
+      requestTimeoutSeconds: form.metaTubeTimeoutSeconds,
     },
   };
 }
@@ -84,10 +120,19 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
 const DEFAULT_FORM: SettingsFormState = {
   currentLanguage: "zh",
   debug: false,
-  metaTubeServerUrl: "",
-  metaTubeTimeoutSeconds: 30,
+  posterPriority: "remote",
+  cacheSizeLimitMb: 0,
+  autoCleanExpiredCache: true,
+  scanDepth: 0,
+  excludePatterns: "",
+  organizeMode: "none",
   playerPath: "",
   useSystemDefaultFallback: true,
+  defaultAutoScan: true,
+  defaultSortBy: "releaseDate",
+  defaultSortOrder: "desc",
+  metaTubeServerUrl: "",
+  metaTubeTimeoutSeconds: 30,
 };
 
 // ── Component ───────────────────────────────────────────
@@ -285,23 +330,39 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("imageSettings.posterDisplay")}</h4>
-              <div className="settings-coming-soon">
-                <span className="coming-soon-icon">🖼️</span>
-                <div className="coming-soon-body">
-                  <span className="coming-soon-title">{t("comingSoon")}</span>
-                  <p className="coming-soon-detail">{t("imageSettings.posterHint")}</p>
-                </div>
+              <div className="settings-row">
+                {(["remote", "local"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={`settings-chip ${form.posterPriority === mode ? "active" : ""}`}
+                    onClick={() => updateField("posterPriority", mode)}
+                  >
+                    {t(`imageSettings.posterPriority_${mode}`)}
+                  </button>
+                ))}
               </div>
             </section>
             <section className="settings-group">
               <h4>{t("imageSettings.cachePolicy")}</h4>
-              <div className="settings-coming-soon">
-                <span className="coming-soon-icon">💾</span>
-                <div className="coming-soon-body">
-                  <span className="coming-soon-title">{t("comingSoon")}</span>
-                  <p className="coming-soon-detail">{t("imageSettings.cacheHint")}</p>
-                </div>
+              <div className="settings-input-group">
+                <input
+                  type="number"
+                  className="settings-input settings-input-sm"
+                  value={form.cacheSizeLimitMb}
+                  onChange={(e) => updateField("cacheSizeLimitMb", parseInt(e.target.value) || 0)}
+                  min={0}
+                />
+                <span className="settings-input-suffix">MB</span>
+                <span className="settings-input-hint">{t("imageSettings.cacheSizeHint")}</span>
               </div>
+              <label className="settings-checkbox">
+                <input
+                  type="checkbox"
+                  checked={form.autoCleanExpiredCache}
+                  onChange={(e) => updateField("autoCleanExpiredCache", e.target.checked)}
+                />
+                <span>{t("imageSettings.autoClean")}</span>
+              </label>
             </section>
           </div>
         )}
@@ -311,22 +372,40 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("scanImportSettings.scanBehavior")}</h4>
-              <div className="settings-coming-soon">
-                <span className="coming-soon-icon">🔍</span>
-                <div className="coming-soon-body">
-                  <span className="coming-soon-title">{t("comingSoon")}</span>
-                  <p className="coming-soon-detail">{t("scanImportSettings.scanHint")}</p>
-                </div>
+              <div className="settings-input-group">
+                <label className="settings-label">{t("scanImportSettings.scanDepthLabel")}</label>
+                <input
+                  type="number"
+                  className="settings-input settings-input-sm"
+                  value={form.scanDepth}
+                  onChange={(e) => updateField("scanDepth", parseInt(e.target.value) || 0)}
+                  min={0}
+                />
+                <span className="settings-input-hint">{t("scanImportSettings.scanDepthHint")}</span>
+              </div>
+              <div className="settings-input-group">
+                <label className="settings-label">{t("scanImportSettings.excludeLabel")}</label>
+                <input
+                  type="text"
+                  className="settings-input"
+                  value={form.excludePatterns}
+                  onChange={(e) => updateField("excludePatterns", e.target.value)}
+                  placeholder={t("scanImportSettings.excludePlaceholder")}
+                />
               </div>
             </section>
             <section className="settings-group">
               <h4>{t("scanImportSettings.organizeRules")}</h4>
-              <div className="settings-coming-soon">
-                <span className="coming-soon-icon">📁</span>
-                <div className="coming-soon-body">
-                  <span className="coming-soon-title">{t("comingSoon")}</span>
-                  <p className="coming-soon-detail">{t("scanImportSettings.organizeHint")}</p>
-                </div>
+              <div className="settings-row">
+                {(["none", "byVid", "byActor"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={`settings-chip ${form.organizeMode === mode ? "active" : ""}`}
+                    onClick={() => updateField("organizeMode", mode)}
+                  >
+                    {t(`scanImportSettings.organizeMode_${mode}`)}
+                  </button>
+                ))}
               </div>
             </section>
           </div>
@@ -363,12 +442,38 @@ export function SettingsPage() {
           <div className="settings-form-content">
             <section className="settings-group">
               <h4>{t("librarySettings.defaultBehavior")}</h4>
-              <div className="settings-coming-soon">
-                <span className="coming-soon-icon">📚</span>
-                <div className="coming-soon-body">
-                  <span className="coming-soon-title">{t("comingSoon")}</span>
-                  <p className="coming-soon-detail">{t("librarySettings.behaviorHint")}</p>
-                </div>
+              <label className="settings-checkbox">
+                <input
+                  type="checkbox"
+                  checked={form.defaultAutoScan}
+                  onChange={(e) => updateField("defaultAutoScan", e.target.checked)}
+                />
+                <span>{t("librarySettings.autoScanLabel")}</span>
+              </label>
+            </section>
+            <section className="settings-group">
+              <h4>{t("librarySettings.defaultSort")}</h4>
+              <div className="settings-row">
+                {(["releaseDate", "title", "lastPlayedAt", "lastScanAt"] as const).map((sortBy) => (
+                  <button
+                    key={sortBy}
+                    className={`settings-chip ${form.defaultSortBy === sortBy ? "active" : ""}`}
+                    onClick={() => updateField("defaultSortBy", sortBy)}
+                  >
+                    {t(`librarySettings.sortBy_${sortBy}`)}
+                  </button>
+                ))}
+              </div>
+              <div className="settings-row" style={{ marginTop: "8px" }}>
+                {(["desc", "asc"] as const).map((order) => (
+                  <button
+                    key={order}
+                    className={`settings-chip ${form.defaultSortOrder === order ? "active" : ""}`}
+                    onClick={() => updateField("defaultSortOrder", order)}
+                  >
+                    {t(`librarySettings.sortOrder_${order}`)}
+                  </button>
+                ))}
               </div>
             </section>
           </div>
