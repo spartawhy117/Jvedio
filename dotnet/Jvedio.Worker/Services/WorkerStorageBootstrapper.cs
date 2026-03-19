@@ -166,6 +166,10 @@ public sealed class WorkerStorageBootstrapper
         // Ensure ImageUrl column exists on actor_info (may be missing in databases
         // created by the original WPF app or earlier Worker versions).
         EnsureColumnExists(connection, "actor_info", "ImageUrl", "TEXT DEFAULT ''");
+
+        // Ensure ScrapeStatus column exists on metadata_video (scrape-fail-graceful feature).
+        // Values: 'none' (default, never scraped), 'full' (scraped successfully), 'failed' (scrape attempted but failed).
+        EnsureColumnExists(connection, "metadata_video", "ScrapeStatus", "TEXT NOT NULL DEFAULT 'none'");
     }
 
     private static void EnsureColumnExists(
