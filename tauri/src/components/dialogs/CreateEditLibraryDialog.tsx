@@ -7,7 +7,7 @@
  * Fields: Library name + Scan paths
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import "./CreateEditLibraryDialog.css";
 
@@ -37,13 +37,19 @@ export function CreateEditLibraryDialog({
   const [name, setName] = useState(initialName);
   const [scanPathsText, setScanPathsText] = useState(initialScanPaths.join("\n"));
 
-  // Reset form when dialog opens
+  // Track previous open state so we only reset the form on the
+  // false → true transition, not on every parent re-render.
+  const prevOpenRef = useRef(false);
+
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
+      // Dialog just opened — populate with initial values
       setName(initialName);
       setScanPathsText(initialScanPaths.join("\n"));
     }
-  }, [open, initialName, initialScanPaths]);
+    prevOpenRef.current = open;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleSubmit = () => {
     const trimmedName = name.trim();
