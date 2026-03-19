@@ -6,12 +6,14 @@
 - `doc/modules/`：模块文档
 - `doc/CHANGELOG.md`：变更日志
 - `doc/logging-convention.md`：统一日志规范
+- `doc/data-directory-convention.md`：数据目录规范（Release / 测试 / E2E 路径推断与对比）
 - `doc/testing/`：所有测试文档（索引见 `doc/testing/README.md`）
   - `doc/testing/backend/test-plan.md`：测试计划文档
   - `doc/testing/backend/test-targets.md`：测试目标文档
   - `doc/testing/backend/test-current-suite.md`：当前测试清单
   - `doc/testing/e2e/playwright-e2e-test-plan.md`：Playwright 执行方案
   - `doc/testing/e2e/playwright-e2e-test-cases.md`：E2E 用例清单
+  - `doc/testing/e2e/e2e-test-data-spec.md`：E2E 测试数据规范（目录结构、假文件、播种脚本）
 
 历史 planning 归档：
 

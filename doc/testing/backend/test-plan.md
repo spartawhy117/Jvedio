@@ -52,7 +52,85 @@ Jvedio.Worker.Tests/
 - 验证 `Jvedio.Contracts` 中的 DTO 在 System.Text.Json 下正确序列化/反序列化
 - 确保前端 TypeScript 类型与后端 C# 类型一致
 
-## 4. 项目引用
+## 4. 测试数据策略
+
+所有 44 个测试都是**自给自足**的，不需要开发者预先准备任何 VID 文件、库数据或 SQLite 数据库。根据测试类型，采用三种不同的数据构造方式：
+
+### 4.1 纯函数测试 — 内联数据，不碰文件系统
+
+**适用测试**：`VidParsingTests`（17 个）、`SidecarPathTests`（6 个）
+
+这类测试验证的是纯逻辑（字符串解析、路径拼接），不涉及数据库或文件系统。
+
+数据构造方式：
+- VID 解析：测试数据写在 `[DataRow]` 注解中，直接传字符串给被测方法
+- Sidecar 路径：硬编码路径字符串（如 `"C:\videos\ABP-001\ABP-001.mp4"`），文件不需要真的存在
+- 通过反射调用 `LibraryScanService.ExtractVideoId`、`LibraryScrapeService.GetMovieNfoPath` 等私有静态方法
+
+```csharp
+// 示例：VID 解析 — 数据全在注解里
+[DataRow("ABP-001.mp4", "ABP-001", "标准 VID")]
+[DataRow("FC2-PPV-1234567.mp4", "FC2-PPV-1234567", "FC2 标准格式")]
+public void ExtractVideoId_StandardVids(string fileName, string expectedVid, string description)
+{
+    Assert.AreEqual(expectedVid, ExtractVideoId(fileName), description);
+}
+```
+
+### 4.2 临时文件测试 — 每次自建，用完即删
+
+**适用测试**：`ScanOrganizeTests`（5 个）
+
+这类测试需要真实的文件系统来验证文件移动、目录创建等行为。
+
+数据构造方式：
+- `[TestInitialize]` 在系统临时目录创建 GUID 命名的空目录
+- 测试方法中用 `File.WriteAllText` 创建假视频文件（内容为 `"dummy"`，几个字节）
+- 假文件只要**文件名符合 VID 格式**即可，不需要是真正的视频
+- `[TestCleanup]` 测试完成后删除整个临时目录
+
+```csharp
+// 示例：自建假视频文件
+var videoPath = Path.Combine(testRoot, "ABP-001.mp4");
+File.WriteAllText(videoPath, "dummy");  // 不是真视频，只是个文本文件
+File.WriteAllText(Path.Combine(testRoot, "STARS-123.mp4"), "dummy2");
+```
+
+### 4.3 API 端到端测试 — 空库启动 + 测试方法内自建数据
+
+**适用测试**：`ScanImportApiTests`（2 个）、所有契约测试（13 个）
+
+这类测试依赖 `TestBootstrap` 启动的进程内 Worker 服务。
+
+数据构造方式：
+1. **`TestBootstrap`（全局初始化）**：创建空 SQLite 文件 → Worker 启动时 `StorageBootstrapper` 自动建表 → 数据库有表结构但无业务数据
+2. **契约测试**：直接调 API 查空库，验证返回格式正确（如 `GET /api/videos/favorites` 返回空 `items` 数组）
+3. **扫描导入测试**：测试方法内自建假视频文件（1024 字节）→ `POST /api/libraries` 创建库 → `POST /api/libraries/{id}/scan` 触发扫描 → 等待 3 秒 → `GET /api/libraries/{id}/videos` 验证导入结果
+4. **测试完成后**：通过 `DELETE /api/libraries/{id}` 清理自己创建的库
+
+```csharp
+// 示例：扫描导入端到端 — 先造假文件，再通过 API 创建库和触发扫描
+File.WriteAllBytes(Path.Combine(testRoot, "ABP-001.mp4"), new byte[1024]);
+var createBody = JsonSerializer.Serialize(new { name = "Scan Test Library", scanPaths = new[] { testRoot } });
+await TestBootstrap.Client.PostAsync("/api/libraries", ...);        // 创建库
+await TestBootstrap.Client.PostAsync($"/api/libraries/{id}/scan", ...);  // 触发扫描
+await Task.Delay(3000);                                              // 等待异步扫描完成
+var videos = await TestBootstrap.Client.GetAsync($"/api/libraries/{id}/videos?..."); // 验证
+```
+
+### 4.4 数据策略总结
+
+| 测试文件 | 数据来源 | 需要预配置 | 需要网络 |
+|---------|---------|-----------|---------|
+| `VidParsingTests` | `[DataRow]` 注解中的字符串 | ❌ | ❌ |
+| `SidecarPathTests` | 硬编码路径字符串 | ❌ | ❌ |
+| `ScanOrganizeTests` | `[TestInitialize]` 临时创建假文件 | ❌ | ❌ |
+| `ScanImportApiTests` | 测试方法内造假文件 + API 创建库 | ❌ | ❌ |
+| 契约测试（5 个文件） | 空数据库 + 测试方法内 API 调用 | ❌ | ❌ |
+
+> **关键原则**：每个测试方法负责自己的数据生命周期（创建 → 使用 → 清理），不依赖其他测试的副作用，也不依赖任何外部环境。
+
+## 5. 项目引用
 
 ```xml
 <ProjectReference Include="..\Jvedio.Worker\Jvedio.Worker.csproj" />
@@ -62,7 +140,7 @@ Jvedio.Worker.Tests/
 - **不引用** `Jvedio.csproj`（WPF 主程序）
 - 测试引擎：MSTest 3.x + Microsoft.NET.Test.Sdk + Microsoft.AspNetCore.Mvc.Testing
 
-## 5. 测试基础设施
+## 6. 测试基础设施
 
 ### TestBootstrap
 
@@ -80,7 +158,7 @@ Jvedio.Worker.Tests/
 
 `TestBootstrap.JsonOptions` 使用 camelCase 命名策略，与 ASP.NET Core 默认行为保持一致。
 
-## 6. 执行方式
+## 7. 执行方式
 
 ### 命令行
 ```powershell
@@ -159,7 +237,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~BootstrapApiTes
 - 执行方式变化
 - 项目引用变化
 
-## 10. 技术债与后续演进
+## 11. 技术债与后续演进
 
 ### 旧测试工程迁移评估
 

@@ -205,9 +205,118 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ---
 
+### Phase 9.5：测试数据目录统一到项目根目录 — 🔲 待执行
+
+**前提**：Phase 8 后端测试迁移 + Phase 9 日志统一全部完成。
+
+**动机**：后端 Worker Test 数据在系统临时目录（`%TEMP%/jvedio-test-{GUID}/`），调试时不直观、多台电脑不同步、每次跑完自动清理导致无法保留现场。统一把所有测试数据收到项目根目录下，方便直接查看和 git 同步。
+
+#### 目标目录结构
+
+```
+{repo}/
+├── test-data/                               ← 统一测试数据根
+│   ├── worker/                              ← 后端 Worker Test
+│   │   └── data/
+│   │       └── test-user/
+│   │           ├── app_datas.sqlite          ← Worker 自动建表
+│   │           └── app_configs.sqlite
+│   │
+│   └── e2e/                                 ← E2E 测试（Phase 10 使用）
+│       ├── data/
+│       │   └── test-user/
+│       │       ├── app_datas.sqlite
+│       │       └── app_configs.sqlite
+│       └── videos/                          ← 假视频文件
+│           ├── lib-a/
+│           └── lib-b/
+│
+├── log/                                     ← 已有统一日志目录
+│   └── test/
+│       ├── worker-tests/runtime/            ← 后端测试日志
+│       └── e2e/runtime/                     ← E2E 测试日志
+```
+
+#### 9.5.1 改造 TestBootstrap.cs
+
+| 项目 | 旧 | 新 |
+|------|----|----|
+| 数据目录 | `Path.GetTempPath() + "jvedio-test-{GUID}"` | `{repo}/test-data/worker/` |
+| 日志目录 | 临时目录下，测试后清理 | `{repo}/log/test/worker-tests/` |
+| 初始化 | 每次 new GUID 目录 | 先清空 `test-data/worker/` 再重建 |
+| 清理 | `[AssemblyCleanup]` 删除临时目录 | **不删除**，保留现场供调试 |
+
+关键代码变更：
+```csharp
+// 旧：_tempDir = Path.Combine(Path.GetTempPath(), $"jvedio-test-{Guid.NewGuid():N}");
+// 新：
+_tempDir = Path.Combine(FindRepoRoot(), "test-data", "worker");
+if (Directory.Exists(_tempDir)) Directory.Delete(_tempDir, true);
+Directory.CreateDirectory(_tempDir);
+
+// 日志指向 repo 统一日志目录
+Environment.SetEnvironmentVariable("JVEDIO_LOG_DIR",
+    Path.Combine(FindRepoRoot(), "log", "test", "worker-tests"));
+```
+
+`FindRepoRoot()` 逻辑：从当前 Assembly 路径向上查找同时包含 `dotnet/` 和 `tauri/` 的目录。
+
+#### 9.5.2 更新 .gitignore
+
+```gitignore
+# 测试数据 — 跟踪基线 SQLite 和假视频，忽略缓存
+!/test-data/
+!/test-data/**
+test-data/**/cache/
+
+# 测试日志 — 允许跟踪（覆盖 *.log 规则）
+!/log/test/**
+```
+
+#### 9.5.3 git 同步策略
+
+| 内容 | 跟踪 | 说明 |
+|------|------|------|
+| `test-data/worker/data/test-user/*.sqlite` | ✅ | 基线数据库，多台电脑共享 |
+| `test-data/e2e/videos/**` | ✅ | 假视频文件（约 5 KB） |
+| `test-data/e2e/data/test-user/*.sqlite` | ✅ | E2E 基线数据库 |
+| `test-data/**/cache/` | ❌ | 缓存不跟踪 |
+| `log/test/**/*.log` | ✅ | 测试日志参与同步 |
+| `log/runtime/**` | ❌ | 正式运行日志不同步 |
+
+#### 9.5.4 与正式版隔离
+
+| 正式版 | 后端测试 | E2E 测试 |
+|--------|---------|---------|
+| `dotnet/Jvedio/bin/Release/data/Admin/` | `test-data/worker/data/test-user/` | `test-data/e2e/data/test-user/` |
+
+三者物理路径完全隔离，不存在互踩。
+
+#### 通过标准
+
+- [ ] `TestBootstrap.cs` 数据目录指向 `{repo}/test-data/worker/`
+- [ ] 44 个后端测试全部通过
+- [ ] 跑完测试后 `test-data/worker/data/test-user/` 下有 SQLite 文件可直接查看
+- [ ] `log/test/worker-tests/runtime/` 下有日志文件
+- [ ] `.gitignore` 正确跟踪 `test-data/` 和 `log/test/`
+- [ ] E2E 目录 `test-data/e2e/` 结构就位（内容由 Phase 10 填充）
+
+#### 关联文档更新
+
+| 文档 | 更新内容 |
+|------|---------|
+| `doc/data-directory-convention.md` | §6 对比表 — 后端测试列 + E2E 列均改为 `test-data/` 方案 |
+| `doc/testing/backend/test-plan.md` | §5 TestBootstrap 说明更新 |
+| `doc/testing/e2e/e2e-test-data-spec.md` | §2 目录结构重写为 `test-data/e2e/` |
+| `doc/logging-convention.md` | 补充测试日志 git 同步说明 |
+| `.gitignore` | 新增 `test-data/` 和 `log/test/` 规则 |
+| `AGENTS.md` | 更新"当前关键目录规则"段落 |
+
+---
+
 ### Phase 10：E2E 自动化测试（暂缓）
 
-**前提**：Phase 7 UI 补全 + Phase 8 后端测试迁移 + Phase 9 日志统一全部完成。
+**前提**：Phase 7 UI 补全 + Phase 8 后端测试迁移 + Phase 9 日志统一 + Phase 9.5 测试数据目录统一全部完成。
 
 > ⚠️ **敏感性说明**：当前为公共电脑环境，E2E 自动化涉及的测试数据模拟（视频文件、媒体库、播种脚本等）可能产生敏感内容痕迹，暂缓执行，待环境条件合适时再启动。
 
@@ -217,16 +326,23 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 |------|------|
 | Playwright 安装 | `npx playwright install chromium`（仅需 Chromium） |
 | WorkerContext 浏览器模式 | 确认 `?workerPort=xxx` URL 参数传递正常（Phase 6.2 已验证） |
-| Worker CORS | 确认 `AllowAnyOrigin` 中间件仍启用（供 Playwright `localhost:5173` 跨域） |
+| Worker CORS | 确认 `AllowAnyOrigin` 中间件仍启用（供 Playwright `localhost:1420` 跨域） |
 | 启停脚本 | 新建 `tauri/scripts/start-e2e-env.ps1`：启动 Worker → 等待 ready → 启动 Vite dev → 返回端口 |
 
-#### 10.2 测试数据播种
+#### 10.2 测试数据与环境
 
-- 创建 5 个假视频文件（空 mp4，带合规文件名）
-- 通过 Worker API 创建 2 个媒体库，指向假视频目录
-- 触发扫描导入，确认 5 部影片入库
-- 收藏其中 2 部，关联 2 位演员
-- **播种脚本**：`tauri/scripts/seed-e2e-data.ps1`（10 步，幂等可重跑）
+> 详细的测试数据目录结构、假视频文件要求、播种脚本流程见 [`doc/testing/e2e/e2e-test-data-spec.md`](../../../doc/testing/e2e/e2e-test-data-spec.md)。
+> Release 版与测试版数据目录对比、路径推断规则、环境变量机制见 [`doc/data-directory-convention.md`](../../../doc/data-directory-convention.md)。
+
+**核心策略**：E2E 测试数据统一放在 `{repo}/test-data/e2e/`（Phase 9.5 已建立目录结构），假视频文件和基线 SQLite 直接提交到 git，多台电脑 `git pull` 即可用，无需重新播种。
+
+**播种概要**（简化，脚本位于 `tauri/scripts/seed-e2e-data.ps1`）：
+1. （可选）重置 SQLite 为基线版本（`git checkout test-data/e2e/data/`）
+2. 启动 Worker（`JVEDIO_APP_BASE_DIR={repo}/test-data/e2e`）
+3. API 播种（创建 2 个媒体库 → 触发扫描 → 收藏 2 部影片）
+4. 输出 `e2e-env.json` 供 Playwright 读取
+
+> 假视频文件（5 个，约 5 KB）已在 Phase 9.5 提交到 `test-data/e2e/videos/`，无需脚本创建。
 
 #### 10.3 用例执行
 
@@ -246,22 +362,30 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 > 降级用例（播放/打开文件夹/外链）因 Tauri shell API 在浏览器环境不可用，通过手动验证覆盖。
 
+#### 10.4 测试后清理
+
+> 详细清理流程见 `doc/testing/e2e/e2e-test-data-spec.md` §6。
+
+概要：关闭 Playwright → 停止 Vite dev → 停止 Worker → （可选）`git checkout test-data/e2e/data/` 重置 SQLite 到基线。
+
 #### 通过标准
 
 - 44 个可自动化用例全部绿色
 - 4 个降级用例有手动验证记录
-- `log/test/e2e/reports/` 生成可读的 HTML 测试报告
-- 失败截图自动保存到 `log/test/e2e/screenshots/`
+- `{repo}/log/test/e2e/reports/` 生成可读的 HTML 测试报告
+- 失败截图自动保存到 `{repo}/log/test/e2e/screenshots/`
 
 #### 关联文档更新
 
 | 文档 | 更新内容 |
 |------|---------|
-| `doc/testing/e2e/playwright-e2e-test-plan.md` | 更新启停脚本路径、测试产物输出路径 |
+| `doc/data-directory-convention.md` | ✅ 已完成 — Release / 测试 / E2E 数据目录规范 |
+| `doc/testing/e2e/e2e-test-data-spec.md` | ✅ 已完成 — E2E 测试数据规范（目录、假文件、播种、清理） |
+| `doc/testing/e2e/playwright-e2e-test-plan.md` | 更新启停脚本路径、测试产物输出路径、数据播种流程 |
 | `doc/testing/e2e/playwright-e2e-test-cases.md` | 标注实际执行结果（通过/失败/跳过） |
 | `doc/testing/README.md` | 前端 E2E 章节移除"暂缓"标注，更新为实际状态 |
 | `AGENTS.md` | 新增 E2E 测试脚本入口、测试数据播种说明 |
-| `doc/developer.md` | 新增 E2E 环境搭建 / 运行指南 |
+| `doc/developer.md` | 新增 E2E 环境搭建 / 运行指南、数据目录规范链接 |
 | `doc/CHANGELOG.md` | 追加 Phase 10 变更条目 |
 | `plan/active/desktop-ui-shell-refactor/handoff.md` | 更新 Phase 10 完成状态 |
 | `plan/active/desktop-ui-shell-refactor/validation.md` | 新增 Phase 10 验证记录（测试报告摘要） |

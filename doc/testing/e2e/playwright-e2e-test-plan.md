@@ -194,6 +194,8 @@ WorkerContext 改动约 100 行（含环境检测 + 自动发现），Program.cs
 
 ## 10. 文档关联
 
+- 数据目录规范：`doc/data-directory-convention.md`
+- E2E 测试数据规范：`doc/testing/e2e/e2e-test-data-spec.md`
 - 验证矩阵：`plan/active/desktop-ui-shell-refactor/validation.md`
 - 后端测试计划：`doc/testing/backend/test-plan.md`
 - 后端测试清单：`doc/testing/backend/test-current-suite.md`

@@ -15,6 +15,7 @@ dotnet test --configuration Release
 ## 2. Bootstrap API 契约测试
 
 文件：`ContractTests/BootstrapApiTests.cs`
+数据来源：空数据库（`TestBootstrap` 自动创建），无需预配置数据。
 
 ### `GetBootstrap_ReturnsSuccessEnvelope`
 - 目标：验证 `GET /api/bootstrap` 返回成功信封（`success: true`、`data` 存在）
@@ -25,6 +26,7 @@ dotnet test --configuration Release
 ## 3. DTO 序列化测试
 
 文件：`ContractTests/DtoSerializationTests.cs`
+数据来源：测试方法内硬编码 JSON 字符串和 DTO 对象，纯内存操作。
 
 ### `GetSettingsResponse_CanDeserializeFromJson`
 - 目标：验证 `GetSettingsResponse` 能从 JSON 正确反序列化所有 6 组设置
@@ -35,6 +37,7 @@ dotnet test --configuration Release
 ## 4. Libraries API 契约测试
 
 文件：`ContractTests/LibrariesApiTests.cs`
+数据来源：空数据库 + 测试方法内通过 API 创建/删除库，自行管理数据生命周期。
 
 ### `GetLibraries_ReturnsSuccessEnvelope`
 - 目标：验证 `GET /api/libraries` 返回成功信封，`data.libraries` 为数组
@@ -45,6 +48,7 @@ dotnet test --configuration Release
 ## 5. Settings API 契约测试
 
 文件：`ContractTests/SettingsApiTests.cs`
+数据来源：空数据库（Worker 启动时写入默认设置），通过 API 读写验证。
 
 ### `GetSettings_ReturnsAllGroups`
 - 目标：验证 `GET /api/settings` 返回所有 6 组设置（general/playback/metaTube/image/scanImport/library）
@@ -58,6 +62,7 @@ dotnet test --configuration Release
 ## 6. Videos API 契约测试
 
 文件：`ContractTests/VideosApiTests.cs`
+数据来源：空数据库，验证空列表场景下的返回格式。
 
 ### `GetFavorites_ReturnsSuccessEnvelope`
 - 目标：验证 `GET /api/videos/favorites` 返回成功信封
@@ -74,6 +79,7 @@ dotnet test --configuration Release
 ## 7. VID 解析测试
 
 文件：`BusinessLogicTests/VidParsingTests.cs`
+数据来源：`[DataRow]` 注解中的内联字符串，纯函数测试，不碰文件系统和数据库。
 
 通过反射调用 `LibraryScanService.ExtractVideoId` 私有静态方法。
 
@@ -101,6 +107,7 @@ dotnet test --configuration Release
 ## 8. Sidecar 路径测试
 
 文件：`BusinessLogicTests/SidecarPathTests.cs`
+数据来源：硬编码路径字符串（文件不需要真实存在），纯函数测试。
 
 通过反射调用 `LibraryScrapeService` 和 `VideoService` 的私有静态路径方法。
 
@@ -125,6 +132,7 @@ dotnet test --configuration Release
 ## 9. 扫描整理测试
 
 文件：`BusinessLogicTests/ScanOrganizeTests.cs`
+数据来源：`[TestInitialize]` 在系统临时目录创建 GUID 目录，测试方法内用 `File.WriteAllText` 创建假视频文件（几字节文本），`[TestCleanup]` 自动删除。
 
 通过反射调用 `LibraryScanService.TryOrganize` 私有静态方法，操作临时文件系统。
 
@@ -146,6 +154,7 @@ dotnet test --configuration Release
 ## 10. 扫描导入 API 集成测试
 
 文件：`BusinessLogicTests/ScanImportApiTests.cs`
+数据来源：测试方法内在临时目录创建 1024 字节假视频文件，通过 API 创建库并触发扫描，等待异步完成后验证导入结果，最后 API 删除库。
 
 通过 Worker API 端到端测试扫描导入流程。
 
