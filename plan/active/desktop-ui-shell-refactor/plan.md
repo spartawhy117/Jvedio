@@ -191,11 +191,11 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 > Phase 6 覆盖的是 API 数据链路通畅性，不覆盖 UI 交互完整性。
 
-### Phase 7：UI 交互完整性补全（执行中）
+### Phase 7：UI 交互完整性补全（✅ 已完成）
 
 补完 Phase 6 未覆盖的 UI 交互层缺口。以下为经核实的真实待办项（已剔除过期条目）：
 
-#### 7.1 Settings 占位子组补全
+#### 7.1 Settings 占位子组补全 ✅
 
 3 个子组已从 "Coming Soon" 占位升级为真实表单：
 
@@ -211,14 +211,19 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 **前置依赖**：确认 Worker `SettingsController` 是否已暴露 image/scanImport/library 的 API 字段；如果未暴露，需在 Worker + Contracts 同步新增。
 
-#### 7.2 视频多选 / 批量操作
+#### 7.2 视频多选 / 批量操作 ✅
 
-| 项目 | 说明 |
-|------|------|
-| 多选交互 | `VideoCard` 增加选中态，列表页增加全选/反选控制 |
-| 批量操作栏 | 选中 ≥1 时显示批量操作条（删除/移动/收藏/取消收藏） |
-| 批量右键菜单 | `doc/UI/new/dialogs/video-batch-context-menu.*` 已有规格，需实现 |
-| Worker API | 确认批量操作端点是否已有（如 `POST /api/videos/batch-delete`） |
+| 项目 | 状态 | 说明 |
+|------|------|------|
+| 后端 API | ✅ 已完成 | toggle-favorite、delete-video、batch-favorite、batch-delete 四个端点 |
+| Contracts DTO | ✅ 已完成 | ToggleFavoriteResponse、DeleteVideoResponse、BatchOperationRequest/Response |
+| isFavorite 字段 | ✅ 已完成 | VideoListItemDto + VideoDetailDto 均已添加 |
+| 前端 API 客户端 | ✅ 已完成 | client.ts 新增 4 个方法 + types.ts 同步 |
+| 多选交互 | ✅ 已完成 | LibraryPage + FavoritesPage 均接入 selectedIds 状态，VideoCard checkbox 联动 |
+| 批量操作栏 | ✅ 已完成 | 选中 ≥1 时显示批量操作条（收藏/取消收藏/删除 + 全选/取消选择） |
+| 右键菜单扩展 | ✅ 已完成 | 新增 toggleFavorite + deleteVideo 动作（含 danger 样式） |
+| 收藏心形标识 | ✅ 已完成 | VideoCard VID 行前显示 ❤ 图标 |
+| i18n | ✅ 已完成 | zh/en common.json 新增 20 个键 |
 
 #### 已完成项（不再列为待办）
 

@@ -1,5 +1,5 @@
 /**
- * Library Page — Phase 3 full implementation.
+ * Library Page — Phase 3 full implementation + Phase 7.2 multi-select & batch ops.
  *
  * Spec: doc/UI/new/pages/library-page.md
  * - Video card grid from API
@@ -7,6 +7,8 @@
  * - Pagination
  * - Back navigation with state restoration
  * - SSE library.changed auto-refresh
+ * - Multi-select with batch favorite / delete
+ * - Right-click: detail, play, openFolder, toggleFavorite, delete, copyVid
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -15,9 +17,8 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
-import { useApiQuery } from "../hooks/useApiQuery";
+import { useApiQuery, invalidateQueries } from "../hooks/useApiQuery";
 import { useOnLibraryChanged } from "../hooks/useSSESubscription";
-import { invalidateQueries } from "../hooks/useApiQuery";
 import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
@@ -29,15 +30,6 @@ import type { GetLibraryVideosResponse, VideoListItemDto } from "../api/types";
 import "./pages.css";
 
 const PAGE_SIZE = 30;
-
-const SORT_OPTIONS = [
-  { value: "vid_asc", label: "" },
-  { value: "vid_desc", label: "" },
-  { value: "releaseDate_asc", label: "" },
-  { value: "releaseDate_desc", label: "" },
-  { value: "importTime_asc", label: "" },
-  { value: "importTime_desc", label: "" },
-];
 
 export function LibraryPage() {
   const { t } = useTranslation("library");
@@ -58,9 +50,6 @@ export function LibraryPage() {
     { value: "importTime_asc", label: t("page.sortImportAsc") },
     { value: "importTime_desc", label: t("page.sortImportDesc") },
   ], [t]);
-
-  // Suppress unused
-  void SORT_OPTIONS;
 
   // Query state from router
   const keyword = query.keyword ?? "";
@@ -118,8 +107,102 @@ export function LibraryPage() {
   }, [setQuery]);
 
   const handleVideoClick = useCallback((videoId: string) => {
+    // In select mode, clicking toggles selection instead of navigation
+    if (selectedIds.size > 0) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(videoId)) next.delete(videoId);
+        else next.add(videoId);
+        return next;
+      });
+      return;
+    }
     navigate("video-detail", { videoId }, { label: library?.name ?? t("page.title") });
-  }, [navigate, library, t]);
+  }, [navigate, library, t, selectedIds]);
+
+  // ── Multi-select state ────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const handleSelect = useCallback((videoId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(videoId)) next.delete(videoId);
+      else next.add(videoId);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    if (!data) return;
+    setSelectedIds(new Set(data.items.map((v) => v.videoId)));
+  }, [data]);
+
+  const handleCancelSelect = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // ── Single video operations ────────────────────────
+  const handleToggleFavorite = useCallback(async (video: VideoListItemDto) => {
+    const client = getApiClient();
+    if (!client) return;
+    try {
+      const res = await client.toggleFavorite(video.videoId);
+      showToast({
+        message: res.isFavorite ? tc("favoriteSuccess") : tc("unfavoriteSuccess"),
+        type: "success",
+      });
+      invalidateQueries(`libraries:${libraryId}`);
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [tc, libraryId]);
+
+  const handleDeleteVideo = useCallback(async (video: VideoListItemDto) => {
+    if (!confirm(tc("deleteVideoConfirm"))) return;
+    const client = getApiClient();
+    if (!client) return;
+    try {
+      await client.deleteVideo(video.videoId);
+      showToast({ message: tc("deleteSuccess"), type: "success" });
+      invalidateQueries(`libraries:${libraryId}`);
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [tc, libraryId]);
+
+  // ── Batch operations ───────────────────────────────
+  const handleBatchFavorite = useCallback(async (favorite: boolean) => {
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0) return;
+    try {
+      const res = await client.batchFavorite({ videoIds: Array.from(selectedIds) }, favorite);
+      showToast({
+        message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
+        type: res.failedCount > 0 ? "warning" : "success",
+      });
+      setSelectedIds(new Set());
+      invalidateQueries(`libraries:${libraryId}`);
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, tc, libraryId]);
+
+  const handleBatchDelete = useCallback(async () => {
+    if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0) return;
+    try {
+      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) });
+      showToast({
+        message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
+        type: res.failedCount > 0 ? "warning" : "success",
+      });
+      setSelectedIds(new Set());
+      invalidateQueries(`libraries:${libraryId}`);
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, tc, libraryId]);
 
   // ── Context menu ────────────────────────────────
   const [contextMenu, setContextMenu] = useState<{
@@ -173,6 +256,12 @@ export function LibraryPage() {
       disabled: !video.path,
     },
     {
+      key: "toggleFavorite",
+      label: video.isFavorite ? tc("unfavorite") : tc("toggleFavorite"),
+      icon: video.isFavorite ? "💔" : "❤",
+      onClick: () => handleToggleFavorite(video),
+    },
+    {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
       icon: "📎",
@@ -181,7 +270,14 @@ export function LibraryPage() {
         showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
       },
     },
-  ], [navigate, library, t, tc]);
+    {
+      key: "delete",
+      label: tc("deleteVideo"),
+      icon: "🗑",
+      danger: true,
+      onClick: () => handleDeleteVideo(video),
+    },
+  ], [navigate, library, t, tc, handleToggleFavorite, handleDeleteVideo]);
 
   // ── Render ────────────────────────────────────────
 
@@ -209,6 +305,19 @@ export function LibraryPage() {
         disabled={!libraryId}
       />
 
+      {/* Batch action bar */}
+      {selectedIds.size > 0 && (
+        <div className="batch-action-bar">
+          <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
+          <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}>❤ {tc("batchFavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}>💔 {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
+          <div className="toolbar-spacer" />
+          <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
+        </div>
+      )}
+
       {/* Content */}
       {!libraryId ? (
         <ResultState type="empty" icon="❓" message={t("page.noLibrarySelected")} />
@@ -229,6 +338,8 @@ export function LibraryPage() {
             <VideoCard
               key={video.videoId}
               video={video}
+              selected={selectedIds.has(video.videoId)}
+              onSelect={handleSelect}
               onClick={handleVideoClick}
               onContextMenu={handleContextMenu}
               baseUrl={baseUrl}

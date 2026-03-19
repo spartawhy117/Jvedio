@@ -113,6 +113,12 @@
   white-space: nowrap;
 }
 
+.video-card-fav-icon {
+  color: #e05050;
+  margin-right: 4px;
+  font-size: 12px;
+}
+
 .video-card-date {
   font-size: 11px;
   color: var(--color-text-secondary);

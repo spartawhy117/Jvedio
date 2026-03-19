@@ -88,7 +88,10 @@ export function VideoCard({
 
       {/* Text area */}
       <div className="video-card-text">
-        <div className="video-card-vid">{video.vid}</div>
+        <div className="video-card-vid">
+          {video.isFavorite && <span className="video-card-fav-icon" title="Favorite">❤</span>}
+          {video.vid}
+        </div>
         {releaseDate && (
           <div className="video-card-date">{releaseDate}</div>
         )}

@@ -661,6 +661,37 @@
   margin-bottom: 16px;
 }
 
+/* ── Batch action bar ──────────────────────────────── */
+.batch-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  animation: batchBarSlideIn 0.15s ease-out;
+}
+
+@keyframes batchBarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.batch-action-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-right: 4px;
+}
+
 /* ── Page content wide (full width pages) ────────────── */
 .page-content-wide {
   max-width: 100%;

@@ -1,11 +1,13 @@
 /**
- * Favorites Page — Phase 3 full implementation.
+ * Favorites Page — Phase 3 full implementation + Phase 7.2 multi-select & batch ops.
  *
  * Spec: doc/UI/new/pages/favorites-page.md
  * - Favorite video card grid from API
  * - QueryToolbar with search, refresh, sort
  * - Pagination
  * - Click to video detail with backTo state
+ * - Multi-select with batch unfavorite / delete
+ * - Right-click: detail, play, openFolder, unfavorite, delete, copyVid
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -14,7 +16,7 @@ import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
-import { useApiQuery } from "../hooks/useApiQuery";
+import { useApiQuery, invalidateQueries } from "../hooks/useApiQuery";
 import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
@@ -94,8 +96,102 @@ export function FavoritesPage() {
   }, [setQuery]);
 
   const handleVideoClick = useCallback((videoId: string) => {
+    // In select mode, clicking toggles selection instead of navigation
+    if (selectedIds.size > 0) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(videoId)) next.delete(videoId);
+        else next.add(videoId);
+        return next;
+      });
+      return;
+    }
     navigate("video-detail", { videoId }, { label: t("favorites") });
-  }, [navigate, t]);
+  }, [navigate, t, selectedIds]);
+
+  // ── Multi-select state ────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const handleSelect = useCallback((videoId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(videoId)) next.delete(videoId);
+      else next.add(videoId);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    if (!data) return;
+    setSelectedIds(new Set(data.items.map((v) => v.videoId)));
+  }, [data]);
+
+  const handleCancelSelect = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // ── Single video operations ────────────────────────
+  const handleToggleFavorite = useCallback(async (video: VideoListItemDto) => {
+    const client = getApiClient();
+    if (!client) return;
+    try {
+      const res = await client.toggleFavorite(video.videoId);
+      showToast({
+        message: res.isFavorite ? tc("favoriteSuccess") : tc("unfavoriteSuccess"),
+        type: "success",
+      });
+      invalidateQueries("favorites");
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [tc]);
+
+  const handleDeleteVideo = useCallback(async (video: VideoListItemDto) => {
+    if (!confirm(tc("deleteVideoConfirm"))) return;
+    const client = getApiClient();
+    if (!client) return;
+    try {
+      await client.deleteVideo(video.videoId);
+      showToast({ message: tc("deleteSuccess"), type: "success" });
+      invalidateQueries("favorites");
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [tc]);
+
+  // ── Batch operations ───────────────────────────────
+  const handleBatchUnfavorite = useCallback(async () => {
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0) return;
+    try {
+      const res = await client.batchFavorite({ videoIds: Array.from(selectedIds) }, false);
+      showToast({
+        message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
+        type: res.failedCount > 0 ? "warning" : "success",
+      });
+      setSelectedIds(new Set());
+      invalidateQueries("favorites");
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, tc]);
+
+  const handleBatchDelete = useCallback(async () => {
+    if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;
+    const client = getApiClient();
+    if (!client || selectedIds.size === 0) return;
+    try {
+      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) });
+      showToast({
+        message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
+        type: res.failedCount > 0 ? "warning" : "success",
+      });
+      setSelectedIds(new Set());
+      invalidateQueries("favorites");
+    } catch (err) {
+      showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
+    }
+  }, [selectedIds, tc]);
 
   // ── Context menu ────────────────────────────────
   const [contextMenu, setContextMenu] = useState<{
@@ -149,6 +245,12 @@ export function FavoritesPage() {
       disabled: !video.path,
     },
     {
+      key: "unfavorite",
+      label: tc("unfavorite"),
+      icon: "💔",
+      onClick: () => handleToggleFavorite(video),
+    },
+    {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
       icon: "📎",
@@ -157,7 +259,14 @@ export function FavoritesPage() {
         showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
       },
     },
-  ], [navigate, t, tc]);
+    {
+      key: "delete",
+      label: tc("deleteVideo"),
+      icon: "🗑",
+      danger: true,
+      onClick: () => handleDeleteVideo(video),
+    },
+  ], [navigate, t, tc, handleToggleFavorite, handleDeleteVideo]);
 
   // ── Render ────────────────────────────────────────
 
@@ -177,6 +286,18 @@ export function FavoritesPage() {
         onSortChange={handleSortChange}
       />
 
+      {/* Batch action bar */}
+      {selectedIds.size > 0 && (
+        <div className="batch-action-bar">
+          <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
+          <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchUnfavorite}>💔 {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
+          <div className="toolbar-spacer" />
+          <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
+        </div>
+      )}
+
       {favQuery.isLoading && !data ? (
         <ResultState type="loading" />
       ) : favQuery.isError ? (
@@ -189,6 +310,8 @@ export function FavoritesPage() {
             <VideoCard
               key={video.videoId}
               video={video}
+              selected={selectedIds.has(video.videoId)}
+              onSelect={handleSelect}
               onClick={handleVideoClick}
               onContextMenu={handleContextMenu}
               baseUrl={baseUrl}
