@@ -86,6 +86,16 @@ try {
     & git checkout -- "test-data/e2e/data/" 2>$null
     Write-Host "  Reset: test-data/e2e/data/ (SQLite databases)"
 
+    # 清理 cache 目录（不被 git 跟踪，需要显式删除）
+    $cacheDir = Join-Path $e2eRoot "data"
+    Get-ChildItem -Path $cacheDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        $userCacheDir = Join-Path $_.FullName "cache"
+        if (Test-Path $userCacheDir) {
+            Remove-Item $userCacheDir -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  Removed: data/$($_.Name)/cache/ (sidecar + avatar cache)"
+        }
+    }
+
     # 重置假视频文件到扫描前状态
     & git checkout -- "test-data/e2e/videos/" 2>$null
     Write-Host "  Reset: test-data/e2e/videos/ (undo scan organize)"

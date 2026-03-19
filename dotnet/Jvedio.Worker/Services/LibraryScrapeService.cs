@@ -67,7 +67,7 @@ public sealed class LibraryScrapeService
         await client.WarmupAsync(cancellationToken);
 
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
-        var candidates = LoadCandidates(connection, library.LibraryId, request);
+        var candidates = LoadCandidates(connection, library.LibraryId, request, library.Name);
         if (candidates.Count == 0)
         {
             libraryService.RefreshLibraryState(library.LibraryId, "scrape.completed", lastScrapeAtUtc: DateTimeOffset.UtcNow);
@@ -137,7 +137,7 @@ public sealed class LibraryScrapeService
                 PersistScrapeResult(connection, candidate, scrapeResult);
                 if (request.WriteSidecars)
                 {
-                    await WriteSidecarsAsync(candidate.Path, candidate.Vid, scrapeResult, request.DownloadActorAvatars, cancellationToken);
+                    await WriteSidecarsAsync(candidate.Path, candidate.Vid, scrapeResult, request.DownloadActorAvatars, library.Name, cancellationToken);
                     sidecarCount++;
                 }
 
@@ -154,7 +154,7 @@ public sealed class LibraryScrapeService
         return $"抓取完成：成功 {succeededCount}，失败 {failedCount}，写入 sidecar {sidecarCount}。";
     }
 
-    private List<ScrapeCandidate> LoadCandidates(SqliteConnection connection, string libraryId, StartLibraryScrapeRequest request)
+    private List<ScrapeCandidate> LoadCandidates(SqliteConnection connection, string libraryId, StartLibraryScrapeRequest request, string libraryName)
     {
         using var command = connection.CreateCommand();
         command.CommandText =
@@ -201,7 +201,7 @@ public sealed class LibraryScrapeService
                 continue;
             }
 
-            if (string.Equals(request.Mode, "all", StringComparison.OrdinalIgnoreCase) || NeedsScrape(candidate))
+            if (string.Equals(request.Mode, "all", StringComparison.OrdinalIgnoreCase) || NeedsScrape(candidate, libraryName))
             {
                 result.Add(candidate);
             }
@@ -210,17 +210,18 @@ public sealed class LibraryScrapeService
         return result;
     }
 
-    private static bool NeedsScrape(ScrapeCandidate candidate)
+    private bool NeedsScrape(ScrapeCandidate candidate, string libraryName)
     {
         if (string.IsNullOrWhiteSpace(candidate.Title) || string.IsNullOrWhiteSpace(candidate.WebUrl))
         {
             return true;
         }
 
-        var nfoPath = GetMovieNfoPath(candidate.Path, candidate.Vid);
-        var posterPath = GetPosterPath(candidate.Path, candidate.Vid);
-        var thumbPath = GetThumbPath(candidate.Path, candidate.Vid);
-        var fanartPath = GetFanartPath(candidate.Path, candidate.Vid);
+        var sidecarDir = ResolveSidecarDirectory(candidate.Path, candidate.Vid, libraryName);
+        var nfoPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}.nfo");
+        var posterPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}-poster.jpg");
+        var thumbPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}-thumb.jpg");
+        var fanartPath = Path.Combine(sidecarDir, $"{SanitizeFileName(candidate.Vid)}-fanart.jpg");
         return !File.Exists(nfoPath) || !File.Exists(posterPath) || !File.Exists(thumbPath) || !File.Exists(fanartPath);
     }
 
@@ -339,7 +340,7 @@ public sealed class LibraryScrapeService
         return Convert.ToInt64(insertCommand.ExecuteScalar());
     }
 
-    private async Task WriteSidecarsAsync(string videoPath, string localVid, ScrapeResultData scrapeResult, bool downloadActorAvatars, CancellationToken cancellationToken)
+    private async Task WriteSidecarsAsync(string videoPath, string localVid, ScrapeResultData scrapeResult, bool downloadActorAvatars, string libraryName, CancellationToken cancellationToken)
     {
         var directoryPath = Path.GetDirectoryName(videoPath);
         if (string.IsNullOrWhiteSpace(directoryPath))
@@ -350,10 +351,15 @@ public sealed class LibraryScrapeService
         var vid = string.IsNullOrWhiteSpace(localVid)
             ? (string.IsNullOrWhiteSpace(scrapeResult.Vid) ? Path.GetFileNameWithoutExtension(videoPath) : scrapeResult.Vid)
             : localVid;
-        await File.WriteAllTextAsync(GetMovieNfoPath(videoPath, vid), BuildNfoDocument(scrapeResult).ToString(), Encoding.UTF8, cancellationToken);
-        await DownloadFileAsync(scrapeResult.PosterUrl, GetPosterPath(videoPath, vid), scrapeResult.Homepage, cancellationToken);
-        await DownloadFileAsync(scrapeResult.ThumbUrl, GetThumbPath(videoPath, vid), scrapeResult.Homepage, cancellationToken);
-        await DownloadFileAsync(scrapeResult.FanartUrl, GetFanartPath(videoPath, vid), scrapeResult.Homepage, cancellationToken);
+
+        var sidecarDir = ResolveSidecarDirectory(videoPath, vid, libraryName);
+        Directory.CreateDirectory(sidecarDir);
+
+        var sanitizedVid = SanitizeFileName(vid);
+        await File.WriteAllTextAsync(Path.Combine(sidecarDir, $"{sanitizedVid}.nfo"), BuildNfoDocument(scrapeResult).ToString(), Encoding.UTF8, cancellationToken);
+        await DownloadFileAsync(scrapeResult.PosterUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-poster.jpg"), scrapeResult.Homepage, cancellationToken);
+        await DownloadFileAsync(scrapeResult.ThumbUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-thumb.jpg"), scrapeResult.Homepage, cancellationToken);
+        await DownloadFileAsync(scrapeResult.FanartUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-fanart.jpg"), scrapeResult.Homepage, cancellationToken);
 
         if (!downloadActorAvatars)
         {
@@ -446,6 +452,23 @@ public sealed class LibraryScrapeService
     private static string GetFanartPath(string videoPath, string vid)
     {
         return Path.Combine(Path.GetDirectoryName(videoPath) ?? string.Empty, $"{SanitizeFileName(vid)}-fanart.jpg");
+    }
+
+    /// <summary>
+    /// Resolves the sidecar output directory.
+    /// In test environment (JVEDIO_APP_BASE_DIR set): cache/video/{libraryName}/{VID}/
+    /// In production: same directory as the video file.
+    /// </summary>
+    private string ResolveSidecarDirectory(string videoPath, string vid, string libraryName)
+    {
+        if (workerPathResolver.IsTestEnvironment)
+        {
+            var sanitizedLibName = SanitizeFileName(libraryName);
+            var sanitizedVid = SanitizeFileName(vid);
+            return Path.Combine(workerPathResolver.VideoCacheFolder, sanitizedLibName, sanitizedVid);
+        }
+
+        return Path.GetDirectoryName(videoPath) ?? string.Empty;
     }
 
     private static string SanitizeFileName(string value)

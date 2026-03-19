@@ -10,9 +10,11 @@ public sealed class WorkerPathResolver
         SharedAppBaseDirectory = ResolveSharedAppBaseDirectory();
         CurrentUserFolder = ResolveCurrentUserFolder();
         ActorAvatarCacheFolder = Path.Combine(CurrentUserFolder, "cache", "actor-avatar");
+        VideoCacheFolder = Path.Combine(CurrentUserFolder, "cache", "video");
         AppDataSqlitePath = Path.Combine(CurrentUserFolder, "app_datas.sqlite");
         AppConfigSqlitePath = Path.Combine(CurrentUserFolder, "app_configs.sqlite");
         Directory.CreateDirectory(ActorAvatarCacheFolder);
+        IsTestEnvironment = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JVEDIO_APP_BASE_DIR"));
     }
 
     public string ActorAvatarCacheFolder { get; }
@@ -23,7 +25,19 @@ public sealed class WorkerPathResolver
 
     public string CurrentUserFolder { get; }
 
+    /// <summary>
+    /// Whether the worker is running in a test environment (JVEDIO_APP_BASE_DIR is set).
+    /// When true, sidecar files are written to <see cref="VideoCacheFolder"/>/{LibName}/{VID}/ instead of the video directory.
+    /// </summary>
+    public bool IsTestEnvironment { get; }
+
     public string SharedAppBaseDirectory { get; }
+
+    /// <summary>
+    /// Base directory for video sidecar cache: {CurrentUserFolder}/cache/video.
+    /// Used in test environments (E2E) to separate sidecar from video source directories.
+    /// </summary>
+    public string VideoCacheFolder { get; }
 
     private string ResolveCurrentUserFolder()
     {

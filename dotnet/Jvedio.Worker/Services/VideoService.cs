@@ -18,17 +18,20 @@ public sealed class VideoService
     private readonly LibraryService libraryService;
     private readonly ILogger<VideoService> logger;
     private readonly SqliteConnectionFactory sqliteConnectionFactory;
+    private readonly WorkerPathResolver workerPathResolver;
 
     public VideoService(
         ConfigStoreService configStoreService,
         LibraryService libraryService,
         ILogger<VideoService> logger,
-        SqliteConnectionFactory sqliteConnectionFactory)
+        SqliteConnectionFactory sqliteConnectionFactory,
+        WorkerPathResolver workerPathResolver)
     {
         this.configStoreService = configStoreService;
         this.libraryService = libraryService;
         this.logger = logger;
         this.sqliteConnectionFactory = sqliteConnectionFactory;
+        this.workerPathResolver = workerPathResolver;
     }
 
     public GetLibraryVideosResponse GetLibraryVideos(string libraryId, GetLibraryVideosRequest request)
@@ -36,7 +39,7 @@ public sealed class VideoService
         var library = libraryService.GetLibrary(libraryId) ?? throw CreateNotFoundException("library.video-query.not_found", $"Library {libraryId} was not found.");
 
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
-        var videos = LoadLibraryVideos(connection, library.LibraryId);
+        var videos = LoadLibraryVideos(connection, library.LibraryId, library.Name);
         var filtered = ApplyVideoFilters(videos, request.Keyword, request.MissingSidecarOnly);
         var pagedResult = BuildPagedResult(filtered, request.SortBy, request.SortOrder, request.PageIndex, request.PageSize);
 
@@ -131,7 +134,7 @@ public sealed class VideoService
         }
 
         var library = libraryService.GetLibrary(record.Value.LibraryId.ToString());
-        var sidecars = BuildSidecarState(record.Value.Path, record.Value.Vid);
+        var sidecars = BuildSidecarState(record.Value.Path, record.Value.Vid, library?.Name);
         var video = new VideoDetailDto
         {
             Actors = LoadActors(connection, record.Value.DataId),
@@ -217,11 +220,12 @@ public sealed class VideoService
             {
                 // Delete sidecar files first
                 var vid = record.Value.Vid;
-                var dir = Path.GetDirectoryName(record.Value.Path) ?? string.Empty;
                 var prefix = NormalizeSidecarPrefix(record.Value.Path, vid);
+                var library = libraryService.GetLibrary(record.Value.LibraryId.ToString());
+                var sidecarDir = ResolveSidecarDirectory(record.Value.Path, prefix, library?.Name);
                 foreach (var suffix in new[] { ".nfo", "-poster.jpg", "-thumb.jpg", "-fanart.jpg" })
                 {
-                    var sidecarPath = Path.Combine(dir, $"{prefix}{suffix}");
+                    var sidecarPath = Path.Combine(sidecarDir, $"{prefix}{suffix}");
                     if (File.Exists(sidecarPath)) File.Delete(sidecarPath);
                 }
 
@@ -464,7 +468,7 @@ public sealed class VideoService
             : videos.OrderBy(keySelector).ThenBy(video => video.VideoId, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    private List<VideoListItemDto> LoadLibraryVideos(SqliteConnection connection, string libraryId)
+    private List<VideoListItemDto> LoadLibraryVideos(SqliteConnection connection, string libraryId, string? libraryName = null)
     {
         using var command = connection.CreateCommand();
         command.CommandText =
@@ -497,7 +501,7 @@ public sealed class VideoService
             var path = reader.GetString(3);
             var vid = reader.GetString(9);
             var favoriteCount = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11));
-            var sidecars = BuildSidecarState(path, vid);
+            var sidecars = BuildSidecarState(path, vid, libraryName);
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
@@ -549,13 +553,21 @@ public sealed class VideoService
             """;
 
         var result = new List<VideoListItemDto>();
+        var libraryNameCache = new Dictionary<string, string?>();
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
             var dataId = reader.GetInt64(0);
+            var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
             var vid = reader.GetString(10);
-            var sidecars = BuildSidecarState(path, vid);
+            if (!libraryNameCache.TryGetValue(libId, out var libName))
+            {
+                libName = libraryService.GetLibrary(libId)?.Name;
+                libraryNameCache[libId] = libName;
+            }
+
+            var sidecars = BuildSidecarState(path, vid, libName);
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
@@ -565,7 +577,7 @@ public sealed class VideoService
                 HasNfo = sidecars.Nfo.Exists,
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
-                LibraryId = reader.GetInt64(1).ToString(),
+                LibraryId = libId,
                 LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
                 LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
                 Path = path,
@@ -674,6 +686,7 @@ public sealed class VideoService
             """;
 
         var result = new List<VideoListItemDto>();
+        var libraryNameCache = new Dictionary<string, string?>();
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
@@ -689,9 +702,16 @@ public sealed class VideoService
             }
 
             var dataId = reader.GetInt64(0);
+            var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
             var vid = reader.GetString(10);
-            var sidecars = BuildSidecarState(path, vid);
+            if (!libraryNameCache.TryGetValue(libId, out var libName))
+            {
+                libName = libraryService.GetLibrary(libId)?.Name;
+                libraryNameCache[libId] = libName;
+            }
+
+            var sidecars = BuildSidecarState(path, vid, libName);
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
@@ -701,7 +721,7 @@ public sealed class VideoService
                 HasNfo = sidecars.Nfo.Exists,
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
-                LibraryId = reader.GetInt64(1).ToString(),
+                LibraryId = libId,
                 LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
                 LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
                 Path = path,
@@ -899,13 +919,14 @@ public sealed class VideoService
         return configStoreService.ReadBoolean(settings, "UseSystemDefaultFallback", true);
     }
 
-    private static SidecarStateDto BuildSidecarState(string videoPath, string vid)
+    private SidecarStateDto BuildSidecarState(string videoPath, string vid, string? libraryName = null)
     {
         var normalizedVid = NormalizeSidecarPrefix(videoPath, vid);
-        var nfoPath = BuildAssetPath(videoPath, normalizedVid, ".nfo");
-        var posterPath = BuildAssetPath(videoPath, normalizedVid, "-poster.jpg");
-        var thumbPath = BuildAssetPath(videoPath, normalizedVid, "-thumb.jpg");
-        var fanartPath = BuildAssetPath(videoPath, normalizedVid, "-fanart.jpg");
+        var sidecarDir = ResolveSidecarDirectory(videoPath, normalizedVid, libraryName);
+        var nfoPath = Path.Combine(sidecarDir, $"{normalizedVid}.nfo");
+        var posterPath = Path.Combine(sidecarDir, $"{normalizedVid}-poster.jpg");
+        var thumbPath = Path.Combine(sidecarDir, $"{normalizedVid}-thumb.jpg");
+        var fanartPath = Path.Combine(sidecarDir, $"{normalizedVid}-fanart.jpg");
 
         var state = new SidecarStateDto
         {
@@ -938,6 +959,33 @@ public sealed class VideoService
     {
         var directoryPath = Path.GetDirectoryName(videoPath) ?? string.Empty;
         return Path.Combine(directoryPath, $"{prefix}{suffix}");
+    }
+
+    /// <summary>
+    /// Resolves the sidecar directory for a video.
+    /// In test environment (JVEDIO_APP_BASE_DIR set): cache/video/{libraryName}/{vid}/
+    /// In production: same directory as the video file.
+    /// </summary>
+    private string ResolveSidecarDirectory(string videoPath, string normalizedVid, string? libraryName)
+    {
+        if (workerPathResolver.IsTestEnvironment && !string.IsNullOrWhiteSpace(libraryName))
+        {
+            var sanitizedLibName = SanitizeLibraryName(libraryName);
+            return Path.Combine(workerPathResolver.VideoCacheFolder, sanitizedLibName, normalizedVid);
+        }
+
+        return Path.GetDirectoryName(videoPath) ?? string.Empty;
+    }
+
+    private static string SanitizeLibraryName(string value)
+    {
+        var result = value.Trim();
+        foreach (var item in Path.GetInvalidFileNameChars())
+        {
+            result = result.Replace(item, '_');
+        }
+
+        return result;
     }
 
     private static string NormalizeSidecarPrefix(string videoPath, string vid)

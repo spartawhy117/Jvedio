@@ -341,14 +341,22 @@ if (-not $SkipScrape -and $scrapeableVids.Count -gt 0) {
                     Write-Host "  ⚠️ Failed to query actors: $_" -ForegroundColor DarkYellow
                 }
 
-                # 验证 sidecar 文件
+                # 验证 sidecar 文件（E2E 模式下写入 cache/video/{LibName}/{VID}/）
                 foreach ($vid in $scrapeableVids) {
-                    $nfoPath = Get-ChildItem -Path (Join-Path $e2eRoot "videos\lib-a") -Recurse -Filter "$vid.nfo" -ErrorAction SilentlyContinue
-                    if ($nfoPath) {
-                        Write-Host "  ✅ Sidecar: $($nfoPath.Name)" -ForegroundColor Green
+                    $sidecarDir = Join-Path $e2eRoot "data\$env:USERNAME\cache\video\E2E-Lib-A\$vid"
+                    $nfoPath = Join-Path $sidecarDir "$vid.nfo"
+                    if (Test-Path $nfoPath) {
+                        Write-Host "  ✅ Sidecar: $vid.nfo (cache/video/E2E-Lib-A/$vid/)" -ForegroundColor Green
                     }
                     else {
-                        Write-Host "  ⚠️ Sidecar not found: $vid.nfo" -ForegroundColor DarkYellow
+                        # Fallback: check legacy path (video directory) in case Worker hasn't been updated
+                        $legacyNfo = Get-ChildItem -Path (Join-Path $e2eRoot "videos\lib-a") -Recurse -Filter "$vid.nfo" -ErrorAction SilentlyContinue
+                        if ($legacyNfo) {
+                            Write-Host "  ⚠️ Sidecar found at legacy path: $($legacyNfo.FullName)" -ForegroundColor DarkYellow
+                        }
+                        else {
+                            Write-Host "  ⚠️ Sidecar not found: $vid.nfo" -ForegroundColor DarkYellow
+                        }
                     }
                 }
 
