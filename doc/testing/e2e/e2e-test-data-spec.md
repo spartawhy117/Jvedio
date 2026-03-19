@@ -6,9 +6,9 @@
 
 关联文档：
 
-- [doc/data-directory-convention.md](/D:/study/Proj/Jvedio/doc/data-directory-convention.md)
-- [doc/testing/backend/test-targets.md](/D:/study/Proj/Jvedio/doc/testing/backend/test-targets.md)
-- [test-data/config/README.md](/D:/study/Proj/Jvedio/test-data/config/README.md)
+- [doc/data-directory-convention.md](doc/data-directory-convention.md)
+- [doc/testing/backend/test-targets.md](doc/testing/backend/test-targets.md)
+- [test-data/config/README.md](test-data/config/README.md)
 
 ## 2. 目录结构
 
@@ -39,7 +39,7 @@ E2E 数据根目录固定为 `{repo}/test-data/e2e/`。运行 `seed-e2e-data.ps1
 
 ## 3. 当前默认测试样本
 
-当前仓库默认配置来自 [test-env.json](/D:/study/Proj/Jvedio/test-data/config/test-env.json)：
+当前仓库默认配置来自 [test-env.json](test-data/config/test-env.json)：
 
 ```json
 {

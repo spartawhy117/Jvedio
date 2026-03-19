@@ -22,7 +22,7 @@ dotnet test --configuration Release
 
 #### 第一步：检查默认配置
 
-默认配置文件 [test-env.json](/D:/study/Proj/Jvedio/test-data/config/test-env.json) 已在仓库中提供：
+默认配置文件 [test-env.json](test-data/config/test-env.json) 已在仓库中提供：
 
 ```json
 {
