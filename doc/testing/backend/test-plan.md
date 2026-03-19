@@ -69,7 +69,7 @@ Jvedio.Worker.Tests/
 `TestBootstrap.cs` 使用 `[AssemblyInitialize]` 在所有测试运行前：
 1. 创建临时数据目录
 2. 放置空 SQLite 数据库文件
-3. 设置 `JVEDIO_APP_BASE_DIR` 和 `JVEDIO_LOG_DIR` 环境变量
+3. 设置 `JVEDIO_APP_BASE_DIR` 和 `JVEDIO_LOG_DIR` 环境变量（`JVEDIO_LOG_DIR` 指向 `{tempDir}/log/test/worker-tests`，Worker 自动追加 `runtime/` 子目录）
 4. 创建 `WebApplicationFactory<Program>` 和 `HttpClient`
 
 `[AssemblyCleanup]` 在所有测试运行后：

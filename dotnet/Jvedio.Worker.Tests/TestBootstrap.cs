@@ -32,7 +32,7 @@ public class TestBootstrap
         File.WriteAllBytes(Path.Combine(userDir, "app_datas.sqlite"), []);
 
         Environment.SetEnvironmentVariable("JVEDIO_APP_BASE_DIR", _tempDir);
-        Environment.SetEnvironmentVariable("JVEDIO_LOG_DIR", Path.Combine(_tempDir, "log"));
+        Environment.SetEnvironmentVariable("JVEDIO_LOG_DIR", Path.Combine(_tempDir, "log", "test", "worker-tests"));
 
         _factory = new WebApplicationFactory<Program>();
         _client = _factory.CreateClient();

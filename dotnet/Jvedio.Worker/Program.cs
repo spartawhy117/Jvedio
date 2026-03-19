@@ -89,9 +89,10 @@ finally
 static string ResolveLogDirectory()
 {
     // Environment variable override (highest priority)
+    // If JVEDIO_LOG_DIR is set, append "runtime" sub-folder automatically
     var envLogDir = Environment.GetEnvironmentVariable("JVEDIO_LOG_DIR");
     if (!string.IsNullOrWhiteSpace(envLogDir))
-        return envLogDir;
+        return Path.Combine(envLogDir, "runtime");
 
     // Dev mode: walk up from AppContext.BaseDirectory to locate repo root
     // Worker exe lives at: {repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/
@@ -108,12 +109,12 @@ static string ResolveLogDirectory()
         if (Directory.Exists(Path.Combine(candidate, "dotnet")) &&
             Directory.Exists(Path.Combine(candidate, "tauri")))
         {
-            return Path.Combine(candidate, "log");
+            return Path.Combine(candidate, "log", "runtime");
         }
     }
 
     // Fallback: next to exe
-    return Path.Combine(baseDir, "log");
+    return Path.Combine(baseDir, "log", "runtime");
 }
 
 // ── Expose Program class for WebApplicationFactory<Program> in tests ──

@@ -55,10 +55,10 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 
 ## 测试日志与输出
 测试日志：
-- WebApplicationFactory 内置日志（临时目录，测试后自动清理）
+- WebApplicationFactory 内置日志（临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`，测试后自动清理）
 
 当前测试规模：
-- 13 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4）
+- 44 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + VidParsing 17 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2 + UrlParamBypassed 1）
 - 全部通过
 
 ## 当前关键目录规则
@@ -74,8 +74,16 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - `data/<user>/cache/video/`
 - `data/<user>/cache/actor-avatar/`
 
+统一日志目录：
+- `log/runtime/` — Worker + Shell 运行日志
+- `log/test/` — 测试日志与输出
+- `log/test/worker-tests/` — 后端测试工程（临时目录，自动清理）
+- `log/test/e2e/` — Playwright 产物（Phase 10 使用）
+- `log/dev/` — 开发流程日志（可选）
+- 详见 `doc/logging-convention.md`
+
 测试输出：
-- `data/<user>/log/test/<VID>/`
+- `data/<user>/log/test/<VID>/`（WPF Legacy 调试输出）
 
 扫描整理：
 - 平铺影片会自动整理到独立目录

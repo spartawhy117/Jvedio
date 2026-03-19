@@ -354,9 +354,9 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ---
 
-### Phase 8.5：`dotnet/` → `dotnet/` 目录更名
+### Phase 8.5：`Jvedio-WPF/` → `dotnet/` 目录更名 ✅
 
-**动机**：`dotnet` 只反映历史 WPF 技术栈，但目录下实际内容是 Worker（ASP.NET Core）+ Contracts（DTO 共享层）+ Worker.Tests + WPF Launcher，与 WPF 强绑定的命名已不准确。更名为 `dotnet/` 后与 `tauri/` 形成清晰对称（前端壳 vs 后端服务），简洁、跨平台友好。
+**动机**：`Jvedio-WPF` 只反映历史 WPF 技术栈，但目录下实际内容是 Worker（ASP.NET Core）+ Contracts（DTO 共享层）+ Worker.Tests + WPF Launcher，与 WPF 强绑定的命名已不准确。更名为 `dotnet/` 后与 `tauri/` 形成清晰对称（前端壳 vs 后端服务），简洁、跨平台友好。
 
 #### 影响范围（已排查）
 
@@ -423,9 +423,11 @@ git mv dotnet dotnet
 
 ---
 
-### Phase 9：日志目录统一
+### Phase 9：日志目录统一 ✅
 
-**执行前提**：Phase 8 + Phase 8.5（目录更名）完成后，先重新收集整理当前所有组件的日志输出实际路径，再确定最终目录结构和具体改动项。注意：以下路径引用已假设 `dotnet/` 已更名为 `dotnet/`。
+**执行前提**：Phase 8 + Phase 8.5（目录更名）完成后，先重新收集整理当前所有组件的日志输出实际路径，再确定最终目录结构和具体改动项。注意：以下路径引用已假设 `Jvedio-WPF/` 已更名为 `dotnet/`。
+
+> **已完成**：Worker 和 Shell 运行日志已统一写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，`JVEDIO_LOG_DIR` 自动追加 `runtime/` 子目录，`doc/logging-convention.md` 已重写为分层结构。
 
 #### 启动时收集清单
 

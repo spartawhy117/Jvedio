@@ -6,20 +6,20 @@ use chrono::Local;
 
 /// Resolve the unified log directory.
 ///
-/// Dev:  `{repo}/log/`  (CARGO_MANIFEST_DIR → src-tauri → tauri → repo)
-/// Prod: `{exe-dir}/log/`
+/// Dev:  `{repo}/log/runtime/`  (CARGO_MANIFEST_DIR → src-tauri → tauri → repo)
+/// Prod: `{exe-dir}/log/runtime/`
 fn resolve_log_dir() -> PathBuf {
-    // Environment variable override
+    // Environment variable override — append "runtime" sub-folder
     if let Ok(dir) = std::env::var("JVEDIO_LOG_DIR") {
         if !dir.is_empty() {
-            return PathBuf::from(dir);
+            return PathBuf::from(dir).join("runtime");
         }
     }
 
     // Dev mode: CARGO_MANIFEST_DIR is set at compile time
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     if let Some(repo_root) = manifest_dir.parent().and_then(|p| p.parent()) {
-        let candidate = repo_root.join("log");
+        let candidate = repo_root.join("log").join("runtime");
         // Verify this looks like the repo root
         if repo_root.join("dotnet").exists() || repo_root.join("tauri").exists() {
             return candidate;
@@ -31,7 +31,7 @@ fn resolve_log_dir() -> PathBuf {
         .ok()
         .and_then(|p| p.parent().map(|pp| pp.to_path_buf()))
         .unwrap_or_else(|| PathBuf::from("."));
-    exe_dir.join("log")
+    exe_dir.join("log").join("runtime")
 }
 
 /// Write a line to the shell log file.

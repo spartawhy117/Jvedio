@@ -51,6 +51,23 @@
 | 8.8 删除旧测试工程 | ✅ | `dotnet/Jvedio.Test/` 已物理删除 |
 | 8.9 关联文档更新 | ✅ | AGENTS.md + testing/README + test-plan + test-targets + test-current-suite + developer.md + CHANGELOG |
 
+## Phase 8.5 回顾（已完成）
+
+| 子项 | 状态 | 概要 |
+|------|------|------|
+| 目录更名 | ✅ | `Jvedio-WPF/` → `dotnet/`，`git mv` + 4 个源码文件 + 29 个文档 171 处替换 |
+
+## Phase 9 回顾（已完成）
+
+| 子项 | 状态 | 概要 |
+|------|------|------|
+| 日志分层 | ✅ | `log/` 从平铺改为 `runtime/` + `test/` + `dev/` 分层结构 |
+| Worker 日志 | ✅ | `ResolveLogDirectory()` → `log/runtime/`，`JVEDIO_LOG_DIR` 自动追加 `runtime/` |
+| Shell 日志 | ✅ | `resolve_log_dir()` → `log/runtime/`，同样自动追加 |
+| 测试日志 | ✅ | `TestBootstrap.cs` 指向 `log/test/worker-tests/` |
+| 日志规范 | ✅ | `doc/logging-convention.md` 重写为分层结构 |
+| 关联文档 | ✅ | AGENTS.md + testing/README + handoff.md + .gitignore + CHANGELOG |
+
 ## 当前真实状态（Phase 6 起点）
 
 ### 已完成
@@ -102,12 +119,12 @@ npm run tauri dev
 
 ### 6.0 统一日志目录
 
-- [x] Worker 添加 Serilog 文件日志 → `log/worker-{date}.log`
-- [x] Tauri Shell 添加 `shell_log.rs` 文件日志 → `log/shell-{date}.log`
+- [x] Worker 添加 Serilog 文件日志 → `log/runtime/worker-{date}.log`
+- [x] Tauri Shell 添加 `shell_log.rs` 文件日志 → `log/runtime/shell-{date}.log`
 - [x] 覆盖模式：Shell 每次启动截断当日日志；Worker Serilog 按天滚动
 - [x] 10 天自动清理（Worker `retainedFileCountLimit`、Shell `clean_old_logs`）
-- [x] `JVEDIO_LOG_DIR` 环境变量支持路径覆盖
-- [x] `.gitignore` 添加 `!/log/` + `!/log/.gitkeep` 例外
+- [x] `JVEDIO_LOG_DIR` 环境变量支持路径覆盖（自动追加 `runtime/` 子目录）
+- [x] `.gitignore` 添加 `!/log/` + 子目录例外
 - [x] 日志规范文档：`doc/logging-convention.md`
 
 ### 6.1 编译基础设施

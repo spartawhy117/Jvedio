@@ -357,3 +357,6 @@ _tauri-jobid.txt
 # Unified log directory — keep directory structure, ignore actual log files
 !/log/
 !/log/.gitkeep
+!/log/**/
+!/log/**/.gitkeep
+!/log/test/test-output.txt

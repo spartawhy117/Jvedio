@@ -13,7 +13,8 @@
   - 契约测试（BootstrapApi、LibrariesApi、SettingsApi、VideosApi）
   - DTO 序列化测试
 - **执行方式**：`dotnet test` 或 PowerShell 脚本（双击运行或 `-NoPause`）
-- **当前规模**：13 个测试用例（全部通过）
+- **当前规模**：44 个测试用例（全部通过）
+- **日志输出**：临时目录（`{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`），测试后自动清理
 
 > ℹ️ **旧测试工程**：`dotnet/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
 

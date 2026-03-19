@@ -6,6 +6,8 @@
 ## [未发布]
 
 ### 已变更
+- 完成 Phase 9 日志目录统一：`log/` 从平铺结构改为 `runtime/` + `test/` + `dev/` 分层子目录。Worker 和 Shell 运行日志写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，E2E 产物预留 `log/test/e2e/`。`JVEDIO_LOG_DIR` 环境变量覆盖功能自动追加 `runtime/` 子目录。`doc/logging-convention.md` 重写为分层结构。
+- 完成 Phase 8.5 目录更名：`Jvedio-WPF/` → `dotnet/`，与 `tauri/` 形成前后端对称命名。修改 4 个源码文件（Program.cs、worker.rs、shell_log.rs、prepare-worker.ps1），批量替换 29 个文档文件 171 处引用，全局零残留。
 - 完成 Phase 8 后端测试工程迁移：新建 `Jvedio.Worker.Tests`（.NET 8 SDK-style / MSTest 3.x / `WebApplicationFactory<Program>`），不依赖 WPF 主程序，使用 `dotnet test` 独立编译运行。
 - 新增 5 个 Worker API 契约测试文件（BootstrapApiTests、DtoSerializationTests、LibrariesApiTests、SettingsApiTests、VideosApiTests），共 13 个测试用例覆盖 Bootstrap/Libraries/Settings/Videos/DTO 五个维度。
 - 新增 3 个 PowerShell 测试脚本（`run-all-tests.ps1`、`run-unit-tests.ps1`、`run-integration-tests.ps1`），支持双击运行和 `-NoPause` 参数。
