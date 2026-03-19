@@ -367,6 +367,9 @@ _tauri-jobid.txt
 !/test-data/e2e/**
 !/test-data/scripts/
 !/test-data/scripts/**
+!/test-data/config/
+!/test-data/config/**
+test-data/config/test-env.local.json
 test-data/worker/
 test-data/**/cache/
 test-data/e2e/e2e-env.json

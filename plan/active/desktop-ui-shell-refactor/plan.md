@@ -333,11 +333,12 @@ test-data/e2e/
 
 ##### 执行内容
 
-- [ ] 新建 `test-data/config/test-env.json`（方案 B 平铺结构）
-- [ ] 新建 `test-data/config/README.md`（简要说明配置项含义和修改方式）
-- [ ] 更新 `plan.md` / `validation.md` / `playwright-e2e-test-cases.md` 中所有硬编码的 `metatube-server.hf.space` → 引用配置文件
-- [ ] 更新 `seed-e2e-data.ps1` Step 2 从 `seedVideos` 读取文件列表（不再硬编码）
-- [ ] 将 `test-env.json` 加入 `.gitignore` 的排除说明（配置文件本身应提交，但含个人地址的副本可用 `.local` 后缀覆盖）
+- [x] 新建 `test-data/config/test-env.json`（方案 B 平铺结构）
+- [x] 新建 `test-data/config/README.md`（简要说明配置项含义和修改方式）
+- [x] 更新 `plan.md` / `validation.md` / `playwright-e2e-test-cases.md` 中所有硬编码的 `metatube-server.hf.space` → 引用配置文件
+- [x] 更新 `seed-e2e-data.ps1` Step 2 从 `seedVideos` 读取文件列表（不再硬编码）→ 在 9.6.1 执行
+- [x] 将 `test-env.local.json` 加入 `.gitignore`（配置文件本身已提交，`.local.json` 不提交）
+- [x] 新建 `test-data/config/test-env.local.json.example`（模板文件）
 
 ##### .local 覆盖机制（可选）
 

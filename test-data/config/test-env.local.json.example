@@ -1,0 +1,6 @@
+{
+  "_comment": "复制本文件为 test-env.local.json 并填入你的自部署地址。.local.json 不会提交到仓库。",
+  "metaTube": {
+    "serverUrl": "https://your-self-hosted-metatube.example.com"
+  }
+}

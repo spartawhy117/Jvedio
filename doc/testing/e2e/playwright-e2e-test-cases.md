@@ -644,7 +644,7 @@ dotnet/Jvedio.Test/config/scan/input/
 
 复用现有 Test 项目资产：
 - **VID 列表**：`JUR-293-C`、`SNOS-037`（来自 `config/meta-tube/meta-tube-test-config.json`，已验证 MetaTube 有数据）
-- **MetaTube 服务地址**：`https://metatube-server.hf.space`（两个 config JSON 共用）
+- **MetaTube 服务地址**：从 `test-data/config/test-env.json` 读取（默认 `https://metatube-server.hf.space`，可通过 `.local.json` 覆盖）
 
 ### 数据播种流程
 

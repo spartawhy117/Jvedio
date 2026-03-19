@@ -166,7 +166,9 @@
 
 ---
 
-## Phase 7 — E2E 测试数据播种与 Playwright 自动化
+## Phase 7 — E2E 测试数据播种与 Playwright 自动化（早期规划，部分已重新分配）
+
+> ⚠️ **注意**：本 Phase 7 是早期规划文档。其中 7.1 的"播种脚本基础版"已在 Phase 9.5 中实现为 `test-data/scripts/seed-e2e-data.ps1`（仅扫描，不含抓取）。**MetaTube 抓取步骤 + Actor 数据验证 + 相关测试覆盖**已正式分配到 `plan.md` 的 **Phase 9.6** 章节执行。7.3 Playwright 自动化对应 Phase 10。
 
 ### 概述
 
@@ -189,7 +191,7 @@ dotnet/Jvedio.Test/config/scan/input/
 | 资产 | 来源 | 复用方式 |
 |------|------|---------|
 | 测试 VID | `meta-tube-test-config.json` 的 `cases` | `JUR-293-C`、`SNOS-037` 已验证 MetaTube 有数据 |
-| MetaTube 服务地址 | 两个 config JSON | `https://metatube-server.hf.space` |
+| MetaTube 服务地址 | `test-data/config/test-env.json` | 默认 `https://metatube-server.hf.space`，可通过 `.local.json` 覆盖 |
 | 已缓存元数据 | `config/meta-tube/output/` | 确认抓取可达性的参考，不直接导入 Worker |
 
 #### 假视频文件规划（待创建）
