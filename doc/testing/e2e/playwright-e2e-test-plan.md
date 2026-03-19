@@ -1,204 +1,178 @@
-# Playwright 端到端自动化测试方案
+# Playwright MCP 前端验收方案
 
 ## 1. 文档目的
 
-本文件定义基于 Playwright MCP 的前端 UI 自动化测试方案、执行流程和已知限制。
+本文档定义 `desktop-ui-shell-refactor` Phase 10 的前端验收执行方式。
 
-适用场景：
-- Phase 6 端到端验证（7 张流程图对应的页面流转）
-- 后续 UI 回归测试
-- CI/CD 集成（预留）
+当前口径已经切换为：
 
-## 2. 核心问题与解决方案
+- 后端数据准备与接口校验：复用 `test-data/scripts/seed-e2e-data.ps1` + `test-data/scripts/verify-backend-apis.ps1`
+- 前端页面流转与交互验收：使用 Playwright MCP 在浏览器模式下执行
+- 桌面外部能力：保留人工降级记录
 
-### 2.1 问题
+本文件不再沿用旧的“公共电脑环境暂缓执行”假设。
 
-Jvedio 前端运行在 Tauri 窗口中，通过 `@tauri-apps/api` 的 `invoke` / `listen` 与 Rust 壳通信，获取 Worker 的 HTTP 端口。
-Playwright 浏览器中没有 Tauri IPC bridge，导致前端停在 `WorkerStatusOverlay`（"正在启动引擎…"），无法进入主界面。
+## 2. 正式输入
 
-### 2.2 方案：WorkerContext 浏览器模式检测
+Phase 10 的前端验收只允许以下文档作为正式输入：
 
-在 `WorkerContext.tsx` 中检测 `window.__TAURI_INTERNALS__` 是否存在：
+- UI 流程与页面规格：`doc/UI/new/`
+- 当前 feature 基线：`plan/active/desktop-ui-shell-refactor/plan.md`
+- 当前 feature 验证记录：`plan/active/desktop-ui-shell-refactor/validation.md`
+- 后端真实数据链路：`plan/archive/scrape-fail-graceful/plan.md`
+- E2E 数据规范：`doc/testing/e2e/e2e-test-data-spec.md`
 
-| 环境 | `window.__TAURI_INTERNALS__` | Worker 连接方式 |
-|------|-------------------|----------------|
-| Tauri 窗口 | ✅ 存在 | 动态 `import("@tauri-apps/api/core")` → `invoke("get_worker_base_url")` + `listen("worker-ready")` |
-| 浏览器（Playwright / 开发调试） | ❌ 不存在 | URL 参数 `?workerPort=53706` 或轮询 `http://127.0.0.1:{port}/api/app/bootstrap` |
+## 3. 执行边界
 
-**改动范围**：`tauri/src/contexts/WorkerContext.tsx` + `dotnet/Jvedio.Worker/Program.cs`（CORS）。
+### 3.1 后端验收边界
 
-**额外收益**：开发时可直接用浏览器调试前端，不必每次等 Tauri 编译。
+后端验收是 Phase 10 的前置基线，不是本阶段的主体：
 
-### 2.3 CORS 跨域支持
+1. 运行 `test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
+2. 运行 `test-data/scripts/verify-backend-apis.ps1 -NoPause`
+3. 确认结果维持 `36 PASS / 2 SKIP / 0 FAIL`
+4. 复用播种后写出的 `test-data/e2e/e2e-env.json`
 
-浏览器从 `localhost:1420`（Vite dev server）访问 `127.0.0.1:{port}`（Worker API）会被同源策略阻止。
-解决方案：在 Worker 的 `Program.cs` 中添加 CORS 中间件。
+### 3.2 前端验收边界
 
-```csharp
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-// ...
-app.UseCors(); // 在 UseMiddleware<ApiExceptionMiddleware>() 之前
-```
+前端验收只关心两类问题：
 
-**注意**：当前 CORS 配置为 `AllowAnyOrigin`，适用于开发环境。生产环境（Tauri 窗口）不经过浏览器同源策略，不受影响。
+- 页面是否按 `doc/UI/new/` 的正式规格完成流转、返回和动作收口
+- 复用真实播种数据后，失败样本与成功样本在 UI 上是否被正确表达
 
-### 2.3 浏览器模式的 Worker URL 获取策略
+本阶段不把“端点是否存在”“数据库是否写入成功”重新算作前端通过标准。
 
-优先级：
-1. **URL 参数**：`?workerPort=53706` → `http://127.0.0.1:53706`
-2. **日志文件解析**：启动脚本从 `temp/tauri-output.log` 中提取 `JVEDIO_WORKER_READY {url}`
-3. **Playwright 注入**：通过 `browser_evaluate` 注入 `window.__WORKER_BASE_URL__`
+### 3.3 自动化与人工降级边界
 
-自动化流程中，通过日志文件提取端口，然后使用 URL 参数方式传入。
+浏览器模式可自动验收：
 
-## 3. 自动化执行流程
+- 路由切换
+- 列表、搜索、排序、分页
+- 表单输入与弹层开关
+- SSE 驱动后的页面刷新结果
+- 卡片与详情页显示
 
-### 3.1 启动流程
+浏览器模式只能人工降级记录：
 
-```
-1. 执行 temp/start-tauri-dev.ps1 -Timeout 120
-   → 后台启动 `npm run tauri dev`
-   → 等待 stdout 输出 "JVEDIO_WORKER_READY http://127.0.0.1:{port}"
-   → 写入 temp/tauri-pid.txt + temp/tauri-output.log
+- 播放器真实启动
+- 打开系统文件夹
+- 打开外部来源页
 
-2. 从 temp/tauri-output.log 中提取 Worker URL
-   → 正则匹配 "JVEDIO_WORKER_READY (http://\S+)"
-   → 得到端口号（如 53706）
+## 4. 环境要求
 
-3. Playwright 浏览器打开（带 workerPort 参数）
-   → browser_navigate("http://localhost:1420?workerPort={port}")
-   → WorkerContext 检测到非 Tauri 环境，读取 URL 参数
-   → 直连 Worker HTTP API → 绕过 Tauri IPC
-   → WorkerStatusOverlay 消失 → 主界面渲染
-```
-
-### 3.2 测试执行
-
-```
-4. browser_snapshot → 获取无障碍树
-5. 根据 ref 执行操作：
-   - browser_click(ref="xxx") — 点击按钮/链接
-   - browser_type(ref="xxx", text="...") — 输入文字
-   - browser_fill_form — 批量填表单
-   - browser_select_option — 下拉选择
-   - browser_hover — 悬停
-6. 每次操作后 browser_snapshot 重新获取元素树
-7. 断言：检查快照中是否出现预期元素/文字
-```
-
-### 3.3 停止流程
-
-```
-8. browser_close → 关闭 Playwright 浏览器
-9. 执行 temp/stop-tauri-dev.ps1
-   → taskkill /T /F 杀进程树
-   → 清理 temp/ 下临时文件
-```
-
-## 4. Playwright MCP 交互方式
-
-Playwright MCP 使用**无障碍树 + ref 引用**模式，不使用像素坐标：
-
-### 4.1 snapshot → ref → action 三步法
-
-```
-browser_snapshot
-  → 返回: button "设置" [ref=s1e3], link "库管理" [ref=s1e5], ...
-browser_click(ref="s1e3")
-  → 点击"设置"按钮
-browser_snapshot
-  → 获取新页面的元素树
-```
-
-### 4.2 常用操作 API
-
-| 操作 | 工具 | 关键参数 |
-|------|------|----------|
-| 点击 | `browser_click` | `ref` |
-| 输入 | `browser_type` | `ref`, `text` |
-| 悬停 | `browser_hover` | `ref` |
-| 填表 | `browser_fill_form` | `fields[]` (name, type, ref, value) |
-| 下拉 | `browser_select_option` | `ref`, value |
-| 等待 | `browser_wait_for` | `text`, `state` ("attached"/"detached") |
-| 截图 | `browser_take_screenshot` | — |
-| JS 注入 | `browser_evaluate` | `expression` |
-
-### 4.3 优势
-
-- 不依赖像素坐标，窗口大小变化不影响
-- 语义化操作，可读性强
-- 天然支持无障碍
-
-## 5. 测试矩阵
-
-对应 `validation.md` 中 Phase 6.3 的 7 张流程图：
-
-| 流程 | 验证项数 | 自动化覆盖度 |
-|------|---------|-------------|
-| main-shell-navigation-flow | 8 | 全部可自动化 |
-| library-management-flow | 7 | 全部可自动化 |
-| library-workbench-flow | 8 | 全部可自动化 |
-| favorites-flow | 5 | 全部可自动化 |
-| actors-flow | 6 | 全部可自动化 |
-| video-detail-playback-flow | 5 | 4/5（播放按钮需 Tauri shell API） |
-| settings-flow | 8 | 7/8（主题切换需额外验证暗色 CSS） |
-
-## 6. 临时脚本与文件
-
-### 6.1 文件清单
-
-| 文件 | 用途 | 位置 |
-|------|------|------|
-| `start-tauri-dev.ps1` | 后台启动 tauri dev + 等待 Worker ready | `temp/` |
-| `stop-tauri-dev.ps1` | 杀进程树 + 清理 | `temp/` |
-| `tauri-pid.txt` | 主进程 PID（运行时生成） | `temp/` |
-| `tauri-output.log` | stdout/stderr 输出（运行时生成） | `temp/` |
-
-### 6.2 目录规则
-
-- `temp/` 已加入 `.gitignore`，不进入版本控制
-- 项目完成后统一删除 `temp/` 目录
-
-## 7. 已知限制
-
-| 限制 | 影响 | 应对 |
-|------|------|------|
-| Tauri shell API 不可用 | "打开文件夹"、"用播放器打开" 无法测试 | 验证 API 调用即可，跳过系统动作 |
-| Worker 动态端口 | 每次启动端口不同 | 从日志文件自动提取 |
-| SSE 断开日志噪音 | `OperationCanceledException` | 不影响测试，后续修复 |
-| favicon.ico 404 | 控制台无害警告 | 忽略 |
-
-## 8. 代码改动清单
-
-| 文件 | 改动 |
+| 项目 | 要求 |
 |------|------|
-| `tauri/src/contexts/WorkerContext.tsx` | 检测 `window.__TAURI_INTERNALS__`，非 Tauri 时从 URL 参数获取 workerPort 直连；Tauri API 改为动态 `import()` 避免浏览器加载报错 |
-| `dotnet/Jvedio.Worker/Program.cs` | 添加 `AddCors` + `UseCors` 中间件，解决浏览器跨域访问 Worker API |
+| .NET | `.NET 8 SDK` 可用 |
+| Node | 可运行 `npm` / `vite` |
+| Rust | 可构建 Tauri 壳层（用于 Release 构建与必要排查） |
+| 浏览器模式 | `WorkerContext` 支持 `?workerPort=` / `?workerUrl=` |
+| 日志目录 | `log/test/e2e/` 可写 |
 
-WorkerContext 改动约 100 行（含环境检测 + 自动发现），Program.cs 改动约 10 行。均不影响 Tauri 窗口中的正常运行。
+如果当前机器缺少上述依赖，先补安装，再进入正式验收。
 
-## 9. 已知问题
+## 5. 数据基线
 
-| 问题 | 影响 | 状态 |
-|------|------|------|
-| SettingsPage `useApiQuery` 无限重渲染 | 点击"设置"后 `Maximum update depth exceeded`，疯狂轮询 `/api/settings` | 🟡 已有 bug，非本次引入，不阻碍自动化流程 |
-| Worker SSE 断开时 `OperationCanceledException` | 浏览器关闭时 Worker 日志记录无害 error | 🟡 不影响功能 |
+前端验收必须复用当前默认配置，不允许把样本替换成旧文档中的历史 VID：
 
-## 10. 文档关联
+| 类别 | 输入样本 | UI 期望 |
+|------|----------|--------|
+| 成功抓取 | `SNOS-037.mp4` | 有海报、标题、演员、完整 sidecar 状态 |
+| 成功抓取 | `SDDE-759.mp4` | 有海报、标题、演员、完整 sidecar 状态 |
+| 正常识别 | `sdde-660-c` | UI 中按 `SDDE-660-C` 展示，且归为成功抓取样本 |
+| 失败抓取 | `FC2-PPV-1788676.mp4` | 保持可见，显示占位图，详情页仅部分 sidecar 成功 |
 
-- 数据目录规范：`doc/data-directory-convention.md`
-- E2E 测试数据规范：`doc/testing/e2e/e2e-test-data-spec.md`
-- 验证矩阵：`plan/active/desktop-ui-shell-refactor/validation.md`
-- 后端测试计划：`doc/testing/backend/test-plan.md`
-- 后端测试清单：`doc/testing/backend/test-current-suite.md`
-- 测试目标：`doc/testing/backend/test-targets.md`
-- E2E 用例清单：`doc/testing/e2e/playwright-e2e-test-cases.md`
-- 工作日志：`.codebuddy/memory/2026-03-19.md`
+真实产物目录基线：
+
+```text
+test-data/e2e/data/test-user/cache/video/E2E-Lib-A/SNOS-037/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-A/SDDE-759/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-B/SDDE-660-C/
+test-data/e2e/data/test-user/cache/video/E2E-Lib-B/FC2-PPV-1788676/
+test-data/e2e/data/test-user/cache/actor-avatar/
+```
+
+## 6. 执行方式
+
+### 6.1 当前正式方式
+
+当前仓库**没有**正式提交的 Playwright npm 测试项目；Phase 10 采用以下组合执行：
+
+1. PowerShell 脚本准备与拉起环境
+2. Playwright MCP 打开浏览器页面
+3. 通过点击、填表、截图、页面快照完成前端验收
+4. 将执行结果回写到 `validation.md` 和相关文档
+
+### 6.2 浏览器模式直连
+
+前端通过以下 URL 直连 Worker：
+
+```text
+http://localhost:1420?workerPort={port}
+```
+
+或：
+
+```text
+http://localhost:1420?workerUrl=http://127.0.0.1:{port}
+```
+
+`{port}` 以 `test-data/e2e/e2e-env.json` 中的 `baseUrl` 为准，不手工猜端口。
+
+### 6.3 推荐执行顺序
+
+1. 运行 `test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
+2. 运行 `test-data/scripts/verify-backend-apis.ps1 -NoPause`
+3. 拉起前端验收环境
+4. 用 Playwright MCP 按 flow 执行页面验收
+5. 保存截图、日志和人工降级记录到 `log/test/e2e/`
+6. 回写 `plan/active/desktop-ui-shell-refactor/validation.md`
+
+## 7. Flow 覆盖
+
+前端验收以 `doc/UI/new/flow/README.md` 的 7 组正式流程为准：
+
+| Flow | 验收重点 |
+|------|---------|
+| Main Shell Navigation | 主壳左侧导航稳定、影视库入口切页、右侧内容区承载正确 |
+| Library Management | 库 CRUD、扫描反馈、打开单库 |
+| Library Workbench | 单库结果集、单卡菜单、详情返回恢复 |
+| Favorites | 收藏聚合结果、详情返回恢复 |
+| Actors | 演员列表搜索/排序/分页、进入详情 |
+| Actor Detail / Video Detail | 二级返回链路、关联影片下钻 |
+| Settings | 6 分组、保存、恢复默认、diagnostics、`settings.changed` 回流 |
+
+## 8. 抓取失败优雅降级补充验收
+
+`scrape-fail-graceful` 已归档，但其前端验收必须在本阶段落实：
+
+- `FC2-PPV-1788676` 卡片显示 `No Poster` 占位图
+- 失败样本仍然出现在列表里，不会被前端过滤掉
+- 失败样本可进入详情页
+- 单卡菜单存在“重新抓取元数据”
+- 单影片重抓后，列表页和详情页都能感知新状态
+- `SDDE-660-C` 作为识别样本，在 UI 中必须表现为成功样本，而不是异常样本
+
+## 9. 产物要求
+
+本阶段所有前端验收产物统一写入 `log/test/e2e/`，至少包括：
+
+- 执行日志
+- 必要截图
+- 人工降级结论
+- 问题记录与修复后复验结论
+
+## 10. 通过标准
+
+- 后端播种与 verify 基线未回归
+- 7 组正式 flow 都有前端验收记录
+- 失败样本和正常样本的显示预期都有明确记录
+- 自动化项与人工降级项边界清楚，不混写成“全部自动通过”
+- `plan/active/desktop-ui-shell-refactor/validation.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 与真实结果一致
+
+## 11. 关联文档
+
+- `doc/testing/e2e/e2e-test-data-spec.md`
+- `doc/testing/e2e/playwright-e2e-test-cases.md`
+- `plan/active/desktop-ui-shell-refactor/plan.md`
+- `plan/active/desktop-ui-shell-refactor/validation.md`
+- `plan/archive/scrape-fail-graceful/plan.md`
