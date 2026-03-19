@@ -4,11 +4,11 @@
 
 | 区域 | 文件 |
 |--|--|
-| 配置总入口 | `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs` |
-| 路径管理 | `Jvedio-WPF/Jvedio/Core/Config/PathManager.cs` |
-| 数据库路径 | `Jvedio-WPF/Jvedio/Core/DataBase/SqlManager.cs` |
-| Mapper 初始化 | `Jvedio-WPF/Jvedio/Mapper/MapperManager.cs` |
-| 表结构 | `Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs` |
+| 配置总入口 | `dotnet/Jvedio/Core/Config/ConfigManager.cs` |
+| 路径管理 | `dotnet/Jvedio/Core/Config/PathManager.cs` |
+| 数据库路径 | `dotnet/Jvedio/Core/DataBase/SqlManager.cs` |
+| Mapper 初始化 | `dotnet/Jvedio/Mapper/MapperManager.cs` |
+| 表结构 | `dotnet/Jvedio/Core/DataBase/Tables/Sqlite.cs` |
 
 ## 负责内容
 

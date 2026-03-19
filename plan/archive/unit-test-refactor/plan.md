@@ -30,11 +30,11 @@
   - 不重新设计测试框架，不替换 MSTest。
   - 不改动既有 MetaTube 主线业务规则。
 - 受影响区域：
-  - `Jvedio-WPF/Jvedio.Test/Jvedio.Test.csproj`
-  - `Jvedio-WPF/Jvedio.Test/UnitTests/`
-  - `Jvedio-WPF/Jvedio.Test/IntegrationTests/`
-  - `Jvedio-WPF/Jvedio.Test/ScanTest/`
-  - `Jvedio-WPF/Jvedio.Test/TestBootstrap.cs`
+  - `dotnet/Jvedio.Test/Jvedio.Test.csproj`
+  - `dotnet/Jvedio.Test/UnitTests/`
+  - `dotnet/Jvedio.Test/IntegrationTests/`
+  - `dotnet/Jvedio.Test/ScanTest/`
+  - `dotnet/Jvedio.Test/TestBootstrap.cs`
   - `doc/test-targets.md`
   - `doc/test-plan.md`
   - `doc/test-current-suite.md`
@@ -60,9 +60,9 @@
 
 ## 当前发现
 
-- `Jvedio-WPF/Jvedio.Test/ScanTest/` 目录当前为空，说明旧的 `ImportTest.cs` 已不再是现存阻塞项。
-- `Jvedio-WPF/Jvedio.Test/UnitTests/Core/Scan/ScanTaskImportTests.cs` 已承接基础导入与分段导入这类快速验证测试。
-- `Jvedio-WPF/Jvedio.Test/IntegrationTests/Scan/ScanImportIntegrationTests.cs` 已承接扫描整理后的路径更新与失败回落验证。
+- `dotnet/Jvedio.Test/ScanTest/` 目录当前为空，说明旧的 `ImportTest.cs` 已不再是现存阻塞项。
+- `dotnet/Jvedio.Test/UnitTests/Core/Scan/ScanTaskImportTests.cs` 已承接基础导入与分段导入这类快速验证测试。
+- `dotnet/Jvedio.Test/IntegrationTests/Scan/ScanImportIntegrationTests.cs` 已承接扫描整理后的路径更新与失败回落验证。
 - 先前规划里提到的 `UnitTests/Core/Crawler/CrawlerServer.cs` 在当前仓库中不存在，也未被 `Jvedio.Test.csproj` 引用。
 - 部分 unit test 直接写全局静态路径，缺少统一恢复策略。
 - 当前运行时目录与路径规则已在代码与文档中持久化，不需要在本 feature 中重定义。

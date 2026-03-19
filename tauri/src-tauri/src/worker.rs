@@ -80,7 +80,7 @@ fn resolve_worker_path() -> PathBuf {
             .expect("cannot resolve workspace root")
             .to_path_buf();
         workspace_root
-            .join("Jvedio-WPF")
+            .join("dotnet")
             .join("Jvedio.Worker")
             .join("bin")
             .join("Release")

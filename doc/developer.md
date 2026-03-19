@@ -21,22 +21,22 @@
 
 | 项目 | 路径 |
 |--|--|
-| 解决方案 | `Jvedio-WPF/Jvedio.sln` |
-| 主程序 | `Jvedio-WPF/Jvedio` |
-| Worker | `Jvedio-WPF/Jvedio.Worker` |
-| Contracts | `Jvedio-WPF/Jvedio.Contracts` |
-| 测试 | `Jvedio-WPF/Jvedio.Worker.Tests`（.NET 8 / MSTest / `dotnet test`）|
-| 旧测试 | `Jvedio-WPF/Jvedio.Test`（已物理删除）|
+| 解决方案 | `dotnet/Jvedio.sln` |
+| 主程序 | `dotnet/Jvedio` |
+| Worker | `dotnet/Jvedio.Worker` |
+| Contracts | `dotnet/Jvedio.Contracts` |
+| 测试 | `dotnet/Jvedio.Worker.Tests`（.NET 8 / MSTest / `dotnet test`）|
+| 旧测试 | `dotnet/Jvedio.Test`（已物理删除）|
 | 编译目标 | `x86` |
 | 运行依赖 | `FFmpeg` |
 
 ## 阅读顺序
 
-1. `Jvedio-WPF/Jvedio/App.xaml.cs`
-2. `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs`
-3. `Jvedio-WPF/Jvedio/Core/Config/ConfigManager.cs`
-4. `Jvedio-WPF/Jvedio/Mapper/MapperManager.cs`
-5. `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs`
+1. `dotnet/Jvedio/App.xaml.cs`
+2. `dotnet/Jvedio/WindowStartUp.xaml.cs`
+3. `dotnet/Jvedio/Core/Config/ConfigManager.cs`
+4. `dotnet/Jvedio/Mapper/MapperManager.cs`
+5. `dotnet/Jvedio/Windows/Window_Main.xaml.cs`
 
 ## 模块文档
 

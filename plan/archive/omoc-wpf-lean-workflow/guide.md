@@ -9,10 +9,10 @@
 **用尽量少的 agent、尽量少的调度、尽量少的迭代轮次，完成测试工作和 UI 重构工作。**
 
 结合当前仓库现状：
-- 主 UI 入口集中在 `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml` 与 `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs`
-- 主界面状态集中在 `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs`
-- 样式与主题承接点在 `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs`
-- 测试工程已拆分到 `Jvedio-WPF/Jvedio.Test`
+- 主 UI 入口集中在 `dotnet/Jvedio/Windows/Window_Main.xaml` 与 `dotnet/Jvedio/Windows/Window_Main.xaml.cs`
+- 主界面状态集中在 `dotnet/Jvedio/ViewModels/VieModel_Main.cs`
+- 样式与主题承接点在 `dotnet/Jvedio/CustomStyle/StyleManager.cs`
+- 测试工程已拆分到 `dotnet/Jvedio.Test`
 - 当前已有 unit test 与 integration test，但 UI 回归仍更适合走“最小人工冒烟 + 受影响测试”路线
 
 因此，最适合你的不是多 agent 编排，而是：
@@ -269,11 +269,11 @@
 ### 9.1 测试线
 
 先做：
-- `Jvedio-WPF/Jvedio.Test/UnitTests/Core/*`
-- `Jvedio-WPF/Jvedio.Test/IntegrationTests/Scan/*`
+- `dotnet/Jvedio.Test/UnitTests/Core/*`
+- `dotnet/Jvedio.Test/IntegrationTests/Scan/*`
 
 后做：
-- `Jvedio-WPF/Jvedio.Test/IntegrationTests/MetaTube/*`
+- `dotnet/Jvedio.Test/IntegrationTests/MetaTube/*`
 
 原因：
 - MetaTube 集成测试依赖真实服务，更慢、更贵、更不稳定
@@ -282,14 +282,14 @@
 ### 9.2 UI 线
 
 第一批只碰：
-- `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml`
-- `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs`
-- `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs`
-- `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs`
+- `dotnet/Jvedio/Windows/Window_Main.xaml`
+- `dotnet/Jvedio/Windows/Window_Main.xaml.cs`
+- `dotnet/Jvedio/ViewModels/VieModel_Main.cs`
+- `dotnet/Jvedio/CustomStyle/StyleManager.cs`
 
 第二批再碰：
-- `Jvedio-WPF/Jvedio/Windows/Window_Settings.xaml`
-- `Jvedio-WPF/Jvedio/Windows/Window_Settings.xaml.cs`
+- `dotnet/Jvedio/Windows/Window_Settings.xaml`
+- `dotnet/Jvedio/Windows/Window_Settings.xaml.cs`
 
 第一轮不要同时改：
 - `Core/UserControls/VideoList.xaml`

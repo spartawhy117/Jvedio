@@ -4,10 +4,10 @@
 
 | 区域 | 文件 |
 |--|--|
-| 扫描任务 | `Jvedio-WPF/Jvedio/Core/Scan/ScanTask.cs` |
-| 扫描辅助 | `Jvedio-WPF/Jvedio/Core/Scan/ScanHelper.cs` |
-| 扫描管理 | `Jvedio-WPF/Jvedio/Core/Tasks/ScanManager.cs` |
-| 识别依赖 | `Jvedio-WPF/Jvedio/Utils/Extern/JvedioLib.cs` |
+| 扫描任务 | `dotnet/Jvedio/Core/Scan/ScanTask.cs` |
+| 扫描辅助 | `dotnet/Jvedio/Core/Scan/ScanHelper.cs` |
+| 扫描管理 | `dotnet/Jvedio/Core/Tasks/ScanManager.cs` |
+| 识别依赖 | `dotnet/Jvedio/Utils/Extern/JvedioLib.cs` |
 
 ## 负责内容
 

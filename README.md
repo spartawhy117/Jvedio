@@ -1,6 +1,6 @@
 # Jvedio
 
-当前仓库仅维护 `Jvedio-WPF`（Windows WPF）版本。
+当前仓库仅维护 `dotnet`（Windows WPF）版本。
 
 项目文档已统一收敛到 `doc/`：
 

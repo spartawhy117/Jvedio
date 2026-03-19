@@ -6,7 +6,7 @@
 - **状态**: 待验证
 - **问题**: `Jvedio.Worker.exe` 不存在于 `bin/Release/net8.0/`，需要 .NET 8 SDK 和 `dotnet build -c Release`
 - **前提**: .NET 8 SDK 已安装
-- **解决方案**: `cd Jvedio-WPF/Jvedio.Worker && dotnet build -c Release`
+- **解决方案**: `cd dotnet/Jvedio.Worker && dotnet build -c Release`
 
 ### OQ-2: Rust toolchain
 - **状态**: 待验证

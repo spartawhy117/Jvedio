@@ -12,8 +12,8 @@ $ErrorActionPreference = "Stop"
 $scriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
 $tauriRoot   = Split-Path -Parent $scriptDir                          # tauri/
 $repoRoot    = Split-Path -Parent $tauriRoot                          # repo root
-$workerProj  = Join-Path $repoRoot "Jvedio-WPF\Jvedio.Worker\Jvedio.Worker.csproj"
-$workerOut   = Join-Path $repoRoot "Jvedio-WPF\Jvedio.Worker\bin\$Configuration\net8.0"
+$workerProj  = Join-Path $repoRoot "dotnet\Jvedio.Worker\Jvedio.Worker.csproj"
+$workerOut   = Join-Path $repoRoot "dotnet\Jvedio.Worker\bin\$Configuration\net8.0"
 $workerDist  = Join-Path $tauriRoot "worker-dist"
 
 Write-Host "[prepare-worker] Building Jvedio.Worker ($Configuration)..."

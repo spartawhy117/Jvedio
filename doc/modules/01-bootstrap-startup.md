@@ -4,10 +4,10 @@
 
 | 区域 | 文件 |
 |--|--|
-| 应用入口 | `Jvedio-WPF/Jvedio/App.xaml.cs` |
-| 启动窗口 | `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` |
-| 启动 VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_StartUp.cs` |
-| 升级迁移 | `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs` |
+| 应用入口 | `dotnet/Jvedio/App.xaml.cs` |
+| 启动窗口 | `dotnet/Jvedio/WindowStartUp.xaml.cs` |
+| 启动 VM | `dotnet/Jvedio/ViewModels/VieModel_StartUp.cs` |
+| 升级迁移 | `dotnet/Jvedio/Upgrade/Jvedio4ToJvedio5.cs` |
 
 ## 负责内容
 

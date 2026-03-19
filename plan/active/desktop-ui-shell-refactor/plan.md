@@ -12,8 +12,8 @@
 |------|---------|
 | 桌面壳 | `tauri/` — Tauri 2 Rust 壳层，已可编译运行 |
 | Renderer | `tauri/src/` — React 19 + TS，82 个源文件，7 个业务页 + 10 个共享组件 |
-| 业务服务 | `Jvedio-WPF/Jvedio.Worker` — ASP.NET Core，动态端口 |
-| 跨层合同 | `Jvedio-WPF/Jvedio.Contracts` — DTO / 事件 envelope / 错误模型 |
+| 业务服务 | `dotnet/Jvedio.Worker` — ASP.NET Core，动态端口 |
+| 跨层合同 | `dotnet/Jvedio.Contracts` — DTO / 事件 envelope / 错误模型 |
 | UI 输入 | `doc/UI/new/` — 唯一正式 UI 输入，已冻结 |
 | Electron | **已物理删除**，不再作为任何路径 |
 
@@ -269,7 +269,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 **步骤 1：新建测试工程**
 
-- 在 `Jvedio-WPF/` 下新建 `Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
+- 在 `dotnet/` 下新建 `Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
 - .NET 8 SDK-style，`<TargetFramework>net8.0</TargetFramework>`
 - 测试框架：MSTest（`Microsoft.NET.Test.Sdk` + `MSTest.TestAdapter` + `MSTest.TestFramework`）
 - Mock 库：Moq（沿用旧工程选择）
@@ -327,7 +327,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 **步骤 8：删除旧测试工程**
 
-- 物理删除整个 `Jvedio-WPF/Jvedio.Test/` 目录（项目文件、代码、配置、脚本、输出、`测试记录/` Excel）
+- 物理删除整个 `dotnet/Jvedio.Test/` 目录（项目文件、代码、配置、脚本、输出、`测试记录/` Excel）
 - 确认 `Jvedio.sln` 中无残留引用
 
 #### 通过标准
@@ -354,9 +354,78 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 
 ---
 
+### Phase 8.5：`dotnet/` → `dotnet/` 目录更名
+
+**动机**：`dotnet` 只反映历史 WPF 技术栈，但目录下实际内容是 Worker（ASP.NET Core）+ Contracts（DTO 共享层）+ Worker.Tests + WPF Launcher，与 WPF 强绑定的命名已不准确。更名为 `dotnet/` 后与 `tauri/` 形成清晰对称（前端壳 vs 后端服务），简洁、跨平台友好。
+
+#### 影响范围（已排查）
+
+| 类别 | 影响 | 文件数 |
+|------|------|--------|
+| 🔴 运行时代码 | `Program.cs` 第 108 行硬编码 `Directory.Exists("dotnet")` 检测 repo root | 1 |
+| 🔴 构建脚本 | `tauri/scripts/prepare-worker.ps1` 第 15-16 行路径引用 | 1 |
+| 🟡 文档引用 | AGENTS.md / doc/ / plan/ / README.md 中的路径引用 | ~30 个文件、120+ 处 |
+| 🟢 不受影响 | `.sln`、`.csproj`、`.xaml`、`.cs` 源码（除 Program.cs）— 均为相对路径 | — |
+
+#### 执行步骤
+
+**步骤 1：物理更名目录**
+
+```powershell
+# 在 repo root 执行
+git mv dotnet dotnet
+```
+
+> `git mv` 同时完成文件系统重命名和 git index 更新。
+
+**步骤 2：修改运行时代码（2 个文件）**
+
+| 文件 | 改动 |
+|------|------|
+| `dotnet/Jvedio.Worker/Program.cs` | 第 108 行：`"dotnet"` → `"dotnet"` |
+| `tauri/scripts/prepare-worker.ps1` | 第 15-16 行：`"dotnet\..."` → `"dotnet\..."` |
+
+**步骤 3：批量替换文档引用**
+
+对以下文件做全局替换 `dotnet` → `dotnet`：
+
+| 目录/文件 | 预估替换数 |
+|-----------|-----------|
+| `AGENTS.md` | 12 |
+| `README.md` | 1 |
+| `doc/developer.md` | 11 |
+| `doc/CHANGELOG.md` | 27 |
+| `doc/modules/*.md` | ~40 |
+| `doc/testing/*.md` + 子目录 | ~10 |
+| `plan/active/desktop-ui-shell-refactor/*.md` | ~15 |
+| `plan/archive/**/*.md` | ~29（历史文档） |
+
+**步骤 4：验证**
+
+- `dotnet build dotnet/Jvedio.sln` 编译通过
+- `dotnet test dotnet/Jvedio.Worker.Tests` 44 个测试全部通过
+- `tauri/scripts/prepare-worker.ps1` 路径解析正确
+- 全局搜索 `dotnet` 确认零残留
+- `git diff --stat` 确认变更范围符合预期
+
+**步骤 5：提交推送**
+
+#### 通过标准
+
+- 物理目录已更名为 `dotnet/`
+- 编译、测试、构建脚本全部正常
+- 全局搜索 `dotnet` 零残留（仅 git history 中保留）
+- plan/doc 中所有路径引用已同步更新
+
+#### 关联文档更新
+
+> 步骤 3 已包含全部文档更新，无额外文档需单独维护。
+
+---
+
 ### Phase 9：日志目录统一
 
-**执行前提**：Phase 8 完成后，先重新收集整理当前所有组件的日志输出实际路径，再确定最终目录结构和具体改动项。
+**执行前提**：Phase 8 + Phase 8.5（目录更名）完成后，先重新收集整理当前所有组件的日志输出实际路径，再确定最终目录结构和具体改动项。注意：以下路径引用已假设 `dotnet/` 已更名为 `dotnet/`。
 
 #### 启动时收集清单
 
@@ -564,10 +633,10 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 |------|------|
 | 正式 UI 输入 | `doc/UI/new/` |
 | Feature 入口 | `plan/active/desktop-ui-shell-refactor/` |
-| 本地业务服务 | `Jvedio-WPF/Jvedio.Worker` |
-| 跨层合同 | `Jvedio-WPF/Jvedio.Contracts` |
-| 启动入口 | `Jvedio-WPF/Jvedio/App.xaml.cs`（`TauriShellLauncher`） |
-| 打包入口 | `Jvedio-WPF/Jvedio/Jvedio.csproj`（`PrepareTauriShellArtifacts`） |
+| 本地业务服务 | `dotnet/Jvedio.Worker` |
+| 跨层合同 | `dotnet/Jvedio.Contracts` |
+| 启动入口 | `dotnet/Jvedio/App.xaml.cs`（`TauriShellLauncher`） |
+| 打包入口 | `dotnet/Jvedio/Jvedio.csproj`（`PrepareTauriShellArtifacts`） |
 
 ### 外部参考
 

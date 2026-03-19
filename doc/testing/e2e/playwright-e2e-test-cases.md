@@ -637,7 +637,7 @@
 假视频文件放置在现有 Test 项目的 scan config 目录下：
 
 ```
-Jvedio-WPF/Jvedio.Test/config/scan/input/
+dotnet/Jvedio.Test/config/scan/input/
 ├── lib-a/          ← 媒体库 A 扫描目录（JUR-293-C、SNOS-037、ABP-001）
 └── lib-b/          ← 媒体库 B 扫描目录（SONE-100、MIDV-200）
 ```
@@ -674,5 +674,5 @@ Jvedio-WPF/Jvedio.Test/config/scan/input/
 - 流程图索引：`doc/UI/new/flow/README.md`
 - 验证矩阵（含 Phase 7 播种方案）：`plan/active/desktop-ui-shell-refactor/validation.md`
 - 后端测试计划：`doc/testing/backend/test-plan.md`
-- 测试数据目录：`Jvedio-WPF/Jvedio.Test/config/scan/input/`
-- MetaTube 测试配置：`Jvedio-WPF/Jvedio.Test/config/meta-tube/meta-tube-test-config.json`
+- 测试数据目录：`dotnet/Jvedio.Test/config/scan/input/`
+- MetaTube 测试配置：`dotnet/Jvedio.Test/config/meta-tube/meta-tube-test-config.json`

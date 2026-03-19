@@ -2,10 +2,10 @@
 
 ## 仓库概览
 - 仓库根目录：`D:\study\Proj\Jvedio`
-- 主解决方案：`Jvedio-WPF/Jvedio.sln`
-- 主程序项目：`Jvedio-WPF/Jvedio/Jvedio.csproj`
-- 测试工程：`Jvedio-WPF/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`（.NET 8 / MSTest / `dotnet test`）
-- 旧测试工程：`Jvedio-WPF/Jvedio.Test/`（已物理删除）
+- 主解决方案：`dotnet/Jvedio.sln`
+- 主程序项目：`dotnet/Jvedio/Jvedio.csproj`
+- 测试工程：`dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`（.NET 8 / MSTest / `dotnet test`）
+- 旧测试工程：`dotnet/Jvedio.Test/`（已物理删除）
 - 当前主线：WPF 桌面端 + MetaTube 唯一搜刮源
 
 ## 构建命令
@@ -21,37 +21,37 @@
 ```
 
 主程序输出：
-- `Jvedio-WPF/Jvedio/bin/Release/Jvedio.exe`
+- `dotnet/Jvedio/bin/Release/Jvedio.exe`
 
 ### 测试工程编译
 ```powershell
-cd Jvedio-WPF/Jvedio.Worker.Tests
+cd dotnet/Jvedio.Worker.Tests
 dotnet build --configuration Release
 ```
 
 ### 跑全量测试
 ```powershell
-cd Jvedio-WPF/Jvedio.Worker.Tests
+cd dotnet/Jvedio.Worker.Tests
 dotnet test --configuration Release
 ```
 
 ### 跑单个测试
 ```powershell
-cd Jvedio-WPF/Jvedio.Worker.Tests
+cd dotnet/Jvedio.Worker.Tests
 dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_ReturnsSuccessEnvelope"
 ```
 
 ## 测试脚本入口
-- 全量：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
-- 单元测试：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-unit-tests.ps1`
-- 集成测试：`Jvedio-WPF/Jvedio.Worker.Tests/scripts/run-integration-tests.ps1`
+- 全量：`dotnet/Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
+- 单元测试：`dotnet/Jvedio.Worker.Tests/scripts/run-unit-tests.ps1`
+- 集成测试：`dotnet/Jvedio.Worker.Tests/scripts/run-integration-tests.ps1`
 
 支持：
 - 双击运行
 - 命令行运行时加 `-NoPause`
 
 ## 测试配置目录
-- `Jvedio-WPF/Jvedio.Worker.Tests/ContractTests/` — Worker API 契约测试
+- `dotnet/Jvedio.Worker.Tests/ContractTests/` — Worker API 契约测试
 
 ## 测试日志与输出
 测试日志：

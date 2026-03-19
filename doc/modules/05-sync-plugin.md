@@ -4,11 +4,11 @@
 
 | 区域 | 文件 |
 |--|--|
-| 下载任务 | `Jvedio-WPF/Jvedio/Core/Net/DownLoadTask.cs` |
-| 下载调度 | `Jvedio-WPF/Jvedio/Core/Net/VideoDownLoader.cs` |
-| 插件加载 | `Jvedio-WPF/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` |
-| 站点模型 | `Jvedio-WPF/Jvedio/Core/Crawler/CrawlerServer.cs` |
-| 设置入口 | `Jvedio-WPF/Jvedio/Windows/Window_Settings.xaml.cs` |
+| 下载任务 | `dotnet/Jvedio/Core/Net/DownLoadTask.cs` |
+| 下载调度 | `dotnet/Jvedio/Core/Net/VideoDownLoader.cs` |
+| 插件加载 | `dotnet/Jvedio/Core/Plugins/Crawler/CrawlerManager.cs` |
+| 站点模型 | `dotnet/Jvedio/Core/Crawler/CrawlerServer.cs` |
+| 设置入口 | `dotnet/Jvedio/Windows/Window_Settings.xaml.cs` |
 
 ## 负责内容
 

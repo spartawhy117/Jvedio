@@ -4,9 +4,9 @@
 
 | 区域 | 文件 |
 |--|--|
-| 编辑器管理 | `Jvedio-WPF/Jvedio/AvalonEdit/AvalonEditManager.cs` |
-| 高亮辅助 | `Jvedio-WPF/Jvedio/AvalonEdit/Utils.cs` |
-| 语法高亮资源 | `Jvedio-WPF/Jvedio/AvalonEdit/Highlighting/` |
+| 编辑器管理 | `dotnet/Jvedio/AvalonEdit/AvalonEditManager.cs` |
+| 高亮辅助 | `dotnet/Jvedio/AvalonEdit/Utils.cs` |
+| 语法高亮资源 | `dotnet/Jvedio/AvalonEdit/Highlighting/` |
 
 ## 负责内容
 

@@ -21,7 +21,7 @@ fn resolve_log_dir() -> PathBuf {
     if let Some(repo_root) = manifest_dir.parent().and_then(|p| p.parent()) {
         let candidate = repo_root.join("log");
         // Verify this looks like the repo root
-        if repo_root.join("Jvedio-WPF").exists() || repo_root.join("tauri").exists() {
+        if repo_root.join("dotnet").exists() || repo_root.join("tauri").exists() {
             return candidate;
         }
     }

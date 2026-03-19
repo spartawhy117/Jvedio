@@ -25,7 +25,7 @@ Playwright 浏览器中没有 Tauri IPC bridge，导致前端停在 `WorkerStatu
 | Tauri 窗口 | ✅ 存在 | 动态 `import("@tauri-apps/api/core")` → `invoke("get_worker_base_url")` + `listen("worker-ready")` |
 | 浏览器（Playwright / 开发调试） | ❌ 不存在 | URL 参数 `?workerPort=53706` 或轮询 `http://127.0.0.1:{port}/api/app/bootstrap` |
 
-**改动范围**：`tauri/src/contexts/WorkerContext.tsx` + `Jvedio-WPF/Jvedio.Worker/Program.cs`（CORS）。
+**改动范围**：`tauri/src/contexts/WorkerContext.tsx` + `dotnet/Jvedio.Worker/Program.cs`（CORS）。
 
 **额外收益**：开发时可直接用浏览器调试前端，不必每次等 Tauri 编译。
 
@@ -181,7 +181,7 @@ browser_snapshot
 | 文件 | 改动 |
 |------|------|
 | `tauri/src/contexts/WorkerContext.tsx` | 检测 `window.__TAURI_INTERNALS__`，非 Tauri 时从 URL 参数获取 workerPort 直连；Tauri API 改为动态 `import()` 避免浏览器加载报错 |
-| `Jvedio-WPF/Jvedio.Worker/Program.cs` | 添加 `AddCors` + `UseCors` 中间件，解决浏览器跨域访问 Worker API |
+| `dotnet/Jvedio.Worker/Program.cs` | 添加 `AddCors` + `UseCors` 中间件，解决浏览器跨域访问 Worker API |
 
 WorkerContext 改动约 100 行（含环境检测 + 自动发现），Program.cs 改动约 10 行。均不影响 Tauri 窗口中的正常运行。
 

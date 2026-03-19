@@ -6,7 +6,7 @@
 
 ### 后端测试（C# / MSTest / .NET 8）
 
-- **工程**：`Jvedio-WPF/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
+- **工程**：`dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`
 - **框架**：MSTest 3.x + `dotnet test`
 - **测试引擎**：`WebApplicationFactory<Program>` 启动内存 Worker 实例
 - **测试分层**：
@@ -15,7 +15,7 @@
 - **执行方式**：`dotnet test` 或 PowerShell 脚本（双击运行或 `-NoPause`）
 - **当前规模**：13 个测试用例（全部通过）
 
-> ℹ️ **旧测试工程**：`Jvedio-WPF/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
+> ℹ️ **旧测试工程**：`dotnet/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
 
 ### 前端 E2E 测试（Playwright）— 暂缓
 
@@ -86,7 +86,7 @@ doc/testing/
 | 验证矩阵 | `plan/active/desktop-ui-shell-refactor/validation.md` | Phase 6 验证记录 |
 | 日志规范 | `doc/logging-convention.md` | Worker + Shell 日志配置 |
 | 流程图索引 | `doc/UI/new/flow/README.md` | E2E 用例的流程图来源 |
-| 测试工程 | `Jvedio-WPF/Jvedio.Worker.Tests/` | .NET 8 Worker API 契约测试 |
+| 测试工程 | `dotnet/Jvedio.Worker.Tests/` | .NET 8 Worker API 契约测试 |
 | 开发总览 | `doc/developer.md` | 项目入口文档 |
 
 ## 维护规则

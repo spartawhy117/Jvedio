@@ -26,9 +26,9 @@
 ## 技术方案
 
 - 仓库调研结论：
-  - WPF 主窗口入口集中在 `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml` 与 `Window_Main.xaml.cs`。
-  - 主界面状态与行为集中在 `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs`。
-  - 样式桥接入口在 `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs`，适合作为 UI 风格统一的锚点。
+  - WPF 主窗口入口集中在 `dotnet/Jvedio/Windows/Window_Main.xaml` 与 `Window_Main.xaml.cs`。
+  - 主界面状态与行为集中在 `dotnet/Jvedio/ViewModels/VieModel_Main.cs`。
+  - 样式桥接入口在 `dotnet/Jvedio/CustomStyle/StyleManager.cs`，适合作为 UI 风格统一的锚点。
   - 测试工程已拆分为 `UnitTests` 与 `IntegrationTests`，其中 `MetaTube` 集成测试成本高于本地逻辑测试。
 - 关键实现思路：
   - 推荐单 agent 严格串行路径，默认不保留常驻子 agent。

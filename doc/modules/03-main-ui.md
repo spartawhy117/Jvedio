@@ -4,12 +4,12 @@
 
 | 区域 | 文件 |
 |--|--|
-| 主窗口 | `Jvedio-WPF/Jvedio/Windows/Window_Main.xaml.cs` |
-| 主 VM | `Jvedio-WPF/Jvedio/ViewModels/VieModel_Main.cs` |
-| 标签页管理 | `Jvedio-WPF/Jvedio/ViewModels/TabItemManager.cs` |
-| 视频列表 | `Jvedio-WPF/Jvedio/Core/UserControls/VideoList.xaml.cs` |
-| 列表 VM | `Jvedio-WPF/Jvedio/Core/UserControls/ViewModels/VieModel_VideoList.cs` |
-| 详情 / 编辑 | `Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs`、`Jvedio-WPF/Jvedio/Windows/Window_Edit.xaml.cs` |
+| 主窗口 | `dotnet/Jvedio/Windows/Window_Main.xaml.cs` |
+| 主 VM | `dotnet/Jvedio/ViewModels/VieModel_Main.cs` |
+| 标签页管理 | `dotnet/Jvedio/ViewModels/TabItemManager.cs` |
+| 视频列表 | `dotnet/Jvedio/Core/UserControls/VideoList.xaml.cs` |
+| 列表 VM | `dotnet/Jvedio/Core/UserControls/ViewModels/VieModel_VideoList.cs` |
+| 详情 / 编辑 | `dotnet/Jvedio/Windows/Window_Details.xaml.cs`、`dotnet/Jvedio/Windows/Window_Edit.xaml.cs` |
 
 ## 负责内容
 

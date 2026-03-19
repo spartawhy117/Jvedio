@@ -1,5 +1,5 @@
 生成启动时间为 2026/3/19 14:22:19。
-d:\MyProjects\JVedio\Jvedio-WPF\Jvedio.Worker.Tests\bin\Release\net8.0\Jvedio.Worker.Tests.dll (.NETCoreApp,Version=v8.0)的测试运行
+d:\MyProjects\JVedio\dotnet\Jvedio.Worker.Tests\bin\Release\net8.0\Jvedio.Worker.Tests.dll (.NETCoreApp,Version=v8.0)的测试运行
 VSTest 版本 17.14.1 (x64)
 
 正在启动测试执行，请稍候...

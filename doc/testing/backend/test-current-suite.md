@@ -8,7 +8,7 @@
 
 执行方式：
 ```powershell
-cd Jvedio-WPF/Jvedio.Worker.Tests
+cd dotnet/Jvedio.Worker.Tests
 dotnet test --configuration Release
 ```
 

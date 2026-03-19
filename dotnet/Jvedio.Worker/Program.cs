@@ -94,7 +94,7 @@ static string ResolveLogDirectory()
         return envLogDir;
 
     // Dev mode: walk up from AppContext.BaseDirectory to locate repo root
-    // Worker exe lives at: {repo}/Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/
+    // Worker exe lives at: {repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/
     var baseDir = AppContext.BaseDirectory;
     var candidates = new[]
     {
@@ -104,8 +104,8 @@ static string ResolveLogDirectory()
 
     foreach (var candidate in candidates)
     {
-        // Repo root contains Jvedio-WPF/ and tauri/
-        if (Directory.Exists(Path.Combine(candidate, "Jvedio-WPF")) &&
+        // Repo root contains dotnet/ and tauri/
+        if (Directory.Exists(Path.Combine(candidate, "dotnet")) &&
             Directory.Exists(Path.Combine(candidate, "tauri")))
         {
             return Path.Combine(candidate, "log");

@@ -31,8 +31,8 @@
 
 ## 改动入口
 
-- 新表 / 新列：`Jvedio-WPF/Jvedio/Core/DataBase/Tables/Sqlite.cs`
-- 初始化：`Jvedio-WPF/Jvedio/Mapper/MapperManager.cs`
+- 新表 / 新列：`dotnet/Jvedio/Core/DataBase/Tables/Sqlite.cs`
+- 初始化：`dotnet/Jvedio/Mapper/MapperManager.cs`
 - 查询实现：对应 `Mapper/*.cs`
 
 ## 当前性能 / Bug 问题

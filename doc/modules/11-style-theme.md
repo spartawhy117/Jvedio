@@ -4,8 +4,8 @@
 
 | 区域 | 文件 |
 |--|--|
-| 样式管理 | `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs` |
-| 第三方样式承接 | `Jvedio-WPF/Jvedio/CustomStyle/SuperControls/` |
+| 样式管理 | `dotnet/Jvedio/CustomStyle/StyleManager.cs` |
+| 第三方样式承接 | `dotnet/Jvedio/CustomStyle/SuperControls/` |
 
 ## 负责内容
 

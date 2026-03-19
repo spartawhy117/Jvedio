@@ -4,10 +4,10 @@
 
 | 区域 | 文件 |
 |--|--|
-| 通知公告 | `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_Notice.xaml.cs` |
-| 新视频对话框 | `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_NewMovie.xaml.cs` |
-| 日志查看 | `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_Logs.xaml.cs` |
-| 启动加载页 | `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` |
+| 通知公告 | `dotnet/Jvedio/WindowsDialog/Dialog_Notice.xaml.cs` |
+| 新视频对话框 | `dotnet/Jvedio/WindowsDialog/Dialog_NewMovie.xaml.cs` |
+| 日志查看 | `dotnet/Jvedio/WindowsDialog/Dialog_Logs.xaml.cs` |
+| 启动加载页 | `dotnet/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` |
 
 ## 负责内容
 

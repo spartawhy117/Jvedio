@@ -48,7 +48,7 @@
 | 8.5 Worker API 契约测试 | ✅ | 44 个测试覆盖 9 个维度（Bootstrap/Libraries/Settings/Videos/DTO/VidParsing/SidecarPath/ScanOrganize/ScanImportApi） |
 | 8.6 新建测试脚本 | ✅ | 3 个 PS1 脚本（all/unit/integration） |
 | 8.7 更新解决方案 | ✅ | sln 添加 Worker.Tests，移除旧 Jvedio.Test 引用 |
-| 8.8 删除旧测试工程 | ✅ | `Jvedio-WPF/Jvedio.Test/` 已物理删除 |
+| 8.8 删除旧测试工程 | ✅ | `dotnet/Jvedio.Test/` 已物理删除 |
 | 8.9 关联文档更新 | ✅ | AGENTS.md + testing/README + test-plan + test-targets + test-current-suite + developer.md + CHANGELOG |
 
 ## 当前真实状态（Phase 6 起点）
@@ -82,7 +82,7 @@ npm run tauri dev
   ├─ Vite dev server → http://localhost:1420
   ├─ cargo build (debug) → Tauri 壳 exe
   ├─ Rust spawn_worker() → resolve_worker_path()
-  │   └─ dev 模式: {repo}/Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/Jvedio.Worker.exe
+  │   └─ dev 模式: {repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/Jvedio.Worker.exe
   ├─ Worker stdout → "JVEDIO_WORKER_READY http://127.0.0.1:{port}"
   ├─ Rust emit "worker-ready" → 前端 WorkerContext
   └─ 前端 fetchBootstrap → createApiClient → connectSSE → 渲染主界面
@@ -113,7 +113,7 @@ npm run tauri dev
 ### 6.1 编译基础设施
 
 - [ ] `dotnet build -c Release` 编译 Jvedio.Worker
-- [ ] 确认 Worker.exe 生成在 `Jvedio-WPF/Jvedio.Worker/bin/Release/net8.0/`
+- [ ] 确认 Worker.exe 生成在 `dotnet/Jvedio.Worker/bin/Release/net8.0/`
 - [ ] `npm install` 安装前端依赖
 - [ ] `tsc --noEmit` 验证 TypeScript 编译
 
@@ -174,7 +174,7 @@ npm run tauri dev
 
 核心改动：
 - `tauri/src/contexts/WorkerContext.tsx` — 浏览器模式检测（`window.__TAURI_INTERNALS__`）+ 动态 import Tauri API + URL 参数直连 Worker
-- `Jvedio-WPF/Jvedio.Worker/Program.cs` — 添加 CORS 中间件支持浏览器跨域访问
+- `dotnet/Jvedio.Worker/Program.cs` — 添加 CORS 中间件支持浏览器跨域访问
 
 已验证通过：
 - Playwright 浏览器打开 `localhost:1420?workerPort={port}` → 主界面完整渲染

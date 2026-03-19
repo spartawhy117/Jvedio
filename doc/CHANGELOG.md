@@ -13,7 +13,7 @@
 - 修复 3 个测试用例的断言错误：DTO 序列化 camelCase 策略、Libraries 创建响应嵌套结构、Settings 更新必填字段校验。
 - 更新 `AGENTS.md`、`doc/testing/README.md`、`doc/testing/backend/test-plan.md`、`doc/testing/backend/test-targets.md`、`doc/testing/backend/test-current-suite.md`、`doc/developer.md`，统一指向新测试工程。
 - 旧测试工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、MetaTube 刮削、扫描整理）评估为需以新架构重写，标记为技术债。
-- 物理删除旧测试工程 `Jvedio-WPF/Jvedio.Test/` 目录。
+- 物理删除旧测试工程 `dotnet/Jvedio.Test/` 目录。
 - 重写 5 个高价值旧测试为新架构（`BusinessLogicTests/` 目录）：VID 解析（17 个数据驱动用例）、Sidecar 路径（6 个用例）、扫描整理（5 个文件系统用例）、扫描导入端到端（2 个 API 集成用例）。测试总数从 13 增长到 44。
 - 完成 Phase 7.1 Settings 占位补全：新增 `ImageSettingsDto`、`ScanImportSettingsDto`、`LibrarySettingsDto` 三组 Contracts DTO；更新 `SettingsService` 支持 6 组设置读写与持久化；前端 SettingsPage 三个 "Coming Soon" 占位替换为真实表单控件。
 - 完成 Phase 7.2 视频操作 API：新增 `ToggleFavoriteResponse`、`DeleteVideoResponse`、`BatchOperationRequest`、`BatchOperationResponse` Contracts DTO；`VideoService` 新增 toggle-favorite、delete-video、batch-favorite、batch-delete 四个方法；`VideosController` 新增四个端点；`VideoListItemDto` 和 `VideoDetailDto` 添加 `IsFavorite` 字段。
@@ -39,12 +39,12 @@
 - 继续收口 `doc/UI/new/main-shell.*`：品牌区改为 `Jvedio Next`，并采用“左侧 icon + 右侧名称”的品牌排布；`智能分类` 与 `影视库` 标题改为统一样式，同时在文档中补充 `类别 / 系列` 默认聚合所有库内容、库列表则保持单库作用域的规则。
 - 将原 `home-page.*` 重命名为 `library-management-page.*`，并把主壳一级导航中的 `Home / Favorites / Actors` 文案改为 `库管理 / 喜欢 / 演员`；同时同步调整库管理页标题、相关说明文档和主壳线框导出结果。
 - 去掉 Electron 主窗体顶部原生菜单栏：`electron/main/app/bootstrap.ts` 现在会清空应用菜单，`electron/main/app/createMainWindow.ts` 会对主窗口启用 `autoHideMenuBar` 并直接移除窗口菜单，避免 Release 版本继续显示 `File / Edit / View / Window / Help`。
-- 将 `Jvedio-WPF/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
-- 更新 `Jvedio-WPF/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。
+- 将 `dotnet/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
+- 更新 `dotnet/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。
 - 更新 `electron/main/app/bootstrap.ts`、`electron/main/worker/workerProcess.ts`、`electron/main/app/createMainWindow.ts` 与 `electron/renderer/index.html`，补上 Electron 单实例锁、打包后 Worker 路径解析和正式窗口标题收口，避免改用启动器后重复开窗或继续暴露 `Home MVP Shell` 占位标题。
 - 收口 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性：`electron/renderer/src/features/home/useHomePageData.ts` 现在为这五个页面补上统一的结果摘要条、筛选上下文说明、缺资源影片提示，以及关键字输入回车直接应用筛选的统一手势。
 - 更新 `electron/renderer/index.html`，新增 `collection-summary-strip`、`summary-pill`、缺资源影片卡片高亮和结果说明样式，使 Home 的入口摘要、Library 工作台、Favorites、Categories、Series 的结果集视觉语义收敛到同一套层级。
-- 补齐任务失败详情与重试入口：`Jvedio-WPF/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。
+- 补齐任务失败详情与重试入口：`dotnet/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。
 - 更新 `electron/renderer/src/features/home/useHomePageData.ts` 与新增 `TaskDetailDialog.ts`，使 Home / Library 任务卡片在失败态展示错误摘要、失败详情入口和重试按钮；失败详情弹窗会展示任务时间线、阶段、失败原因和重试来源，库页内联任务与全局活动条共用同一套重试状态反馈。
 - 更新 `electron/renderer/index.html`，补充失败任务卡片、任务动作区、任务详情弹窗和失败块样式，保证“库页内联 + 全局活动条 + Home 摘要”形态下的失败态布局可读且在移动端可收缩。
 - 新增 `electron/main/testing/tasksRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:tasks`，通过隔离 sqlite 副本稳定覆盖“无有效扫描目录导致任务失败 -> 打开失败详情 -> 修复扫描目录 -> 从详情弹窗直接重试 -> 重试成功”闭环。
@@ -68,23 +68,23 @@
 - 新增 `electron/main/testing/actorsRegression.ts` 与 `electron/` `npm run regression:actors`，通过临时 sqlite 副本、样例影片扫描和直接注入演员映射，稳定覆盖 Actors 路由壳、结果集、筛选排序和抽屉详情消费。
 - 继续增强 Actors 页结果集：renderer 已新增页大小切换、页码摘要、上一页/下一页翻页，以及 `actorId`、`webType` 两个额外排序项；演员卡片同时补出 `Actor ID` 显示，便于直接验证排序结果。
 - 扩展 `Jvedio.Worker/Services/ActorService.cs` 的演员排序分支，新增 `actorId` 数值排序和 `webType` 排序，并统一用稳定的二级排序收口；`regression:actors` 现已改为三部样例影片与三名演员造数，覆盖头像/占位、关键字筛选、分页翻页与扩展排序。
-- 补齐演员线第一轮 Worker 查询接口：新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并在 `Jvedio-WPF/Jvedio.Contracts/Actors/` 下新增演员列表、详情、关联影片 DTO。
-- 新增 `Jvedio-WPF/Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`，打通 `actor_info`、`metadata_to_actor`、`metadata`、`metadata_video` 的聚合查询，支持演员关键字筛选、分页、排序、详情读取和关联影片查询。
+- 补齐演员线第一轮 Worker 查询接口：新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并在 `dotnet/Jvedio.Contracts/Actors/` 下新增演员列表、详情、关联影片 DTO。
+- 新增 `dotnet/Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`，打通 `actor_info`、`metadata_to_actor`、`metadata`、`metadata_video` 的聚合查询，支持演员关键字筛选、分页、排序、详情读取和关联影片查询。
 - 更新 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`、`contracts-naming.md`、`backend-bridge.md`、`page-actors.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，将演员详情端点、DTO 命名和下一步 renderer 工作面同步到当前规格。
 - 完成第四批“设置页面”最小闭环：新增 `GET /api/settings` 与 `PUT /api/settings`，冻结第一轮真正落库的设置项为 `General.CurrentLanguage/Debug`、`MetaTube.ServerUrl/RequestTimeoutSeconds`、`Playback.PlayerPath/UseSystemDefaultFallback`。
-- 新增 `Jvedio-WPF/Jvedio.Worker/Services/SettingsService.cs` 与 `Controllers/SettingsController.cs`，将设置读取、保存、恢复默认统一收口到 Worker；保存后会发布 `settings.changed` 事件，并让播放链直接消费新的播放器回退策略。
+- 新增 `dotnet/Jvedio.Worker/Services/SettingsService.cs` 与 `Controllers/SettingsController.cs`，将设置读取、保存、恢复默认统一收口到 Worker；保存后会发布 `settings.changed` 事件，并让播放链直接消费新的播放器回退策略。
 - 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 Settings 路由壳、分组切换、表单态、保存反馈和恢复默认。
 - 新增 `electron/main/testing/settingsRegression.ts` 与 `electron/` `npm run regression:settings`，通过隔离的 sqlite 配置副本验证设置读取、保存和恢复默认三条最小主链路。
 - 继续收口设置线：新增 `POST /api/settings/meta-tube/diagnostics`，允许 Settings 页直接使用当前表单中的 MetaTube 地址与超时配置执行根地址、providers、测试番号搜索与详情诊断。
 - 更新 renderer 设置页，新增 MetaTube diagnostics 面板，并接入 `settings.changed` 事件消费；当设置被外部更新时，页面会同步最新持久化值，同时保留当前未保存草稿。
 - 扩展 `electron/main/testing/settingsRegression.ts`，新增本地 MetaTube stub 服务，稳定覆盖 MetaTube diagnostics 成功链路以及 `settings.changed` 的 dirty 草稿保护。
 - 完成第三批“影片展示和播放”主链路：新增 `GET /api/libraries/{libraryId}/videos`、`GET /api/videos/{videoId}`、`POST /api/videos/{videoId}/play`，并补齐 `Jvedio.Contracts/Libraries` 与 `Jvedio.Contracts/Videos` 下的影片列表、详情、播放可用性、播放写回相关 DTO。
-- 新增 `Jvedio-WPF/Jvedio.Worker/Services/VideoService.cs` 与 `Controllers/VideosController.cs`，打通库内影片结果集查询、基础筛选/排序、影片详情读取、外部播放器调用和 `metadata.ViewDate` 播放写回；同时在 `LibrariesController.cs` 接入库内影片列表端点。
+- 新增 `dotnet/Jvedio.Worker/Services/VideoService.cs` 与 `Controllers/VideosController.cs`，打通库内影片结果集查询、基础筛选/排序、影片详情读取、外部播放器调用和 `metadata.ViewDate` 播放写回；同时在 `LibrariesController.cs` 接入库内影片列表端点。
 - 更新 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，使 Library 页具备影片结果集展示、筛选、排序、刷新、详情路由壳和播放调用入口。
 - 新增 `electron/main/testing/batch3Regression.ts`、`npm run regression:batch3`，通过临时 sqlite 副本、临时媒体目录和假播放器脚本聚焦验证第三批的列表展示、筛选排序、详情跳转、播放调用与播放写回。
 - 更新 `plan/active/desktop-ui-shell-refactor/handoff.md`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将当前阶段状态推进到“第三批已完成，下一步进入第四批设置页面”。
 - 完成阶段 `C-4` 事件与错误收口：为 `Jvedio.Worker` 新增 `GET /api/events`、`WorkerEventStreamBroker`、`WorkerEventEnvelopeDto`、`TaskSummaryChangedEvent`，并发布 `worker.ready`、`library.changed`、`task.summary.changed` 三类事件，使 Home MVP 具备最小 SSE 事件流。
-- 更新 `Jvedio-WPF/Jvedio.Worker/Services/LibraryService.cs` 与 `TaskSummarySnapshotService.cs`，在库新建/删除后同步广播 `library.changed` 与任务摘要变更事件，收口 Home 页的库列表与任务摘要刷新链路。
+- 更新 `dotnet/Jvedio.Worker/Services/LibraryService.cs` 与 `TaskSummarySnapshotService.cs`，在库新建/删除后同步广播 `library.changed` 与任务摘要变更事件，收口 Home 页的库列表与任务摘要刷新链路。
 - 更新 `electron/renderer/src/api/client/apiClient.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，在 renderer 侧建立全局单 `EventSource` 订阅、消费 `library.changed` 和 `task.summary.changed`，并将 Worker 未就绪、请求失败、事件流断开统一映射为更明确的用户反馈。
 - 扩展 `electron/main/testing/c3Regression.ts`，在现有阶段 C 回归脚本中补充 `library.changed` 事件驱动同步、任务摘要刷新、Worker 未就绪错误反馈三项校验，继续沿用临时 sqlite 副本避免污染真实数据。
 - 完成阶段 `D` 的扫描与抓取最小闭环：扩展 `Jvedio.Worker` 的库更新、扫描、抓取与单任务查询接口，新增内存任务注册表、库扫描服务、MetaTube 抓取服务，以及 sidecar / NFO / 演员头像写出能力。
@@ -97,7 +97,7 @@
 - 完成阶段 `C-3` renderer Home 闭环：新增 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`app/navigation/useLibraryNavItems.ts`、`features/home/` 与 `types/api.ts`，在 renderer 侧落地 Worker API 调用、hash 路由、动态左侧库导航、Home 控制器和新建/删除库对话框。
 - 重写 `electron/renderer/index.html` 与 `electron/renderer/src/main.ts`，将原最小 smoke 页面替换为 Home MVP 壳层、库列表、任务摘要、Library 路由壳、结构化错误提示和响应式布局。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 已实现并完成构建验证，下一步先做聚焦功能回归，再进入 `C-4`”。
-- 完成阶段 `C-1` 工程骨架落地：新增 `Jvedio-WPF/Jvedio.Contracts` 与 `Jvedio-WPF/Jvedio.Worker`，并在根目录新增 `electron/` 的 `main / preload / renderer` 最小工程骨架；同时将两个新 .NET 工程接入 `Jvedio-WPF/Jvedio.sln`。
+- 完成阶段 `C-1` 工程骨架落地：新增 `dotnet/Jvedio.Contracts` 与 `dotnet/Jvedio.Worker`，并在根目录新增 `electron/` 的 `main / preload / renderer` 最小工程骨架；同时将两个新 .NET 工程接入 `dotnet/Jvedio.sln`。
 - 为 `Jvedio.Worker` 落地 localhost 宿主健康检查和 `JVEDIO_WORKER_READY` 启动信号，为 Electron 主进程落地 Worker 拉起、ready 探测、IPC bridge 和最小 smoke 验证页面。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将 active feature 状态推进到“`C-1` 已完成，下一步进入 `C-2`”。
 - 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将阶段 C 拆分为 `C-1` 到 `C-4` 四个实现步，并明确推荐采用“每步完成后先做对应模块测试，阶段末再做整体回归”的测试策略。
@@ -118,15 +118,15 @@
 - 收紧 `doc/UI/desktop-ui-shell-refactor/` 的绘图约束，补齐首页/设置页线稿说明、设置页分组展示规则、主题 token 使用规则，以及首批输出命名与验证要求，降低后续线稿图生成歧义。
 - 将 `plan/active/unit-test-refactor/` 迁移归档到 `plan/archive/unit-test-refactor/`，并把该 feature 状态更新为 `completed`，作为单元测试改造完成后的历史记录保留。
 - 完成 `doc/metatube-only-plan.md` 的历史归档迁移：将正文快照收敛到 `plan/archive/metatube-only-plan/original.md`，同步更新索引与 legacy 说明，并删除 `doc/` 下的旧计划文档。
-- 将仓库收敛为仅维护 `Jvedio-WPF`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。
-- 更新 `README.md`、`README_EN.md`、`README_JP.md`，明确仓库当前只维护 `Jvedio-WPF`。
-- 将原开发者 Wiki 重写为 `Jvedio-WPF/Document/Wiki/5.0/developer.md`，补充面向当前 WPF 架构的模块说明、维护路径与调试建议。
-- 删除 `Jvedio-WPF/Document/Wiki/4.6`、`Jvedio-WPF/Document/皮肤插件示例` 和遗留 `Jvedio-WPF/Document/Document.md` 等过时文档。
+- 将仓库收敛为仅维护 `dotnet`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。
+- 更新 `README.md`、`README_EN.md`、`README_JP.md`，明确仓库当前只维护 `dotnet`。
+- 将原开发者 Wiki 重写为 `dotnet/Document/Wiki/5.0/developer.md`，补充面向当前 WPF 架构的模块说明、维护路径与调试建议。
+- 删除 `dotnet/Document/Wiki/4.6`、`dotnet/Document/皮肤插件示例` 和遗留 `dotnet/Document/Document.md` 等过时文档。
 - 将维护中的文档统一收敛到 `doc/`，把开发文档迁移到 `doc/developer.md`，把变更日志迁移到 `doc/CHANGELOG.md`，并删除其余旧用户文档和历史 Wiki。
 - 联机调研后安装 `Mermaid CLI (mmdc)`，用于在开发文档中生成结构图和流程图。
 - 将 `doc/developer.md` 精简为总览索引，并新增 `doc/modules/` 模块文档与 `doc/assets/diagrams/` 图示资源。
 - 将维护中的开发文档统一改为中文，新增 `doc/modules/07-database-schema.md` 与 `doc/modules/08-entity-relations.md`。
-- 修复 `Jvedio-WPF/Jvedio/WindowStartUp.xaml.cs` 的空判断问题、`Jvedio-WPF/Jvedio/Windows/Window_Details.xaml.cs` 的刷新比较问题、`Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` 的扫描路径清理逻辑，以及 `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` 的缓存清理行为。
+- 修复 `dotnet/Jvedio/WindowStartUp.xaml.cs` 的空判断问题、`dotnet/Jvedio/Windows/Window_Details.xaml.cs` 的刷新比较问题、`dotnet/Jvedio/Windows/Window_DataBase.xaml.cs` 的扫描路径清理逻辑，以及 `dotnet/Jvedio/Core/Media/ImageCache.cs` 的缓存清理行为。
 - 优化 `03-main-ui`：为 `VieModel_VideoList` 增加页级关联数据预加载，减少列表渲染阶段的逐条关联查询；修复 `Genre` 搜索候选词未应用当前库和过滤条件的问题。
 - 优化 `04-scan-import`：为扫描导入建立 `VID`、`Hash`、路径和现存文件索引，减少重复遍历与重复 `File.Exists`，并复用索引优化 NFO 导入判定。
 - 优化 `05-sync-plugin`：爬虫插件加载时优先选择与插件目录名或元数据 JSON 匹配的 DLL，降低误加载依赖 DLL 的风险，并补强缺失插件目录时的初始化处理。
@@ -136,10 +136,10 @@
 - 优化 `07-database-schema`：为 `metadata (DBId,DataType,ViewCount)` 增加索引，并同时加入建表 SQL 与增量 SQL，改善按播放次数排序时的数据库支撑能力。
 - 优化 `08-entity-relations`：收紧 `Video.Equals()` 的比较规则，仅在有效 `DataID` / `MVID` 存在时判等，避免未落库实体因默认值相同而被误判相等。
 - 补齐剩余未完全独立的文档模块，新增：`doc/modules/09-dialogs.md`、`doc/modules/10-utils-extern.md`、`doc/modules/11-style-theme.md`、`doc/modules/12-avalonedit.md`。
-- 优化 `09-dialogs`：修复 `Jvedio-WPF/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` 在网站列表为空时的空引用风险，并统一站点列表的增删与去空白处理。
-- 优化 `10-utils-extern`：为 `Jvedio-WPF/Jvedio/Utils/Extern/JvedioLib.cs` 补齐 DLL、类型和方法缺失时的空保护，并修正 `Jvedio-WPF/Jvedio/Utils/Common/Converter.cs` 中的布尔空判断写法。
-- 优化 `11-style-theme`：将 `Jvedio-WPF/Jvedio/CustomStyle/StyleManager.cs` 中的高亮资源访问改为延迟读取，避免静态初始化阶段在资源未就绪时直接取主题资源导致异常。
-- 优化 `12-avalonedit`：为 `Jvedio-WPF/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `Jvedio-WPF/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
+- 优化 `09-dialogs`：修复 `dotnet/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` 在网站列表为空时的空引用风险，并统一站点列表的增删与去空白处理。
+- 优化 `10-utils-extern`：为 `dotnet/Jvedio/Utils/Extern/JvedioLib.cs` 补齐 DLL、类型和方法缺失时的空保护，并修正 `dotnet/Jvedio/Utils/Common/Converter.cs` 中的布尔空判断写法。
+- 优化 `11-style-theme`：将 `dotnet/Jvedio/CustomStyle/StyleManager.cs` 中的高亮资源访问改为延迟读取，避免静态初始化阶段在资源未就绪时直接取主题资源导致异常。
+- 优化 `12-avalonedit`：为 `dotnet/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `dotnet/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
 - 修复搜索历史增量 SQL 的表名错误，将 `common_search_history` 更正为当前实际使用的 `common_search_histories`，避免新环境启动时记录 SQL 逻辑错误。
 - 优化启动插件迁移流程：当 `plugins/temp` 不存在时直接跳过，不再把正常的“无待迁移插件”场景记录为错误。
 - 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
@@ -207,18 +207,18 @@
 ## [2026-03-15]
 
 ### 已变更
-- 新增 `Jvedio-WPF/Jvedio.Worker/Services/ConfigStoreService.cs`、`LibraryService.cs`、`AppBootstrapService.cs`，为 Electron Home MVP 落地共享 sqlite 数据目录上的配置读取、媒体库读写与 bootstrap 聚合能力。
-- 新增 `Jvedio-WPF/Jvedio.Worker/Controllers/AppController.cs`、`LibrariesController.cs`、`TasksController.cs`，并补齐 `HealthController.cs` 的 Worker 健康字段，完成 `GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks` 五个 `C-2` 同步接口。
-- 新增 `Jvedio-WPF/Jvedio.Worker/Middleware/ApiExceptionMiddleware.cs`、`WorkerApiException.cs`、`SqliteConnectionFactory.cs`、`WorkerPathResolver.cs`、`WorkerStorageBootstrapper.cs`，统一 Worker 错误包裹、路径解析和 sqlite 初始化逻辑。
-- 扩展 `Jvedio-WPF/Jvedio.Contracts` 的 Home MVP contracts，补齐统一响应时间戳、结构化错误字段、Worker 状态字段以及库列表 / 建库请求的首批扩展字段。
+- 新增 `dotnet/Jvedio.Worker/Services/ConfigStoreService.cs`、`LibraryService.cs`、`AppBootstrapService.cs`，为 Electron Home MVP 落地共享 sqlite 数据目录上的配置读取、媒体库读写与 bootstrap 聚合能力。
+- 新增 `dotnet/Jvedio.Worker/Controllers/AppController.cs`、`LibrariesController.cs`、`TasksController.cs`，并补齐 `HealthController.cs` 的 Worker 健康字段，完成 `GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks` 五个 `C-2` 同步接口。
+- 新增 `dotnet/Jvedio.Worker/Middleware/ApiExceptionMiddleware.cs`、`WorkerApiException.cs`、`SqliteConnectionFactory.cs`、`WorkerPathResolver.cs`、`WorkerStorageBootstrapper.cs`，统一 Worker 错误包裹、路径解析和 sqlite 初始化逻辑。
+- 扩展 `dotnet/Jvedio.Contracts` 的 Home MVP contracts，补齐统一响应时间戳、结构化错误字段、Worker 状态字段以及库列表 / 建库请求的首批扩展字段。
 - 更新 `electron/main/worker/workerProcess.ts`，在 Electron 拉起 Worker 时显式注入 `JVEDIO_APP_BASE_DIR`，确保 Worker 复用 WPF Release 的 `app_datas.sqlite` 与 `app_configs.sqlite`。
 - 更新 `plan/active/desktop-ui-shell-refactor/` 与 `doc/UI/desktop-ui-shell-refactor/electron/` 相关文档，将阶段状态同步到 `C-2` 已完成、`C-3` 待开始。
 
 ## [2026-03-07]
 
 ### 已变更
-- 修复 `Jvedio-WPF/Jvedio/Jvedio.csproj` 的预构建步骤，使本地 WPF 构建不再依赖私有 `D:\SuperStudio\...` 路径。
+- 修复 `dotnet/Jvedio/Jvedio.csproj` 的预构建步骤，使本地 WPF 构建不再依赖私有 `D:\SuperStudio\...` 路径。
 - 在复制前补齐输出目录创建逻辑，恢复本地干净环境下的构建能力。
-- 将 `Jvedio-WPF` 与 `Jvedio.Test` 统一为 `x86`，关闭过时的 ClickOnce 清单生成，并修正仓库内 DLL 引用路径。
-- 更新 `Jvedio-WPF/Jvedio/Upgrade/Jvedio4ToJvedio5.cs`，显式丢弃 fire-and-forget 任务返回值，清理剩余异步警告。
-- 验证 `Jvedio-WPF/Jvedio.sln` 的 `Debug` 构建可在本地达到 `0 warning / 0 error`。
+- 将 `dotnet` 与 `Jvedio.Test` 统一为 `x86`，关闭过时的 ClickOnce 清单生成，并修正仓库内 DLL 引用路径。
+- 更新 `dotnet/Jvedio/Upgrade/Jvedio4ToJvedio5.cs`，显式丢弃 fire-and-forget 任务返回值，清理剩余异步警告。
+- 验证 `dotnet/Jvedio.sln` 的 `Debug` 构建可在本地达到 `0 warning / 0 error`。

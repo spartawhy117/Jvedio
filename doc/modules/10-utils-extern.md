@@ -4,10 +4,10 @@
 
 | 区域 | 文件 |
 |--|--|
-| VID / 哈希工具 | `Jvedio-WPF/Jvedio/Utils/Extern/JvedioLib.cs` |
-| 值转换器 | `Jvedio-WPF/Jvedio/Utils/Common/Converter.cs` |
-| 扫描路径配置 | `Jvedio-WPF/Jvedio/Utils/Config/ScanPathConfig.cs` |
-| 最近观看配置 | `Jvedio-WPF/Jvedio/Utils/Config/RecentWatchedConfig.cs` |
+| VID / 哈希工具 | `dotnet/Jvedio/Utils/Extern/JvedioLib.cs` |
+| 值转换器 | `dotnet/Jvedio/Utils/Common/Converter.cs` |
+| 扫描路径配置 | `dotnet/Jvedio/Utils/Config/ScanPathConfig.cs` |
+| 最近观看配置 | `dotnet/Jvedio/Utils/Config/RecentWatchedConfig.cs` |
 
 ## 负责内容
 

@@ -4,11 +4,11 @@
 
 | 实体 | 作用 | 文件 |
 |--|--|--|
-| `Video` | 主业务实体，贯穿扫描、下载、列表、详情、截图 | `Jvedio-WPF/Jvedio/Entity/Data/Video.cs` |
-| `MetaData` | 通用元数据基类信息 | `Jvedio-WPF/Jvedio/Entity/Data/MetaData.cs` |
-| `ActorInfo` | 演员资料 | `Jvedio-WPF/Jvedio/Entity/Common/ActorInfo.cs` |
-| `AppDatabase` | 媒体库定义 | `Jvedio-WPF/Jvedio/Entity/CommonSQL/AppDatabase.cs` |
-| `SearchHistory` | 搜索历史 | `Jvedio-WPF/Jvedio/Entity/CommonSQL/SearchHistory.cs` |
+| `Video` | 主业务实体，贯穿扫描、下载、列表、详情、截图 | `dotnet/Jvedio/Entity/Data/Video.cs` |
+| `MetaData` | 通用元数据基类信息 | `dotnet/Jvedio/Entity/Data/MetaData.cs` |
+| `ActorInfo` | 演员资料 | `dotnet/Jvedio/Entity/Common/ActorInfo.cs` |
+| `AppDatabase` | 媒体库定义 | `dotnet/Jvedio/Entity/CommonSQL/AppDatabase.cs` |
+| `SearchHistory` | 搜索历史 | `dotnet/Jvedio/Entity/CommonSQL/SearchHistory.cs` |
 
 ## 核心关系
 

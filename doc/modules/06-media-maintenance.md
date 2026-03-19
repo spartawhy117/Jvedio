@@ -4,11 +4,11 @@
 
 | 区域 | 文件 |
 |--|--|
-| 截图任务 | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShotTask.cs` |
-| FFmpeg 包装 | `Jvedio-WPF/Jvedio/Core/FFmpeg/ScreenShot.cs` |
-| 图片缓存 | `Jvedio-WPF/Jvedio/Core/Media/ImageCache.cs` |
-| 数据库工具 | `Jvedio-WPF/Jvedio/Windows/Window_DataBase.xaml.cs` |
-| 升级辅助 | `Jvedio-WPF/Jvedio/Upgrade/UpgradeHelper.cs` |
+| 截图任务 | `dotnet/Jvedio/Core/FFmpeg/ScreenShotTask.cs` |
+| FFmpeg 包装 | `dotnet/Jvedio/Core/FFmpeg/ScreenShot.cs` |
+| 图片缓存 | `dotnet/Jvedio/Core/Media/ImageCache.cs` |
+| 数据库工具 | `dotnet/Jvedio/Windows/Window_DataBase.xaml.cs` |
+| 升级辅助 | `dotnet/Jvedio/Upgrade/UpgradeHelper.cs` |
 
 ## 负责内容
 
