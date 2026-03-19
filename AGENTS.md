@@ -60,7 +60,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - WebApplicationFactory 内置日志（临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`，测试后自动清理）
 
 当前测试规模：
-- 52 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + Actor 5 + Scrape 3 + VidParsing 17 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2 + UrlParamBypassed 1）
+- 52 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 4 + Actor 5 + Scrape 3 + VidParsing 18 + SidecarPath 6 + ScanOrganize 5 + ScanImportApi 2）
 - 全部通过
 
 ## 当前关键目录规则
@@ -116,7 +116,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 6. 再提交和推送
 
 补充规则：
-- 如果本轮只修改文档、说明文字、规划内容或其他纯内容文件，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则最后可以不跑 `Jvedio.Test` 的集成测试。
+- 如果本轮只修改文档、说明文字、规划内容或其他纯内容文件，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则最后可以不跑 `Jvedio.Worker.Tests` 的集成测试。
 - 上述纯内容修改场景下，仍需至少完成 Release 构建，并在提交说明里明确“未跑集成测试”的原因。
 - 如果用户口头要求“提交”，默认包含两个动作：先 `commit`，再 `push`；只有在用户明确说明“只本地提交 / 不推送”时，才只做本地提交。
 

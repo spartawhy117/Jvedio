@@ -59,7 +59,7 @@ Playwright → 直连 Vite dev server（同一个 SPA）
 ```
 doc/testing/
 ├── README.md                          ← 本文件（索引入口）
-├── backend/                           ← 后端集成测试（Jvedio.Test C# 工程）
+├── backend/                           ← 后端测试（Jvedio.Worker.Tests C# 工程）
 │   ├── test-plan.md                   ← 测试工程组织方式、配置、脚本、执行流程
 │   ├── test-targets.md                ← 测试目标与通过标准（强/弱断言）
 │   └── test-current-suite.md          ← 当前已实现的 52 个测试清单
@@ -68,6 +68,19 @@ doc/testing/
     ├── playwright-e2e-test-plan.md    ← Playwright MCP 执行方案、启停流程、已知限制
     └── playwright-e2e-test-cases.md   ← 48 个 E2E 用例（7 张流程图拆解）
 ```
+
+## 快速上手
+
+如果你想自己配置并运行测试，参考以下入口：
+
+| 我想… | 操作 |
+|--------|------|
+| 跑 52 个 Worker 契约测试 | `cd dotnet/Jvedio.Worker.Tests && dotnet test --configuration Release`（零配置） |
+| 跑 E2E 播种（含 MetaTube 抓取） | 查看 [`test-data/config/README.md`](../../test-data/config/README.md) 配置说明，然后运行 `.\test-data\scripts\seed-e2e-data.ps1` |
+| 自定义 MetaTube 地址 / 测试视频 | 复制 `test-data/config/test-env.local.json.example` → `.local.json`，填入你的配置 |
+| 清理 E2E 测试环境 | `.\test-data\scripts\cleanup-e2e-data.ps1` |
+
+> 📖 完整配置指南见 [`test-data/config/README.md`](../../test-data/config/README.md)
 
 ## 阅读顺序
 

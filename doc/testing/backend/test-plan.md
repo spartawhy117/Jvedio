@@ -100,7 +100,7 @@ File.WriteAllText(Path.Combine(testRoot, "STARS-123.mp4"), "dummy2");
 
 ### 4.3 API 端到端测试 — 空库启动 + 测试方法内自建数据
 
-**适用测试**：`ScanImportApiTests`（2 个）、所有契约测试（13 个）
+**适用测试**：`ScanImportApiTests`（2 个）、所有契约测试
 
 这类测试依赖 `TestBootstrap` 启动的进程内 Worker 服务。
 

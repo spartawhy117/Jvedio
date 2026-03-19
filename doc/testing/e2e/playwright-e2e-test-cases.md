@@ -634,17 +634,17 @@
 
 ### 测试数据目录
 
-假视频文件放置在现有 Test 项目的 scan config 目录下：
+假视频文件放置在 `test-data/e2e/videos/` 目录下：
 
 ```
-dotnet/Jvedio.Test/config/scan/input/
+test-data/e2e/videos/
 ├── lib-a/          ← 媒体库 A 扫描目录（JUR-293-C、SNOS-037、ABP-001）
 └── lib-b/          ← 媒体库 B 扫描目录（SONE-100、MIDV-200）
 ```
 
-复用现有 Test 项目资产：
-- **VID 列表**：`JUR-293-C`、`SNOS-037`（来自 `config/meta-tube/meta-tube-test-config.json`，已验证 MetaTube 有数据）
-- **MetaTube 服务地址**：从 `test-data/config/test-env.json` 读取（默认 `https://metatube-server.hf.space`，可通过 `.local.json` 覆盖）
+复用测试配置：
+- **VID 列表**：从 `test-data/config/test-env.json` 的 `seedVideos` 字段读取
+- **MetaTube 服务地址**：从 `test-data/config/test-env.json` 的 `metaTube.serverUrl` 读取（可通过 `.local.json` 覆盖）
 
 ### 数据播种流程
 
@@ -674,5 +674,5 @@ dotnet/Jvedio.Test/config/scan/input/
 - 流程图索引：`doc/UI/new/flow/README.md`
 - 验证矩阵（含 Phase 7 播种方案）：`plan/active/desktop-ui-shell-refactor/validation.md`
 - 后端测试计划：`doc/testing/backend/test-plan.md`
-- 测试数据目录：`dotnet/Jvedio.Test/config/scan/input/`
-- MetaTube 测试配置：`dotnet/Jvedio.Test/config/meta-tube/meta-tube-test-config.json`
+- 测试数据配置：`test-data/config/test-env.json`（可通过 `.local.json` 覆盖）
+- 测试数据目录：`test-data/e2e/videos/`
