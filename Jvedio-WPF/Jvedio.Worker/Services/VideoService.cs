@@ -138,6 +138,7 @@ public sealed class VideoService
             Director = record.Value.Director,
             DisplayTitle = BuildDisplayTitle(record.Value.Title, record.Value.Vid, record.Value.Path),
             DurationSeconds = record.Value.DurationSeconds,
+            IsFavorite = record.Value.FavoriteCount > 0,
             LibraryId = record.Value.LibraryId.ToString(),
             LibraryName = library?.Name ?? string.Empty,
             LastPlayedAt = NullIfWhiteSpace(record.Value.LastPlayedAt),
@@ -161,6 +162,189 @@ public sealed class VideoService
         return new GetVideoDetailResponse
         {
             Video = video,
+        };
+    }
+
+    public ToggleFavoriteResponse ToggleFavorite(string videoId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = LoadVideoDetailRecord(connection, videoId);
+        if (record is null)
+        {
+            throw CreateNotFoundException("video.favorite.not_found", $"Video {videoId} was not found.");
+        }
+
+        var currentFavoriteCount = record.Value.FavoriteCount;
+        var newFavoriteCount = currentFavoriteCount > 0 ? 0 : 1;
+
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE metadata
+            SET FavoriteCount = $favoriteCount,
+                UpdateDate = STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+            WHERE DataID = $dataId;
+            """;
+        command.Parameters.AddWithValue("$dataId", record.Value.DataId);
+        command.Parameters.AddWithValue("$favoriteCount", newFavoriteCount);
+        command.ExecuteNonQuery();
+
+        logger.LogInformation(
+            "[Worker-Video] Toggled favorite for video {VideoId}: {OldCount} -> {NewCount}",
+            videoId, currentFavoriteCount, newFavoriteCount);
+
+        return new ToggleFavoriteResponse
+        {
+            VideoId = videoId,
+            IsFavorite = newFavoriteCount > 0,
+            FavoriteCount = newFavoriteCount,
+        };
+    }
+
+    public DeleteVideoResponse DeleteVideo(string videoId, bool deleteFile)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = LoadVideoDetailRecord(connection, videoId);
+        if (record is null)
+        {
+            throw CreateNotFoundException("video.delete.not_found", $"Video {videoId} was not found.");
+        }
+
+        var fileDeleted = false;
+        if (deleteFile && File.Exists(record.Value.Path))
+        {
+            try
+            {
+                // Delete sidecar files first
+                var vid = record.Value.Vid;
+                var dir = Path.GetDirectoryName(record.Value.Path) ?? string.Empty;
+                var prefix = NormalizeSidecarPrefix(record.Value.Path, vid);
+                foreach (var suffix in new[] { ".nfo", "-poster.jpg", "-thumb.jpg", "-fanart.jpg" })
+                {
+                    var sidecarPath = Path.Combine(dir, $"{prefix}{suffix}");
+                    if (File.Exists(sidecarPath)) File.Delete(sidecarPath);
+                }
+
+                File.Delete(record.Value.Path);
+                fileDeleted = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "[Worker-Video] Failed to delete file for video {VideoId}: {Path}", videoId, record.Value.Path);
+            }
+        }
+
+        // Delete from DB
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "DELETE FROM metadata_to_actor WHERE DataID = $dataId;";
+            cmd.Parameters.AddWithValue("$dataId", record.Value.DataId);
+            cmd.ExecuteNonQuery();
+        }
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "DELETE FROM metadata_video WHERE DataID = $dataId;";
+            cmd.Parameters.AddWithValue("$dataId", record.Value.DataId);
+            cmd.ExecuteNonQuery();
+        }
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = "DELETE FROM metadata WHERE DataID = $dataId;";
+            cmd.Parameters.AddWithValue("$dataId", record.Value.DataId);
+            cmd.ExecuteNonQuery();
+        }
+
+        logger.LogInformation(
+            "[Worker-Video] Deleted video {VideoId}, fileDeleted={FileDeleted}",
+            videoId, fileDeleted);
+
+        return new DeleteVideoResponse
+        {
+            VideoId = videoId,
+            Deleted = true,
+            FileDeleted = fileDeleted,
+        };
+    }
+
+    public BatchOperationResponse BatchFavorite(BatchOperationRequest request, bool favorite)
+    {
+        var successCount = 0;
+        var failedIds = new List<string>();
+
+        foreach (var videoId in request.VideoIds)
+        {
+            try
+            {
+                using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+                if (!long.TryParse(videoId, out var dataId) || dataId <= 0)
+                {
+                    failedIds.Add(videoId);
+                    continue;
+                }
+
+                using var command = connection.CreateCommand();
+                command.CommandText =
+                    """
+                    UPDATE metadata
+                    SET FavoriteCount = $favoriteCount,
+                        UpdateDate = STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')
+                    WHERE DataID = $dataId;
+                    """;
+                command.Parameters.AddWithValue("$dataId", dataId);
+                command.Parameters.AddWithValue("$favoriteCount", favorite ? 1 : 0);
+                var affected = command.ExecuteNonQuery();
+                if (affected > 0) successCount++;
+                else failedIds.Add(videoId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "[Worker-Video] BatchFavorite failed for video {VideoId}", videoId);
+                failedIds.Add(videoId);
+            }
+        }
+
+        logger.LogInformation(
+            "[Worker-Video] BatchFavorite: {SuccessCount} success, {FailedCount} failed, favorite={Favorite}",
+            successCount, failedIds.Count, favorite);
+
+        return new BatchOperationResponse
+        {
+            SuccessCount = successCount,
+            FailedCount = failedIds.Count,
+            FailedVideoIds = failedIds,
+        };
+    }
+
+    public BatchOperationResponse BatchDelete(BatchOperationRequest request, bool deleteFiles)
+    {
+        var successCount = 0;
+        var failedIds = new List<string>();
+
+        foreach (var videoId in request.VideoIds)
+        {
+            try
+            {
+                DeleteVideo(videoId, deleteFiles);
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "[Worker-Video] BatchDelete failed for video {VideoId}", videoId);
+                failedIds.Add(videoId);
+            }
+        }
+
+        logger.LogInformation(
+            "[Worker-Video] BatchDelete: {SuccessCount} success, {FailedCount} failed, deleteFiles={DeleteFiles}",
+            successCount, failedIds.Count, deleteFiles);
+
+        return new BatchOperationResponse
+        {
+            SuccessCount = successCount,
+            FailedCount = failedIds.Count,
+            FailedVideoIds = failedIds,
         };
     }
 
@@ -295,7 +479,8 @@ public sealed class VideoService
                    IFNULL(metadata.ViewCount, 0),
                    IFNULL(metadata.Rating, 0),
                    IFNULL(metadata_video.VID, ''),
-                   IFNULL(metadata_video.Duration, 0)
+                   IFNULL(metadata_video.Duration, 0),
+                   IFNULL(metadata.FavoriteCount, 0)
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DBId = $libraryId
@@ -311,6 +496,7 @@ public sealed class VideoService
             var dataId = reader.GetInt64(0);
             var path = reader.GetString(3);
             var vid = reader.GetString(9);
+            var favoriteCount = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11));
             var sidecars = BuildSidecarState(path, vid);
             result.Add(new VideoListItemDto
             {
@@ -321,6 +507,7 @@ public sealed class VideoService
                 HasNfo = sidecars.Nfo.Exists,
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
+                IsFavorite = favoriteCount > 0,
                 LibraryId = reader.GetInt64(1).ToString(),
                 LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
                 LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
@@ -609,7 +796,8 @@ public sealed class VideoService
                    IFNULL(metadata_video.Studio, ''),
                    IFNULL(metadata_video.Plot, ''),
                    IFNULL(metadata_video.Outline, ''),
-                   IFNULL(metadata_video.WebUrl, '')
+                   IFNULL(metadata_video.WebUrl, ''),
+                   IFNULL(metadata.FavoriteCount, 0)
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
             WHERE metadata.DataID = $videoId
@@ -641,7 +829,8 @@ public sealed class VideoService
             reader.GetString(13),
             reader.GetString(14),
             reader.GetString(15),
-            reader.GetString(16));
+            reader.GetString(16),
+            reader.IsDBNull(17) ? 0 : Convert.ToInt32(reader.GetValue(17)));
     }
 
     private List<VideoActorDto> LoadActors(SqliteConnection connection, long dataId)
@@ -852,7 +1041,8 @@ public sealed class VideoService
         string Studio,
         string Plot,
         string Outline,
-        string WebUrl);
+        string WebUrl,
+        int FavoriteCount);
 
     private readonly record struct PagedVideoResult(
         IReadOnlyList<VideoListItemDto> Items,

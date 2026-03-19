@@ -28,6 +28,10 @@ import type {
   GetVideoDetailResponse,
   PlayVideoRequest,
   PlayVideoResponse,
+  ToggleFavoriteResponse,
+  DeleteVideoResponse,
+  BatchOperationRequest,
+  BatchOperationResponse,
   // Video Groups
   GetVideoGroupsResponse,
   GetVideoGroupVideosRequest,
@@ -248,6 +252,37 @@ export class ApiClient {
     return this.request(
       `/api/videos/${encodeURIComponent(videoId)}/play`,
       this.jsonBody(req ?? {})
+    );
+  }
+
+  toggleFavorite(videoId: string): Promise<ToggleFavoriteResponse> {
+    return this.request(
+      `/api/videos/${encodeURIComponent(videoId)}/toggle-favorite`,
+      { method: "POST" }
+    );
+  }
+
+  deleteVideo(videoId: string, deleteFile?: boolean): Promise<DeleteVideoResponse> {
+    const qs = this.buildQuery({ deleteFile: deleteFile || undefined });
+    return this.request(
+      `/api/videos/${encodeURIComponent(videoId)}${qs}`,
+      { method: "DELETE" }
+    );
+  }
+
+  batchFavorite(req: BatchOperationRequest, favorite: boolean): Promise<BatchOperationResponse> {
+    const qs = this.buildQuery({ favorite });
+    return this.request(
+      `/api/videos/batch/favorite${qs}`,
+      this.jsonBody(req)
+    );
+  }
+
+  batchDelete(req: BatchOperationRequest, deleteFiles?: boolean): Promise<BatchOperationResponse> {
+    const qs = this.buildQuery({ deleteFiles: deleteFiles || undefined });
+    return this.request(
+      `/api/videos/batch/delete${qs}`,
+      this.jsonBody(req)
     );
   }
 

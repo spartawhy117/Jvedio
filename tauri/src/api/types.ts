@@ -122,6 +122,7 @@ export interface VideoListItemDto {
   durationSeconds: number;
   rating: number;
   viewCount: number;
+  isFavorite: boolean;
   lastPlayedAt: string | null;
   lastScanAt: string | null;
   hasPoster: boolean;
@@ -176,6 +177,7 @@ export interface VideoDetailDto {
   durationSeconds: number;
   rating: number;
   viewCount: number;
+  isFavorite: boolean;
   lastPlayedAt: string | null;
   lastScanAt: string | null;
   director: string;
@@ -224,6 +226,28 @@ export interface PlayVideoRequest {
 export interface PlayVideoResponse {
   played: boolean;
   playerUsed: string;
+}
+
+export interface ToggleFavoriteResponse {
+  videoId: string;
+  isFavorite: boolean;
+  favoriteCount: number;
+}
+
+export interface DeleteVideoResponse {
+  videoId: string;
+  deleted: boolean;
+  fileDeleted: boolean;
+}
+
+export interface BatchOperationRequest {
+  videoIds: string[];
+}
+
+export interface BatchOperationResponse {
+  successCount: number;
+  failedCount: number;
+  failedVideoIds: string[];
 }
 
 // ── Video Groups (Categories / Series) ──────────────────

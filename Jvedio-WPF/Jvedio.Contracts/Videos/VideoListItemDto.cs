@@ -16,6 +16,8 @@ public sealed class VideoListItemDto
 
     public bool HasThumb { get; set; }
 
+    public bool IsFavorite { get; set; }
+
     public string LibraryId { get; set; } = string.Empty;
 
     public string? LastPlayedAt { get; set; }

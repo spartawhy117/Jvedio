@@ -73,4 +73,43 @@ public sealed class VideosController : ControllerBase
         var response = videoService.PlayVideo(videoId, request ?? new PlayVideoRequest());
         return ApiResponse<PlayVideoResponse>.FromData(response, HttpContext.TraceIdentifier);
     }
+
+    [HttpPost("{videoId}/toggle-favorite")]
+    public ActionResult<ApiResponse<ToggleFavoriteResponse>> ToggleFavorite(
+        string videoId,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.ToggleFavorite(videoId);
+        return ApiResponse<ToggleFavoriteResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    [HttpDelete("{videoId}")]
+    public ActionResult<ApiResponse<DeleteVideoResponse>> DeleteVideo(
+        string videoId,
+        [FromQuery] bool deleteFile,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.DeleteVideo(videoId, deleteFile);
+        return ApiResponse<DeleteVideoResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    [HttpPost("batch/favorite")]
+    public ActionResult<ApiResponse<BatchOperationResponse>> BatchFavorite(
+        [FromBody] BatchOperationRequest request,
+        [FromQuery] bool favorite,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.BatchFavorite(request, favorite);
+        return ApiResponse<BatchOperationResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
+
+    [HttpPost("batch/delete")]
+    public ActionResult<ApiResponse<BatchOperationResponse>> BatchDelete(
+        [FromBody] BatchOperationRequest request,
+        [FromQuery] bool deleteFiles,
+        [FromServices] VideoService videoService)
+    {
+        var response = videoService.BatchDelete(request, deleteFiles);
+        return ApiResponse<BatchOperationResponse>.FromData(response, HttpContext.TraceIdentifier);
+    }
 }
