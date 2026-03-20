@@ -5,7 +5,8 @@
 
 ## [未发布]
 
-（当前无未发布变更）
+### 新增
+- 统一版本管理脚本 `scripts/bump-version.ps1`：一条命令更新 4 个核心版本文件（`package.json`、`tauri.conf.json`、`Cargo.toml`、`Jvedio.csproj`），保留 BOM/换行符，支持参数校验和幂等操作。
 
 ## [0.1.0] - 2026-03-20
 
