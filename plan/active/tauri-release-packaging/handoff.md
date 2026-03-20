@@ -18,7 +18,7 @@
 | D-5 | 打包目标 Windows x64 | MSI + NSIS 双格式 |
 | D-6 | Worker 打包方式 | `prepare-worker.ps1` → `build/worker-stage/` → `bundle.resources` 捆绑到 `worker/` |
 | D-7 | 不做代码签名 | 个人使用，后续可选 |
-| D-8 | 版本 5.0.0 | 首次打包保持 5.0.0，无自动更新 |
+| D-8 | 版本 0.1.0 | 首次打包版本重设为 0.1.0（SemVer 起步），已打 tag `v0.1.0` |
 
 ## 环境确认
 
@@ -62,7 +62,7 @@
 
 1. WPF 启动层已移除（代码 + 构建配置）
 2. Tauri Shell 单实例控制已补齐
-3. 一个可运行的 `JvedioNext_5.0.0_x64-setup.exe` 或 `JvedioNext_5.0.0_x64_en-US.msi`
+3. 一个可运行的 `JvedioNext_0.1.0_x64-setup.exe`
 4. 安装后启动链路验证通过（含单实例测试）
 5. 打包流程和已知问题已文档化
 6. `doc/CHANGELOG.md` + `AGENTS.md` + 相关文档已更新

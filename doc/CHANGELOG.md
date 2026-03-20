@@ -5,6 +5,25 @@
 
 ## [未发布]
 
+（当前无未发布变更）
+
+## [0.1.0] - 2026-03-20
+
+### 新增
+- Tauri 2 桌面壳层（`JvedioNext.exe`），作为用户双击入口
+- .NET 8 Worker 后端（`Jvedio.Worker.exe`），承载所有业务逻辑
+- NSIS 安装包打包（`JvedioNext_0.1.0_x64-setup.exe`）
+- 统一构建输出目录（`build/release/`、`build/worker-stage/`、`build/frontend-stage/`）
+- `tauri-plugin-single-instance` 单实例控制
+- 语义化版本管理（`v0.1.0` 起步）
+- MetaTube 唯一搜刮源（搜索、详情、演员头像、Sidecar 写出）
+- 扫描前自动目录整理（平铺影片整理到独立目录）
+- 62 个后端测试（Bootstrap、DTO、Libraries、Settings、Videos、Actor、Scrape、VidParsing、SidecarPath、ScanOrganize、ScanImportApi）
+- 完整 UI 页面：Home、Library Management、Library Workbench、Favorites、Actors、Categories、Series、Video Detail、Settings
+- SSE 事件流（`library.changed`、`task.summary.changed`、`settings.changed`）
+- 任务失败详情与重试机制
+- 全局活动条（跨页面任务状态反馈）
+
 ### 已变更
 - 新增临时清理工具 `temp/cleanup-test-artifacts.ps1`，支持按目标清理 `log/test` 与指定 `test-data` 子目录，默认覆盖当前 E2E 常用产物目录，并优先用 git scoped restore/clean 将目录恢复到仓库状态。
 - 修复 Release 下 WPF 宿主拉起新桌面壳的启动名不一致问题：`dotnet/Jvedio/App.xaml.cs` 现在改为查找并启动 `tauri-shell/jvedio-shell.exe`，不再错误回退到旧 WPF 路径。
@@ -154,11 +173,12 @@
 ### 已变更
 - **统一构建输出目录**：所有构建产物从散落的 `tauri/worker-dist/`、`tauri/dist/`、`tauri/src-tauri/target/.../bundle/nsis/` 收归到仓库根 `build/` 目录（`build/worker-stage/`、`build/frontend-stage/`、`build/release/`）。`prepare-worker.ps1` 直接 publish 到 `build/worker-stage/`，`vite.config.ts` 输出到 `build/frontend-stage/`，新增 `copy-release.ps1` 将安装包复制到 `build/release/`。
 - 清理旧散落构建产物：删除 `tauri/worker-dist/`（26 files, 2.83 MB）、`tauri/dist/`（4 files）、旧名安装包 `Jvedio_5.0.0_x64-setup.exe`、旧 MSI 残留。
+- **版本号重设为 `0.1.0`**：4 个核心文件版本号从 `5.0.0` 统一重设为 `0.1.0`（`package.json`、`tauri.conf.json`、`Cargo.toml`、`Jvedio.csproj`）。Tauri 架构是全新重写，采用语义化版本 `0.x.y` 起步。安装包文件名变为 `JvedioNext_0.1.0_x64-setup.exe`。首个 git tag `v0.1.0`。
 - **去掉 WPF 启动层**：`Jvedio.exe` (WPF) 不再作为 Release 用户入口。Tauri Shell 直接面向用户，产出为 `JvedioNext.exe`。删除 `TauriShellLauncher` 类和 `PrepareTauriShellArtifacts` MSBuild Target。WPF 项目保留仅用于 Debug / 历史参考。
 - **补齐单实例控制**：在 Tauri 端添加 `tauri-plugin-single-instance`，重复启动时聚焦已有窗口，替代 WPF 端的 `EventWaitHandle` 互斥锁。
 - **Worker 路径解析增强**：`WorkerPathResolver.ResolveSharedAppBaseDirectory()` 新增安装包 fallback — 当 Worker 位于 `{parent}/worker/` 目录时，使用 `{parent}` 作为数据根目录。
-- **首次完成 Tauri Release 打包**：`npm run build:release` 产出 NSIS 安装包 `JvedioNext_5.0.0_x64-setup.exe`（9.8 MB）。MSI 格式因 WiX `light.exe` 问题暂跳过，`bundle.targets` 设为 `["nsis"]`。
-- **修复 Worker SQLite native DLL 丢失**：`prepare-worker.ps1` 从 `dotnet build` 改为 `dotnet publish -r win-x64 --self-contained false`，确保 `e_sqlite3.dll` 等 native DLL 平铺在 `worker-dist/` 根目录，解决安装后 Worker 启动崩溃问题。
+- **首次完成 Tauri Release 打包**：`npm run build:release` 产出 NSIS 安装包 `JvedioNext_0.1.0_x64-setup.exe`。MSI 格式因 WiX `light.exe` 问题暂跳过，`bundle.targets` 设为 `["nsis"]`。
+- **修复 Worker SQLite native DLL 丢失**：`prepare-worker.ps1` 从 `dotnet build` 改为 `dotnet publish -r win-x64 --self-contained false`，确保 `e_sqlite3.dll` 等 native DLL 平铺在 `build/worker-stage/` 根目录，解决安装后 Worker 启动崩溃问题。
 - 完成 `desktop-ui-shell-refactor` 的 Phase 10 前端 E2E 验收收口：基于真实播种环境跑通 Main Shell、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 七组 flow，并将结果回写到 `plan/active/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
 - 修复 `tauri/src/pages/ActorDetailPage.tsx` 中关联影片菜单 / 多选改造引入的运行时崩溃，补齐演员详情页的 `演员 ID`、单卡菜单与批量动作承载。
 - 修复 Settings 的 MetaTube diagnostics 前端合同漂移：`tauri/src/api/types.ts` 与后端 DTO 对齐，页面展示从错误的 `undefinedms` 改为真实摘要结果。
