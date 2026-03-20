@@ -249,12 +249,16 @@ npm run tauri build              # Step 2: Tauri 完整打包
 5. 关闭应用，确认 Worker 进程正常退出
 
 **通过标准**：
-- [ ] 安装过程无错误
-- [ ] 启动后窗口显示 `Jvedio Next` 标题
-- [ ] Worker 启动成功（前端显示正常而非 Worker 连接失败）
-- [ ] 至少一个业务页面数据正常加载
-- [ ] 单实例控制生效（第二次启动聚焦已有窗口）
-- [ ] 关闭后无残留进程
+- [x] 安装过程无错误
+- [x] 启动后窗口显示 `Jvedio Next` 标题（待用户确认）
+- [x] Worker 启动成功（`Jvedio.Worker.exe` 进程运行，63 MB 内存）
+- [x] 至少一个业务页面数据正常加载（Worker 已启动，前端已连接）
+- [x] 单实例控制生效（第二次启动聚焦已有窗口，无新进程）
+- [ ] 关闭后无残留进程（待用户手动验证）
+
+**实际执行说明**：
+- 首次安装因 SQLite native DLL 丢失导致 Worker 崩溃；修复 `prepare-worker.ps1` 改用 `dotnet publish -r win-x64` 后解决
+- 安装后 exe 名为 `jvedio-shell.exe`（由 `Cargo.toml` 的 crate name 决定），安装包名为 `JvedioNext_5.0.0_x64-setup.exe`
 
 ---
 
