@@ -348,6 +348,9 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
+# Unified build output directory (Phase 7)
+/build/
+
 # Temp scripts for development
 /temp/
 _tauri-output.log

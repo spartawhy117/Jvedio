@@ -8,16 +8,8 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
 dist-ssr
 *.local
-
-# Worker build staging directory (produced by scripts/prepare-worker.ps1)
-worker-dist/*
-!worker-dist/.gitkeep
-
-# Worker publish intermediate directory (produced by dotnet publish in prepare-worker.ps1)
-worker-publish/
 
 # Editor directories and files
 .vscode/*
