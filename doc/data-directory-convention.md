@@ -14,8 +14,13 @@
 ### 2.1 完整目录树
 
 ```
-{SharedAppBaseDirectory}/                        ← dotnet/Jvedio/bin/Release（或 JVEDIO_APP_BASE_DIR）
-├── Jvedio.exe                                   ← WPF 主程序 / AppBootstrapService 读取版本号
+{SharedAppBaseDirectory}/                        ← JvedioNext.exe 所在目录（或 JVEDIO_APP_BASE_DIR）
+├── JvedioNext.exe                               ← Tauri Shell 用户入口
+├── resources/
+│   └── icon.ico
+├── worker/
+│   ├── Jvedio.Worker.exe
+│   └── *.dll
 ├── data/
 │   └── {Windows用户名}/                          ← CurrentUserFolder
 │       ├── app_datas.sqlite                     ← 业务数据库（5 张表）
@@ -211,8 +216,8 @@ data/test-user/cache/video/{LibraryName}/{VID}/
 
 ```
 {repo-root}/build/
-├── release/                          ← 最终发布产物（安装包 copy 到此）
-│   └── JvedioNext_*_x64-setup.exe
+├── release/                          ← 最终发布产物
+│   └── JvedioNext_*_x64-portable.zip
 ├── worker-stage/                     ← Worker dotnet publish 暂存
 │   ├── Jvedio.Worker.exe
 │   └── *.dll
@@ -225,7 +230,7 @@ data/test-user/cache/video/{LibraryName}/{VID}/
 |------|------|---------|
 | `build/worker-stage/` | Worker 编译产物暂存 | `npm run prepare-worker` |
 | `build/frontend-stage/` | 前端编译产物暂存 | `npm run build`（vite build） |
-| `build/release/` | NSIS 安装包 copy | `npm run build:release` 末尾 copy-release.ps1 |
+| `build/release/` | ZIP 便携版发布产物 | `npm run build:release` 末尾 `package-portable.ps1` |
 
 ## 9. 关联文档
 

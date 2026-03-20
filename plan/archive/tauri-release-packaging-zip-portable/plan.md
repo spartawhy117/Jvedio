@@ -24,19 +24,19 @@
 
 ### Phase 1–4：已完成 ✅
 
-配置改造（`tauri.conf.json` targets=[]）、打包脚本改造（删 `copy-release.ps1`，新增 `package-portable.ps1`）、npm 脚本更新、文档更新（AGENTS.md + 验收计划）。提交 `ef47856`。
+配置改造（`tauri.conf.json` targets=[]）、打包脚本改造（删 `copy-release.ps1`，新增 `package-portable.ps1` 与 `build-release.ps1`）、npm 脚本更新、文档更新（`AGENTS.md`、验收计划、测试索引、数据目录规范）。当前仓库以 ZIP 便携版作为唯一正式发布格式；构建入口会在 rustup 已安装但 `cargo` 不在 `PATH` 时自动补齐 `~/.cargo/bin`。
 
 **发现**：`bundle.targets=[]` 时 Tauri 只编译 Cargo binary（`jvedio-shell.exe`），不会重命名为 productName。打包脚本已处理：自动查找并重命名为 `JvedioNext.exe`。
 
 ## 验证结果
 
-1. ✅ `npm run build:release` 完整跑通（Worker publish → Tauri build → ZIP 打包）
-2. ✅ `build/release/JvedioNext_0.1.0_x64-portable.zip`（5.95 MB）
-3. ⬜ 解压 ZIP 后双击 `JvedioNext.exe` 能正常启动（待人工验收）
-4. ✅ Worker 被正确包含在 ZIP 内（29 个文件）
-5. ✅ 不再产出 NSIS 安装包
+1. ✅ `pwsh -ExecutionPolicy Bypass -File scripts/build-release.ps1` 于 2026-03-21 复跑通过
+2. ✅ 产出 `build/release/JvedioNext_0.1.0_x64-portable.zip`（4.19 MB）
+3. ✅ ZIP 内容复核通过：包含 `JvedioNext.exe`、`resources/icon.ico`、`worker/` 运行时文件
+4. ✅ `dotnet test --configuration Release` 复跑通过，当前后端测试基线为 65 个
+5. ⬜ 解压 ZIP 后双击 `JvedioNext.exe` 的人工桌面复核转交 `plan/active/manual-acceptance-v010/`
 
-ZIP 包含：`JvedioNext.exe` + `jvedio_shell_lib.dll` + `resources/icon.ico` + `worker/`（29 文件）
+ZIP 期望包含：`JvedioNext.exe` + `*.dll` + `resources/` + `worker/`
 
 ## 关联文档
 

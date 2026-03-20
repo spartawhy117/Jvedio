@@ -14,7 +14,7 @@
   - DTO 序列化测试
   - 业务逻辑测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）
 - **执行方式**：`dotnet test` 或 PowerShell 脚本（双击运行或 `-NoPause`）
-- **当前规模**：62 个测试用例（全部通过）
+- **当前规模**：65 个测试用例（全部通过）
 - **日志输出**：`{repo}/log/test/worker-tests/runtime/`（保留现场，不自动清理）
 
 > ℹ️ **旧测试工程**：`dotnet/Jvedio.Test/` 已物理删除。旧工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、扫描整理、扫描导入）已以新架构重写到 `BusinessLogicTests/` 目录。MetaTube 网络集成测试暂未迁移（需外部服务）。
@@ -62,7 +62,7 @@ doc/testing/
 ├── backend/                           ← 后端测试（Jvedio.Worker.Tests C# 工程）
 │   ├── test-plan.md                   ← 测试工程组织方式、配置、脚本、执行流程
 │   ├── test-targets.md                ← 测试目标与通过标准（强/弱断言）
-│   └── test-current-suite.md          ← 当前已实现的 62 个测试清单
+│   └── test-current-suite.md          ← 当前已实现的 65 个测试清单
 └── e2e/                               ← 前端 E2E 自动化（Playwright MCP）
     ├── e2e-test-data-spec.md          ← E2E 数据架构、隔离设计、播种/清理流程
     ├── playwright-e2e-test-plan.md    ← Playwright MCP 执行方案、边界、已知限制

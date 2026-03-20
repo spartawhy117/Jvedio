@@ -8,6 +8,10 @@
 ### 新增
 - 统一版本管理脚本 `scripts/bump-version.ps1`：一条命令更新 4 个核心版本文件（`package.json`、`tauri.conf.json`、`Cargo.toml`、`Jvedio.csproj`），保留 BOM/换行符，支持参数校验和幂等操作。
 
+### 变更
+- Release 发布格式切换为 ZIP 便携版（`build/release/JvedioNext_*_x64-portable.zip`），移除 NSIS 安装包产物和 `copy-release.ps1` 流程。
+- `scripts/build-release.ps1` 与 `tauri/scripts/build-release.ps1` 现在会在 rustup 已安装时自动补齐 `cargo` 路径，避免 Tauri 构建因环境变量缺失失败。
+
 ## [0.1.0] - 2026-03-20
 
 ### 新增

@@ -21,6 +21,7 @@ npm run build:release
 产出便携版 ZIP：
 - `build/release/JvedioNext_*_x64-portable.zip`（解压即用）
 - 已移除 NSIS 安装包格式
+- 若 rustup 已安装但 `cargo` 未进 `PATH`，构建脚本会自动补 `~/.cargo/bin`
 
 启动链路（2 层）：
 ```
@@ -78,7 +79,7 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 - WebApplicationFactory 内置日志（临时目录 `{TempPath}/jvedio-test-{guid}/log/test/worker-tests/runtime/`，测试后自动清理）
 
 当前测试规模：
-- 62 个测试（Bootstrap 2 + DTO 2 + Libraries 2 + Settings 3 + Videos 7 + Actor 5 + Scrape 7 + VidParsing 18 + SidecarPath 9 + ScanOrganize 5 + ScanImportApi 2）
+- 65 个测试（详见 `doc/testing/backend/test-current-suite.md`）
 - 全部通过
 
 ## 当前关键目录规则

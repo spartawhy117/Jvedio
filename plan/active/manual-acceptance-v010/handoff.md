@@ -10,7 +10,7 @@
 
 v0.1.0 已完成：
 - Tauri 2 桌面壳层 + .NET 8 Worker 后端
-- 62 个后端测试全部通过
+- 65 个后端测试全部通过
 - Phase 10 自动化 E2E 7 组 flow 跑通（浏览器模式）
 - ZIP 便携版已打包（`JvedioNext_0.1.0_x64-portable.zip`）
 
