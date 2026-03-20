@@ -176,7 +176,7 @@ internal static class TauriShellLauncher
 {
     private const string ForceLegacyWpfEnvVar = "JVEDIO_FORCE_LEGACY_WPF";
     private const string TauriShellDirectoryName = "tauri-shell";
-    private const string TauriShellExeName = "Jvedio.exe";
+    private const string TauriShellExeName = "jvedio-shell.exe";
 
     public static bool TryLaunch(Jvedio.Core.Logs.Logger logger)
     {
