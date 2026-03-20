@@ -6,6 +6,7 @@
 ## [未发布]
 
 ### 已变更
+- 新增临时清理工具 `temp/cleanup-test-artifacts.ps1`，支持按目标清理 `log/test` 与指定 `test-data` 子目录，默认覆盖当前 E2E 常用产物目录，并优先用 git scoped restore/clean 将目录恢复到仓库状态。
 - 修复 Release 下 WPF 宿主拉起新桌面壳的启动名不一致问题：`dotnet/Jvedio/App.xaml.cs` 现在改为查找并启动 `tauri-shell/jvedio-shell.exe`，不再错误回退到旧 WPF 路径。
 - 完成 scrape-fail-graceful（抓取失败优雅降级）：Worker 抓取失败时写入 stub sidecar（仅含 VID 的最小 NFO）+ 更新 `metadata_video.ScrapeStatus` 为 `failed`；成功时状态更新为 `full`。DB 迁移新增 `ScrapeStatus` 列（`none`/`full`/`failed`）。Contracts DTO（`VideoListItemDto`、`VideoDetailDto`）和前端类型同步新增 `scrapeStatus` 字段。`GetLibraryVideosRequest` 支持按 `scrapeStatus` 筛选。前端右键菜单补齐「重新抓取元数据」（LibraryPage + FavoritesPage），接入 `POST /api/libraries/{id}/scrape` 的 `videoIds` 单影片搜刮。`VideoCard` 无海报占位图从 emoji 替换为 SVG 占位。SSE `library.changed` 回调增强 `invalidateQueries("video:")` + `invalidateQueries("favorites")`，搜刮成功后前端自动刷新。新增 10 个测试（SidecarPath +3、ScrapeApi +4、VideosApi +3），测试总数 52→62，全部通过。E2E 脚本新增 `scrapeStatus` 验证和 `videoIds` 单影片搜刮端点校验。
 - 新增 `test-data/scripts/verify-backend-apis.ps1` 后端 API 一键校验脚本，覆盖 Worker 全部 31 个端点（8 个 Controller：Health、App、Libraries、Videos、Actors、Tasks、Settings、Events），基于 `seed-e2e-data.ps1` 播种后的 `e2e-env.json` 读取连接信息，支持 `-BaseUrl` 手动指定和 `-NoPause` CI 模式；跳过破坏性删除操作以保护播种数据。
