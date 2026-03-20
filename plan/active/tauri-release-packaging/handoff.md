@@ -16,7 +16,7 @@
 | D-3 | exe 名称 `JvedioNext` | `tauri.conf.json` 的 `productName` 改为 `"JvedioNext"`，产出 `JvedioNext.exe` |
 | D-4 | 需要单实例控制 | Tauri 端加 `tauri-plugin-single-instance`，重复启动聚焦已有窗口 |
 | D-5 | 打包目标 Windows x64 | MSI + NSIS 双格式 |
-| D-6 | Worker 打包方式 | `prepare-worker.ps1` → `worker-dist/` → `bundle.resources` 捆绑到 `worker/` |
+| D-6 | Worker 打包方式 | `prepare-worker.ps1` → `build/worker-stage/` → `bundle.resources` 捆绑到 `worker/` |
 | D-7 | 不做代码签名 | 个人使用，后续可选 |
 | D-8 | 版本 5.0.0 | 首次打包保持 5.0.0，无自动更新 |
 

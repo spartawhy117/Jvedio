@@ -152,6 +152,8 @@
 ## [2026-03-20]
 
 ### 已变更
+- **统一构建输出目录**：所有构建产物从散落的 `tauri/worker-dist/`、`tauri/dist/`、`tauri/src-tauri/target/.../bundle/nsis/` 收归到仓库根 `build/` 目录（`build/worker-stage/`、`build/frontend-stage/`、`build/release/`）。`prepare-worker.ps1` 直接 publish 到 `build/worker-stage/`，`vite.config.ts` 输出到 `build/frontend-stage/`，新增 `copy-release.ps1` 将安装包复制到 `build/release/`。
+- 清理旧散落构建产物：删除 `tauri/worker-dist/`（26 files, 2.83 MB）、`tauri/dist/`（4 files）、旧名安装包 `Jvedio_5.0.0_x64-setup.exe`、旧 MSI 残留。
 - **去掉 WPF 启动层**：`Jvedio.exe` (WPF) 不再作为 Release 用户入口。Tauri Shell 直接面向用户，产出为 `JvedioNext.exe`。删除 `TauriShellLauncher` 类和 `PrepareTauriShellArtifacts` MSBuild Target。WPF 项目保留仅用于 Debug / 历史参考。
 - **补齐单实例控制**：在 Tauri 端添加 `tauri-plugin-single-instance`，重复启动时聚焦已有窗口，替代 WPF 端的 `EventWaitHandle` 互斥锁。
 - **Worker 路径解析增强**：`WorkerPathResolver.ResolveSharedAppBaseDirectory()` 新增安装包 fallback — 当 Worker 位于 `{parent}/worker/` 目录时，使用 `{parent}` 作为数据根目录。

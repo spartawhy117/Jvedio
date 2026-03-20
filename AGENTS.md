@@ -19,7 +19,7 @@ npm run build:release
 ```
 
 产出安装包：
-- `tauri/src-tauri/target/release/bundle/nsis/JvedioNext_*-setup.exe`（当前唯一格式）
+- `build/release/JvedioNext_*-setup.exe`（当前唯一格式）
 - MSI 格式因 WiX `light.exe` 兼容问题暂跳过
 
 启动链路（2 层）：

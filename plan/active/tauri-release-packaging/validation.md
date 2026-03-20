@@ -25,8 +25,8 @@
 | # | 验证项 | 通过标准 | 状态 |
 |---|--------|---------|------|
 | 1.1 | `prepare-worker.ps1` 执行成功 | 退出码 0，无错误输出 | ⬜ |
-| 1.2 | `worker-dist/Jvedio.Worker.exe` 存在 | 文件存在且大小 > 0 | ⬜ |
-| 1.3 | Worker 依赖完整 | `worker-dist/` 文件数与 `bin/Release/net8.0/` 一致（不含 log） | ⬜ |
+| 1.2 | `build/worker-stage/Jvedio.Worker.exe` 存在 | 文件存在且大小 > 0 | ⬜ |
+| 1.3 | Worker 依赖完整 | `build/worker-stage/` 文件数与 `bin/Release/net8.0/` 一致（不含 log） | ⬜ |
 
 ---
 
@@ -83,7 +83,7 @@
 |---|--------|---------|------|
 | 6.1 | CHANGELOG 已更新 | `doc/CHANGELOG.md` 记录首次打包 + WPF 层移除 | ⬜ |
 | 6.2 | AGENTS.md 已更新 | 构建命令、启动链路反映新架构 | ⬜ |
-| 6.3 | .gitignore 完整 | `worker-dist/`、`dist/`、`target/` 被忽略 | ⬜ |
+| 6.3 | .gitignore 完整 | `build/`、`target/` 被忽略 | ⬜ |
 | 6.4 | 打包日志已保存 | `log/dev/` 下有完整构建日志 | ⬜ |
 | 6.5 | Phase 0 文档清单全部完成 | 所有 D-1 ~ D-6 文档已更新 | ⬜ |
 

@@ -205,7 +205,29 @@ data/test-user/cache/video/{LibraryName}/{VID}/
 
 > 详细的后端测试数据隔离方案见 `doc/testing/backend/test-plan.md` §6；E2E 测试数据规范见 `doc/testing/e2e/e2e-test-data-spec.md`。
 
-## 7. 关联文档
+## 8. 构建输出目录
+
+所有构建产物统一输出到仓库根 `build/` 目录（全部被 `.gitignore` 覆盖）：
+
+```
+{repo-root}/build/
+├── release/                          ← 最终发布产物（安装包 copy 到此）
+│   └── JvedioNext_*_x64-setup.exe
+├── worker-stage/                     ← Worker dotnet publish 暂存
+│   ├── Jvedio.Worker.exe
+│   └── *.dll
+└── frontend-stage/                   ← 前端 vite build 暂存
+    ├── index.html
+    └── assets/
+```
+
+| 目录 | 用途 | 写入时机 |
+|------|------|---------|
+| `build/worker-stage/` | Worker 编译产物暂存 | `npm run prepare-worker` |
+| `build/frontend-stage/` | 前端编译产物暂存 | `npm run build`（vite build） |
+| `build/release/` | NSIS 安装包 copy | `npm run build:release` 末尾 copy-release.ps1 |
+
+## 9. 关联文档
 
 | 文档 | 位置 |
 |------|------|
@@ -214,7 +236,7 @@ data/test-user/cache/video/{LibraryName}/{VID}/
 | E2E 测试数据规范 | `doc/testing/e2e/e2e-test-data-spec.md` |
 | 开发总览 | `doc/developer.md` |
 
-## 8. 关键源文件索引
+## 10. 关键源文件索引
 
 | 文件 | 职责 |
 |------|------|

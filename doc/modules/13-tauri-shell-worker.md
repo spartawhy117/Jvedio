@@ -118,12 +118,12 @@ Worker 配置了全开 CORS（`AllowAnyOrigin` + `AllowAnyHeader` + `AllowAnyMet
 | Dev（`cfg(debug_assertions)`） | `{repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/Jvedio.Worker.exe` |
 | Release（打包后） | `{exe所在目录}/worker/Jvedio.Worker.exe` |
 
-Release 打包时，`tauri.conf.json` 的 `bundle.resources` 将 `worker-dist/` 目录映射为安装目录下的 `worker/` 子目录：
+Release 打包时，`tauri.conf.json` 的 `bundle.resources` 将 `build/worker-stage/` 目录映射为安装目录下的 `worker/` 子目录：
 
 ```json
 "bundle": {
     "resources": {
-        "../worker-dist/**/*": "worker/"
+        "../../build/worker-stage/**/*": "worker/"
     }
 }
 ```
@@ -152,8 +152,8 @@ Release 打包时，`tauri.conf.json` 的 `bundle.resources` 将 `worker-dist/` 
 | 前端引导 | `tauri/src/contexts/BootstrapContext.tsx` | `createApiClient(baseUrl)` / 初始化数据加载 |
 | API 客户端 | `tauri/src/api/client.ts` | 所有 HTTP 请求拼接 `baseUrl` |
 | SSE 事件流 | `tauri/src/api/events.ts` | `EventSource(baseUrl + "/api/events")` |
-| 构建脚本 | `tauri/scripts/prepare-worker.ps1` | 编译 Worker 并复制到 `worker-dist/` |
-| 打包配置 | `tauri/src-tauri/tauri.conf.json` | `bundle.resources` 映射 `worker/` |
+| 构建脚本 | `tauri/scripts/prepare-worker.ps1` | 编译 Worker 并复制到 `build/worker-stage/` |
+| 打包配置 | `tauri/src-tauri/tauri.conf.json` | `bundle.resources` 映射 `build/worker-stage/` → `worker/` |
 
 ## Tauri 事件清单
 

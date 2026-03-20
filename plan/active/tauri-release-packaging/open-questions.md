@@ -49,9 +49,11 @@
 
 ### OQ-5：打包产物的 .gitignore 覆盖
 
-**背景**：`worker-dist/`、`dist/`、`target/` 等目录不应提交到 git。
+**背景**：`worker-dist/`、`dist/`、`target/` 等目录不应提交到 git。Phase 7 后统一到 `build/` 目录。
 
-**状态**：⏳ 待 Phase 6 检查
+**当前状态**：根 `.gitignore` 已添加 `/build/` 规则；`tauri/.gitignore` 已移除旧 `worker-dist/`、`worker-publish/`、`dist` 规则。
+
+**状态**：✅ 已验证 — Phase 7 完成
 
 ---
 
