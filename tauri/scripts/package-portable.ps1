@@ -1,6 +1,10 @@
 # package-portable.ps1
 # Post-build script: collect Tauri build artifacts and create a portable ZIP archive.
 # Output: build/release/JvedioNext_<version>_x64-portable.zip
+#
+# When bundle.targets is empty, Tauri only compiles the Rust binary (named after
+# the Cargo crate, e.g. jvedio-shell.exe) without renaming it to the productName.
+# This script renames it to JvedioNext.exe for the end user.
 
 $ErrorActionPreference = "Stop"
 
@@ -18,20 +22,18 @@ $archiveName = "JvedioNext_${version}_x64-portable.zip"
 $targetRelease = Join-Path $tauriRoot "src-tauri\target\release"
 
 # ── Locate the main exe ──────────────────────────────────────────────
-# Tauri 2 produces <productName>.exe in target/release/
-$mainExe = Join-Path $targetRelease "JvedioNext.exe"
-if (-not (Test-Path $mainExe)) {
-    # Fallback: try lowercase / hyphenated variants
-    $candidates = @("jvedio-next.exe", "jvedio_next.exe", "jvedionext.exe")
-    foreach ($c in $candidates) {
-        $p = Join-Path $targetRelease $c
-        if (Test-Path $p) { $mainExe = $p; break }
-    }
+# With empty bundle.targets, Tauri outputs the Cargo binary name (jvedio-shell.exe).
+$mainExe = $null
+$candidates = @("JvedioNext.exe", "jvedio-shell.exe", "jvedio_shell.exe", "jvedionext.exe")
+foreach ($c in $candidates) {
+    $p = Join-Path $targetRelease $c
+    if (Test-Path $p) { $mainExe = $p; break }
 }
-if (-not (Test-Path $mainExe)) {
+if (-not $mainExe) {
     Write-Error "[package-portable] FATAL: Cannot find main exe in $targetRelease"
     exit 1
 }
+Write-Host "[package-portable] Found main exe: $(Split-Path -Leaf $mainExe)"
 
 # ── Create a temp staging directory ───────────────────────────────────
 $stageDir = Join-Path $repoRoot "build\portable-stage"
@@ -40,15 +42,16 @@ New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
 
 # ── Copy artifacts ────────────────────────────────────────────────────
 
-# 1. Main exe
-Copy-Item $mainExe $stageDir -Force
-Write-Host "[package-portable] Copied: $(Split-Path -Leaf $mainExe)"
+# 1. Main exe (rename to JvedioNext.exe if needed)
+$destExeName = "JvedioNext.exe"
+Copy-Item $mainExe (Join-Path $stageDir $destExeName) -Force
+Write-Host "[package-portable] Copied: $(Split-Path -Leaf $mainExe) -> $destExeName"
 
-# 2. WebView2Loader.dll (required by Tauri)
-$webview2 = Join-Path $targetRelease "WebView2Loader.dll"
-if (Test-Path $webview2) {
-    Copy-Item $webview2 $stageDir -Force
-    Write-Host "[package-portable] Copied: WebView2Loader.dll"
+# 2. All DLLs in release root (WebView2Loader.dll, plugin libs, etc.)
+$dlls = Get-ChildItem -Path $targetRelease -Filter "*.dll" -File -ErrorAction SilentlyContinue
+foreach ($dll in $dlls) {
+    Copy-Item $dll.FullName $stageDir -Force
+    Write-Host "[package-portable] Copied: $($dll.Name)"
 }
 
 # 3. resources/ directory (icons etc.)
@@ -65,14 +68,6 @@ if (Test-Path $workerDir) {
     Write-Host "[package-portable] Copied: worker/"
 }
 
-# 5. Any additional DLLs in release root (e.g. tauri plugins)
-$extraDlls = Get-ChildItem -Path $targetRelease -Filter "*.dll" -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -ne "WebView2Loader.dll" -and $_.Name -notlike "jvedio_shell*" }
-foreach ($dll in $extraDlls) {
-    Copy-Item $dll.FullName $stageDir -Force
-    Write-Host "[package-portable] Copied: $($dll.Name)"
-}
-
 # ── Create output directory ───────────────────────────────────────────
 if (-not (Test-Path $releaseDir)) {
     New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
@@ -82,7 +77,9 @@ if (-not (Test-Path $releaseDir)) {
 $archivePath = Join-Path $releaseDir $archiveName
 if (Test-Path $archivePath) { Remove-Item $archivePath -Force }
 Compress-Archive -Path "$stageDir\*" -DestinationPath $archivePath -Force
-Write-Host "[package-portable] Created: $archiveName -> build/release/"
+
+$sizeMB = [math]::Round((Get-Item $archivePath).Length / 1MB, 2)
+Write-Host "[package-portable] Created: $archiveName ($sizeMB MB) -> build/release/"
 
 # ── Cleanup staging ──────────────────────────────────────────────────
 Remove-Item $stageDir -Recurse -Force
