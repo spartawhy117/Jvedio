@@ -13,6 +13,7 @@ import { useRouter } from "./router";
 import { useWorker } from "./contexts/WorkerContext";
 import { useBootstrap } from "./contexts/BootstrapContext";
 import { useOnLibraryChanged } from "./hooks/useSSESubscription";
+import { StartupReadyBridge } from "./components/StartupReadyBridge";
 import { WorkerStatusOverlay } from "./components/WorkerStatusOverlay";
 import { PageRouter } from "./pages/PageRouter";
 import type { PageKey } from "./router";
@@ -57,6 +58,7 @@ function App() {
 
   return (
     <>
+      <StartupReadyBridge />
       <WorkerStatusOverlay />
 
       <div className="main-shell">

@@ -34,6 +34,9 @@
   - 中英双语结构、初始化顺序、key 组织、落地流程
 - `assets-icons-and-coloring.md`
   - 图片 / 图标分类、显色策略、目录建议、接入流程与轻量来源记录
+- `startup-splash-implementation.md`
+  - 桌面端启动期的 Splash 承载方案、主窗口延迟显示策略与最小改动实施路径
+
 
 ## 维护规则
 

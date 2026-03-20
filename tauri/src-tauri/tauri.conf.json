@@ -12,6 +12,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Jvedio Next",
         "width": 1280,
         "height": 800,
@@ -19,7 +20,23 @@
         "minHeight": 640,
         "center": true,
         "decorations": true,
-        "resizable": true
+        "resizable": true,
+        "visible": false
+      },
+      {
+        "label": "splashscreen",
+        "title": "Jvedio Next",
+        "url": "startup-splash.html",
+        "width": 520,
+        "height": 320,
+        "center": true,
+        "decorations": false,
+        "resizable": false,
+        "minimizable": false,
+        "maximizable": false,
+        "closable": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

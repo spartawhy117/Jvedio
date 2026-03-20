@@ -4,6 +4,8 @@
     "startingHint": "Jvedio Worker is initializing, please wait",
     "startFailed": "Engine failed to start",
     "startFailedHint": "Please check if Worker is available and restart the app",
+    "startTimeout": "Startup is taking too long",
+    "startTimeoutHint": "The main window is now visible. Check logs or try again later",
     "loadingData": "Loading data…",
     "loadingDataHint": "Fetching app configuration and library info",
     "loadFailed": "Failed to load data",

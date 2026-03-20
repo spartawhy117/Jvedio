@@ -40,6 +40,8 @@
 | `theme-and-appearance` | `foundation/theme-and-appearance.md` | `light / dark` 双主题的状态分层、token 与切换流程。 |
 | `localization` | `foundation/localization.md` | `zh / en` 的目录结构、初始化顺序和 key 组织。 |
 | `assets-icons-and-coloring` | `foundation/assets-icons-and-coloring.md` | 图片 / 图标分类、显色策略、目录约定与接入流程。 |
+| `startup-splash-implementation` | `foundation/startup-splash-implementation.md` | 启动期 Splash 承载、主窗口延迟显示与错误回退实施方案。 |
+
 
 
 ## 流程图索引

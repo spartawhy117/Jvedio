@@ -1,0 +1,121 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  background: #f6f8fb;
+  color: #162033;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(80, 140, 255, 0.16), transparent 48%),
+    linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
+}
+
+body {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.splash-shell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.splash-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  border: 1px solid rgba(154, 174, 212, 0.35);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 40px rgba(36, 56, 99, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.brand-mark {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  background: linear-gradient(135deg, #5b8cff 0%, #7b5cff 100%);
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(91, 140, 255, 0.28);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.brand-name {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-subtitle {
+  font-size: 15px;
+  color: #3f4e68;
+}
+
+.brand-subtitle-en {
+  font-size: 13px;
+  color: #73809a;
+}
+
+.loading-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.loading-row span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #5b8cff;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.loading-row span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-row span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0) scale(0.92);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1);
+  }
+}

@@ -29,6 +29,8 @@
   - `foundation/theme-and-appearance.md`
   - `foundation/localization.md`
   - `foundation/assets-icons-and-coloring.md`
+  - `foundation/startup-splash-implementation.md`
+
 
 - 流程图：
 

@@ -109,3 +109,5 @@
 ## 相关文档
 
 - 共享组件：`../shared/shared-components.md`
+- 启动实施：`../foundation/startup-splash-implementation.md`
+

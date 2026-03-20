@@ -4,6 +4,8 @@
     "startingHint": "Jvedio Worker 正在初始化，请稍候",
     "startFailed": "引擎启动失败",
     "startFailedHint": "请检查 Worker 是否可用后重启应用",
+    "startTimeout": "启动时间过长",
+    "startTimeoutHint": "主窗口已显示，你可以检查日志或稍后重试",
     "loadingData": "正在加载数据…",
     "loadingDataHint": "正在获取应用配置与媒体库信息",
     "loadFailed": "数据加载失败",
