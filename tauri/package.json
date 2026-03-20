@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "prepare-worker": "pwsh -ExecutionPolicy Bypass -File scripts/prepare-worker.ps1",
-    "build:release": "npm run prepare-worker && npm run tauri build"
+    "build:release": "npm run prepare-worker && npm run tauri build && pwsh -ExecutionPolicy Bypass -File scripts/copy-release.ps1"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
