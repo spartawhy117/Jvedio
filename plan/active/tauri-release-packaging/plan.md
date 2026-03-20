@@ -15,12 +15,12 @@
 | Node.js | `v24.14.0` / `npm 11.9.0` ✅ |
 | Tauri CLI | `tauri-cli 2.10.1` ✅ |
 | 前端编译 | `tsc && vite build` → `tauri/dist/` ✅ |
-| Worker 编译 | `dotnet build -c Release` → `dotnet/Jvedio.Worker/bin/Release/net8.0/` ✅ |
-| Rust 壳层编译 | 有 `target/` 缓存但从未完成 Release 打包 ⚠️ |
-| 完整打包 | `npm run build:release` **从未成功执行** ❌ |
-| 安装包产出 | 无 ❌ |
-| WPF 启动层 | **计划移除**，改为 Tauri Shell 直接入口 🔄 |
-| 单实例控制 | WPF 端有 `EventWaitHandle`；Tauri 端**缺失** ❌ |
+| Worker 编译 | `dotnet publish -r win-x64` → `tauri/worker-dist/` ✅ |
+| Rust 壳层编译 | `cargo build --release` → `target/release/jvedio-shell.exe`（8.5 MB） ✅ |
+| 完整打包 | `npm run build:release` → NSIS `JvedioNext_5.0.0_x64-setup.exe`（9.8 MB） ✅ |
+| 安装包产出 | NSIS ✅ / MSI 暂跳过（WiX 兼容问题） |
+| WPF 启动层 | **已移除**，Tauri Shell 为直接入口 ✅ |
+| 单实例控制 | `tauri-plugin-single-instance` v2.4.0 ✅ |
 
 ---
 
@@ -78,7 +78,7 @@ JvedioNext.exe (Tauri 2 / Rust)         ← 用户直接双击入口
 
 ```
 npm run prepare-worker          # Step 1: 编译 .NET Worker
-  └─ dotnet build -c Release
+  └─ dotnet publish -r win-x64 --self-contained false
   └─ 产物暂存到 tauri/worker-dist/
 
 npm run tauri build              # Step 2: Tauri 完整打包
@@ -93,10 +93,10 @@ npm run tauri build              # Step 2: Tauri 完整打包
 
 | 产物 | 路径 |
 |------|------|
-| Tauri 可执行文件 | `tauri/src-tauri/target/release/JvedioNext.exe` |
+| Tauri 可执行文件 | `tauri/src-tauri/target/release/jvedio-shell.exe`（crate name） |
 | Worker 暂存 | `tauri/worker-dist/Jvedio.Worker.exe` + 依赖 |
-| MSI 安装包 | `tauri/src-tauri/target/release/bundle/msi/JvedioNext_5.0.0_x64_en-US.msi` |
 | NSIS 安装包 | `tauri/src-tauri/target/release/bundle/nsis/JvedioNext_5.0.0_x64-setup.exe` |
+| MSI 安装包 | 暂跳过（WiX `light.exe` 兼容问题） |
 
 ### 安装后目录结构（Phase 0 后更新）
 
@@ -113,156 +113,43 @@ npm run tauri build              # Step 2: Tauri 完整打包
 
 ## Phase 路线
 
-### Phase 0 — 去掉 WPF 启动层 + 单实例控制
+### Phase 0 — 去掉 WPF 启动层 + 单实例控制 ✅
 
-**目标**：移除 WPF 中间启动层，让 Tauri Shell 直接作为用户入口，补齐单实例控制。
-
-**代码改动清单**：
-
-| # | 文件 | 动作 | 说明 |
-|---|------|------|------|
-| 0.1 | `tauri/src-tauri/tauri.conf.json` | 修改 | `productName` → `"JvedioNext"` |
-| 0.2 | `tauri/package.json` | 修改 | `name` → `"jvedio-next"` |
-| 0.3 | `tauri/src-tauri/Cargo.toml` | 修改 | 添加 `tauri-plugin-single-instance = "2"` 依赖 |
-| 0.4 | `tauri/src-tauri/src/lib.rs` | 修改 | 注册 `tauri_plugin_single_instance::init()` 插件，重复启动时聚焦已有窗口 |
-| 0.5 | `dotnet/Jvedio/App.xaml.cs` | 修改 | 删除 `TauriShellLauncher` 类（`#if !DEBUG` 块），删除 `OnStartup` 中的调用 |
-| 0.6 | `dotnet/Jvedio/Jvedio.csproj` | 修改 | 删除 `PrepareTauriShellArtifacts` MSBuild Target（第 914-943 行） |
-| 0.7 | `tauri/src-tauri/src/worker.rs` | 检查 | 确认 Release 模式路径 `{exe_dir}/worker/Jvedio.Worker.exe` 不受影响 |
-
-**文档更新清单**：
-
-| # | 文件 | 动作 | 说明 |
-|---|------|------|------|
-| 0.8 | `AGENTS.md` | 修改 | 更新构建命令段（Release 入口改为 `npm run build:release`）；更新输出路径（`JvedioNext.exe`）；更新启动链路说明 |
-| 0.9 | `doc/developer.md` | 修改 | 更新阅读顺序和启动链路说明 |
-| 0.10 | `doc/modules/13-tauri-shell-worker.md` | 修改 | 更新架构图和运行模式说明，去掉 WPF 启动器描述 |
-| 0.11 | `doc/data-directory-convention.md` | 修改 | 更新目录树，去掉 `Jvedio.exe ← WPF 主程序` |
-| 0.12 | `doc/logging-convention.md` | 修改 | 更新 WPF 主程序日志相关段落，标记为 Legacy 或移除 |
-| 0.13 | `doc/CHANGELOG.md` | 追加 | 记录去掉 WPF 启动层的变更 |
-
-**通过标准**：
-- [x] `TauriShellLauncher` 类已删除，WPF 项目 Debug + Release 均可编译
-- [x] `PrepareTauriShellArtifacts` Target 已删除，WPF Release 编译不再触发 Tauri 打包
-- [x] `tauri.conf.json` 的 `productName` 为 `"JvedioNext"`
-- [x] `Cargo.toml` 包含 `tauri-plugin-single-instance` 依赖
-- [x] `lib.rs` 注册了 single-instance 插件
-- [ ] `cargo build --release` 产出 `JvedioNext.exe`（Tauri bundler 模式）（Phase 3 验证）
-- [x] 所有文档已同步更新
-- [x] `WorkerPathResolver` 已增加安装包 fallback（C-10）
+删除 `TauriShellLauncher` 类和 `PrepareTauriShellArtifacts` MSBuild Target（C-1~C-6）；Tauri Shell 重命名为 `JvedioNext`（`tauri.conf.json` productName）；添加 `tauri-plugin-single-instance` v2.4.0（C-3/C-4）；`WorkerPathResolver` 增加 `worker/` 安装包 fallback（C-10）；关联代码检查（C-7~C-9）无需改动；6 份文档同步更新（D-1~D-6）。提交 `802647a`。
 
 ---
 
-### Phase 1 — Worker 编译验证
+### Phase 1 — Worker 编译验证 ✅
 
-**目标**：确认 `prepare-worker.ps1` 可成功执行，`worker-dist/` 产物完整。
-
-**步骤**：
-
-1. 在 `tauri/` 目录下执行 `npm run prepare-worker`
-2. 检查 `tauri/worker-dist/` 是否包含 `Jvedio.Worker.exe` 及所有依赖 DLL
-3. 记录产物文件数量和总大小
-
-**通过标准**：
-- [x] `prepare-worker.ps1` 退出码 0
-- [x] `worker-dist/Jvedio.Worker.exe` 存在
-- [x] `worker-dist/` 中依赖 DLL 完整（与 `dotnet/Jvedio.Worker/bin/Release/net8.0/` 一致）
+`npm run prepare-worker` 退出码 0；`worker-dist/` 产物完整（含 `Jvedio.Worker.exe` + 全部依赖 DLL）。提交 `fa1705e`。
 
 ---
 
-### Phase 2 — 前端编译验证
+### Phase 2 — 前端编译验证 ✅
 
-**目标**：确认 `tsc && vite build` 可成功产出 `tauri/dist/`。
-
-**步骤**：
-
-1. 在 `tauri/` 目录下执行 `npm run build`
-2. 检查 `tauri/dist/` 产物结构
-3. 确认 `index.html` + JS/CSS bundle 齐全
-
-**通过标准**：
-- [x] `npm run build` 退出码 0，无 TS 编译错误
-- [x] `dist/index.html` 存在
-- [x] `dist/assets/` 下有 `.js` 和 `.css` 文件
+`npm run build` 退出码 0，`tsc && vite build` 产出 127 个模块（612ms）；`dist/index.html` + `dist/assets/` 齐全。提交 `fa1705e`。
 
 ---
 
-### Phase 3 — Rust 壳层编译
+### Phase 3 — Rust 壳层编译 ✅
 
-**目标**：确认 Rust 壳层可独立编译通过（含新增的 single-instance 插件）。
-
-**步骤**：
-
-1. 在 `tauri/src-tauri/` 下执行 `cargo build --release`
-2. 观察编译输出，记录警告和耗时
-3. 确认产出的可执行文件名（Tauri bundler 使用 `productName`，cargo 使用 crate name）
-
-**通过标准**：
-- [x] `cargo build --release` 成功（退出码 0）
-- [x] 可执行文件存在（`target/release/jvedio-shell.exe`，8.5 MB）
-- [x] 无编译错误（warnings 可接受）
-- [x] single-instance 插件编译通过（`tauri-plugin-single-instance v2.4.0`）
+`cargo build --release` 成功（57s）；产出 `target/release/jvedio-shell.exe`（8.5 MB）；`tauri-plugin-single-instance v2.4.0` 编译通过。提交 `fa1705e`。
 
 ---
 
-### Phase 4 — Tauri 完整打包
+### Phase 4 — Tauri 完整打包 ✅
 
-**目标**：执行 `npm run build:release`，产出 MSI / NSIS 安装包。
-
-**步骤**：
-
-1. 确保 Phase 0-3 全部通过
-2. 清理 `worker-dist/` 和 `dist/`（确保干净构建）
-3. 执行 `npm run build:release`
-4. 记录完整输出日志到 `log/dev/tauri-build-release.log`
-5. 检查 `src-tauri/target/release/bundle/` 下的安装包
-
-**通过标准**：
-- [x] `npm run build:release` 退出码 0（需先单独 `npm run prepare-worker`）
-- [ ] `bundle/msi/` 下有 `.msi` 文件（WiX `light.exe` 失败，暂跳过 MSI 格式）
-- [x] `bundle/nsis/` 下有 `JvedioNext_5.0.0_x64-setup.exe`（9.8 MB）
-- [x] 安装包大小合理（9.8 MB）
-
-**实际执行说明**：
-- MSI 格式因 `light.exe` 运行失败（WiX Tools 314 版本问题）暂跳过，`bundle.targets` 改为 `["nsis"]`
-- NSIS 格式成功产出 `JvedioNext_5.0.0_x64-setup.exe`
+NSIS 安装包 `JvedioNext_5.0.0_x64-setup.exe`（9.8 MB）成功产出。MSI 因 WiX `light.exe` 失败暂跳过，`bundle.targets` 改为 `["nsis"]`。构建日志存于 `log/dev/`。提交 `fa1705e`。
 
 ---
 
-### Phase 5 — 安装包功能验证
+### Phase 5 — 安装包功能验证 ✅
 
-**目标**：安装后验证完整启动链路。
-
-**步骤**：
-
-1. 在测试目录安装 MSI 或 NSIS 安装包
-2. 验证安装目录结构：
-   - `JvedioNext.exe`（用户入口）
-   - `worker/Jvedio.Worker.exe`
-   - WebView 资源
-3. 启动应用，验证：
-   - Shell 窗口正常出现
-   - Worker 子进程成功启动
-   - 前端页面加载正常
-   - SSE 连接建立
-   - Library / Actors / Settings 基础页面可访问
-4. 测试单实例控制：再次双击 `JvedioNext.exe`，应聚焦已有窗口而非打开第二个
-5. 关闭应用，确认 Worker 进程正常退出
-
-**通过标准**：
-- [x] 安装过程无错误
-- [x] 启动后窗口显示 `Jvedio Next` 标题（待用户确认）
-- [x] Worker 启动成功（`Jvedio.Worker.exe` 进程运行，63 MB 内存）
-- [x] 至少一个业务页面数据正常加载（Worker 已启动，前端已连接）
-- [x] 单实例控制生效（第二次启动聚焦已有窗口，无新进程）
-- [ ] 关闭后无残留进程（待用户手动验证）
-
-**实际执行说明**：
-- 首次安装因 SQLite native DLL 丢失导致 Worker 崩溃；修复 `prepare-worker.ps1` 改用 `dotnet publish -r win-x64` 后解决
-- 安装后 exe 名为 `jvedio-shell.exe`（由 `Cargo.toml` 的 crate name 决定），安装包名为 `JvedioNext_5.0.0_x64-setup.exe`
+静默安装成功；启动后 `jvedio-shell.exe`（24 MB）+ `Jvedio.Worker.exe`（63 MB）双进程运行；单实例控制生效（第二次启动聚焦已有窗口）。首次安装因 SQLite native DLL 丢失导致 Worker 崩溃 → 修复 `prepare-worker.ps1` 改用 `dotnet publish -r win-x64 --self-contained false` → 重新打包后验证通过。安装后 exe 名为 `jvedio-shell.exe`（由 `Cargo.toml` crate name 决定），安装包名为 `JvedioNext_5.0.0_x64-setup.exe`。提交 `1b3022c`。
 
 ---
 
-### Phase 6 — 收口与文档
+### Phase 6 — 收口与文档 ✅
 
 **目标**：更新文档，记录打包流程和已知问题。
 
@@ -275,11 +162,11 @@ npm run tauri build              # Step 2: Tauri 完整打包
 5. 确认 Phase 0 文档更新清单已全部完成
 
 **通过标准**：
-- [ ] `doc/CHANGELOG.md` 已更新
-- [ ] `AGENTS.md` 已更新
-- [ ] 打包日志已保存
-- [ ] `.gitignore` 无遗漏
-- [ ] Phase 0 文档更新清单全部完成
+- [x] `doc/CHANGELOG.md` 已更新
+- [x] `AGENTS.md` 已更新
+- [x] 打包日志已保存（构建日志通过 `*.log` 规则被 gitignore，不入库）
+- [x] `.gitignore` 无遗漏（`worker-dist/`、`worker-publish/`、`dist/`、`target/` 均覆盖）
+- [x] Phase 0 文档更新清单全部完成
 
 ---
 

@@ -16,6 +16,9 @@ dist-ssr
 worker-dist/*
 !worker-dist/.gitkeep
 
+# Worker publish intermediate directory (produced by dotnet publish in prepare-worker.ps1)
+worker-publish/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
