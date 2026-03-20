@@ -25,243 +25,46 @@
 - 任务失败详情与重试机制
 - 全局活动条（跨页面任务状态反馈）
 
-### 已变更
-- 新增临时清理工具 `temp/cleanup-test-artifacts.ps1`，支持按目标清理 `log/test` 与指定 `test-data` 子目录，默认覆盖当前 E2E 常用产物目录，并优先用 git scoped restore/clean 将目录恢复到仓库状态。
-- 修复 Release 下 WPF 宿主拉起新桌面壳的启动名不一致问题：`dotnet/Jvedio/App.xaml.cs` 现在改为查找并启动 `tauri-shell/jvedio-shell.exe`，不再错误回退到旧 WPF 路径。
-- 完成 scrape-fail-graceful（抓取失败优雅降级）：Worker 抓取失败时写入 stub sidecar（仅含 VID 的最小 NFO）+ 更新 `metadata_video.ScrapeStatus` 为 `failed`；成功时状态更新为 `full`。DB 迁移新增 `ScrapeStatus` 列（`none`/`full`/`failed`）。Contracts DTO（`VideoListItemDto`、`VideoDetailDto`）和前端类型同步新增 `scrapeStatus` 字段。`GetLibraryVideosRequest` 支持按 `scrapeStatus` 筛选。前端右键菜单补齐「重新抓取元数据」（LibraryPage + FavoritesPage），接入 `POST /api/libraries/{id}/scrape` 的 `videoIds` 单影片搜刮。`VideoCard` 无海报占位图从 emoji 替换为 SVG 占位。SSE `library.changed` 回调增强 `invalidateQueries("video:")` + `invalidateQueries("favorites")`，搜刮成功后前端自动刷新。新增 10 个测试（SidecarPath +3、ScrapeApi +4、VideosApi +3），测试总数 52→62，全部通过。E2E 脚本新增 `scrapeStatus` 验证和 `videoIds` 单影片搜刮端点校验。
-- 新增 `test-data/scripts/verify-backend-apis.ps1` 后端 API 一键校验脚本，覆盖 Worker 全部 31 个端点（8 个 Controller：Health、App、Libraries、Videos、Actors、Tasks、Settings、Events），基于 `seed-e2e-data.ps1` 播种后的 `e2e-env.json` 读取连接信息，支持 `-BaseUrl` 手动指定和 `-NoPause` CI 模式；跳过破坏性删除操作以保护播种数据。
-- 完成 Phase 9.6 数据层流程测试完善：新建 `test-data/config/test-env.json` 统一 MetaTube 地址等可变外部依赖配置（支持 `.local.json` 覆盖机制）；改造 `seed-e2e-data.ps1` 从配置文件读取并新增 MetaTube 抓取步骤（Step 5.5-5.9）；新增 `ActorApiTests.cs`（5 个用例：列表/分页/搜索/详情 404/关联影片 404）和 `ScrapeApiTests.cs`（3 个用例：无效库 scrape 返回 404、有效库 scrape 返回 202、MetaTube diagnostics 契约验证）。测试总数从 44 增长到 52，全部通过。
-- 完成 Phase 9 日志目录统一：`log/` 从平铺结构改为 `runtime/` + `test/` + `dev/` 分层子目录。Worker 和 Shell 运行日志写入 `log/runtime/`，测试日志指向 `log/test/worker-tests/`，E2E 产物预留 `log/test/e2e/`。`JVEDIO_LOG_DIR` 环境变量覆盖功能自动追加 `runtime/` 子目录。`doc/logging-convention.md` 重写为分层结构。
-- 完成 Phase 8.5 目录更名：`Jvedio-WPF/` → `dotnet/`，与 `tauri/` 形成前后端对称命名。修改 4 个源码文件（Program.cs、worker.rs、shell_log.rs、prepare-worker.ps1），批量替换 29 个文档文件 171 处引用，全局零残留。
-- 完成 Phase 8 后端测试工程迁移：新建 `Jvedio.Worker.Tests`（.NET 8 SDK-style / MSTest 3.x / `WebApplicationFactory<Program>`），不依赖 WPF 主程序，使用 `dotnet test` 独立编译运行。
-- 新增 5 个 Worker API 契约测试文件（BootstrapApiTests、DtoSerializationTests、LibrariesApiTests、SettingsApiTests、VideosApiTests），共 13 个测试用例覆盖 Bootstrap/Libraries/Settings/Videos/DTO 五个维度。
-- 新增 3 个 PowerShell 测试脚本（`run-all-tests.ps1`、`run-unit-tests.ps1`、`run-integration-tests.ps1`），支持双击运行和 `-NoPause` 参数。
-- 旧测试工程 `Jvedio.Test` 已从 `Jvedio.sln` 移除（目录暂保留，待后续物理删除）。
-- 修复 3 个测试用例的断言错误：DTO 序列化 camelCase 策略、Libraries 创建响应嵌套结构、Settings 更新必填字段校验。
-- 更新 `AGENTS.md`、`doc/testing/README.md`、`doc/testing/backend/test-plan.md`、`doc/testing/backend/test-targets.md`、`doc/testing/backend/test-current-suite.md`、`doc/developer.md`，统一指向新测试工程。
-- 旧测试工程中 5 个高价值业务测试（VID 解析、Sidecar 路径、MetaTube 刮削、扫描整理）评估为需以新架构重写，标记为技术债。
-- 物理删除旧测试工程 `dotnet/Jvedio.Test/` 目录。
-- 重写 5 个高价值旧测试为新架构（`BusinessLogicTests/` 目录）：VID 解析（17 个数据驱动用例）、Sidecar 路径（6 个用例）、扫描整理（5 个文件系统用例）、扫描导入端到端（2 个 API 集成用例）。测试总数从 13 增长到 44。
-- 完成 Phase 7.1 Settings 占位补全：新增 `ImageSettingsDto`、`ScanImportSettingsDto`、`LibrarySettingsDto` 三组 Contracts DTO；更新 `SettingsService` 支持 6 组设置读写与持久化；前端 SettingsPage 三个 "Coming Soon" 占位替换为真实表单控件。
-- 完成 Phase 7.2 视频操作 API：新增 `ToggleFavoriteResponse`、`DeleteVideoResponse`、`BatchOperationRequest`、`BatchOperationResponse` Contracts DTO；`VideoService` 新增 toggle-favorite、delete-video、batch-favorite、batch-delete 四个方法；`VideosController` 新增四个端点；`VideoListItemDto` 和 `VideoDetailDto` 添加 `IsFavorite` 字段。
-- 完成 Phase 7.2b 前端多选与批量操作：`LibraryPage` 和 `FavoritesPage` 接入 multi-select 状态管理和批量操作栏（收藏/取消收藏/删除/全选/取消选择）；右键菜单扩展 toggleFavorite 和 deleteVideo 动作（含 danger 样式）；`VideoCard` VID 行前显示收藏心形标识；`common.json` 新增 20 个 i18n 键。
-- 在 `plan/active/desktop-ui-shell-refactor/plan.md` 与 `handoff.md` 中新增“UI 冻结后的后续候选路线（Tauri 2 三轮收敛版）”，明确后续若切换到 `Tauri 2 + React/Vue + C# Worker + Jvedio.Contracts`，应继续复用 `localhost API + SSE`、保持壳层与业务层分离，并以组件化 renderer 替换当前单大控制器式 renderer。
-- 收口 `doc/UI/new/` 目录结构：页面三件套移动到 `pages/`，弹层三件套移动到 `dialogs/`，共享组件三件套移动到 `shared/`，并新增 `_archive/README.md` 作为退役草稿保留目录说明；`README.md`、`page-index.md`、`ui-todo.md` 与相关页面文档的相对引用已同步更新。
-- 删除 `doc/assets/` 目录及其中历史 `.mmd` / `.svg` / `.jpg` 图示资源；`doc/developer.md`、`doc/modules/*.md` 和 `doc/UI/new/ui-todo.md` 已同步去掉对该目录的直接引用，当前 UI 流程图入口统一以 `doc/UI/new/flow/` 为准。
-- 收口 `doc/UI/new/` 的当前 exe UI 文档资产：新增 `page-index.md` 与 `ui-todo.md` 作为总索引和执行清单，并将正式页面、弹层与共享组件的图片/线稿/文档要求统一为同名三件套。
-- 收口已有正式页面图片中的说明性文案：`main-shell`、`library-management-page`、`library-page`、`favorites-page`、`actors-page`、`settings-page` 的线框图现在只保留页面结构与最小标签，对应功能说明已迁入各自 `.md` 规格文档。
-- 新增 `doc/UI/new/` 下缺失的页面与详情规格：`categories-page.*`、`series-page.*`、`actor-detail-page.*`、`video-detail-page.*`，并明确聚合页骨架、返回链路、播放入口与详情页职责边界。
-- 新增 `doc/UI/new/` 下缺失的弹层与组件规格：`create-edit-library-dialog.*`、`delete-library-dialog.*`、`task-detail-dialog.*`、`shared-components.*`，使当前 renderer 中已存在的关键 UI 都有对应图片和文档。
-- 本轮仅涉及 UI 文档、线框和说明文件收口，已完成 Release 构建验证，未运行 `Jvedio.Test` 集成测试。
-- 将与 `doc/UI/new/` 线框输出直接对应的历史规格文档迁到同目录维护：`main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md` 现已统一在 `doc/UI/new/` 维护；同时更新 `doc/UI/desktop-ui-shell-refactor/README.md` 与说明文档入口，使剩余说明文档改为引用新位置。
-- 进一步收口当前 exe UI 文档入口：新增 `doc/UI/new/README.md`，并将 `plan/active/desktop-ui-shell-refactor/`、`doc/UI/desktop-ui-shell-refactor/README.md` 与 `electron/product-summary.md` 中对 `doc/UI/new/` 的定位统一改为“当前 exe UI 的线框与页面规格入口”；同时删除 `doc/UI/desktop-ui-shell-refactor/` 根目录下已过时的 `information-architecture.md`、`theme-spec.md`、`drawing-output-guide.md`、`references.md`，避免继续与当前实施入口混用。
-- 统一 `doc/UI/new/` 的命名：页面规格改为 `main-shell.md`、`library-management-page.md`、`favorites-page.md`、`actors-page.md`、`library-page.md`、`settings-page.md`、`icon-config.md`，配套 `.png` / `.excalidraw` 文件同步按相同基础名对齐；其中额外的库内容图收口为 `library-page-content.*`，图标语义图收口为 `icon-config.*`。
-- 继续收敛 `doc/UI/new/` 的库页面命名：正式的库内容页统一为 `library-page.*`，原 `library-page-content.*` 已并入该名称，不再作为独立页面保留。
-- 将旧的库编辑样式线框移入 `doc/UI/new/_archive/library-editor-page.*`，当前 `doc/UI/new/library-page.*` 只表示用户最终确认的“单个媒体库内容页”。
-- 删除 `doc/UI/new/_archive/library-editor-page.*` 及相关目录引用，避免当前正式文档入口继续保留已退役线框的归档占位说明。
-- 删除 `doc/UI/new/icon-config.*` 及相关引用；当前导航与页面入口统一以 `main-shell.*` 和 Electron renderer 实现为准，不再保留旧的图标资源配置草案。
-- 收口旧 UI 重构文档：将 `page-home / page-library / page-actors / page-video-detail / page-settings / information-architecture` 中仍有效的页面规格迁入 `doc/UI/new/`，补强 `main-shell`、`library-management-page`、`library-page`、`actors-page`、`video-detail-page`、`settings-page` 与 `shared-components`，并删除整个 `doc/UI/desktop-ui-shell-refactor/` 目录；当前 active feature 仅保留 `plan/active/desktop-ui-shell-refactor/` 作为阶段、验证与交接入口。
-- 新增 `doc/UI/new/flow/` 作为当前正式 UI 流程图入口，产出 `main-shell-navigation-flow`、`library-management-flow`、`library-workbench-flow`、`favorites-flow`、`actors-flow`、`categories-flow`、`series-flow`、`video-detail-playback-flow`、`settings-flow`、`task-failure-retry-flow` 共 10 张流程图，并同步补齐 `.png` 与 `.excalidraw` 源文件、`flow/README.md`、`page-index.md` 和 `README.md` 的索引关系。
-- 更新 `doc/UI/new/main-shell.*` 与相关规格：设置入口不再位于标题右侧，而是改为左栏顶部、与 `库管理` 同规格的全宽导航按钮；同时同步调整 `library-management-page.md`、`settings-page.md` 与 `icon-config.md` 的入口语义描述。
-- 继续收口 `doc/UI/new/main-shell.*`：品牌区改为 `Jvedio Next`，并采用“左侧 icon + 右侧名称”的品牌排布；`智能分类` 与 `影视库` 标题改为统一样式，同时在文档中补充 `类别 / 系列` 默认聚合所有库内容、库列表则保持单库作用域的规则。
-- 将原 `home-page.*` 重命名为 `library-management-page.*`，并把主壳一级导航中的 `Home / Favorites / Actors` 文案改为 `库管理 / 喜欢 / 演员`；同时同步调整库管理页标题、相关说明文档和主壳线框导出结果。
-- 去掉 Electron 主窗体顶部原生菜单栏：`electron/main/app/bootstrap.ts` 现在会清空应用菜单，`electron/main/app/createMainWindow.ts` 会对主窗口启用 `autoHideMenuBar` 并直接移除窗口菜单，避免 Release 版本继续显示 `File / Edit / View / Window / Help`。
-- 将 `dotnet/Jvedio/App.xaml.cs` 的 Release 启动入口改为 Electron 优先：`Jvedio.exe` 现在会优先拉起 `bin/Release/electron-shell/` 下的新桌面壳层，并通过 `JVEDIO_APP_BASE_DIR`、`JVEDIO_WORKER_DLL`、`JVEDIO_WORKER_CWD` 把共享数据目录与本地 Worker 注入给 Electron；仅当壳层产物缺失或显式设置 `JVEDIO_FORCE_LEGACY_WPF=1` 时才回退旧 WPF 主窗体。
-- 更新 `dotnet/Jvedio/Jvedio.csproj`，Release 构建现在会自动执行 `dotnet build Jvedio.Worker` 与 `npm run build`，并把 `electron-shell/`、`worker/` 两套运行产物复制进 `Jvedio/bin/Release/`，使直接运行 `Jvedio.exe` 即可进入新 UI。
-- 更新 `electron/main/app/bootstrap.ts`、`electron/main/worker/workerProcess.ts`、`electron/main/app/createMainWindow.ts` 与 `electron/renderer/index.html`，补上 Electron 单实例锁、打包后 Worker 路径解析和正式窗口标题收口，避免改用启动器后重复开窗或继续暴露 `Home MVP Shell` 占位标题。
-- 收口 `Home / Library / Favorites / Categories / Series` 的视觉与交互一致性：`electron/renderer/src/features/home/useHomePageData.ts` 现在为这五个页面补上统一的结果摘要条、筛选上下文说明、缺资源影片提示，以及关键字输入回车直接应用筛选的统一手势。
-- 更新 `electron/renderer/index.html`，新增 `collection-summary-strip`、`summary-pill`、缺资源影片卡片高亮和结果说明样式，使 Home 的入口摘要、Library 工作台、Favorites、Categories、Series 的结果集视觉语义收敛到同一套层级。
-- 补齐任务失败详情与重试入口：`dotnet/Jvedio.Contracts/Tasks/WorkerTaskDto.cs` 新增 `CanRetry`、`RetriedFromTaskId`，并新增 `RetryTaskResponse`；`Jvedio.Worker` 侧在 `WorkerTaskRegistryService.cs`、`LibraryTaskOrchestratorService.cs` 与 `Controllers/TasksController.cs` 中接入 `POST /api/tasks/{taskId}/retry`，为扫描/抓取失败任务保留原始请求上下文并允许基于原任务重试。
-- 更新 `electron/renderer/src/features/home/useHomePageData.ts` 与新增 `TaskDetailDialog.ts`，使 Home / Library 任务卡片在失败态展示错误摘要、失败详情入口和重试按钮；失败详情弹窗会展示任务时间线、阶段、失败原因和重试来源，库页内联任务与全局活动条共用同一套重试状态反馈。
-- 更新 `electron/renderer/index.html`，补充失败任务卡片、任务动作区、任务详情弹窗和失败块样式，保证“库页内联 + 全局活动条 + Home 摘要”形态下的失败态布局可读且在移动端可收缩。
-- 新增 `electron/main/testing/tasksRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:tasks`，通过隔离 sqlite 副本稳定覆盖“无有效扫描目录导致任务失败 -> 打开失败详情 -> 修复扫描目录 -> 从详情弹窗直接重试 -> 重试成功”闭环。
-- 完成 Electron 稳定化修复：`electron/main/testing/batch3Regression.ts` 已改为从 `location.hash` 稳定拆出 `videoId`，避免 `#/videos/{videoId}?backTo=...` 场景把查询串误拼进 `GET /api/videos/{videoId}`，恢复第三批播放写回回归。
-- 更新 `electron/renderer/src/features/home/useHomePageData.ts`，为 Home 与 Library 的任务摘要 note 补充原始 `data-last-updated-utc` 标记，稳定支持 `task.summary.changed` 回归对摘要刷新时间的判定。
-- 收口任务反馈的全局活动条：更新 `electron/renderer/src/features/home/useHomePageData.ts`，在主内容区头部新增跨页面可见的活动条，统一展示当前运行或最近失败任务的库名、状态、进度、阶段，并提供跳回目标库工作台与刷新任务入口。
-- 更新 `electron/renderer/index.html`，新增全局活动条、活动状态胶囊和移动端响应式布局样式，使“库页内联 + 全局活动条 + Home 摘要”成为当前固定任务反馈形态，不再引入独立任务中心页面。
-- 新增 `electron/main/testing/activityRegression.ts`、`electron/main/app/bootstrap.ts` 与 `electron/package.json` 中的 `npm run regression:activity`，通过隔离 sqlite 副本和 18 个样例影片稳定覆盖活动条出现、跨页面保留、跳回库工作台与任务结束后收口。
-- 完成智能分类第二项“系列”：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/series`、`GET /api/videos/series/{seriesName}/videos`，复用 grouped query DTO 查询 `metadata_video.Series` 聚合结果集。
-- 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/series` 一级路由、主壳导航入口、系列列表、系列内影片结果集，以及关键字筛选、排序、刷新；同时把影片详情页的 `backTo` 返回链路补齐到 Series。
-- 新增 `electron/main/testing/seriesRegression.ts` 与 `electron/` `npm run regression:series`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `metadata_video.Series`，稳定覆盖 Series 路由壳、系列列表、结果集、筛选排序刷新，以及 `Series -> Video Detail -> Series` 返回链路。
-- 完成智能分类第一项“类别”：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/categories`、`GET /api/videos/categories/{categoryName}/videos`，并在 `Jvedio.Contracts/Videos/`、`electron/renderer/src/types/api.ts` 与 `api/client/apiClient.ts` 补齐 grouped query DTO 与请求封装。
-- 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/categories` 一级路由、主壳导航入口、类别列表、类别内影片结果集，以及关键字筛选、排序、刷新；同时把影片详情页的 `backTo` 返回链路扩展为 Categories / Favorites / Actors / Library 通用闭环。
-- 新增 `electron/main/testing/categoriesRegression.ts` 与 `electron/` `npm run regression:categories`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `metadata.Genre`，稳定覆盖 Categories 路由壳、类别列表、结果集、筛选排序刷新，以及 `Categories -> Video Detail -> Categories` 返回链路。
-- 完成 Favorites 一级聚合页：`Jvedio.Worker/Controllers/VideosController.cs` 与 `Services/VideoService.cs` 新增 `GET /api/videos/favorites`，基于 `metadata.FavoriteCount` 返回收藏结果集；同时在 `Jvedio.Contracts/Videos/`、`electron/renderer/src/types/api.ts` 与 `api/client/apiClient.ts` 补齐 Favorites 请求/响应 DTO。
-- 更新 `electron/renderer/src/app/routes/router.ts` 与 `features/home/useHomePageData.ts`，新增 `#/favorites` 一级路由、主壳导航入口、Favorites 结果集展示、关键字筛选、排序、刷新，并将影片详情页的 `backTo` 返回按钮收口为 Favorites / Actors / Library 通用链路。
-- 新增 `electron/main/testing/favoritesRegression.ts` 与 `electron/` `npm run regression:favorites`，通过隔离 sqlite 副本、样例影片扫描和直接写入 `FavoriteCount`，稳定覆盖 Favorites 路由壳、结果集、筛选排序刷新，以及 `Favorites -> Video Detail -> Favorites` 返回链路。
-- 收口演员头像策略：`Jvedio.Worker/Services/ActorService.cs` 现在会优先返回 `actor_info.ImageUrl` 指向的本地头像，其次回退到 `data/<user>/cache/actor-avatar/<ActorID>.*`，最后再尝试演员名哈希缓存；renderer Actors 页与抽屉在拿到真实头像时展示本地图片，拿不到时展示明确的 initials 占位头像。
-- 完成演员页 renderer 第一轮闭环：新增 `#/actors` 路由、Actors 一级导航入口、演员结果集展示、关键字筛选、排序、刷新和关联影片抽屉；抽屉已消费 `GET /api/actors/{actorId}` 与 `GET /api/actors/{actorId}/videos`，展示演员头部信息、所属库和关联影片列表。
-- 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 actors 查询参数同步、详情抽屉状态、actors DTO 类型和对应页面样式。
-- 新增 `electron/main/testing/actorsRegression.ts` 与 `electron/` `npm run regression:actors`，通过临时 sqlite 副本、样例影片扫描和直接注入演员映射，稳定覆盖 Actors 路由壳、结果集、筛选排序和抽屉详情消费。
-- 继续增强 Actors 页结果集：renderer 已新增页大小切换、页码摘要、上一页/下一页翻页，以及 `actorId`、`webType` 两个额外排序项；演员卡片同时补出 `Actor ID` 显示，便于直接验证排序结果。
-- 扩展 `Jvedio.Worker/Services/ActorService.cs` 的演员排序分支，新增 `actorId` 数值排序和 `webType` 排序，并统一用稳定的二级排序收口；`regression:actors` 现已改为三部样例影片与三名演员造数，覆盖头像/占位、关键字筛选、分页翻页与扩展排序。
-- 补齐演员线第一轮 Worker 查询接口：新增 `GET /api/actors`、`GET /api/actors/{actorId}`、`GET /api/actors/{actorId}/videos`，并在 `dotnet/Jvedio.Contracts/Actors/` 下新增演员列表、详情、关联影片 DTO。
-- 新增 `dotnet/Jvedio.Worker/Services/ActorService.cs` 与 `Controllers/ActorsController.cs`，打通 `actor_info`、`metadata_to_actor`、`metadata`、`metadata_video` 的聚合查询，支持演员关键字筛选、分页、排序、详情读取和关联影片查询。
-- 更新 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`、`contracts-naming.md`、`backend-bridge.md`、`page-actors.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，将演员详情端点、DTO 命名和下一步 renderer 工作面同步到当前规格。
-- 完成第四批“设置页面”最小闭环：新增 `GET /api/settings` 与 `PUT /api/settings`，冻结第一轮真正落库的设置项为 `General.CurrentLanguage/Debug`、`MetaTube.ServerUrl/RequestTimeoutSeconds`、`Playback.PlayerPath/UseSystemDefaultFallback`。
-- 新增 `dotnet/Jvedio.Worker/Services/SettingsService.cs` 与 `Controllers/SettingsController.cs`，将设置读取、保存、恢复默认统一收口到 Worker；保存后会发布 `settings.changed` 事件，并让播放链直接消费新的播放器回退策略。
-- 更新 `electron/renderer/src/app/routes/router.ts`、`features/home/useHomePageData.ts`、`api/client/apiClient.ts`、`types/api.ts` 与 `renderer/index.html`，补齐 Settings 路由壳、分组切换、表单态、保存反馈和恢复默认。
-- 新增 `electron/main/testing/settingsRegression.ts` 与 `electron/` `npm run regression:settings`，通过隔离的 sqlite 配置副本验证设置读取、保存和恢复默认三条最小主链路。
-- 继续收口设置线：新增 `POST /api/settings/meta-tube/diagnostics`，允许 Settings 页直接使用当前表单中的 MetaTube 地址与超时配置执行根地址、providers、测试番号搜索与详情诊断。
-- 更新 renderer 设置页，新增 MetaTube diagnostics 面板，并接入 `settings.changed` 事件消费；当设置被外部更新时，页面会同步最新持久化值，同时保留当前未保存草稿。
-- 扩展 `electron/main/testing/settingsRegression.ts`，新增本地 MetaTube stub 服务，稳定覆盖 MetaTube diagnostics 成功链路以及 `settings.changed` 的 dirty 草稿保护。
-- 完成第三批“影片展示和播放”主链路：新增 `GET /api/libraries/{libraryId}/videos`、`GET /api/videos/{videoId}`、`POST /api/videos/{videoId}/play`，并补齐 `Jvedio.Contracts/Libraries` 与 `Jvedio.Contracts/Videos` 下的影片列表、详情、播放可用性、播放写回相关 DTO。
-- 新增 `dotnet/Jvedio.Worker/Services/VideoService.cs` 与 `Controllers/VideosController.cs`，打通库内影片结果集查询、基础筛选/排序、影片详情读取、外部播放器调用和 `metadata.ViewDate` 播放写回；同时在 `LibrariesController.cs` 接入库内影片列表端点。
-- 更新 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，使 Library 页具备影片结果集展示、筛选、排序、刷新、详情路由壳和播放调用入口。
-- 新增 `electron/main/testing/batch3Regression.ts`、`npm run regression:batch3`，通过临时 sqlite 副本、临时媒体目录和假播放器脚本聚焦验证第三批的列表展示、筛选排序、详情跳转、播放调用与播放写回。
-- 更新 `plan/active/desktop-ui-shell-refactor/handoff.md`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将当前阶段状态推进到“第三批已完成，下一步进入第四批设置页面”。
-- 完成阶段 `C-4` 事件与错误收口：为 `Jvedio.Worker` 新增 `GET /api/events`、`WorkerEventStreamBroker`、`WorkerEventEnvelopeDto`、`TaskSummaryChangedEvent`，并发布 `worker.ready`、`library.changed`、`task.summary.changed` 三类事件，使 Home MVP 具备最小 SSE 事件流。
-- 更新 `dotnet/Jvedio.Worker/Services/LibraryService.cs` 与 `TaskSummarySnapshotService.cs`，在库新建/删除后同步广播 `library.changed` 与任务摘要变更事件，收口 Home 页的库列表与任务摘要刷新链路。
-- 更新 `electron/renderer/src/api/client/apiClient.ts`、`features/home/useHomePageData.ts`、`types/api.ts` 与 `renderer/index.html`，在 renderer 侧建立全局单 `EventSource` 订阅、消费 `library.changed` 和 `task.summary.changed`，并将 Worker 未就绪、请求失败、事件流断开统一映射为更明确的用户反馈。
-- 扩展 `electron/main/testing/c3Regression.ts`，在现有阶段 C 回归脚本中补充 `library.changed` 事件驱动同步、任务摘要刷新、Worker 未就绪错误反馈三项校验，继续沿用临时 sqlite 副本避免污染真实数据。
-- 完成阶段 `D` 的扫描与抓取最小闭环：扩展 `Jvedio.Worker` 的库更新、扫描、抓取与单任务查询接口，新增内存任务注册表、库扫描服务、MetaTube 抓取服务，以及 sidecar / NFO / 演员头像写出能力。
-- 将 `electron/renderer/src/features/home/useHomePageData.ts` 从库路由壳升级为库工作台，支持默认扫描目录读取与保存、触发扫描、触发抓取、显示当前库任务状态，并在 Home 与 Library 视图中回填任务列表。
-- 新增 `electron/main/testing/dRegression.ts` 与 `electron/` `npm run regression:d`，使用临时 sqlite 副本和临时媒体目录聚焦验证阶段 D 的扫描目录保存、扫描触发、任务状态回传与 sidecar 输出。
-- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-4` 与阶段 C 聚焦回归已完成，下一步进入阶段 D”。
-- 新增 `electron/` `npm run regression:c3` 与 `electron/main/testing/c3Regression.ts`，通过临时 `sqlite` 副本自动验证 Home 首屏加载、新建库、删除库、左侧导航同步和库路由跳转，避免污染当前真实库数据。
-- 修复 renderer 原生 ES module 导入缺少 `.js` 扩展的问题，解决 Electron 文件页加载时 Home 页面空白、`C-3` 首屏无法渲染的实际缺陷。
-- 更新 `plan/active/desktop-ui-shell-refactor/handoff.md`、`plan.md`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 聚焦回归已通过，下一步进入 `C-4`”。
-- 完成阶段 `C-3` renderer Home 闭环：新增 `electron/renderer/src/api/client/apiClient.ts`、`app/routes/router.ts`、`app/navigation/useLibraryNavItems.ts`、`features/home/` 与 `types/api.ts`，在 renderer 侧落地 Worker API 调用、hash 路由、动态左侧库导航、Home 控制器和新建/删除库对话框。
-- 重写 `electron/renderer/index.html` 与 `electron/renderer/src/main.ts`，将原最小 smoke 页面替换为 Home MVP 壳层、库列表、任务摘要、Library 路由壳、结构化错误提示和响应式布局。
-- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json`、`doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md` 与 `validation-flow.md`，将阶段状态推进到“`C-3` 已实现并完成构建验证，下一步先做聚焦功能回归，再进入 `C-4`”。
-- 完成阶段 `C-1` 工程骨架落地：新增 `dotnet/Jvedio.Contracts` 与 `dotnet/Jvedio.Worker`，并在根目录新增 `electron/` 的 `main / preload / renderer` 最小工程骨架；同时将两个新 .NET 工程接入 `dotnet/Jvedio.sln`。
-- 为 `Jvedio.Worker` 落地 localhost 宿主健康检查和 `JVEDIO_WORKER_READY` 启动信号，为 Electron 主进程落地 Worker 拉起、ready 探测、IPC bridge 和最小 smoke 验证页面。
-- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将 active feature 状态推进到“`C-1` 已完成，下一步进入 `C-2`”。
-- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 以及 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`、`validation-flow.md`，将阶段 C 拆分为 `C-1` 到 `C-4` 四个实现步，并明确推荐采用“每步完成后先做对应模块测试，阶段末再做整体回归”的测试策略。
-- 新增 `doc/UI/desktop-ui-shell-refactor/electron/home-mvp-implementation-entry.md`，冻结阶段 C 的首批工程范围、Contracts / Worker / Electron / renderer 的落地顺序，以及 Home MVP 的 done 定义与验证顺序，使下一轮可以直接按文档开工。
-- 新增 `doc/UI/desktop-ui-shell-refactor/electron/contracts-naming.md`，冻结 `bootstrap / libraries / videos / actors / settings / tasks` 六组 contracts 的 DTO 命名、task payload 命名、event payload 命名与错误码前缀，并将其作为未来 `Jvedio.Contracts` 的首批目录输入。
-- 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-home.md`、`page-library.md`、`page-actors.md`、`page-video-detail.md`、`page-settings.md`，使五个页面规格与 `renderer-architecture.md` 对齐，补齐页面级组件、section 结构、页面状态、API 依赖和分批实现边界。
-- 更新 `plan/active/desktop-ui-shell-refactor/plan.md`、`handoff.md`、`plan.json` 与 `doc/UI/desktop-ui-shell-refactor/electron/validation-flow.md`，新增“方案路径”与推荐下一步，明确当前推荐先完成页面规格和 contracts 冻结，再进入 Home 库管理最小闭环实现。
-- 新增 `doc/UI/desktop-ui-shell-refactor/electron/renderer-architecture.md`，把 renderer 目录从粗粒度页面草图细化到 `app / api / features / components / hooks / styles / types / utils` 的真实文件级骨架，并明确 Home、Library、Actors、Video Detail、Settings 的组件拆分边界。
-- 新增 `doc/UI/desktop-ui-shell-refactor/electron/worker-api-spec.md`，细化 Worker 的统一响应 envelope、长任务模型、错误流、SSE 事件名以及 libraries / videos / actors / settings / tasks 端点的请求与返回结构。
-- 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`product-summary.md`、`frontend-page-rebuild-plan.md`、`backend-bridge.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`、`plan.md`、`plan.json`，把这轮 renderer / Worker API 规格纳入 active feature 主线，并同步推进阶段状态。
-- 拉取本地参考仓库 `D:\study\Proj\jellyfin-web`，并基于提交 `e6fe869a3b94fef35811bcd8ea4a9c0a713979b6` 完成首轮结构审计，新增 `doc/UI/desktop-ui-shell-refactor/reference/jellyfin-web-audit.md`，明确其适合作为页面结构、列表/详情页组织和页面级数据 hook 分层参考。
-- 新增 `doc/UI/desktop-ui-shell-refactor/electron/frontend-page-rebuild-plan.md`，将 `fntv-electron` 与 `jellyfin-web` 整合为“双参考源”策略，并细化 Jvedio 的 Home、Library、Actors、Video Detail、Settings 五个核心页面的可落地重构方案。
-- 更新 `doc/UI/desktop-ui-shell-refactor/electron/README.md`、`doc/UI/desktop-ui-shell-refactor/electron/product-summary.md`、`doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md` 与 `plan/active/desktop-ui-shell-refactor/handoff.md`，把参考源职责重新划分为“桌面壳参考”和“页面实现参考”。
-- 拉取本地参考仓库 `D:\study\Proj\fntv-electron`，并基于提交 `4eb63089687abaa733c1f85783630b1da391178d` 完成首轮结构审计，新增 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-audit.md` 记录其架构形态、可借鉴边界与禁止照搬项。
-- 更新 `doc/UI/desktop-ui-shell-refactor/reference/fntv-electron-notes.md`、`doc/UI/desktop-ui-shell-refactor/electron/README.md` 和 `plan/active/desktop-ui-shell-refactor/handoff.md`，明确 `fntv-electron` 只适合作为桌面壳与桌面交互参考，不作为 Jvedio 本地页面实现模板。
-- 完成桌面 UI 首批线稿产出：生成 Home、Favorites、Actors、Settings 和导航/图标语义图，并将 `.png` 与 `.excalidraw` 文件统一导出到 `doc/UI/new/`，便于后续直接截图评审和继续微调。
-- 更新 `AGENTS.md` 的收尾校验规则：如果本轮仅为文档/纯内容调整，且不涉及 MetaTube 抓取链、扫描导入链、测试脚本或相关实现代码，则允许跳过 `Jvedio.Test` 集成测试，但仍需完成 Release 构建并说明原因。
-- 收紧 `doc/UI/desktop-ui-shell-refactor/` 的绘图约束，补齐首页/设置页线稿说明、设置页分组展示规则、主题 token 使用规则，以及首批输出命名与验证要求，降低后续线稿图生成歧义。
-- 将 `plan/active/unit-test-refactor/` 迁移归档到 `plan/archive/unit-test-refactor/`，并把该 feature 状态更新为 `completed`，作为单元测试改造完成后的历史记录保留。
-- 完成 `doc/metatube-only-plan.md` 的历史归档迁移：将正文快照收敛到 `plan/archive/metatube-only-plan/original.md`，同步更新索引与 legacy 说明，并删除 `doc/` 下的旧计划文档。
-- 将仓库收敛为仅维护 `dotnet`，移除了 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`。
-- 更新 `README.md`、`README_EN.md`、`README_JP.md`，明确仓库当前只维护 `dotnet`。
-- 将原开发者 Wiki 重写为 `dotnet/Document/Wiki/5.0/developer.md`，补充面向当前 WPF 架构的模块说明、维护路径与调试建议。
-- 删除 `dotnet/Document/Wiki/4.6`、`dotnet/Document/皮肤插件示例` 和遗留 `dotnet/Document/Document.md` 等过时文档。
-- 将维护中的文档统一收敛到 `doc/`，把开发文档迁移到 `doc/developer.md`，把变更日志迁移到 `doc/CHANGELOG.md`，并删除其余旧用户文档和历史 Wiki。
-- 联机调研后安装 `Mermaid CLI (mmdc)`，用于在开发文档中生成结构图和流程图。
-- 将 `doc/developer.md` 精简为总览索引，并新增 `doc/modules/` 模块文档与 `doc/assets/diagrams/` 图示资源。
-- 将维护中的开发文档统一改为中文，新增 `doc/modules/07-database-schema.md` 与 `doc/modules/08-entity-relations.md`。
-- 修复 `dotnet/Jvedio/WindowStartUp.xaml.cs` 的空判断问题、`dotnet/Jvedio/Windows/Window_Details.xaml.cs` 的刷新比较问题、`dotnet/Jvedio/Windows/Window_DataBase.xaml.cs` 的扫描路径清理逻辑，以及 `dotnet/Jvedio/Core/Media/ImageCache.cs` 的缓存清理行为。
-- 优化 `03-main-ui`：为 `VieModel_VideoList` 增加页级关联数据预加载，减少列表渲染阶段的逐条关联查询；修复 `Genre` 搜索候选词未应用当前库和过滤条件的问题。
-- 优化 `04-scan-import`：为扫描导入建立 `VID`、`Hash`、路径和现存文件索引，减少重复遍历与重复 `File.Exists`，并复用索引优化 NFO 导入判定。
-- 优化 `05-sync-plugin`：爬虫插件加载时优先选择与插件目录名或元数据 JSON 匹配的 DLL，降低误加载依赖 DLL 的风险，并补强缺失插件目录时的初始化处理。
-- 优化 `06-media-maintenance`：移除缓存清理中的强制 GC，去掉数据库清理任务中的固定等待，并补齐截图任务在找不到视频记录时的结束路径。
-- 优化 `01-bootstrap-startup`：补强启动页在 VM 尚未准备好时的退出保护，移除启动阶段重复的服务器配置读取，并简化插件搬运、删除和备份路径中的无意义短延迟。
-- 优化 `02-config-persistence`：增强 `EnsurePicPaths()` 的兼容处理，在 `PicPathJson` 缺失、损坏或字段不完整时自动回退并补齐默认配置。
-- 优化 `07-database-schema`：为 `metadata (DBId,DataType,ViewCount)` 增加索引，并同时加入建表 SQL 与增量 SQL，改善按播放次数排序时的数据库支撑能力。
-- 优化 `08-entity-relations`：收紧 `Video.Equals()` 的比较规则，仅在有效 `DataID` / `MVID` 存在时判等，避免未落库实体因默认值相同而被误判相等。
-- 补齐剩余未完全独立的文档模块，新增：`doc/modules/09-dialogs.md`、`doc/modules/10-utils-extern.md`、`doc/modules/11-style-theme.md`、`doc/modules/12-avalonedit.md`。
-- 优化 `09-dialogs`：修复 `dotnet/Jvedio/WindowsDialog/Dialog_LoadPage.xaml.cs` 在网站列表为空时的空引用风险，并统一站点列表的增删与去空白处理。
-- 优化 `10-utils-extern`：为 `dotnet/Jvedio/Utils/Extern/JvedioLib.cs` 补齐 DLL、类型和方法缺失时的空保护，并修正 `dotnet/Jvedio/Utils/Common/Converter.cs` 中的布尔空判断写法。
-- 优化 `11-style-theme`：将 `dotnet/Jvedio/CustomStyle/StyleManager.cs` 中的高亮资源访问改为延迟读取，避免静态初始化阶段在资源未就绪时直接取主题资源导致异常。
-- 优化 `12-avalonedit`：为 `dotnet/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `dotnet/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
-- 修复搜索历史增量 SQL 的表名错误，将 `common_search_history` 更正为当前实际使用的 `common_search_histories`，避免新环境启动时记录 SQL 逻辑错误。
-- 优化启动插件迁移流程：当 `plugins/temp` 不存在时直接跳过，不再把正常的“无待迁移插件”场景记录为错误。
-## [2026-03-20]
+### 0.1.0 之前的重构历程（已压缩）
 
-### 已变更
-- **统一构建输出目录**：所有构建产物从散落的 `tauri/worker-dist/`、`tauri/dist/`、`tauri/src-tauri/target/.../bundle/nsis/` 收归到仓库根 `build/` 目录（`build/worker-stage/`、`build/frontend-stage/`、`build/release/`）。`prepare-worker.ps1` 直接 publish 到 `build/worker-stage/`，`vite.config.ts` 输出到 `build/frontend-stage/`，新增 `copy-release.ps1` 将安装包复制到 `build/release/`。
-- 清理旧散落构建产物：删除 `tauri/worker-dist/`（26 files, 2.83 MB）、`tauri/dist/`（4 files）、旧名安装包 `Jvedio_5.0.0_x64-setup.exe`、旧 MSI 残留。
-- **版本号重设为 `0.1.0`**：4 个核心文件版本号从 `5.0.0` 统一重设为 `0.1.0`（`package.json`、`tauri.conf.json`、`Cargo.toml`、`Jvedio.csproj`）。Tauri 架构是全新重写，采用语义化版本 `0.x.y` 起步。安装包文件名变为 `JvedioNext_0.1.0_x64-setup.exe`。首个 git tag `v0.1.0`。
-- **去掉 WPF 启动层**：`Jvedio.exe` (WPF) 不再作为 Release 用户入口。Tauri Shell 直接面向用户，产出为 `JvedioNext.exe`。删除 `TauriShellLauncher` 类和 `PrepareTauriShellArtifacts` MSBuild Target。WPF 项目保留仅用于 Debug / 历史参考。
-- **补齐单实例控制**：在 Tauri 端添加 `tauri-plugin-single-instance`，重复启动时聚焦已有窗口，替代 WPF 端的 `EventWaitHandle` 互斥锁。
-- **Worker 路径解析增强**：`WorkerPathResolver.ResolveSharedAppBaseDirectory()` 新增安装包 fallback — 当 Worker 位于 `{parent}/worker/` 目录时，使用 `{parent}` 作为数据根目录。
-- **首次完成 Tauri Release 打包**：`npm run build:release` 产出 NSIS 安装包 `JvedioNext_0.1.0_x64-setup.exe`。MSI 格式因 WiX `light.exe` 问题暂跳过，`bundle.targets` 设为 `["nsis"]`。
-- **修复 Worker SQLite native DLL 丢失**：`prepare-worker.ps1` 从 `dotnet build` 改为 `dotnet publish -r win-x64 --self-contained false`，确保 `e_sqlite3.dll` 等 native DLL 平铺在 `build/worker-stage/` 根目录，解决安装后 Worker 启动崩溃问题。
-- 完成 `desktop-ui-shell-refactor` 的 Phase 10 前端 E2E 验收收口：基于真实播种环境跑通 Main Shell、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 七组 flow，并将结果回写到 `plan/active/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
-- 修复 `tauri/src/pages/ActorDetailPage.tsx` 中关联影片菜单 / 多选改造引入的运行时崩溃，补齐演员详情页的 `演员 ID`、单卡菜单与批量动作承载。
-- 修复 Settings 的 MetaTube diagnostics 前端合同漂移：`tauri/src/api/types.ts` 与后端 DTO 对齐，页面展示从错误的 `undefinedms` 改为真实摘要结果。
-- 新增 Phase 10 产物 `log/test/e2e/runtime/phase10-subtask3.log`、`phase10-subtask3-actor-detail.png`、`phase10-subtask4-settings.png`，用于保留本轮真实验收截图与执行日志。
+> 以下是从旧 WPF 架构演进到 Tauri 2 + .NET 8 Worker 的完整重构过程摘要。
+> 详细的每步变更记录已归档，此处仅保留关键里程碑。
 
-- 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
-- 精简初始选择库页面，移除 `WindowStartUp.xaml` 左下角的设置按钮入口。
-- 继续精简初始选择库页面，移除 `WindowStartUp.xaml` 顶部搜索框以及 `WindowStartUp.xaml.cs`、`VieModel_StartUp.cs` 中对应的搜索筛选逻辑。
-- 将程序集版本从 `5.4` 提升为 `6`，当前 `App.GetLocalVersion()` 返回值将显示为 `6`。
-- 开始收敛设置页 UI：移除插件 Tab 的页面显示，仅保留现有插件功能代码与接口；同时删除若干废弃或低价值的隐藏设置项，并精简部分显示类开关。
-- 继续收敛设置页：隐藏重命名页和视频处理页，删除青少年模式入口并在运行期强制关闭；显示页选项统一回归默认开启。
-- 同步收敛相关功能入口：移除主界面列表中的重命名、生成截图、生成 GIF、批量生成截图入口，并隐藏详情页的截图视图切换和截图/GIF 菜单项。
-- 进一步简化网络设置：移除“标题为空才同步信息”开关，保留“强制覆盖信息”作为更直接的同步覆盖入口。
-- 继续压缩扫描导入设置：隐藏 NFO 细项设置和 NFO 规则映射区，不再允许用户配置 `id` 字段，相关 NFO 导入默认值改由代码统一控制。
-- 隐藏显示页签，显示类功能开关继续统一保持默认开启。
-- 继续清理设置页失效逻辑：删除 `Window_Settings.xaml` 中已隐藏的显示页、视频处理页、重命名页，并同步移除 `Window_Settings.xaml.cs` 中对应的初始化、保存和重置逻辑。
-- 新增 `doc/metatube-only-plan.md`，固化 MetaTube 唯一搜刮源的实施步骤、阶段目标、每日执行规则、测试搜刮框与日志输出要求，后续严格按该计划推进。
-- 完成 MetaTube 计划阶段 1：新增 `MetaTubeConfig`，并在 `PathManager` 中建立 `metatube/cache/video`、`metatube/cache/actor`、`metatube/avatar`、`metatube/test`、`metatube/log` 等固定目录，为后续唯一搜刮源改造打基础。
-- 完成 MetaTube 计划阶段 2：新增内置搜刮抽象层 `IScraperProvider`、`ScraperProviderManager` 及统一 `Scrape*` 模型，并注册 `MetaTubeScraperProvider` 骨架作为当前唯一 provider。
-- 完成 MetaTube 计划阶段 3：新增 `MetaTubeClient`、`MetaTubeCache`、`MetaTubeConverter` 和 MetaTube 响应模型，当前 provider 已支持番号搜索、影片详情拉取、演员头像检索和永久 JSON 缓存。
-- 完成 MetaTube 计划阶段 4：`VideoDownLoader` 已改为通过 `ScraperProviderManager` 使用当前唯一内置 provider，并将 `ScrapeResult` 转换为兼容现有 `DownLoadTask` 的字典结构，正式切出旧插件搜刮主链。
-- 完成 MetaTube 计划阶段 5：新增影片 sidecar 路径解析器、演员头像路径解析器和 `VideoNfoWriter`，并将海报、缩略图、背景图、NFO、演员头像落盘逻辑切换到影片目录 / data 目录的固定规则。
-- 完成 MetaTube 计划阶段 6：设置页已新增 `MetaTube` 页签，并将服务端 URL、测试番号、连接测试、搜刮测试和日志输出集中到该页签中，同时把旧图片/NFO 目录设置改为说明型 UI。
-- 完成 MetaTube 计划阶段 7：新增测试搜刮模式，可将指定番号的结果写入 `data/<user>/metatube/test/<番号>/`，并输出界面日志和文件日志。
-- 完成 MetaTube 计划阶段 8：旧插件搜刮链已彻底退出运行主入口，当前仅保留兼容代码，不再作为用户可见流程。
-- 完成 MetaTube 计划阶段 9：详情页已新增手动刷新入口，可强制忽略缓存并覆盖当前影片的数据库、图片和 NFO。
-- 优化 MetaTube 调试日志：补充请求 URL、响应码、缓存命中状态、命中影片、演员搜索、缓存写入和完整异常输出，并将超时错误明确显示为 `MetaTube 请求超时（30 秒）`。
-- 调整 MetaTube 测试输出策略：测试日志已并入主日志流，测试产生的 `json / nfo / 图片 / 演员头像` 统一写入 `data/<user>/log/test/<番号>/`，不再单独区分测试日志目录和头像目录。
-- 优化 MetaTube 连接诊断：将连接测试拆分为根地址和 providers 接口检查，为请求增加更细的耗时日志，并将默认超时提升到 60 秒，更贴合当前 `hf.space` 服务的响应时间。
-- 增强 MetaTube 头像链路：参考 Jellyfin 的处理方式，为演员搜索增加 detail 兜底查询，并在正式搜刮和测试搜刮前统一增加服务预热步骤，同时补充演员搜索结果数、命中详情和头像 URL 相关日志。
-- 修正 MetaTube 演员搜索 query 编码为标准 UTF-8 URL 编码，并进一步增强预热成功日志、演员命中日志和演员详情失败日志，避免日文演员名搜索误返回 404。
-- 新增 `doc/test-refactor-plan.md` 与 `doc/test-strategy.md`，细化 `Jvedio.Test` 的重构方案、JSON 配置驱动的 MetaTube/扫描链测试结构，以及快速验证、网络验证、扫描链验证的详细执行步骤。
-- 开始执行 data 目录收敛阶段：移除自动备份功能、删除设置页中的备份选项，并停止创建和清理 `backup/` 目录。
-- 完成 data 目录收敛阶段步骤 2：移除 `olddata/` 目录用法，并将旧版本迁移后的历史文件改为直接清理，不再保留到 `data/<user>/olddata/`。
-- 完成 data 目录收敛阶段步骤 3：将 MetaTube 正式缓存迁移到通用 `cache/` 目录，影片 JSON 使用 `cache/video/`，演员头像使用 `cache/actor-avatar/`，旧 `metatube/` 目录不再继续使用。
-- 完成 data 目录收敛阶段步骤 4：移除 `image/` 目录用法，将库封面缓存统一迁移到 `cache/library-image/`，旧 `image/library` 目录不再继续使用。
-- 完成 data 目录收敛阶段步骤 5：停止创建和使用 `pic/` 目录，旧图片路径设置退化为说明文本，正式图片、预览图、截图、GIF 和演员头像读取统一切到影片目录与 `cache/` 结构。
-- 完成 data 目录收敛阶段收尾：默认配置中的自动备份已关闭，并完成 `Release/data/<user>/` 目录实测清理，当前仅保留数据库、主日志和统一 cache 结构。
-- 新增扫描前自动目录整理：扫描库与新增库首次扫描时，会自动将平铺影片整理到独立目录后再继续导入；整理失败的影片会直接跳过，不再继续执行搜刮。
-- 开始执行测试工程改造阶段 1：将旧的 UI 测试壳和旧 crawler 空壳测试从 `Jvedio.Test` 编译清单中移除，先收敛测试入口，为后续 MetaTube 与扫描链测试重写做准备。
-- 完成测试工程改造阶段 2~5：新增 JSON 配置驱动的 MetaTube 集成测试、扫描链测试、核心单元测试骨架，并为日志增加“启动覆盖旧内容”的重置逻辑及对应测试。
-- `Jvedio.Test` 的 Release 测试已实跑通过，当前 18 个测试全部通过，说明 MetaTube 集成测试、扫描链测试、单元测试和日志覆盖测试已经从“骨架”进入可运行状态。
-- 在 `doc/test-strategy.md` 中补充当前已跑通的 18 个测试项目清单，明确每个测试的验证目标与所属分类，方便后续持续维护测试体系。
-- 将 `Jvedio.Test` 的测试配置文件统一收敛到 `Jvedio.Test/config/`，后续新增测试配置统一放在该目录中，便于持续维护和执行。
-- 继续细化测试配置目录：将 MetaTube 与扫描链配置进一步拆到 `config/meta-tube/` 和 `config/scan/` 子目录下，并新增可双击执行的 PowerShell 脚本，测试输出统一落在对应 `output/` 子目录中，主日志仍保留在 `bin/Release/data/<user>/log/`。
-- 修复测试脚本与配置细节：调整 PowerShell 脚本的工程相对路径和 `-NoPause` 支持，修正扫描链配置样本，并验证 MetaTube 脚本与扫描链脚本均可直接执行通过。
-- 调整测试输出根目录：MetaTube 与扫描链测试现在直接把业务输出写入各自 `config/<suite>/output/` 根目录，避免用户进入 `output/` 后看不到实际结果文件。
-- 新增仓库根目录 `AGENTS.md`，收敛当前主程序、测试、sidecar、cache、日志与文档更新的高频规则，作为后续 agent 进入仓库时的统一入口说明。
-- 清洗 `doc/metatube-only-plan.md` 中的历史阶段描述，使其与当前已经完成的 sidecar 命名、cache 目录、测试输出、自动整理和预热诊断实现保持一致。
-- 将旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md` 收敛迁移为三份职责更清晰的新文档：`doc/test-targets.md`、`doc/test-plan.md`、`doc/test-current-suite.md`，并同步更新 `developer.md` 与 `AGENTS.md` 的文档索引。
-- 继续压缩并重写 `doc/test-targets.md` 与 `doc/test-plan.md`，明确区分快速功能测试目标、正式运行测试目标，以及正式问题回灌到自动化测试的规则与工程流程。
-- 修正测试文档中的输出路径表述，明确区分 `Jvedio.Test` 的 suite 输出目录（`config/<suite>/output/`）与主程序 `Jvedio.exe` 的内置调试输出目录（`data/<user>/log/test/<VID>/`）。
-- 已删除旧的 `doc/test-refactor-plan.md` 和 `doc/test-strategy.md`，当前测试文档统一以 `test-targets.md`、`test-plan.md`、`test-current-suite.md` 为准。
+**仓库收敛与基础设施**
+- 移除 `Jvedio-Vue`、`Jvedio-Android`、`Jvedio-Linux`，仅保留 `dotnet`
+- 文档统一收敛到 `doc/`，新增 12 个模块文档（`doc/modules/01~12`）
+- 新增 `AGENTS.md` 作为仓库级规则入口
+- data 目录收敛：移除 `backup/`、`olddata/`、`image/`、`pic/`，统一到 `cache/` 结构
 
-## [2026-03-16]
+**WPF Legacy 修复与优化**
+- 修复启动页空判断、详情页刷新比较、扫描路径清理、缓存清理等多处 bug
+- 优化 12 个模块：启动、配置、主 UI、扫描导入、插件加载、媒体维护、数据库索引、实体比较、对话框、外部工具、主题样式、编辑器
+- 收敛设置页 UI：移除插件页、重命名页、视频处理页、青少年模式等废弃功能入口
 
-### 已变更
-- 收口 `doc/UI/new/dialogs/` 文档入口：新增 `dialogs/README.md`，并补齐新建/编辑库弹层、删除库弹层、影片动作菜单的目录规则、归属关系与复用边界说明。
-- 同步更新 `doc/UI/new/pages/` 和 `shared/shared-components.md`，明确 `video-context-menu` 是 `Library / Favorites / Categories / Series / Actor Detail` 共用的统一影片动作菜单，并补充相关回归点与关联文档引用。
-- 更新 `electron/renderer/src/app/routes/router.ts`，新增独立演员详情路由 `#/actors/{actorId}`，并为影片详情路由补充可序列化的 `backTo` 返回态。
-- 更新 `electron/renderer/src/features/home/useHomePageData.ts`，将演员详情从列表抽屉切换为右侧内容区独立页，保留 Actors 列表筛选 / 排序 / 分页状态，并打通 `Actors -> Actor Detail -> Video Detail` 返回链路。
-- 更新 `electron/main/testing/actorsRegression.ts`，将最后一段回归从抽屉验证改为独立演员详情页、关联影片下钻和返回演员详情的闭环验证。
-- 更新 `plan/active/desktop-ui-shell-refactor/` 相关文档，确认演员详情页已完成，下一步进入 Settings 第二轮页签对齐。
-- 更新 `electron/renderer/src/app/routes/router.ts` 与 `electron/renderer/src/features/home/useHomePageData.ts`，将 Settings 导航扩展为 `Basic / Picture / Scan & Import / Network / Library / MetaTube` 6 个页签，并把真正落库的 General / Playback 项收拢到 `Basic` 页签。
-- 更新 `electron/main/testing/settingsRegression.ts`，新增 6 页签校验，并保持读取、保存、MetaTube diagnostics、`settings.changed` 与恢复默认的最小主链路回归。
-- 更新 `doc/UI/desktop-ui-shell-refactor/electron/page-settings.md` 与 `plan/active/desktop-ui-shell-refactor/` 文档，确认 Settings 第二轮页签对齐已完成，下一步进入 Favorites。
+**MetaTube 唯一搜刮源（9 个阶段）**
+- 新增 `MetaTubeClient`、`MetaTubeCache`、`MetaTubeConverter`，完成搜索 → 详情 → 头像 → sidecar 写出全链路
+- 旧插件搜刮链彻底退出运行主入口；设置页新增 MetaTube 页签与连接诊断
+- 优化演员头像链路（detail 兜底 + 服务预热）、日志增强、UTF-8 编码修正
 
-## [2026-03-15]
+**桌面 UI 壳层重构（desktop-ui-shell-refactor）**
+- 参考 `fntv-electron` 和 `jellyfin-web`，完成 UI 规格冻结与 Contracts DTO 命名
+- 新增 `Jvedio.Contracts` + `Jvedio.Worker`（.NET 8），实现 31 个 Worker API 端点（8 个 Controller）
+- 前端 Electron renderer 落地 9 个一级页面：Home、Library Management、Library Workbench、Favorites、Actors、Actor Detail、Categories、Series、Video Detail、Settings
+- SSE 事件流（`library.changed`、`task.summary.changed`、`settings.changed`）
+- 任务失败详情与重试机制、全局活动条
+- 抓取失败优雅降级（stub sidecar + `ScrapeStatus` 字段）
+- 多选与批量操作（收藏/删除）、右键菜单
+- Settings 6 页签、MetaTube diagnostics
+- `doc/UI/new/` 线框图与流程图（10 张流程图 + 页面/弹层/共享组件规格）
 
-### 已变更
-- 新增 `dotnet/Jvedio.Worker/Services/ConfigStoreService.cs`、`LibraryService.cs`、`AppBootstrapService.cs`，为 Electron Home MVP 落地共享 sqlite 数据目录上的配置读取、媒体库读写与 bootstrap 聚合能力。
-- 新增 `dotnet/Jvedio.Worker/Controllers/AppController.cs`、`LibrariesController.cs`、`TasksController.cs`，并补齐 `HealthController.cs` 的 Worker 健康字段，完成 `GET /api/app/bootstrap`、`GET /api/libraries`、`POST /api/libraries`、`DELETE /api/libraries/{libraryId}`、`GET /api/tasks` 五个 `C-2` 同步接口。
-- 新增 `dotnet/Jvedio.Worker/Middleware/ApiExceptionMiddleware.cs`、`WorkerApiException.cs`、`SqliteConnectionFactory.cs`、`WorkerPathResolver.cs`、`WorkerStorageBootstrapper.cs`，统一 Worker 错误包裹、路径解析和 sqlite 初始化逻辑。
-- 扩展 `dotnet/Jvedio.Contracts` 的 Home MVP contracts，补齐统一响应时间戳、结构化错误字段、Worker 状态字段以及库列表 / 建库请求的首批扩展字段。
-- 更新 `electron/main/worker/workerProcess.ts`，在 Electron 拉起 Worker 时显式注入 `JVEDIO_APP_BASE_DIR`，确保 Worker 复用 WPF Release 的 `app_datas.sqlite` 与 `app_configs.sqlite`。
-- 更新 `plan/active/desktop-ui-shell-refactor/` 与 `doc/UI/desktop-ui-shell-refactor/electron/` 相关文档，将阶段状态同步到 `C-2` 已完成、`C-3` 待开始。
+**测试工程**
+- 旧 `Jvedio.Test` 物理删除，新建 `Jvedio.Worker.Tests`（.NET 8 / MSTest / WebApplicationFactory）
+- 测试从 0 增长到 62 个，覆盖 Bootstrap、DTO、Libraries、Settings、Videos、Actor、Scrape、VidParsing、SidecarPath、ScanOrganize、ScanImportApi
+- E2E 验收 7 组 flow 全部跑通
 
-## [2026-03-07]
-
-### 已变更
-- 修复 `dotnet/Jvedio/Jvedio.csproj` 的预构建步骤，使本地 WPF 构建不再依赖私有 `D:\SuperStudio\...` 路径。
-- 在复制前补齐输出目录创建逻辑，恢复本地干净环境下的构建能力。
-- 将 `dotnet` 与 `Jvedio.Test` 统一为 `x86`，关闭过时的 ClickOnce 清单生成，并修正仓库内 DLL 引用路径。
-- 更新 `dotnet/Jvedio/Upgrade/Jvedio4ToJvedio5.cs`，显式丢弃 fire-and-forget 任务返回值，清理剩余异步警告。
-- 验证 `dotnet/Jvedio.sln` 的 `Debug` 构建可在本地达到 `0 warning / 0 error`。
+**Tauri Release 打包与发布准备**
+- 统一构建输出到 `build/`（`worker-stage/`、`frontend-stage/`、`release/`）
+- 版本号从 `5.0.0` 重设为 `0.1.0`，首个 git tag `v0.1.0`
+- 去掉 WPF 启动层，Tauri Shell 直接面向用户（`JvedioNext.exe`）
+- 补齐单实例控制、Worker 路径解析增强、SQLite native DLL 修复
+- 首次完成 NSIS 安装包打包（`JvedioNext_0.1.0_x64-setup.exe`）
