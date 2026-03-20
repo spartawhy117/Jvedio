@@ -106,7 +106,12 @@ if (Test-Path $statePath) {
 
 Write-Host "[stop-e2e-env] Environment stopped." -ForegroundColor Green
 
-if (-not $NoPause) {
+if (-not $NoPause -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Write-Host "Press any key to exit..."
-    [void][System.Console]::ReadKey($true)
+    try {
+        [void][System.Console]::ReadKey($true)
+    }
+    catch {
+    }
 }
+

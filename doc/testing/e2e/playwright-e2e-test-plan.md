@@ -6,7 +6,7 @@
 
 当前口径已经切换为：
 
-- 后端数据准备与接口校验：复用 `test-data/scripts/seed-e2e-data.ps1` + `test-data/scripts/verify-backend-apis.ps1`
+- 后端数据准备与接口校验：复用根目录统一入口 `scripts/seed-e2e-data.ps1` + `scripts/verify-backend-apis.ps1`
 - 前端页面流转与交互验收：使用 Playwright MCP 在浏览器模式下执行
 - 桌面外部能力：保留人工降级记录
 
@@ -161,7 +161,7 @@ http://localhost:1420?workerUrl=http://127.0.0.1:{port}
 - 必要截图
 - 人工降级结论
 - 问题记录与修复后复验结论
-- `tauri/scripts/start-e2e-env.ps1` 写出的 `log/test/e2e/runtime/frontend-env.json`
+- `scripts/start-e2e-env.ps1` 写出的 `log/test/e2e/runtime/frontend-env.json`
 
 ## 10. 通过标准
 

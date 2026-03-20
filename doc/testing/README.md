@@ -75,13 +75,14 @@ doc/testing/
 
 | 我想… | 操作 |
 |--------|------|
-| 跑 62 个 Worker 契约测试 | `cd dotnet/Jvedio.Worker.Tests && dotnet test --configuration Release`（零配置） |
-| 跑 E2E 播种（含 MetaTube 抓取） | 查看 [`test-data/config/README.md`](../../test-data/config/README.md) 配置说明，然后运行 `.\test-data\scripts\seed-e2e-data.ps1` |
-| 播种后校验全部后端 API | `.\test-data\scripts\seed-e2e-data.ps1 -SkipWorkerShutdown` 然后 `.\test-data\scripts\verify-backend-apis.ps1`（当前结果 `36 PASS / 2 SKIP / 0 FAIL`） |
-| 拉起前端验收环境 | `.\tauri\scripts\start-e2e-env.ps1` |
-| 停止前端验收环境 | `.\tauri\scripts\stop-e2e-env.ps1` |
+| 跑 62 个 Worker 契约测试 | `pwsh -ExecutionPolicy Bypass -File scripts/run-worker-tests.ps1 -NoPause` |
+| 跑 E2E 播种（含 MetaTube 抓取） | 查看 [`test-data/config/README.md`](../../test-data/config/README.md) 配置说明，然后运行 `pwsh -ExecutionPolicy Bypass -File scripts/seed-e2e-data.ps1 -NoPause` |
+| 播种后校验全部后端 API | `pwsh -ExecutionPolicy Bypass -File scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 然后 `pwsh -ExecutionPolicy Bypass -File scripts/verify-backend-apis.ps1 -NoPause`（当前结果 `36 PASS / 2 SKIP / 0 FAIL`） |
+| 拉起前端验收环境 | `pwsh -ExecutionPolicy Bypass -File scripts/start-e2e-env.ps1 -NoPause` |
+| 停止前端验收环境 | `pwsh -ExecutionPolicy Bypass -File scripts/stop-e2e-env.ps1 -NoPause` |
 | 自定义 MetaTube 地址 / 测试视频 | 复制 `test-data/config/test-env.local.json.example` → `.local.json`，填入你的配置 |
-| 清理 E2E 测试环境 | `.\test-data\scripts\cleanup-e2e-data.ps1` |
+| 清理 E2E 测试环境 | `pwsh -ExecutionPolicy Bypass -File scripts/cleanup-e2e-data.ps1 -NoPause` |
+
 
 > 📖 完整配置指南见 [`test-data/config/README.md`](../../test-data/config/README.md)
 

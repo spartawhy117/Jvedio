@@ -53,12 +53,18 @@ dotnet test --configuration Release --filter "FullyQualifiedName~GetBootstrap_Re
 ```
 
 ## 测试脚本入口
-- 全量：`dotnet/Jvedio.Worker.Tests/scripts/run-all-tests.ps1`
-- 单元测试：`dotnet/Jvedio.Worker.Tests/scripts/run-unit-tests.ps1`
-- 集成测试：`dotnet/Jvedio.Worker.Tests/scripts/run-integration-tests.ps1`
-- E2E 播种：`test-data/scripts/seed-e2e-data.ps1`
-- E2E 清理：`test-data/scripts/cleanup-e2e-data.ps1`
-- 后端 API 校验：`test-data/scripts/verify-backend-apis.ps1`
+- 全量：`scripts/run-worker-tests.ps1`
+- 单元测试：`scripts/run-worker-unit-tests.ps1`
+- 集成测试：`scripts/run-worker-integration-tests.ps1`
+- E2E 播种：`scripts/seed-e2e-data.ps1`
+- E2E 环境启动：`scripts/start-e2e-env.ps1`
+- E2E 环境停止：`scripts/stop-e2e-env.ps1`
+- E2E 清理：`scripts/cleanup-e2e-data.ps1`
+- 后端 API 校验：`scripts/verify-backend-apis.ps1`
+
+说明：
+- 根目录 `scripts/` 是统一入口层
+- 具体实现仍保留在 `tauri/scripts/`、`test-data/scripts/`、`dotnet/Jvedio.Worker.Tests/scripts/`
 
 支持：
 - 双击运行

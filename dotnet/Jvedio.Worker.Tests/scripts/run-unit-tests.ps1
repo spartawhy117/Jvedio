@@ -31,10 +31,15 @@ else {
     Write-Host "UNIT TESTS FAILED (exit code: $exitCode)" -ForegroundColor Red
 }
 
-if (-not $NoPause -and -not $env:JVEDIO_TEST_NO_PAUSE) {
+if (-not $NoPause -and -not $env:JVEDIO_TEST_NO_PAUSE -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Write-Host ""
     Write-Host "Press any key to continue..." -ForegroundColor Gray
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    try {
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    }
+    catch {
+    }
 }
+
 
 exit $exitCode

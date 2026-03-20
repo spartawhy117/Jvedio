@@ -80,9 +80,9 @@
 
 按以下顺序执行：
 
-1. `test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
-2. `test-data/scripts/verify-backend-apis.ps1 -NoPause`
-3. `tauri/scripts/start-e2e-env.ps1`
+1. `scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
+2. `scripts/verify-backend-apis.ps1 -NoPause`
+3. `scripts/start-e2e-env.ps1 -NoPause`
 4. 打开 `test-data/e2e/e2e-env.json`，读取 `baseUrl`
 5. 用 Playwright MCP 打开 `http://localhost:1420?workerPort={port}` 或 `http://localhost:1420?workerUrl=http://127.0.0.1:{port}`
 6. 按以下顺序执行验收：
@@ -94,7 +94,7 @@
    - `Phase 8` 收藏与演员
    - `Phase 1 / 7 / 9 / 10` 中标记为 `[自动化]` 的条目
 7. 对 `[混合]` 项先记录“自动化基线”结果
-8. 验收后运行 `tauri/scripts/stop-e2e-env.ps1`
+8. 验收后运行 `scripts/stop-e2e-env.ps1 -NoPause`；若本轮已经改动测试数据，继续执行 `scripts/cleanup-e2e-data.ps1 -NoPause` 重置到基线
 
 自动化阶段的主要目标：
 

@@ -20,8 +20,8 @@
 
 先完成后端基线：
 
-1. `test-data/scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
-2. `test-data/scripts/verify-backend-apis.ps1 -NoPause`
+1. `scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause`
+2. `scripts/verify-backend-apis.ps1 -NoPause`
 
 ### 2.2 样本前置
 

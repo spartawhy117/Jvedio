@@ -246,7 +246,7 @@ data[]
 
 ## 7. 清理
 
-清理脚本仍然是 `test-data/scripts/cleanup-e2e-data.ps1`，负责：
+对外统一入口改为 `scripts/cleanup-e2e-data.ps1`（内部实现仍在 `test-data/scripts/cleanup-e2e-data.ps1`），负责：
 
 1. 停止 Worker。
 2. 清理或重置 `test-data/e2e/data/` 与 `videos/`。

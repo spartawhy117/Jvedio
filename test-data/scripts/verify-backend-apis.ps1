@@ -620,9 +620,14 @@ else {
 
 Write-Host ""
 
-if (-not $NoPause) {
+if (-not $NoPause -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Write-Host "Press any key to exit..."
-    [void][System.Console]::ReadKey($true)
+    try {
+        [void][System.Console]::ReadKey($true)
+    }
+    catch {
+    }
 }
+
 
 exit $script:failed

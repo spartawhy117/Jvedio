@@ -701,9 +701,14 @@ else {
 Remove-Item (Join-Path $e2eRoot "worker-stdout.log") -ErrorAction SilentlyContinue
 Remove-Item (Join-Path $e2eRoot "worker-stderr.log") -ErrorAction SilentlyContinue
 
-if (-not $NoPause) {
+if (-not $NoPause -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Write-Host "`nPress any key to exit..."
-    [void][System.Console]::ReadKey($true)
+    try {
+        [void][System.Console]::ReadKey($true)
+    }
+    catch {
+    }
 }
+
 
 exit ([int](-not $allPass))

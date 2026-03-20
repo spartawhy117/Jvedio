@@ -559,3 +559,106 @@ Jvedio.Worker.Services.WorkerApiException: MetaTube server url is empty.
 03:59:12.953 [INF] [Worker-HomeMvp] Created library 5 Empty Scan Library
 03:59:14.991 [INF] [Worker-HomeMvp] Deleted library 5 Empty Scan Library
 03:59:15.014 [INF] [Worker-HomeMvp] Worker stopping
+21:49:06.810 [INF] [Worker-HomeMvp] Worker storage ready at D:\MyProjects\JVedio\test-data\worker\data\test-user\app_datas.sqlite and D:\MyProjects\JVedio\test-data\worker\data\test-user\app_configs.sqlite
+21:49:06.895 [INF] Now listening on: http://127.0.0.1:0
+21:49:06.896 [INF] [Worker-HomeMvp] Worker ready at http://127.0.0.1:0
+21:49:07.003 [WRN] [Worker-HomeMvp] API error actor.detail.not_found
+Jvedio.Worker.Services.WorkerApiException: Actor nonexistent-actor-id-999 was not found.
+   at Jvedio.Worker.Services.ActorService.GetActorDetail(String actorId) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\ActorService.cs:line 65
+   at Jvedio.Worker.Controllers.ActorsController.GetActor(String actorId, ActorService actorService) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Controllers\ActorsController.cs:line 27
+   at lambda_method36(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Logged|12_1(ControllerActionInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Jvedio.Worker.Middleware.ApiExceptionMiddleware.InvokeAsync(HttpContext httpContext) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Middleware\ApiExceptionMiddleware.cs:line 26
+21:49:07.017 [WRN] [Worker-HomeMvp] API error actor.video-query.not_found
+Jvedio.Worker.Services.WorkerApiException: Actor nonexistent-actor-id-999 was not found.
+   at Jvedio.Worker.Services.ActorService.GetActorVideos(String actorId, GetActorVideosRequest request) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\ActorService.cs:line 103
+   at Jvedio.Worker.Controllers.ActorsController.GetActorVideos(String actorId, GetActorVideosRequest request, ActorService actorService) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Controllers\ActorsController.cs:line 46
+   at lambda_method38(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Logged|12_1(ControllerActionInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Jvedio.Worker.Middleware.ApiExceptionMiddleware.InvokeAsync(HttpContext httpContext) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Middleware\ApiExceptionMiddleware.cs:line 26
+21:49:07.105 [INF] [Worker-HomeMvp] Created library 1 Test Library
+21:49:07.137 [INF] [Worker-HomeMvp] Deleted library 1 Test Library
+21:49:07.144 [WRN] [Worker-HomeMvp] API error library.scrape.not_found
+Jvedio.Worker.Services.WorkerApiException: Library nonexistent-lib-id-999 was not found.
+   at Jvedio.Worker.Services.LibraryTaskOrchestratorService.StartScrapeTask(String libraryId, StartLibraryScrapeRequest request) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\LibraryTaskOrchestratorService.cs:line 40
+   at Jvedio.Worker.Controllers.LibrariesController.StartScrape(String libraryId, StartLibraryScrapeRequest request, LibraryTaskOrchestratorService libraryTaskOrchestratorService) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Controllers\LibrariesController.cs:line 104
+   at lambda_method116(Closure, Object, Object[])
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.SyncObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Logged|12_1(ControllerActionInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Logged|17_1(ResourceInvoker invoker)
+   at Jvedio.Worker.Middleware.ApiExceptionMiddleware.InvokeAsync(HttpContext httpContext) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Middleware\ApiExceptionMiddleware.cs:line 26
+21:49:07.166 [INF] [Worker-HomeMvp] Created library 2 ScrapeTest-Temp
+21:49:07.173 [ERR] [Worker-HomeMvp] Library scrape task failed: task_d6cbf06c68d64aef90433544b68ef125
+Jvedio.Worker.Services.WorkerApiException: MetaTube server url is empty.
+   at Jvedio.Worker.Services.LibraryScrapeService.ScrapeLibraryAsync(String taskId, LibraryListItemDto library, StartLibraryScrapeRequest request, CancellationToken cancellationToken) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\LibraryScrapeService.cs:line 55
+   at Jvedio.Worker.Services.LibraryTaskOrchestratorService.<>c__DisplayClass13_0.<<StartScrapeTaskCore>b__0>d.MoveNext() in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\LibraryTaskOrchestratorService.cs:line 158
+21:49:07.195 [INF] [Worker-HomeMvp] Deleted library 2 ScrapeTest-Temp
+21:49:07.223 [INF] [Worker-HomeMvp] MetaTube request: http://localhost:1/
+21:49:11.336 [WRN] [Worker-Settings] MetaTube diagnostics failed. serverUrl=http://localhost:1
+System.Net.Http.HttpRequestException: 由于目标计算机积极拒绝，无法连接。 (localhost:1)
+ ---> System.Net.Sockets.SocketException (10061): 由于目标计算机积极拒绝，无法连接。
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.AddHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.DiagnosticsHandler.SendAsyncCore(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.DecompressionHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Jvedio.Worker.Services.MetaTubeWorkerClient.GetAsync[T](String relativePath, CancellationToken cancellationToken) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\MetaTubeWorkerClient.cs:line 72
+   at Jvedio.Worker.Services.SettingsService.RunMetaTubeDiagnosticsAsync(RunMetaTubeDiagnosticsRequest request, CancellationToken cancellationToken) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\SettingsService.cs:line 139
+21:49:11.368 [INF] [Worker-HomeMvp] Created library 3 ScrapeVideoIdsTest
+21:49:11.372 [ERR] [Worker-HomeMvp] Library scrape task failed: task_85ee78117fcf4ce0b4b9e06173e1e34a
+Jvedio.Worker.Services.WorkerApiException: MetaTube server url is empty.
+   at Jvedio.Worker.Services.LibraryScrapeService.ScrapeLibraryAsync(String taskId, LibraryListItemDto library, StartLibraryScrapeRequest request, CancellationToken cancellationToken) in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\LibraryScrapeService.cs:line 55
+   at Jvedio.Worker.Services.LibraryTaskOrchestratorService.<>c__DisplayClass13_0.<<StartScrapeTaskCore>b__0>d.MoveNext() in D:\MyProjects\JVedio\dotnet\Jvedio.Worker\Services\LibraryTaskOrchestratorService.cs:line 158
+21:49:11.392 [INF] [Worker-HomeMvp] Deleted library 3 ScrapeVideoIdsTest
+21:49:11.418 [INF] [Worker-Settings] updated settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+21:49:11.436 [INF] [Worker-Settings] updated settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+21:49:11.451 [INF] [Worker-Settings] reset settings. language=zh-CN, timeout=60, playerPath=, fallback=true
+21:49:11.471 [INF] [Worker-Video] BatchFavorite: 0 success, 0 failed, favorite=true
+21:49:11.498 [INF] [Worker-HomeMvp] Created library 4 Scan Test Library
+21:49:14.544 [INF] [Worker-HomeMvp] Deleted library 4 Scan Test Library
+21:49:14.567 [INF] [Worker-HomeMvp] Created library 5 Empty Scan Library
+21:49:16.710 [INF] [Worker-HomeMvp] Deleted library 5 Empty Scan Library
+21:49:16.734 [INF] [Worker-HomeMvp] Worker stopping
+22:00:10.836 [INF] [Worker-HomeMvp] Worker storage ready at D:\MyProjects\JVedio\test-data\worker\data\test-user\app_datas.sqlite and D:\MyProjects\JVedio\test-data\worker\data\test-user\app_configs.sqlite
+22:00:10.919 [INF] Now listening on: http://127.0.0.1:0
+22:00:10.920 [INF] [Worker-HomeMvp] Worker ready at http://127.0.0.1:0
+22:00:10.948 [INF] [Worker-HomeMvp] Worker stopping
+22:05:00.026 [INF] [Worker-HomeMvp] Worker storage ready at D:\MyProjects\JVedio\test-data\worker\data\test-user\app_datas.sqlite and D:\MyProjects\JVedio\test-data\worker\data\test-user\app_configs.sqlite
+22:05:00.110 [INF] Now listening on: http://127.0.0.1:0
+22:05:00.110 [INF] [Worker-HomeMvp] Worker ready at http://127.0.0.1:0
+22:05:00.139 [INF] [Worker-HomeMvp] Worker stopping

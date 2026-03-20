@@ -143,9 +143,14 @@ Write-Host "  E2E environment cleaned successfully! ✅" -ForegroundColor Green
 Write-Host "═════════════════════════════════════════════" -ForegroundColor Green
 Write-Host ""
 Write-Host "To re-seed, run:" -ForegroundColor DarkGray
-Write-Host "  .\test-data\scripts\seed-e2e-data.ps1" -ForegroundColor DarkGray
+Write-Host "  .\scripts\seed-e2e-data.ps1" -ForegroundColor DarkGray
 
-if (-not $NoPause) {
+if (-not $NoPause -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Write-Host "`nPress any key to exit..."
-    [void][System.Console]::ReadKey($true)
+    try {
+        [void][System.Console]::ReadKey($true)
+    }
+    catch {
+    }
 }
+
