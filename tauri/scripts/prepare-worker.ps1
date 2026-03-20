@@ -1,5 +1,5 @@
 # prepare-worker.ps1
-# Pre-build script: compile Jvedio.Worker and stage output into tauri/worker-dist/
+# Pre-build script: compile Jvedio.Worker and stage output into build/worker-stage/
 # This directory is referenced by tauri.conf.json bundle.resources so the
 # Worker gets included in the final installer (msi / nsis).
 #
@@ -18,27 +18,10 @@ $scriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
 $tauriRoot   = Split-Path -Parent $scriptDir                          # tauri/
 $repoRoot    = Split-Path -Parent $tauriRoot                          # repo root
 $workerProj  = Join-Path $repoRoot "dotnet\Jvedio.Worker\Jvedio.Worker.csproj"
-$publishOut  = Join-Path $tauriRoot "worker-publish"
-$workerDist  = Join-Path $tauriRoot "worker-dist"
+$workerStage = Join-Path $repoRoot "build\worker-stage"
 
 Write-Host "[prepare-worker] Publishing Jvedio.Worker ($Configuration, win-x64)..."
-dotnet publish $workerProj -c $Configuration -r win-x64 --self-contained false -o $publishOut
+dotnet publish $workerProj -c $Configuration -r win-x64 --self-contained false -o $workerStage
 if ($LASTEXITCODE -ne 0) { throw "Worker publish failed" }
 
-Write-Host "[prepare-worker] Staging Worker artifacts to $workerDist ..."
-if (Test-Path $workerDist) { Remove-Item -Recurse -Force $workerDist }
-New-Item -ItemType Directory -Path $workerDist -Force | Out-Null
-
-# Copy all files except logs (publish output is already flat, no runtimes/ subdir)
-Get-ChildItem -Path $publishOut -Recurse -File | Where-Object { $_.Extension -ne ".log" } | ForEach-Object {
-    $relativePath = $_.FullName.Substring($publishOut.Length + 1)
-    $destPath = Join-Path $workerDist $relativePath
-    $destDir = Split-Path -Parent $destPath
-    if (-not (Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir -Force | Out-Null }
-    Copy-Item $_.FullName $destPath -Force
-}
-
-# Clean up intermediate publish directory
-Remove-Item -Recurse -Force $publishOut -ErrorAction SilentlyContinue
-
-Write-Host "[prepare-worker] Done. Worker staged at: $workerDist"
+Write-Host "[prepare-worker] Done. Worker staged at: $workerStage"
