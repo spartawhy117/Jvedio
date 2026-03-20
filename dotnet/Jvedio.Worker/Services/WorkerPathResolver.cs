@@ -68,6 +68,21 @@ public sealed class WorkerPathResolver
             return overridePath;
         }
 
+        // Bundled / installed layout: Worker lives at {install}/worker/Jvedio.Worker.exe
+        // In this case, the parent of AppContext.BaseDirectory (which ends with "worker/")
+        // is the install root — use it as the shared app base.
+        var baseDir = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (Path.GetFileName(baseDir).Equals("worker", StringComparison.OrdinalIgnoreCase))
+        {
+            var installRoot = Path.GetDirectoryName(baseDir);
+            if (installRoot != null && Directory.Exists(installRoot))
+            {
+                logger.LogInformation("[WorkerPathResolver] Using install root as SharedAppBaseDirectory: {InstallRoot}", installRoot);
+                return installRoot;
+            }
+        }
+
+        // Dev-mode heuristic: walk up from BaseDirectory to find Jvedio/bin/Release or Debug
         var candidates = new[]
         {
             Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Jvedio", "bin", "Release")),

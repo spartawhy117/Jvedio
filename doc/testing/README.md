@@ -104,7 +104,7 @@ doc/testing/
 | 文档 | 位置 | 说明 |
 |------|------|------|
 | 数据目录规范 | `doc/data-directory-convention.md` | Release / 测试 / E2E 数据目录结构与路径推断 |
-| 验证矩阵 | `plan/active/desktop-ui-shell-refactor/validation.md` | Phase 10 当前验证基线与执行记录 |
+| 验证矩阵 | `plan/archive/desktop-ui-shell-refactor/validation.md` | Phase 10 验证基线与执行记录（已归档） |
 | 日志规范 | `doc/logging-convention.md` | Worker + Shell 日志配置 |
 | 流程图索引 | `doc/UI/new/flow/README.md` | E2E 用例的流程图来源 |
 | 测试工程 | `dotnet/Jvedio.Worker.Tests/` | .NET 8 Worker API 契约测试 |

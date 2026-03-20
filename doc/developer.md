@@ -34,6 +34,13 @@
 
 ## 阅读顺序
 
+**Tauri Shell（当前用户入口）**：
+1. `tauri/src-tauri/src/lib.rs`（Tauri Shell 启动入口）
+2. `tauri/src-tauri/src/worker.rs`（Worker 子进程管理）
+3. `tauri/src/contexts/WorkerContext.tsx`（前端 Worker 连接上下文）
+4. `tauri/src/contexts/BootstrapContext.tsx`（前端引导上下文）
+
+**WPF Legacy（仅 Debug / 历史参考）**：
 1. `dotnet/Jvedio/App.xaml.cs`
 2. `dotnet/Jvedio/WindowStartUp.xaml.cs`
 3. `dotnet/Jvedio/Core/Config/ConfigManager.cs`

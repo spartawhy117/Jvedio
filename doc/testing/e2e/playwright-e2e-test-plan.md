@@ -17,8 +17,8 @@
 Phase 10 的前端验收只允许以下文档作为正式输入：
 
 - UI 流程与页面规格：`doc/UI/new/`
-- 当前 feature 基线：`plan/active/desktop-ui-shell-refactor/plan.md`
-- 当前 feature 验证记录：`plan/active/desktop-ui-shell-refactor/validation.md`
+- Feature 基线：`plan/archive/desktop-ui-shell-refactor/plan.md`（已归档）
+- Feature 验证记录：`plan/archive/desktop-ui-shell-refactor/validation.md`（已归档）
 - 后端真实数据链路：`plan/archive/scrape-fail-graceful/plan.md`
 - E2E 数据规范：`doc/testing/e2e/e2e-test-data-spec.md`
 
@@ -126,7 +126,7 @@ http://localhost:1420?workerUrl=http://127.0.0.1:{port}
 4. 用 Playwright MCP 按 flow 执行页面验收
 5. 保存截图、日志和人工降级记录到 `log/test/e2e/`
 6. 执行完后运行 `tauri/scripts/stop-e2e-env.ps1`
-7. 回写 `plan/active/desktop-ui-shell-refactor/validation.md`
+7. 回写 `plan/archive/desktop-ui-shell-refactor/validation.md`
 
 ## 7. Flow 覆盖
 
@@ -169,12 +169,12 @@ http://localhost:1420?workerUrl=http://127.0.0.1:{port}
 - 7 组正式 flow 都有前端验收记录
 - 失败样本和正常样本的显示预期都有明确记录
 - 自动化项与人工降级项边界清楚，不混写成“全部自动通过”
-- `plan/active/desktop-ui-shell-refactor/validation.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 与真实结果一致
+- `plan/archive/desktop-ui-shell-refactor/validation.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 与真实结果一致
 
 ## 11. 关联文档
 
 - `doc/testing/e2e/e2e-test-data-spec.md`
 - `doc/testing/e2e/playwright-e2e-test-cases.md`
-- `plan/active/desktop-ui-shell-refactor/plan.md`
-- `plan/active/desktop-ui-shell-refactor/validation.md`
+- `plan/archive/desktop-ui-shell-refactor/plan.md`
+- `plan/archive/desktop-ui-shell-refactor/validation.md`
 - `plan/archive/scrape-fail-graceful/plan.md`

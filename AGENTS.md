@@ -3,25 +3,36 @@
 ## 仓库概览
 - 仓库根目录：`D:\study\Proj\Jvedio`
 - 主解决方案：`dotnet/Jvedio.sln`
-- 主程序项目：`dotnet/Jvedio/Jvedio.csproj`
+- 主程序项目（Legacy WPF）：`dotnet/Jvedio/Jvedio.csproj`（仅用于 Debug / 历史参考，不再是发布入口）
+- Tauri Shell（用户入口）：`tauri/`（产出 `JvedioNext.exe`）
+- Worker 后端：`dotnet/Jvedio.Worker/Jvedio.Worker.csproj`（.NET 8）
 - 测试工程：`dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj`（.NET 8 / MSTest / `dotnet test`）
 - 旧测试工程：`dotnet/Jvedio.Test/`（已物理删除）
-- 当前主线：WPF 桌面端 + MetaTube 唯一搜刮源
+- 当前主线：Tauri 2 桌面端 + MetaTube 唯一搜刮源
 
 ## 构建命令
 
-### 主程序 Debug
+### Tauri 完整打包（Release 用户入口）
+```powershell
+cd tauri
+npm run build:release
+```
+
+产出安装包：
+- `tauri/src-tauri/target/release/bundle/msi/JvedioNext_*.msi`
+- `tauri/src-tauri/target/release/bundle/nsis/JvedioNext_*-setup.exe`
+
+启动链路（2 层）：
+```
+JvedioNext.exe (Tauri 2 / Rust)   ← 用户双击入口
+  → spawn_worker()
+    → Jvedio.Worker.exe (.NET 8)
+```
+
+### WPF 主程序 Debug（Legacy，仅调试用）
 ```powershell
 "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" Jvedio.sln -target:Build -property:Configuration=Debug -maxcpucount
 ```
-
-### 主程序 Release
-```powershell
-"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" Jvedio.sln -target:Build -property:Configuration=Release -maxcpucount
-```
-
-主程序输出：
-- `dotnet/Jvedio/bin/Release/Jvedio.exe`
 
 ### 测试工程编译
 ```powershell

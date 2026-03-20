@@ -152,6 +152,9 @@
 ## [2026-03-20]
 
 ### 已变更
+- **去掉 WPF 启动层**：`Jvedio.exe` (WPF) 不再作为 Release 用户入口。Tauri Shell 直接面向用户，产出为 `JvedioNext.exe`。删除 `TauriShellLauncher` 类和 `PrepareTauriShellArtifacts` MSBuild Target。WPF 项目保留仅用于 Debug / 历史参考。
+- **补齐单实例控制**：在 Tauri 端添加 `tauri-plugin-single-instance`，重复启动时聚焦已有窗口，替代 WPF 端的 `EventWaitHandle` 互斥锁。
+- **Worker 路径解析增强**：`WorkerPathResolver.ResolveSharedAppBaseDirectory()` 新增安装包 fallback — 当 Worker 位于 `{parent}/worker/` 目录时，使用 `{parent}` 作为数据根目录。
 - 完成 `desktop-ui-shell-refactor` 的 Phase 10 前端 E2E 验收收口：基于真实播种环境跑通 Main Shell、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 七组 flow，并将结果回写到 `plan/active/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
 - 修复 `tauri/src/pages/ActorDetailPage.tsx` 中关联影片菜单 / 多选改造引入的运行时崩溃，补齐演员详情页的 `演员 ID`、单卡菜单与批量动作承载。
 - 修复 Settings 的 MetaTube diagnostics 前端合同漂移：`tauri/src/api/types.ts` 与后端 DTO 对齐，页面展示从错误的 `undefinedms` 改为真实摘要结果。

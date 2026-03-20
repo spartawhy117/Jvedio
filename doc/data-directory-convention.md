@@ -70,10 +70,13 @@
 | 优先级 | 来源 | 说明 |
 |--------|------|------|
 | 1 | `JVEDIO_APP_BASE_DIR` 环境变量 | 必须是已存在的目录 |
-| 2 | 从 exe 向上探测 | 向上 3~4 层查找 `Jvedio/bin/Release` 或 `Jvedio/bin/Debug` |
+| 2 | 安装包 fallback | Worker 位于 `{parent}/worker/` 时，使用 `{parent}` 作为数据根 |
+| 3 | 从 exe 向上探测 | 向上 3~4 层查找 `Jvedio/bin/Release` 或 `Jvedio/bin/Debug` |
 | — | 全部失败 | 抛出 `InvalidOperationException` |
 
-Release 模式下，Worker exe 位于 `{repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/`，向上 4 层到 `{repo}/dotnet/`，拼 `Jvedio/bin/Release` → `SharedAppBaseDirectory` = `{repo}/dotnet/Jvedio/bin/Release`。
+安装包模式下，Worker exe 位于 `{安装目录}/worker/Jvedio.Worker.exe`，向上 1 层到 `{安装目录}/` → `SharedAppBaseDirectory` = `{安装目录}`。
+
+开发模式下，Worker exe 位于 `{repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/`，向上 4 层到 `{repo}/dotnet/`，拼 `Jvedio/bin/Release` → `SharedAppBaseDirectory` = `{repo}/dotnet/Jvedio/bin/Release`。
 
 ### 3.2 CurrentUserFolder（用户目录）
 

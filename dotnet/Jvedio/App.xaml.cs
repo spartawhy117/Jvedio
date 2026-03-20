@@ -79,21 +79,14 @@ namespace Jvedio
 
 #if DEBUG
 #else
-            if (TauriShellLauncher.TryLaunch(Logger)) {
-                Shutdown();
-                return;
-            }
+            // NOTE: TauriShellLauncher removed — Tauri Shell (JvedioNext.exe) is now the
+            // primary user entry point.  WPF Jvedio.exe is kept only for Debug / legacy reference.
 
             bool createNew;
             ProgramStarted = new EventWaitHandle(false, EventResetMode.AutoReset, "Jvedio", out createNew);
             if (!createNew) {
-                //new MsgBox($"Jvedio {LangManager.GetValueByKey("Running")}").ShowDialog();
-                //App.Current.Shutdown();
-                //Environment.Exit(0);
-
                 var current = Process.GetCurrentProcess();
                 Process[] processes = Process.GetProcessesByName(current.ProcessName);
-                //new MsgBox($"找到数目：{processes.Length}, ProcessName： {current.ProcessName}, id: {current.Id}").ShowDialog();
 
                 Process runningProcess = null;
                 for (int i = 0; i < processes.Length; i++) {
@@ -103,11 +96,7 @@ namespace Jvedio
                     }
                 }
                 if (runningProcess != null) {
-                    //new MsgBox($"找到运行中的任务：{runningProcess.Id}").ShowDialog();
-                    IntPtr hWnd = IntPtr.Zero;
-                    hWnd = runningProcess.MainWindowHandle;
-
-                    // todo 最小化到任务栏后，无法打开窗体
+                    IntPtr hWnd = runningProcess.MainWindowHandle;
                     Logger.Info($"send to {runningProcess.Id} with data: {Win32Helper.WIN_CUSTOM_MSG_OPEN_WINDOW}");
                     Win32Helper.SendArgs(hWnd, Win32Helper.WIN_CUSTOM_MSG_OPEN_WINDOW);
                 }
@@ -170,61 +159,6 @@ namespace Jvedio
     }
 }
 
-#if DEBUG
-#else
-internal static class TauriShellLauncher
-{
-    private const string ForceLegacyWpfEnvVar = "JVEDIO_FORCE_LEGACY_WPF";
-    private const string TauriShellDirectoryName = "tauri-shell";
-    private const string TauriShellExeName = "jvedio-shell.exe";
-
-    public static bool TryLaunch(Jvedio.Core.Logs.Logger logger)
-    {
-        if (ShouldUseLegacyWpf()) {
-            logger.Info("[Tauri-Launcher] Legacy WPF startup forced by environment variable.");
-            return false;
-        }
-
-        string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string tauriRoot = Path.Combine(appBaseDirectory, TauriShellDirectoryName);
-        string tauriExePath = Path.Combine(tauriRoot, TauriShellExeName);
-
-        if (!File.Exists(tauriExePath)) {
-            logger.Warn($"[Tauri-Launcher] Tauri shell executable was not found at {tauriExePath}. Falling back to legacy WPF.");
-            return false;
-        }
-
-        try {
-            ProcessStartInfo startInfo = new ProcessStartInfo {
-                FileName = tauriExePath,
-                WorkingDirectory = tauriRoot,
-                UseShellExecute = false
-            };
-
-            // Tauri shell manages Worker lifecycle internally via worker.rs;
-            // no extra environment variables needed for Worker path — it resolves
-            // the Worker relative to its own exe directory (worker/ subfolder).
-
-            Process process = Process.Start(startInfo);
-            if (process == null) {
-                logger.Warn("[Tauri-Launcher] Process.Start returned null. Falling back to legacy WPF.");
-                return false;
-            }
-
-            logger.Info($"[Tauri-Launcher] Started Tauri shell. pid={process.Id}, shellRoot={tauriRoot}");
-            return true;
-        } catch (Exception ex) {
-            logger.Error(ex);
-            logger.Warn("[Tauri-Launcher] Failed to start Tauri shell. Falling back to legacy WPF.");
-            return false;
-        }
-    }
-
-    private static bool ShouldUseLegacyWpf()
-    {
-        string value = Environment.GetEnvironmentVariable(ForceLegacyWpfEnvVar);
-        return string.Equals(value, "1", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
-    }
-}
-#endif
+// NOTE: TauriShellLauncher class removed.
+// Tauri Shell (JvedioNext.exe) is now the primary user entry point.
+// See plan/active/tauri-release-packaging/plan.md — Phase 0, D-1.

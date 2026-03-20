@@ -390,5 +390,5 @@
 
 执行结果统一回写：
 
-- `plan/active/desktop-ui-shell-refactor/validation.md`
+- `plan/archive/desktop-ui-shell-refactor/validation.md`
 - `log/test/e2e/`

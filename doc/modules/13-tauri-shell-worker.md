@@ -8,11 +8,12 @@
 - Worker 子进程生命周期管理
 - 动态端口发现与 stdout 握手协议
 - 四种运行模式的连接差异
+- 单实例控制
 - 故障排查
 
 ## 架构总览
 
-项目采用 **Shell + Worker 双进程架构**：
+项目采用 **Shell + Worker 双进程架构**，用户双击 `JvedioNext.exe` 即可启动：
 
 ```
 ┌──────────────────────────────────┐     ┌──────────────────────────────────┐
@@ -163,6 +164,28 @@ Release 打包时，`tauri.conf.json` 的 `bundle.resources` 将 `worker-dist/` 
 | `worker-log` | Rust → React | `{ line: string }` | Worker 每一行 stdout / stderr 输出 |
 
 `phase` 字段值：`"resolve"`（找不到 exe）、`"spawn"`（启动失败）、`"runtime"`（运行中退出）。
+
+## 单实例控制
+
+`JvedioNext.exe` 通过 `tauri-plugin-single-instance` 实现单实例控制：
+
+- 第一个实例正常启动
+- 第二个实例检测到已有实例后，向第一个实例发送信号
+- 第一个实例收到信号后取消最小化并聚焦窗口
+- 第二个实例自动退出
+
+注册代码位于 `lib.rs`：
+
+```rust
+.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    }
+}))
+```
+
+> 旧 WPF 端使用 `EventWaitHandle("Jvedio")` 实现互斥锁，已随 WPF 启动层移除而不再生效。
 
 ## 故障排查
 

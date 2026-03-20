@@ -1,0 +1,27 @@
+{
+  "feature": "tauri-release-packaging",
+  "status": "active",
+  "created": "2026-03-20",
+  "updated": "2026-03-20",
+  "phases": 7,
+  "phase_labels": [
+    "Phase 0 — 去掉 WPF 启动层 + 单实例控制",
+    "Phase 1 — Worker 编译验证",
+    "Phase 2 — 前端编译验证",
+    "Phase 3 — Rust 壳层编译",
+    "Phase 4 — Tauri 完整打包",
+    "Phase 5 — 安装包功能验证",
+    "Phase 6 — 收口与文档"
+  ],
+  "current_phase": 0,
+  "validation_items": 40,
+  "validation_passed": 0,
+  "open_questions": 8,
+  "open_questions_resolved": 5,
+  "key_decisions": [
+    "D-1: 去掉 WPF 启动层",
+    "D-2: 不保留 WPF 回退路径",
+    "D-3: exe 名称 JvedioNext",
+    "D-4: 需要单实例控制 (tauri-plugin-single-instance)"
+  ]
+}

@@ -188,7 +188,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 ### Phase 10：前端 E2E 验收与收口（已完成）
 
 - 已复用 `test-data/scripts/seed-e2e-data.ps1` + `verify-backend-apis.ps1` 的真实播种链路，维持 `36 PASS / 2 SKIP / 0 FAIL` 基线后执行前端验收。
-- 已真实跑通 Main Shell Navigation、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 共 7 组 flow，并将结果回写到 `plan/active/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
+- 已真实跑通 Main Shell Navigation、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 共 7 组 flow，并将结果回写到 `plan/archive/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
 - 本阶段修复了 `ActorDetailPage` 的关联影片菜单 / 多选运行时崩溃，以及 Settings 中 MetaTube diagnostics 错误显示 `undefinedms` 的合同漂移问题。
 - 产物已落到 `log/test/e2e/runtime/`，包含 `phase10-subtask2.log`、`phase10-subtask3.log`、`phase10-subtask2-library-batch-actions.png`、`phase10-subtask2-delete-library-dialog.png`、`phase10-subtask3-actor-detail.png`、`phase10-subtask4-settings.png`。
 - 本机本轮已通过 `npm run build` 与 `dotnet test dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj --configuration Release`；主解决方案 Release 打包被本机缺少 `cargo` 阻断，非本轮代码回归。
@@ -247,7 +247,7 @@ ErrorBoundary / GlobalToast / WorkerStatusOverlay / CreateEditLibraryDialog
 | 输入 | 路径 |
 |------|------|
 | 正式 UI 输入 | `doc/UI/new/` |
-| Feature 入口 | `plan/active/desktop-ui-shell-refactor/` |
+| Feature 入口 | `plan/archive/desktop-ui-shell-refactor/` |
 | 本地业务服务 | `dotnet/Jvedio.Worker` |
 | 跨层合同 | `dotnet/Jvedio.Contracts` |
 | 启动入口 | `dotnet/Jvedio/App.xaml.cs`（`TauriShellLauncher`） |

@@ -2,7 +2,7 @@
 
 本目录是当前 exe UI 调整的唯一实施文档入口。
 
-如果后续继续做界面收口、结构调整或视觉对齐，默认先看本目录；阶段、验证和技术实现背景统一回看 `plan/active/desktop-ui-shell-refactor/`。
+如果后续继续做界面收口、结构调整或视觉对齐，默认先看本目录；阶段、验证和技术实现背景统一回看 `plan/archive/desktop-ui-shell-refactor/`。
 
 ## 当前使用方式
 
@@ -43,7 +43,7 @@
 
 ## 后续执行默认阅读顺序
 
-- 先看 `../../plan/active/desktop-ui-shell-refactor/handoff.md`，确认技术主线、冻结决策和下一步。
+- 先看 `../../plan/archive/desktop-ui-shell-refactor/handoff.md`，确认技术主线、冻结决策和下一步。
 - 再看 `page-index.md`，快速定位当前页面、弹层、共享组件与基础规范。
 - 进入具体页面实现前，先看对应 `pages/*.md` 与 `flow/README.md`。
 - 涉及主题、多语言或图片 / 图标接线时，再进入 `foundation/` 对应规范。
@@ -56,7 +56,7 @@
   - 当前 exe UI 的页面级功能说明与共享组件约束
   - 当前 exe UI 的主链路流程图
   - 当前 exe UI 的主题、多语言与静态资源实现规范
-- `../../../plan/active/desktop-ui-shell-refactor/` 负责：
+- `../../../plan/archive/desktop-ui-shell-refactor/` 负责：
   - 当前 active feature 的阶段、验证、交接和实现计划
   - 冻结为什么采用这些方案，而不是承载长期实现细则
 - `../old/` 负责：

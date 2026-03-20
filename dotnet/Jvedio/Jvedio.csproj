@@ -911,36 +911,10 @@ XCOPY  "$(ProjectDir)Reference\CommonNet.dll"  "$(ProjectDir)bin\Release\plugins
 
 XCOPY  "$(ProjectDir)Reference\HtmlAgilityPack.dll"  "$(ProjectDir)bin\Release\plugins\crawlers"    /Y /i</PostBuildEvent>
   </PropertyGroup>
-  <!-- Tauri shell + Worker artifact preparation -->
-  <PropertyGroup>
-    <TauriProjectDir>$(MSBuildProjectDirectory)\..\..\tauri</TauriProjectDir>
-    <TauriShellOutputDir>$(TargetDir)tauri-shell\</TauriShellOutputDir>
-    <WorkerShellOutputDir>$(TargetDir)worker\</WorkerShellOutputDir>
-    <WorkerProjectDir>$(MSBuildProjectDirectory)\..\Jvedio.Worker</WorkerProjectDir>
-    <WorkerBuildOutputDir>$(WorkerProjectDir)\bin\$(Configuration)\net8.0\</WorkerBuildOutputDir>
-  </PropertyGroup>
-  <Target Name="PrepareTauriShellArtifacts" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true'">
-    <!-- 1. Build Worker -->
-    <Exec Command="dotnet build &quot;$(WorkerProjectDir)\Jvedio.Worker.csproj&quot; -c $(Configuration)" WorkingDirectory="$(WorkerProjectDir)" />
-    <!-- 2. Build Tauri shell (frontend + Rust) — produces exe in tauri/src-tauri/target/release/ -->
-    <Exec Command="npm run tauri build" WorkingDirectory="$(TauriProjectDir)" />
-    <!-- 3. Collect Tauri shell exe and WebView2Loader -->
-    <ItemGroup>
-      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\Jvedio.exe" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\Jvedio.exe')" />
-      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\jvedio-shell.exe" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\jvedio-shell.exe')" />
-      <TauriShellFiles Include="$(TauriProjectDir)\src-tauri\target\release\WebView2Loader.dll" Condition="Exists('$(TauriProjectDir)\src-tauri\target\release\WebView2Loader.dll')" />
-      <WorkerShellFiles Include="$(WorkerBuildOutputDir)\**\*" Exclude="$(WorkerBuildOutputDir)\**\*.log" />
-    </ItemGroup>
-    <!-- 4. Clean and recreate output directories -->
-    <RemoveDir Directories="$(TauriShellOutputDir);$(WorkerShellOutputDir)" />
-    <MakeDir Directories="$(TauriShellOutputDir);$(TauriShellOutputDir)worker;$(WorkerShellOutputDir)" />
-    <!-- 5. Copy Tauri shell exe -->
-    <Copy SourceFiles="@(TauriShellFiles)" DestinationFolder="$(TauriShellOutputDir)" SkipUnchangedFiles="true" />
-    <!-- 6. Copy Worker into tauri-shell/worker/ (Tauri shell resolves Worker at {exe_dir}/worker/) -->
-    <Copy SourceFiles="@(WorkerShellFiles)" DestinationFiles="@(WorkerShellFiles->'$(TauriShellOutputDir)worker\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-    <!-- 7. Also copy Worker to standalone worker/ dir for backward compatibility -->
-    <Copy SourceFiles="@(WorkerShellFiles)" DestinationFiles="@(WorkerShellFiles->'$(WorkerShellOutputDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-  </Target>
+  <!-- NOTE: PrepareTauriShellArtifacts Target removed.
+       Tauri Shell (JvedioNext.exe) is now the primary user entry point and is
+       built independently via `npm run build:release` in tauri/.
+       WPF Jvedio.exe is kept only for Debug / legacy reference. -->
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

@@ -10,7 +10,7 @@
 
 ## 和 `plan/` 的分工
 
-- `plan/active/desktop-ui-shell-refactor/`：负责阶段路线、冻结结论、执行入口、验证矩阵与迁移边界。
+- `plan/archive/desktop-ui-shell-refactor/`：负责阶段路线、冻结结论、执行入口、验证矩阵与迁移边界。
 - `doc/UI/new/pages/`：负责页面范围、元素清单、状态和交互规则。
 - `doc/UI/new/flow/`：负责页面进入关系、主链路动作和返回链路。
 - `doc/UI/new/foundation/`：负责主题、多语言、资源接入这类**长期实现规范**。
@@ -19,7 +19,7 @@
 
 ## 后续执行默认阅读顺序
 
-- 先看 `plan/active/desktop-ui-shell-refactor/handoff.md`，确认当前进度与冻结路线。
+- 先看 `plan/archive/desktop-ui-shell-refactor/handoff.md`，确认当前进度与冻结路线。
 - 再看 `doc/UI/new/page-index.md` 与 `doc/UI/new/flow/README.md`，明确页面集合、主链路和返回链路。
 - 进入具体实现前，再按需细读：
   - `theme-and-appearance.md`

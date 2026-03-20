@@ -60,7 +60,7 @@
 | 文件持久化 | 无（浏览器端不直接写文件） |
 | 转发机制 | Tauri Shell 通过 `worker-log` 事件将 Worker stdout/stderr 转发给前端；前端 DevTools 可查看 |
 
-### 2.4 WPF 主程序 (Legacy)
+### 2.4 WPF 主程序 (Legacy — 仅 Debug 用途)
 
 | 项目 | 值 |
 |------|---|
@@ -68,7 +68,7 @@
 | 文件路径 | `data/{username}/log/{yyyy-MM-dd}.log` |
 | 覆盖模式 | 每次启动调用 `ResetCurrentLog()` 清空当日文件 |
 | 保留天数 | 10 天（`ClearLogBefore(-10, ...)` 删除过期文件） |
-| 备注 | WPF 主程序在 Release 模式下优先启动 Tauri Shell，自身日志主要用于 fallback 场景；此路径不在统一 `log/` 目录下 |
+| 备注 | WPF 主程序不再作为 Release 用户入口（`JvedioNext.exe` 是当前唯一发布入口）；WPF 日志仅在 Debug 模式下产生，此路径不在统一 `log/` 目录下 |
 
 ### 2.5 测试工程
 

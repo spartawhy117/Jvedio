@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Jvedio",
+  "productName": "JvedioNext",
   "version": "5.0.0",
   "identifier": "com.jvedio.desktop",
   "build": {

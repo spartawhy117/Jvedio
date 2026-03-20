@@ -36,7 +36,7 @@
 
 - `tauri/` 壳层、`tauri/src/` renderer、`dotnet/Jvedio.Worker`、`dotnet/Jvedio.Contracts` 全链路已可编译运行。
 - 后端数据验证 feature 已完成，默认测试配置与 `seed-e2e-data.ps1` / `verify-backend-apis.ps1` 已跑通。
-- `scrape-fail-graceful` 的前端验收点已收口进 [plan.md](plan/active/desktop-ui-shell-refactor/plan.md) 的 Phase 10。
+- `scrape-fail-graceful` 的前端验收点已收口进 [plan.md](plan.md) 的 Phase 10。
 - 当前 active feature 只剩 `desktop-ui-shell-refactor`，目标已收敛到前端 E2E 自动化与验收。
 
 ### 当前工作重心
@@ -48,8 +48,8 @@
 
 当前默认先读：
 
-1. `plan/active/desktop-ui-shell-refactor/plan.md`
-2. `plan/active/desktop-ui-shell-refactor/validation.md`
+1. `plan/archive/desktop-ui-shell-refactor/plan.md`
+2. `plan/archive/desktop-ui-shell-refactor/validation.md`
 3. `doc/testing/e2e/playwright-e2e-test-plan.md`
 4. `doc/testing/e2e/playwright-e2e-test-cases.md`
 
