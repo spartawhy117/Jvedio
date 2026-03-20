@@ -12,17 +12,18 @@ v0.1.0 已完成：
 - Tauri 2 桌面壳层 + .NET 8 Worker 后端
 - 62 个后端测试全部通过
 - Phase 10 自动化 E2E 7 组 flow 跑通（浏览器模式）
-- NSIS 安装包已打包（`JvedioNext_0.1.0_x64-setup.exe`）
+- ZIP 便携版已打包（`JvedioNext_0.1.0_x64-portable.zip`）
 
-**缺口**：尚未在正式安装包环境下做过完整的人工端到端验证。
+**缺口**：尚未在正式发布包环境下做过完整的人工端到端验证。
 
 ## 执行指南
 
 ### 准备工作
 
-1. 确认安装包存在：`build/release/JvedioNext_0.1.0_x64-setup.exe`
-2. 准备 4+ 个真实影片文件（含可被 MetaTube 搜刮到的和搜刮不到的）
-3. 确认 MetaTube 实例可用（在设置 → MetaTube 中配置地址）
+1. 确认便携版 ZIP 存在：`build/release/JvedioNext_0.1.0_x64-portable.zip`
+2. 解压到任意目录
+3. 准备 4+ 个真实影片文件（含可被 MetaTube 搜刮到的和搜刮不到的）
+4. 确认 MetaTube 实例可用（在设置 → MetaTube 中配置地址）
 
 ### 执行流程
 
@@ -35,7 +36,7 @@ v0.1.0 已完成：
 
 1. 记录问题到 `plan.md` 的发现问题表格
 2. 修复代码 → 跑受影响测试
-3. 重新打包（如果修复了代码）：`cd tauri && npm run build:release`
+3. 重新打包（如果修复了代码）：`cd tauri && npm run build:release`（产出 ZIP 便携版）
 4. 在 `plan.md` 中标记问题状态为"已修复"并复验
 
 ## 完成标准

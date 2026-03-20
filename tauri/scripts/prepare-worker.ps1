@@ -1,7 +1,7 @@
 # prepare-worker.ps1
 # Pre-build script: compile Jvedio.Worker and stage output into build/worker-stage/
 # This directory is referenced by tauri.conf.json bundle.resources so the
-# Worker gets included in the final installer (msi / nsis).
+# Worker gets included in the final portable ZIP via bundle.resources.
 #
 # Uses `dotnet publish` (not `dotnet build`) so that all runtime-specific native
 # libraries (e.g. e_sqlite3.dll) are resolved and placed flat in the output

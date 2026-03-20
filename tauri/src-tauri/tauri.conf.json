@@ -28,7 +28,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [],
     "resources": {
       "../../build/worker-stage/**/*": "worker/"
     },
