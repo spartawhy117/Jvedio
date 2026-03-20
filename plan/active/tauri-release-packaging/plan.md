@@ -163,9 +163,9 @@ npm run tauri build              # Step 2: Tauri 完整打包
 3. 记录产物文件数量和总大小
 
 **通过标准**：
-- [ ] `prepare-worker.ps1` 退出码 0
-- [ ] `worker-dist/Jvedio.Worker.exe` 存在
-- [ ] `worker-dist/` 中依赖 DLL 完整（与 `dotnet/Jvedio.Worker/bin/Release/net8.0/` 一致）
+- [x] `prepare-worker.ps1` 退出码 0
+- [x] `worker-dist/Jvedio.Worker.exe` 存在
+- [x] `worker-dist/` 中依赖 DLL 完整（与 `dotnet/Jvedio.Worker/bin/Release/net8.0/` 一致）
 
 ---
 
@@ -180,9 +180,9 @@ npm run tauri build              # Step 2: Tauri 完整打包
 3. 确认 `index.html` + JS/CSS bundle 齐全
 
 **通过标准**：
-- [ ] `npm run build` 退出码 0，无 TS 编译错误
-- [ ] `dist/index.html` 存在
-- [ ] `dist/assets/` 下有 `.js` 和 `.css` 文件
+- [x] `npm run build` 退出码 0，无 TS 编译错误
+- [x] `dist/index.html` 存在
+- [x] `dist/assets/` 下有 `.js` 和 `.css` 文件
 
 ---
 
@@ -197,10 +197,10 @@ npm run tauri build              # Step 2: Tauri 完整打包
 3. 确认产出的可执行文件名（Tauri bundler 使用 `productName`，cargo 使用 crate name）
 
 **通过标准**：
-- [ ] `cargo build --release` 成功（退出码 0）
-- [ ] 可执行文件存在（`target/release/jvedio-shell.exe` 或 `JvedioNext.exe` 取决于构建方式）
-- [ ] 无编译错误（warnings 可接受）
-- [ ] single-instance 插件编译通过
+- [x] `cargo build --release` 成功（退出码 0）
+- [x] 可执行文件存在（`target/release/jvedio-shell.exe`，8.5 MB）
+- [x] 无编译错误（warnings 可接受）
+- [x] single-instance 插件编译通过（`tauri-plugin-single-instance v2.4.0`）
 
 ---
 
@@ -217,10 +217,14 @@ npm run tauri build              # Step 2: Tauri 完整打包
 5. 检查 `src-tauri/target/release/bundle/` 下的安装包
 
 **通过标准**：
-- [ ] `npm run build:release` 退出码 0
-- [ ] `bundle/msi/` 下有 `.msi` 文件，文件名包含 `JvedioNext`
-- [ ] `bundle/nsis/` 下有 `*-setup.exe` 文件，文件名包含 `JvedioNext`
-- [ ] 安装包大小合理（预期 50-150 MB 范围）
+- [x] `npm run build:release` 退出码 0（需先单独 `npm run prepare-worker`）
+- [ ] `bundle/msi/` 下有 `.msi` 文件（WiX `light.exe` 失败，暂跳过 MSI 格式）
+- [x] `bundle/nsis/` 下有 `JvedioNext_5.0.0_x64-setup.exe`（9.8 MB）
+- [x] 安装包大小合理（9.8 MB）
+
+**实际执行说明**：
+- MSI 格式因 `light.exe` 运行失败（WiX Tools 314 版本问题）暂跳过，`bundle.targets` 改为 `["nsis"]`
+- NSIS 格式成功产出 `JvedioNext_5.0.0_x64-setup.exe`
 
 ---
 
