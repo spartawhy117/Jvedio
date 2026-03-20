@@ -3,7 +3,7 @@
 ## Feature Goal
 
 - 将 `desktop-ui-shell-refactor` 从“后端与数据层已验证”推进到“前端 E2E 自动化验收完成”的状态。
-- 当前主任务：执行 `plan.md` 中的 **Phase 10**，完成 Playwright 驱动的前端验收、测试产物沉淀和相关文档收口。
+- 当前已完成 `plan.md` 中的 **Phase 10**，前端 E2E 验收、测试产物沉淀和相关文档收口均已落地。
 
 ## Frozen Decisions
 
@@ -41,10 +41,8 @@
 
 ### 当前工作重心
 
-- 进入 **Phase 10：E2E 自动化测试**。
-- 基于 `test-data/e2e/` 的真实播种环境执行 Playwright UI 验收。
-- 把 7 组 flow 和“抓取失败优雅降级”前端链路纳入验收记录。
-- 完成报告、截图、validation 和测试文档回写。
+- 当前 feature 主体实现与 Phase 10 验收已经完成。
+- 若继续接手，优先看 `validation.md`、E2E 文档和本轮产物，再决定是否归档当前 feature 或转入下一项 UI 收口工作。
 
 ## Start Here Now
 
@@ -57,16 +55,15 @@
 
 ## Recommended Kickoff Command
 
-> 当前进入 Phase 10。先按 `test-data/scripts/seed-e2e-data.ps1` 准备数据环境，再拉起 Playwright 所需的 Worker + Vite，围绕 7 张 flow 图和抓取失败优雅降级前端链路执行 E2E 验收，并把结果写回 validation 与相关测试文档。
+> 当前默认先检查 `plan.md`、`validation.md` 和 `doc/testing/e2e/` 的最终记录；如需复验，再按 `test-data/scripts/seed-e2e-data.ps1` + `tauri/scripts/start-e2e-env.ps1` 重放本轮环境。
 
 ## Current Focus
 
-- 先复用 `test-data/scripts/seed-e2e-data.ps1` 和 `test-data/scripts/verify-backend-apis.ps1` 的真实数据准备链路，不再另造 Phase 10 假数据。
-- Phase 10 当前主线是前端验收：按 `doc/UI/new/flow/README.md` 的 7 组 flow 做页面流转、返回链路和固定动作集合验证。
-- `scrape-fail-graceful` 的前端点位已并入当前 feature，需要重点验证失败样本占位图、失败样本可见性、单影片重抓与页面回刷。
+- 本轮最终结论：7 组 flow 与抓取失败优雅降级前端链路均已有真实验收记录。
+- 代码侧本轮补了 `ActorDetailPage` 的关联影片菜单 / 多选能力，以及 Settings 的 MetaTube diagnostics 合同对齐显示。
+- 文档与截图产物已同步完成，可直接作为 Phase 10 结案依据。
 
 ## Current Blockers
 
-- 仓库当前没有正式提交的 Playwright 项目与统一 E2E 启停脚本，Phase 10 需要先补齐执行入口。
-- 现有 `doc/testing/e2e/` 文档仍保留旧样本、旧数量和部分错误假设，执行前必须先回写到“真实代码 + 真实数据”口径。
-- 前端实现与 UI 文档之间存在漂移风险，执行时要先用真实页面核对固定菜单项、批量操作承载位置和返回链路。
+- 当前唯一阻断项是本机缺少 Rust `cargo`，导致主解决方案 Release 打包步骤中的 `npm run tauri build` 无法在本机完成。
+- 除该本机环境问题外，本轮前端验收、前端编译和 Worker 测试均已通过。

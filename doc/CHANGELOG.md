@@ -147,6 +147,14 @@
 - 优化 `12-avalonedit`：为 `dotnet/Jvedio/AvalonEdit/AvalonEditManager.cs` 补齐高亮目录为空时的保护，并在 `dotnet/Jvedio/AvalonEdit/Utils.cs` 中为焦点边框资源缺失提供透明回退。
 - 修复搜索历史增量 SQL 的表名错误，将 `common_search_history` 更正为当前实际使用的 `common_search_histories`，避免新环境启动时记录 SQL 逻辑错误。
 - 优化启动插件迁移流程：当 `plugins/temp` 不存在时直接跳过，不再把正常的“无待迁移插件”场景记录为错误。
+## [2026-03-20]
+
+### 已变更
+- 完成 `desktop-ui-shell-refactor` 的 Phase 10 前端 E2E 验收收口：基于真实播种环境跑通 Main Shell、Library Management、Library Workbench、Favorites、Actors、Actor Detail / Video Detail、Settings 七组 flow，并将结果回写到 `plan/active/desktop-ui-shell-refactor/validation.md` 与 `doc/testing/e2e/playwright-e2e-test-cases.md`。
+- 修复 `tauri/src/pages/ActorDetailPage.tsx` 中关联影片菜单 / 多选改造引入的运行时崩溃，补齐演员详情页的 `演员 ID`、单卡菜单与批量动作承载。
+- 修复 Settings 的 MetaTube diagnostics 前端合同漂移：`tauri/src/api/types.ts` 与后端 DTO 对齐，页面展示从错误的 `undefinedms` 改为真实摘要结果。
+- 新增 Phase 10 产物 `log/test/e2e/runtime/phase10-subtask3.log`、`phase10-subtask3-actor-detail.png`、`phase10-subtask4-settings.png`，用于保留本轮真实验收截图与执行日志。
+
 - 优化本地服务状态探测：为 `localhost:9527` 的状态检查增加端口预检，未启动本地服务时不再先触发一次失败请求日志。
 - 精简初始选择库页面，移除 `WindowStartUp.xaml` 左下角的设置按钮入口。
 - 继续精简初始选择库页面，移除 `WindowStartUp.xaml` 顶部搜索框以及 `WindowStartUp.xaml.cs`、`VieModel_StartUp.cs` 中对应的搜索筛选逻辑。
