@@ -190,10 +190,10 @@
 - [x] Main Shell Navigation
 - [x] Library Management
 - [x] Library Workbench
-- [ ] Favorites
-- [ ] Actors
-- [ ] Actor Detail / Video Detail 返回链路
-- [ ] Settings
+- [x] Favorites
+- [x] Actors
+- [x] Actor Detail / Video Detail 返回链路
+- [x] Settings
 
 ### 10.3.1 已完成记录（2026-03-20）
 
@@ -217,6 +217,33 @@
 - 通过：单卡右键菜单包含 `查看详情 / 播放 / 打开文件夹 / 收藏 / 重新抓取元数据 / 复制 VID / 删除影片`，失败样本卡片保持 `No Poster` 占位。
 - 通过：多选态现已补齐 `批量收藏 / 批量取消收藏 / 批量重抓 / 批量删除 / 取消选择`；批量重抓已触发任务和列表回刷。
 - 保留差异：多选动作当前承载形态仍是顶部动作条，不是 `video-batch-context-menu` 规格要求的右键批量菜单，留待后续子任务继续收口。
+
+#### Favorites
+
+- 通过：从 `E2E-Lib-B` 将 `SDDE-660-C` 加入收藏后，Favorites 页稳定显示 1 条结果，查询栏与单库页保持同构。
+- 通过：Favorites 单卡右键菜单包含 `查看详情 / 播放 / 打开文件夹 / 取消收藏 / 重新抓取元数据 / 复制 VID / 删除影片`，与单库页能力保持一致。
+- 通过：多选态可正常出现 `批量取消收藏 / 重新抓取元数据 / 批量删除 / 取消选择`；取消选择后卡片恢复普通点击行为。
+- 通过：从 Favorites 进入 `SDDE-660-C` 详情再返回，结果集与当前页上下文保持稳定，未出现空白页或路由跳错。
+
+#### Actors
+
+- 通过：Actors 页稳定加载 6 位演员，包含搜索、刷新、排序；输入 `凛音` 后结果可收敛为 `凛音とうか` 单条记录。
+- 通过：从过滤后的 Actors 列表进入演员详情再返回后，搜索词仍保留在列表页，说明查询状态恢复链路正常。
+- 通过：演员详情页现已展示 `演员 ID`、影片数、所属库、来源页和关联影片列表，不再缺少核心身份字段。
+
+#### Actor Detail / Video Detail 返回链路
+
+- 通过：演员详情关联影片卡片具备单卡右键菜单，菜单项覆盖 `查看详情 / 播放 / 打开文件夹 / 收藏 / 重新抓取元数据 / 复制 VID / 删除影片`。
+- 通过：演员详情关联影片多选态可显示 `批量收藏 / 重新抓取元数据 / 批量删除 / 取消选择`，本轮功能入口均可见。
+- 通过：`Actors -> Actor Detail -> Video Detail -> 返回 -> 返回` 已真实跑通，第一次返回回到 Actor Detail，第二次返回回到 Actors。
+- 修复：`ActorDetailPage` 本轮消除了关联影片上下文菜单 / 多选改造后引入的运行时崩溃，未再复现变量初始化顺序错误。
+
+#### Settings
+
+- 通过：设置页 6 个分组 `基本 / 图片 / 扫描与导入 / 网络 / 库 / MetaTube` 均能切换，右侧表单区随分组正常变化。
+- 通过：在 MetaTube 分组将请求超时从 `60` 改为 `61` 后保存，页面收到 `设置已保存` toast，并观察到 `settings.changed` SSE 回流后的重新取值。
+- 通过：点击 `恢复默认` 后，MetaTube 服务地址与超时值回到默认态，并收到 `已恢复默认设置` toast。
+- 通过：MetaTube diagnostics 已真实返回成功结果，前端现在展示摘要文本，不再出现 `连接成功 (undefinedms)` 的错误文案。
 
 ### 10.4 抓取失败优雅降级记录
 
@@ -245,10 +272,13 @@
 
 - [x] 执行日志写入 `log/test/e2e/`
 - [x] 必要截图已保存
-- [ ] `validation.md`、`doc/testing/e2e/playwright-e2e-test-plan.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 已按真实结果回写
+- [x] `validation.md`、`doc/testing/e2e/playwright-e2e-test-cases.md` 已按真实结果回写
 
 ### 10.6.1 当前已落地产物
 
 - 日志：`log/test/e2e/runtime/phase10-subtask2.log`
 - 截图：`log/test/e2e/runtime/phase10-subtask2-library-batch-actions.png`
 - 截图：`log/test/e2e/runtime/phase10-subtask2-delete-library-dialog.png`
+- 日志：`log/test/e2e/runtime/phase10-subtask3.log`
+- 截图：`log/test/e2e/runtime/phase10-subtask3-actor-detail.png`
+- 截图：`log/test/e2e/runtime/phase10-subtask4-settings.png`

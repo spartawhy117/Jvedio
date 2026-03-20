@@ -482,11 +482,19 @@ export interface RunMetaTubeDiagnosticsRequest {
 }
 
 export interface RunMetaTubeDiagnosticsResponse {
+  actorProviderCount: number;
+  completedAtUtc: string;
+  detailTitle: string;
+  matchedMovieId: string;
+  matchedProvider: string;
+  movieProviderCount: number;
+  searchResultCount: number;
   success: boolean;
   serverUrl: string;
-  responseTimeMs: number;
-  errorMessage: string | null;
-  details: unknown;
+  steps: string[];
+  summary: string;
+  testVideoId: string;
+  timeoutSeconds: number;
 }
 
 // ── Worker Event Envelope ───────────────────────────────

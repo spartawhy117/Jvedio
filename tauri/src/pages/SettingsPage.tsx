@@ -222,7 +222,7 @@ export function SettingsPage() {
       if (data.success) {
         showToast({ message: t("metaTubeSettings.diagSuccess"), type: "success" });
       } else {
-        showToast({ message: `${t("metaTubeSettings.diagFailed")}: ${data.errorMessage ?? "Unknown"}`, type: "error" });
+        showToast({ message: `${t("metaTubeSettings.diagFailed")}: ${data.summary}`, type: "error" });
       }
     },
     onError: (err) => {
@@ -524,8 +524,8 @@ export function SettingsPage() {
                   <span>{diagResult.success ? "✓" : "✗"}</span>
                   <span>
                     {diagResult.success
-                      ? `${t("metaTubeSettings.diagSuccess")} (${diagResult.responseTimeMs}ms)`
-                      : `${t("metaTubeSettings.diagFailed")}: ${diagResult.errorMessage ?? "Unknown"}`}
+                      ? `${t("metaTubeSettings.diagSuccess")}: ${diagResult.summary}`
+                      : `${t("metaTubeSettings.diagFailed")}: ${diagResult.summary}`}
                   </span>
                 </div>
               )}
