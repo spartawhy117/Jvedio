@@ -16,17 +16,19 @@ fn resolve_log_dir() -> PathBuf {
         }
     }
 
-    // Dev mode: CARGO_MANIFEST_DIR is set at compile time
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    if let Some(repo_root) = manifest_dir.parent().and_then(|p| p.parent()) {
-        let candidate = repo_root.join("log").join("runtime");
-        // Verify this looks like the repo root
-        if repo_root.join("dotnet").exists() || repo_root.join("tauri").exists() {
-            return candidate;
+    if cfg!(debug_assertions) {
+        // Dev mode: CARGO_MANIFEST_DIR is set at compile time
+        let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        if let Some(repo_root) = manifest_dir.parent().and_then(|p| p.parent()) {
+            let candidate = repo_root.join("log").join("runtime");
+            // Verify this looks like the repo root
+            if repo_root.join("dotnet").exists() || repo_root.join("tauri").exists() {
+                return candidate;
+            }
         }
     }
 
-    // Prod fallback: next to exe
+    // Prod fallback: portable root next to exe
     let exe_dir = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(|pp| pp.to_path_buf()))

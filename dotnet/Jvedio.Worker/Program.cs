@@ -5,6 +5,10 @@ using Jvedio.Worker.Services;
 using Microsoft.AspNetCore.Hosting;
 using Serilog;
 using Serilog.Events;
+using System.Text;
+
+Console.OutputEncoding = Encoding.UTF8;
+Console.InputEncoding = Encoding.UTF8;
 
 // ── Resolve unified log directory ───────────────────────
 // Dev:  {repo}/log/      (repo root determined by walking up from Worker exe)
@@ -94,9 +98,18 @@ static string ResolveLogDirectory()
     if (!string.IsNullOrWhiteSpace(envLogDir))
         return Path.Combine(envLogDir, "runtime");
 
+    // Bundled / portable layout: Worker lives at {installRoot}/worker/Jvedio.Worker.exe.
+    // Keep Worker logs under the same unified root as the shell: {installRoot}/log/runtime.
+    var baseDir = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+    if (Path.GetFileName(baseDir).Equals("worker", StringComparison.OrdinalIgnoreCase))
+    {
+        var installRoot = Path.GetDirectoryName(baseDir);
+        if (!string.IsNullOrWhiteSpace(installRoot))
+            return Path.Combine(installRoot, "log", "runtime");
+    }
+
     // Dev mode: walk up from AppContext.BaseDirectory to locate repo root
     // Worker exe lives at: {repo}/dotnet/Jvedio.Worker/bin/Release/net8.0/
-    var baseDir = AppContext.BaseDirectory;
     var candidates = new[]
     {
         Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..")),     // Worker: 5 levels up

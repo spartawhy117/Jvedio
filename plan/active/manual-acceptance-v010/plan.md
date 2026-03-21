@@ -356,6 +356,8 @@
 | A-001 | 基线脚本 | P1-严重 | 自动化 | 根目录脚本包装器按位置转发开关，导致 `-NoPause` / `-SkipWorkerShutdown` 失效，自动化基线无法稳定串行执行。 | 运行 `scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 或 `scripts/verify-backend-apis.ps1 -NoPause` | 已修复（`26b74bf`） |
 | A-002 | Phase 6 | P1-严重 | 自动化 | QueryToolbar 搜索仅在按 Enter 后才生效，不满足“输入即过滤”的验收口径。 | 单库页输入 `SDDE` 或 `SNOS`，不按 Enter 观察结果不变 | 已修复（`ee58d19`） |
 | A-003 | Phase 10 | P2-一般 | 自动化 | 删除影片后主列表已回刷，但左侧库徽标计数未同步，列表与导航状态不一致。 | 在单库页通过右键菜单删除影片，观察右侧总数与左侧库计数 | 已修复（`34f956a`） |
+| M-001 | 真包运行 | P1-严重 | 人工 | 便携包未预建根目录 `log/runtime`，且壳层 / Worker 日志路径未统一到安装根目录，导致真实包排障时很难直接在包目录获取日志。 | 解压 `JvedioNext_0.1.0_x64-portable.zip`，观察根目录只有 `data / resources / worker / JvedioNext.exe`，无统一日志目录 | 已修复，待真包复核 |
+| M-002 | Phase 10 | P1-严重 | 人工 | 配置 MetaTube 后执行重抓时，Worker 输出包含非 UTF-8 文本，壳层读取 `stdout/stderr` 失败并误判为 `Worker process exited unexpectedly`。 | 在真包中配置 MetaTube 地址后执行重抓，壳层日志出现 `Worker stdout read error: stream did not contain valid UTF-8` | 已修复，待真包复核 |
 
 > 严重度：`P0-阻断` / `P1-严重` / `P2-一般` / `P3-体验`
 

@@ -68,6 +68,12 @@ if (Test-Path $workerDir) {
     Write-Host "[package-portable] Copied: worker/"
 }
 
+# 5. Pre-create unified runtime log directory for portable builds.
+$runtimeLogDir = Join-Path $stageDir "log\runtime"
+New-Item -ItemType Directory -Path $runtimeLogDir -Force | Out-Null
+Set-Content -Path (Join-Path $runtimeLogDir ".gitkeep") -Value "" -Encoding UTF8
+Write-Host "[package-portable] Created: log/runtime/"
+
 # ── Create output directory ───────────────────────────────────────────
 if (-not (Test-Path $releaseDir)) {
     New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
