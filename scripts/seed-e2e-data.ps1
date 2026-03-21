@@ -15,10 +15,10 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'test-data\scripts\seed-e2e-data.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
-if ($SkipWorkerShutdown) { $arguments += '-SkipWorkerShutdown' }
-if ($SkipScrape) { $arguments += '-SkipScrape' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
+if ($SkipWorkerShutdown) { $invokeArgs.SkipWorkerShutdown = $true }
+if ($SkipScrape) { $invokeArgs.SkipScrape = $true }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE

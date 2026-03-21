@@ -13,8 +13,8 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'dotnet\Jvedio.Worker.Tests\scripts\run-all-tests.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE

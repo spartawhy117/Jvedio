@@ -14,9 +14,9 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'tauri\scripts\start-e2e-env.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
-if ($SkipBackendVerify) { $arguments += '-SkipBackendVerify' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
+if ($SkipBackendVerify) { $invokeArgs.SkipBackendVerify = $true }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE

@@ -13,8 +13,8 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'tauri\scripts\stop-e2e-env.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE

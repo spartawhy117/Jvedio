@@ -14,12 +14,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'test-data\scripts\verify-backend-apis.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
 if (-not [string]::IsNullOrWhiteSpace($BaseUrl)) {
-    $arguments += '-BaseUrl'
-    $arguments += $BaseUrl
+    $invokeArgs.BaseUrl = $BaseUrl
 }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE

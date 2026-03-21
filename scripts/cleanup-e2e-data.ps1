@@ -14,9 +14,9 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $targetScript = Join-Path $repoRoot 'test-data\scripts\cleanup-e2e-data.ps1'
 
-$arguments = @()
-if ($NoPause) { $arguments += '-NoPause' }
-if ($CleanLogs) { $arguments += '-CleanLogs' }
+$invokeArgs = @{}
+if ($NoPause) { $invokeArgs.NoPause = $true }
+if ($CleanLogs) { $invokeArgs.CleanLogs = $true }
 
-& $targetScript @arguments
+& $targetScript @invokeArgs
 exit $LASTEXITCODE
