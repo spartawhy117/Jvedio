@@ -4,7 +4,7 @@
  * Spec: doc/UI/new/shared/shared-components.md → 结果页查询工具栏
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "./QueryToolbar.css";
 
@@ -30,6 +30,24 @@ export function QueryToolbar({
   const { t } = useTranslation("common");
   const [localKeyword, setLocalKeyword] = useState(keyword);
   const [sortOpen, setSortOpen] = useState(false);
+
+  useEffect(() => {
+    setLocalKeyword(keyword);
+  }, [keyword]);
+
+  useEffect(() => {
+    if (!onSearch || localKeyword === keyword) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      onSearch(localKeyword);
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [keyword, localKeyword, onSearch]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
