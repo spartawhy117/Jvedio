@@ -41,6 +41,8 @@ interface BootstrapContextValue {
   error: string | null;
   /** Manually retry bootstrap fetch */
   retry: () => void;
+  /** Refresh the sidebar library list on demand */
+  refreshLibraries: () => Promise<void>;
 }
 
 // ── Context ─────────────────────────────────────────────
@@ -54,6 +56,7 @@ const BootstrapContext = createContext<BootstrapContextValue>({
   recentEvents: [],
   error: null,
   retry: () => {},
+  refreshLibraries: async () => {},
 });
 
 export function useBootstrap(): BootstrapContextValue {
@@ -76,6 +79,21 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const sseCleanupRef = useRef<(() => void) | null>(null);
+
+  const refreshLibraries = useCallback(async () => {
+    const client = getApiClient();
+    if (!client) {
+      return;
+    }
+
+    try {
+      const response = await client.getLibraries();
+      setLibraries(response.libraries);
+      setBootstrap((prev) => (prev ? { ...prev, libraries: response.libraries } : prev));
+    } catch (err) {
+      console.error("[BootstrapProvider] failed to refresh libraries:", err);
+    }
+  }, []);
 
   // ── Fetch bootstrap ─────────────────────────────────
   const doFetchBootstrap = useCallback(async (url: string) => {
@@ -122,15 +140,7 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
       }
       case "library.changed": {
         // Refresh library list from API
-        const client = getApiClient();
-        if (client) {
-          client.getLibraries().then((response) => {
-            setLibraries(response.libraries);
-            setBootstrap((prev) => (prev ? { ...prev, libraries: response.libraries } : prev));
-          }).catch((err) => {
-            console.error("[BootstrapProvider] failed to refresh libraries:", err);
-          });
-        }
+        void refreshLibraries();
         // Invalidate all library-related query caches
         invalidateQueries("libraries");
         invalidateQueries("video:");
@@ -150,7 +160,7 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
         }
         break;
     }
-  }, []);
+  }, [refreshLibraries]);
 
   // ── When Worker becomes ready, fetch bootstrap + connect SSE ──
   useEffect(() => {
@@ -194,6 +204,7 @@ export function BootstrapProvider({ children }: { children: ReactNode }) {
         recentEvents,
         error,
         retry,
+        refreshLibraries,
       }}
     >
       {children}

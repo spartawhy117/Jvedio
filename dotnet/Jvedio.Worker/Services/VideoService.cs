@@ -233,6 +233,8 @@ public sealed class VideoService
             throw CreateNotFoundException("video.delete.not_found", $"Video {videoId} was not found.");
         }
 
+        var libraryId = record.Value.LibraryId.ToString();
+
         var fileDeleted = false;
         if (deleteFile && File.Exists(record.Value.Path))
         {
@@ -283,6 +285,8 @@ public sealed class VideoService
         logger.LogInformation(
             "[Worker-Video] Deleted video {VideoId}, fileDeleted={FileDeleted}",
             videoId, fileDeleted);
+
+        libraryService.RefreshLibraryState(libraryId, "updated");
 
         return new DeleteVideoResponse
         {

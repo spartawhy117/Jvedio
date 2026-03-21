@@ -35,7 +35,7 @@ export function LibraryPage() {
   const { t } = useTranslation("library");
   const { t: tc } = useTranslation("common");
   const { params, query, canGoBack, goBack, navigate, setQuery } = useRouter();
-  const { libraries, bootstrap } = useBootstrap();
+  const { libraries, bootstrap, refreshLibraries } = useBootstrap();
 
   const libraryId = params.libraryId ?? "";
   const library = libraries.find((l) => l.libraryId === libraryId);
@@ -165,10 +165,11 @@ export function LibraryPage() {
       await client.deleteVideo(video.videoId);
       showToast({ message: tc("deleteSuccess"), type: "success" });
       invalidateQueries(`libraries:${libraryId}`);
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [tc, libraryId]);
+  }, [tc, libraryId, refreshLibraries]);
 
   // ── Batch operations ───────────────────────────────
   const handleBatchFavorite = useCallback(async (favorite: boolean) => {
@@ -182,10 +183,11 @@ export function LibraryPage() {
       });
       setSelectedIds(new Set());
       invalidateQueries(`libraries:${libraryId}`);
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [selectedIds, tc, libraryId]);
+  }, [selectedIds, tc, libraryId, refreshLibraries]);
 
   const handleBatchDelete = useCallback(async () => {
     if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;

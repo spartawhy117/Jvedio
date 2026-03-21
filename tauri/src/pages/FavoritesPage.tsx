@@ -34,7 +34,7 @@ export function FavoritesPage() {
   const { t: tl } = useTranslation("library");
   const { t: tc } = useTranslation("common");
   const { query, navigate, setQuery } = useRouter();
-  const { bootstrap } = useBootstrap();
+  const { bootstrap, refreshLibraries } = useBootstrap();
 
   const baseUrl = bootstrap?.worker.baseUrl ?? "";
 
@@ -154,10 +154,11 @@ export function FavoritesPage() {
       await client.deleteVideo(video.videoId);
       showToast({ message: tc("deleteSuccess"), type: "success" });
       invalidateQueries("favorites");
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [tc]);
+  }, [tc, refreshLibraries]);
 
   // ── Batch operations ───────────────────────────────
   const handleBatchUnfavorite = useCallback(async () => {
@@ -171,10 +172,11 @@ export function FavoritesPage() {
       });
       setSelectedIds(new Set());
       invalidateQueries("favorites");
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [selectedIds, tc]);
+  }, [selectedIds, tc, refreshLibraries]);
 
   const handleBatchDelete = useCallback(async () => {
     if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;

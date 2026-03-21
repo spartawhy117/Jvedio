@@ -37,7 +37,7 @@ export function ActorDetailPage() {
   const { t: tc } = useTranslation("common");
   const { t: tl } = useTranslation("library");
   const { params, query, canGoBack, goBack, navigate, setQuery } = useRouter();
-  const { bootstrap } = useBootstrap();
+  const { bootstrap, refreshLibraries } = useBootstrap();
 
   const actorId = params.actorId ?? "";
   const baseUrl = bootstrap?.worker.baseUrl ?? "";
@@ -203,10 +203,11 @@ export function ActorDetailPage() {
       showToast({ message: tc("deleteSuccess"), type: "success" });
       refreshActorVideos();
       invalidateQueries("favorites");
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [tc, refreshActorVideos]);
+  }, [tc, refreshActorVideos, refreshLibraries]);
 
   const handleBatchFavorite = useCallback(async () => {
     const client = getApiClient();
@@ -220,10 +221,11 @@ export function ActorDetailPage() {
       setSelectedIds(new Set());
       refreshActorVideos();
       invalidateQueries("favorites");
+      void refreshLibraries();
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [selectedIds, tc, refreshActorVideos]);
+  }, [selectedIds, tc, refreshActorVideos, refreshLibraries]);
 
   const handleBatchRescrape = useCallback(async () => {
     const client = getApiClient();
