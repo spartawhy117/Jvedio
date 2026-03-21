@@ -68,8 +68,11 @@ const queryListeners = new Map<string, Set<() => void>>();
 /** Invalidate cache for a specific key or prefix */
 export function invalidateQueries(keyOrPrefix: string): void {
   const keysToInvalidate: string[] = [];
+  const normalizedPrefix = keyOrPrefix.endsWith(":")
+    ? keyOrPrefix
+    : `${keyOrPrefix}:`;
   for (const key of queryCache.keys()) {
-    if (key === keyOrPrefix || key.startsWith(keyOrPrefix + ":")) {
+    if (key === keyOrPrefix || key.startsWith(normalizedPrefix)) {
       keysToInvalidate.push(key);
     }
   }

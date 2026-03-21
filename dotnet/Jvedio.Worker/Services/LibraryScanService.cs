@@ -285,11 +285,15 @@ public sealed class LibraryScanService
         }
 
         var folderName = SanitizeFileName(string.IsNullOrWhiteSpace(vid) ? Path.GetFileNameWithoutExtension(sourcePath) : vid);
-        var targetDir = Path.Combine(parentDir, folderName);
+        var parentDirName = Path.GetFileName(parentDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        var alreadyInDedicatedDirectory = string.Equals(parentDirName, folderName, StringComparison.OrdinalIgnoreCase);
+        var targetDir = alreadyInDedicatedDirectory
+            ? parentDir
+            : Path.Combine(parentDir, folderName);
         result.TargetDirectory = targetDir;
         var files = Directory.GetFiles(parentDir, "*.*", SearchOption.TopDirectoryOnly);
         var videoCount = files.Count(filePath => VideoExtensions.Contains(Path.GetExtension(filePath)));
-        if (videoCount <= 1 && string.Equals(parentDir, targetDir, StringComparison.OrdinalIgnoreCase))
+        if (alreadyInDedicatedDirectory || (videoCount <= 1 && string.Equals(parentDir, targetDir, StringComparison.OrdinalIgnoreCase)))
         {
             result.Message = "无需整理";
             return result;

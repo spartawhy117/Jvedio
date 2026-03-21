@@ -9,8 +9,13 @@ use tauri::{AppHandle, Emitter, Manager};
 
 use crate::shell_log::shell_log;
 
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
 /// Prefix emitted by Jvedio.Worker on stdout when ready.
 const READY_SIGNAL_PREFIX: &str = "JVEDIO_WORKER_READY";
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x08000000;
 
 /// Tauri event names emitted to the renderer.
 const EVENT_WORKER_READY: &str = "worker-ready";
@@ -125,10 +130,13 @@ pub fn spawn_worker(app: &AppHandle) {
     );
     shell_log(&format!("[jvedio-shell] spawning Worker: {}", worker_path.display()));
 
-    let child_result = Command::new(&worker_path)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn();
+    let mut command = Command::new(&worker_path);
+    command.stdout(Stdio::piped()).stderr(Stdio::piped());
+
+    #[cfg(windows)]
+    command.creation_flags(CREATE_NO_WINDOW);
+
+    let child_result = command.spawn();
 
     let mut child = match child_result {
         Ok(c) => c,

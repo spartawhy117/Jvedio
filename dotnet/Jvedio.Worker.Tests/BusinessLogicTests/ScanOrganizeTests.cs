@@ -152,6 +152,28 @@ public class ScanOrganizeTests
         Assert.IsTrue(File.Exists(Path.Combine(targetDir, "ABP-001.ass")), "ASS subtitle should be moved");
     }
 
+    /// <summary>
+    /// When the video already lives inside a directory whose name matches the VID,
+    /// organize should treat it as already organized and must not create a nested VID\VID folder.
+    /// </summary>
+    [TestMethod]
+    public void TryOrganize_AlreadyInVidDirectory_DoesNotCreateNestedDirectory()
+    {
+        var organizedDir = Path.Combine(testRoot, "ABP-001");
+        Directory.CreateDirectory(organizedDir);
+        var videoPath = Path.Combine(organizedDir, "ABP-001.mp4");
+        File.WriteAllText(videoPath, "dummy");
+
+        var result = InvokeTryOrganize(videoPath, "ABP-001");
+
+        Assert.IsTrue(GetResultSuccess(result), "Organize should succeed");
+        Assert.IsFalse(GetResultOrganized(result), "Already organized video should not be moved again");
+        Assert.AreEqual(organizedDir, GetResultTargetDirectory(result));
+        Assert.AreEqual(videoPath, GetResultTargetVideoPath(result));
+        Assert.IsFalse(Directory.Exists(Path.Combine(organizedDir, "ABP-001")),
+            "Organize should not create a nested VID directory");
+    }
+
     #region Reflection Helpers
 
     private static object InvokeTryOrganize(string sourcePath, string vid)
