@@ -12,7 +12,7 @@ namespace Jvedio.Worker.Tests.ContractTests;
 public class SettingsApiTests
 {
     [TestMethod]
-    public async Task GetSettings_ReturnsAllGroups()
+    public async Task GetSettings_ReturnsSupportedGroups()
     {
         var response = await TestBootstrap.Client.GetAsync("/api/settings");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -21,13 +21,13 @@ public class SettingsApiTests
         using var doc = JsonDocument.Parse(json);
         var data = doc.RootElement.GetProperty("data");
 
-        // Verify all 6 settings groups exist
+        // Verify current supported settings groups exist
         Assert.IsTrue(data.TryGetProperty("general", out _), "Should have general settings");
         Assert.IsTrue(data.TryGetProperty("playback", out _), "Should have playback settings");
         Assert.IsTrue(data.TryGetProperty("metaTube", out _), "Should have metaTube settings");
-        Assert.IsTrue(data.TryGetProperty("image", out _), "Should have image settings");
         Assert.IsTrue(data.TryGetProperty("scanImport", out _), "Should have scanImport settings");
         Assert.IsTrue(data.TryGetProperty("library", out _), "Should have library settings");
+        Assert.IsFalse(data.TryGetProperty("image", out _), "Legacy image settings should be removed");
     }
 
     [TestMethod]
@@ -91,5 +91,25 @@ public class SettingsApiTests
         using var doc = JsonDocument.Parse(json);
         var debug = doc.RootElement.GetProperty("data").GetProperty("general").GetProperty("debug").GetBoolean();
         Assert.IsFalse(debug, "Debug setting should be false after reset to defaults");
+    }
+
+    [TestMethod]
+    public async Task RunMetaTubeDiagnostics_WithoutServerUrl_ReturnsValidationFailureInPayload()
+    {
+        var body = new StringContent(
+            JsonSerializer.Serialize(new { requestTimeoutSeconds = 45 }),
+            System.Text.Encoding.UTF8,
+            "application/json");
+
+        var response = await TestBootstrap.Client.PostAsync("/api/settings/meta-tube/diagnostics", body);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(json);
+        var data = doc.RootElement.GetProperty("data");
+
+        Assert.IsFalse(data.GetProperty("success").GetBoolean());
+        StringAssert.Contains(data.GetProperty("summary").GetString(), "MetaTube 服务地址为空");
+        Assert.IsFalse(data.TryGetProperty("searchResultCount", out _), "Diagnostics response should no longer expose scrape search fields");
     }
 }

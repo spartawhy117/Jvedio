@@ -1,11 +1,10 @@
 {
   "title": "Settings",
-  "groups": "General · Image · Scan & Import · Network · Library · MetaTube",
+  "groups": "General · Scan & Import · Player Settings · Library · MetaTube",
   "groups_list": {
     "general": "General",
-    "image": "Image",
     "scanImport": "Scan & Import",
-    "network": "Network",
+    "playback": "Player Settings",
     "library": "Library",
     "metaTube": "MetaTube"
   },
@@ -21,26 +20,14 @@
     "en": "English"
   },
   "debugMode": "Enable debug mode",
-  "imageSettings": {
-    "posterDisplay": "Poster Display",
-    "posterPriority_remote": "Remote First",
-    "posterPriority_local": "Local First",
-    "cachePolicy": "Cache Policy",
-    "cacheSizeHint": "0 means unlimited",
-    "autoClean": "Auto-clean expired cache"
-  },
   "scanImportSettings": {
     "scanBehavior": "Scan Behavior",
     "scanDepthLabel": "Recursion Depth",
     "scanDepthHint": "0 means unlimited recursion",
     "excludeLabel": "Exclude Patterns",
-    "excludePlaceholder": "*.tmp, Thumbs.db (comma-separated)",
-    "organizeRules": "Organize Rules",
-    "organizeMode_none": "No Organize",
-    "organizeMode_byVid": "By VID",
-    "organizeMode_byActor": "By Actor"
+    "excludePlaceholder": "*.tmp, Thumbs.db (comma-separated)"
   },
-  "networkSettings": {
+  "playbackSettings": {
     "playerPath": "Player Path",
     "playerPathPlaceholder": "Leave empty to use system default player",
     "useSystemDefault": "Fall back to system default when no player specified"
@@ -48,19 +35,14 @@
   "librarySettings": {
     "defaultBehavior": "Default Behavior",
     "autoScanLabel": "Enable auto-scan for new libraries",
-    "defaultSort": "Default Sort",
-    "sortBy_releaseDate": "Release Date",
-    "sortBy_title": "Title",
-    "sortBy_lastPlayedAt": "Last Played",
-    "sortBy_lastScanAt": "Last Scanned",
-    "sortOrder_asc": "Ascending",
-    "sortOrder_desc": "Descending"
+    "fixedSortHint": "Video lists now default to first-added descending, so the legacy default-sort setting has been removed."
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube Server URL",
     "timeout": "Request Timeout",
     "diagnostics": "Connection Diagnostics",
-    "runDiagnostics": "Run Diagnostics",
+    "diagnosticsHint": "This only verifies MetaTube connectivity by checking the service root and providers. It does not run a sample scrape.",
+    "runDiagnostics": "Test Connectivity",
     "diagSuccess": "Connection successful",
     "diagFailed": "Connection failed"
   },

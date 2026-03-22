@@ -141,6 +141,7 @@ public sealed class VideoService
             Director = record.Value.Director,
             DisplayTitle = BuildDisplayTitle(record.Value.Title, record.Value.Vid, record.Value.Path),
             DurationSeconds = record.Value.DurationSeconds,
+            FirstAddedAt = NullIfWhiteSpace(record.Value.FirstAddedAt),
             IsFavorite = record.Value.FavoriteCount > 0,
             LibraryId = record.Value.LibraryId.ToString(),
             LibraryName = library?.Name ?? string.Empty,
@@ -479,6 +480,8 @@ public sealed class VideoService
         var descending = !string.Equals(sortOrder, "asc", StringComparison.OrdinalIgnoreCase);
         Func<VideoListItemDto, object?> keySelector = (sortBy ?? string.Empty).ToLowerInvariant() switch
         {
+            "importtime" => video => video.FirstAddedAt,
+            "firstaddedat" => video => video.FirstAddedAt,
             "title" => video => video.DisplayTitle,
             "vid" => video => video.Vid,
             "releasedate" => video => video.ReleaseDate,
@@ -502,13 +505,14 @@ public sealed class VideoService
                    IFNULL(metadata.Title, ''),
                    IFNULL(metadata.Path, ''),
                    IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(NULLIF(metadata.FirstScanDate, ''), IFNULL(metadata.CreateDate, '')),
                    IFNULL(metadata.LastScanDate, ''),
                    IFNULL(metadata.ViewDate, ''),
                    IFNULL(metadata.ViewCount, 0),
                    IFNULL(metadata.Rating, 0),
+                   IFNULL(metadata.FavoriteCount, 0),
                    IFNULL(metadata_video.VID, ''),
                    IFNULL(metadata_video.Duration, 0),
-                   IFNULL(metadata.FavoriteCount, 0),
                    IFNULL(metadata_video.ScrapeStatus, 'none')
             FROM metadata
             INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
@@ -524,14 +528,15 @@ public sealed class VideoService
         {
             var dataId = reader.GetInt64(0);
             var path = reader.GetString(3);
-            var vid = reader.GetString(9);
-            var favoriteCount = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11));
-            var scrapeStatus = reader.GetString(12);
+            var favoriteCount = reader.IsDBNull(10) ? 0 : Convert.ToInt32(reader.GetValue(10));
+            var vid = reader.GetString(11);
+            var scrapeStatus = reader.GetString(13);
             var sidecars = BuildSidecarState(path, vid, libraryName);
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
-                DurationSeconds = reader.IsDBNull(10) ? 0 : Convert.ToInt32(reader.GetValue(10)),
+                DurationSeconds = reader.IsDBNull(12) ? 0 : Convert.ToInt32(reader.GetValue(12)),
+                FirstAddedAt = NullIfWhiteSpace(reader.GetString(5)),
                 HasFanart = sidecars.Fanart.Exists,
                 HasMissingAssets = sidecars.HasMissingAssets,
                 HasNfo = sidecars.Nfo.Exists,
@@ -539,16 +544,16 @@ public sealed class VideoService
                 HasThumb = sidecars.Thumb.Exists,
                 IsFavorite = favoriteCount > 0,
                 LibraryId = reader.GetInt64(1).ToString(),
-                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
-                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(6)),
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
-                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Rating = reader.IsDBNull(9) ? 0d : Convert.ToDouble(reader.GetValue(9)),
                 ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
-                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+                ViewCount = reader.IsDBNull(8) ? 0 : Convert.ToInt32(reader.GetValue(8)),
             });
         }
 
@@ -565,6 +570,7 @@ public sealed class VideoService
                    IFNULL(metadata.Title, ''),
                    IFNULL(metadata.Path, ''),
                    IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(NULLIF(metadata.FirstScanDate, ''), IFNULL(metadata.CreateDate, '')),
                    IFNULL(metadata.LastScanDate, ''),
                    IFNULL(metadata.ViewDate, ''),
                    IFNULL(metadata.ViewCount, 0),
@@ -588,8 +594,8 @@ public sealed class VideoService
             var dataId = reader.GetInt64(0);
             var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
-            var vid = reader.GetString(10);
-            var scrapeStatus = reader.GetString(12);
+            var vid = reader.GetString(11);
+            var scrapeStatus = reader.GetString(13);
             if (!libraryNameCache.TryGetValue(libId, out var libName))
             {
                 libName = libraryService.GetLibrary(libId)?.Name;
@@ -600,23 +606,24 @@ public sealed class VideoService
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
-                DurationSeconds = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
+                DurationSeconds = reader.IsDBNull(12) ? 0 : Convert.ToInt32(reader.GetValue(12)),
+                FirstAddedAt = NullIfWhiteSpace(reader.GetString(5)),
                 HasFanart = sidecars.Fanart.Exists,
                 HasMissingAssets = sidecars.HasMissingAssets,
                 HasNfo = sidecars.Nfo.Exists,
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
                 LibraryId = libId,
-                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
-                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(6)),
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
-                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Rating = reader.IsDBNull(9) ? 0d : Convert.ToDouble(reader.GetValue(9)),
                 ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
-                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+                ViewCount = reader.IsDBNull(8) ? 0 : Convert.ToInt32(reader.GetValue(8)),
             });
         }
 
@@ -701,6 +708,7 @@ public sealed class VideoService
                    IFNULL(metadata.Title, ''),
                    IFNULL(metadata.Path, ''),
                    IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(NULLIF(metadata.FirstScanDate, ''), IFNULL(metadata.CreateDate, '')),
                    IFNULL(metadata.LastScanDate, ''),
                    IFNULL(metadata.ViewDate, ''),
                    IFNULL(metadata.ViewCount, 0),
@@ -722,10 +730,10 @@ public sealed class VideoService
         while (reader.Read())
         {
             var record = new VideoGroupRecord(
-                reader.GetString(9),
-                reader.GetString(12),
-                reader.GetString(6),
-                reader.GetString(5));
+                reader.GetString(10),
+                reader.GetString(13),
+                reader.GetString(7),
+                reader.GetString(6));
 
             if (!SplitGroupValues(selector(record)).Any(item => string.Equals(item, normalizedGroupName, StringComparison.OrdinalIgnoreCase)))
             {
@@ -735,8 +743,8 @@ public sealed class VideoService
             var dataId = reader.GetInt64(0);
             var libId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
-            var vid = reader.GetString(10);
-            var scrapeStatus = reader.GetString(13);
+            var vid = reader.GetString(11);
+            var scrapeStatus = reader.GetString(14);
             if (!libraryNameCache.TryGetValue(libId, out var libName))
             {
                 libName = libraryService.GetLibrary(libId)?.Name;
@@ -747,23 +755,24 @@ public sealed class VideoService
             result.Add(new VideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
-                DurationSeconds = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
+                DurationSeconds = reader.IsDBNull(12) ? 0 : Convert.ToInt32(reader.GetValue(12)),
+                FirstAddedAt = NullIfWhiteSpace(reader.GetString(5)),
                 HasFanart = sidecars.Fanart.Exists,
                 HasMissingAssets = sidecars.HasMissingAssets,
                 HasNfo = sidecars.Nfo.Exists,
                 HasPoster = sidecars.Poster.Exists,
                 HasThumb = sidecars.Thumb.Exists,
                 LibraryId = libId,
-                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
-                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(6)),
                 Path = path,
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
-                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Rating = reader.IsDBNull(9) ? 0d : Convert.ToDouble(reader.GetValue(9)),
                 ScrapeStatus = scrapeStatus,
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
-                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+                ViewCount = reader.IsDBNull(8) ? 0 : Convert.ToInt32(reader.GetValue(8)),
             });
         }
 
@@ -844,6 +853,7 @@ public sealed class VideoService
                    IFNULL(metadata.Title, ''),
                    IFNULL(metadata.Path, ''),
                    IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(NULLIF(metadata.FirstScanDate, ''), IFNULL(metadata.CreateDate, '')),
                    IFNULL(metadata.LastScanDate, ''),
                    IFNULL(metadata.ViewDate, ''),
                    IFNULL(metadata.ViewCount, 0),
@@ -880,18 +890,19 @@ public sealed class VideoService
             reader.GetString(4),
             reader.GetString(5),
             reader.GetString(6),
-            reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
-            reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
-            reader.GetString(9),
-            reader.IsDBNull(10) ? 0 : Convert.ToInt32(reader.GetValue(10)),
-            reader.GetString(11),
+            reader.GetString(7),
+            reader.IsDBNull(8) ? 0 : Convert.ToInt32(reader.GetValue(8)),
+            reader.IsDBNull(9) ? 0d : Convert.ToDouble(reader.GetValue(9)),
+            reader.GetString(10),
+            reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
             reader.GetString(12),
             reader.GetString(13),
             reader.GetString(14),
             reader.GetString(15),
             reader.GetString(16),
-            reader.IsDBNull(17) ? 0 : Convert.ToInt32(reader.GetValue(17)),
-            reader.GetString(18));
+            reader.GetString(17),
+            reader.IsDBNull(18) ? 0 : Convert.ToInt32(reader.GetValue(18)),
+            reader.GetString(19));
     }
 
     private List<VideoActorDto> LoadActors(SqliteConnection connection, long dataId)
@@ -1119,6 +1130,7 @@ public sealed class VideoService
         string Title,
         string Path,
         string ReleaseDate,
+        string FirstAddedAt,
         string LastScanAt,
         string LastPlayedAt,
         int ViewCount,

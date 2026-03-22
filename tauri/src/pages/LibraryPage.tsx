@@ -53,8 +53,8 @@ export function LibraryPage() {
 
   // Query state from router
   const keyword = query.keyword ?? "";
-  const sortBy = query.sortBy ?? "vid";
-  const sortOrder = query.sortOrder ?? "asc";
+  const sortBy = query.sortBy ?? "importTime";
+  const sortOrder = query.sortOrder ?? "desc";
   const pageIndex = query.pageIndex ?? 0;
   const currentSort = `${sortBy}_${sortOrder}`;
 

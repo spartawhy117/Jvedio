@@ -19,9 +19,8 @@ public class DtoSerializationTests
             "general": { "currentLanguage": "zh", "debug": false },
             "playback": { "playerPath": "", "useSystemDefaultFallback": true },
             "metaTube": { "serverUrl": "https://example.com", "requestTimeoutSeconds": 60 },
-            "image": { "posterPriority": "remote", "cacheSizeLimitMb": 500, "autoCleanExpiredCache": true },
-            "scanImport": { "scanDepth": 3, "excludePatterns": "", "organizeMode": "byVid" },
-            "library": { "defaultAutoScan": false, "defaultSortBy": "vid", "defaultSortOrder": "asc" }
+            "scanImport": { "scanDepth": 3, "excludePatterns": "" },
+            "library": { "defaultAutoScan": false }
         }
         """;
 
@@ -29,12 +28,10 @@ public class DtoSerializationTests
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.General);
         Assert.AreEqual("zh", result.General.CurrentLanguage);
-        Assert.IsNotNull(result.Image);
-        Assert.AreEqual("remote", result.Image.PosterPriority);
         Assert.IsNotNull(result.ScanImport);
         Assert.AreEqual(3, result.ScanImport.ScanDepth);
         Assert.IsNotNull(result.Library);
-        Assert.AreEqual("vid", result.Library.DefaultSortBy);
+        Assert.IsFalse(result.Library.DefaultAutoScan);
     }
 
     [TestMethod]

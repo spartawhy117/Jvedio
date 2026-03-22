@@ -3,7 +3,7 @@
  *
  * Spec: doc/UI/new/pages/settings-page.md
  * Layout: left group nav + right form area
- * Groups: 基本, 图片, 扫描与导入, 网络, 库, MetaTube
+ * Groups: 基本, 扫描与导入, 播放器设置, 库, MetaTube
  *
  * Reads settings via useApiQuery, saves via useApiMutation.
  * Auto-refreshes on SSE "settings.changed" events.
@@ -30,9 +30,8 @@ import "./pages.css";
 
 const SETTING_GROUPS = [
   "general",
-  "image",
   "scanImport",
-  "network",
+  "playback",
   "library",
   "metaTube",
 ] as const;
@@ -45,21 +44,14 @@ interface SettingsFormState {
   // General
   currentLanguage: string;
   debug: boolean;
-  // Image
-  posterPriority: string;
-  cacheSizeLimitMb: number;
-  autoCleanExpiredCache: boolean;
   // ScanImport
   scanDepth: number;
   excludePatterns: string;
-  organizeMode: string;
-  // Playback (mapped to network group in UI)
+  // Playback
   playerPath: string;
   useSystemDefaultFallback: boolean;
   // Library
   defaultAutoScan: boolean;
-  defaultSortBy: string;
-  defaultSortOrder: string;
   // MetaTube
   metaTubeServerUrl: string;
   metaTubeTimeoutSeconds: number;
@@ -69,17 +61,11 @@ function toFormState(settings: GetSettingsResponse): SettingsFormState {
   return {
     currentLanguage: settings.general.currentLanguage,
     debug: settings.general.debug,
-    posterPriority: settings.image.posterPriority,
-    cacheSizeLimitMb: settings.image.cacheSizeLimitMb,
-    autoCleanExpiredCache: settings.image.autoCleanExpiredCache,
     scanDepth: settings.scanImport.scanDepth,
     excludePatterns: settings.scanImport.excludePatterns,
-    organizeMode: settings.scanImport.organizeMode,
     playerPath: settings.playback.playerPath,
     useSystemDefaultFallback: settings.playback.useSystemDefaultFallback,
     defaultAutoScan: settings.library.defaultAutoScan,
-    defaultSortBy: settings.library.defaultSortBy,
-    defaultSortOrder: settings.library.defaultSortOrder,
     metaTubeServerUrl: settings.metaTube.serverUrl,
     metaTubeTimeoutSeconds: settings.metaTube.requestTimeoutSeconds,
   };
@@ -91,15 +77,9 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
       currentLanguage: form.currentLanguage,
       debug: form.debug,
     },
-    image: {
-      posterPriority: form.posterPriority,
-      cacheSizeLimitMb: form.cacheSizeLimitMb,
-      autoCleanExpiredCache: form.autoCleanExpiredCache,
-    },
     scanImport: {
       scanDepth: form.scanDepth,
       excludePatterns: form.excludePatterns,
-      organizeMode: form.organizeMode,
     },
     playback: {
       playerPath: form.playerPath,
@@ -107,8 +87,6 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
     },
     library: {
       defaultAutoScan: form.defaultAutoScan,
-      defaultSortBy: form.defaultSortBy,
-      defaultSortOrder: form.defaultSortOrder,
     },
     metaTube: {
       serverUrl: form.metaTubeServerUrl,
@@ -120,17 +98,11 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
 const DEFAULT_FORM: SettingsFormState = {
   currentLanguage: "zh",
   debug: false,
-  posterPriority: "remote",
-  cacheSizeLimitMb: 0,
-  autoCleanExpiredCache: true,
   scanDepth: 0,
   excludePatterns: "",
-  organizeMode: "none",
   playerPath: "",
   useSystemDefaultFallback: true,
   defaultAutoScan: true,
-  defaultSortBy: "releaseDate",
-  defaultSortOrder: "desc",
   metaTubeServerUrl: "",
   metaTubeTimeoutSeconds: 30,
 };
@@ -214,7 +186,7 @@ export function SettingsPage() {
       if (!client) throw new Error("ApiClient not initialized");
       return client.runMetaTubeDiagnostics({
         serverUrl: form.metaTubeServerUrl || undefined,
-        timeoutSeconds: form.metaTubeTimeoutSeconds || undefined,
+        requestTimeoutSeconds: form.metaTubeTimeoutSeconds || undefined,
       });
     },
     onSuccess: (data) => {
@@ -325,48 +297,6 @@ export function SettingsPage() {
           </div>
         )}
 
-        {/* ─── Image Group ───────────────────────────── */}
-        {activeGroup === "image" && (
-          <div className="settings-form-content">
-            <section className="settings-group">
-              <h4>{t("imageSettings.posterDisplay")}</h4>
-              <div className="settings-row">
-                {(["remote", "local"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    className={`settings-chip ${form.posterPriority === mode ? "active" : ""}`}
-                    onClick={() => updateField("posterPriority", mode)}
-                  >
-                    {t(`imageSettings.posterPriority_${mode}`)}
-                  </button>
-                ))}
-              </div>
-            </section>
-            <section className="settings-group">
-              <h4>{t("imageSettings.cachePolicy")}</h4>
-              <div className="settings-input-group">
-                <input
-                  type="number"
-                  className="settings-input settings-input-sm"
-                  value={form.cacheSizeLimitMb}
-                  onChange={(e) => updateField("cacheSizeLimitMb", parseInt(e.target.value) || 0)}
-                  min={0}
-                />
-                <span className="settings-input-suffix">MB</span>
-                <span className="settings-input-hint">{t("imageSettings.cacheSizeHint")}</span>
-              </div>
-              <label className="settings-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.autoCleanExpiredCache}
-                  onChange={(e) => updateField("autoCleanExpiredCache", e.target.checked)}
-                />
-                <span>{t("imageSettings.autoClean")}</span>
-              </label>
-            </section>
-          </div>
-        )}
-
         {/* ─── Scan & Import Group ───────────────────── */}
         {activeGroup === "scanImport" && (
           <div className="settings-form-content">
@@ -394,35 +324,21 @@ export function SettingsPage() {
                 />
               </div>
             </section>
-            <section className="settings-group">
-              <h4>{t("scanImportSettings.organizeRules")}</h4>
-              <div className="settings-row">
-                {(["none", "byVid", "byActor"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    className={`settings-chip ${form.organizeMode === mode ? "active" : ""}`}
-                    onClick={() => updateField("organizeMode", mode)}
-                  >
-                    {t(`scanImportSettings.organizeMode_${mode}`)}
-                  </button>
-                ))}
-              </div>
-            </section>
           </div>
         )}
 
-        {/* ─── Network Group ─────────────────────────── */}
-        {activeGroup === "network" && (
+        {/* ─── Playback Group ────────────────────────── */}
+        {activeGroup === "playback" && (
           <div className="settings-form-content">
             <section className="settings-group">
-              <h4>{t("networkSettings.playerPath")}</h4>
+              <h4>{t("playbackSettings.playerPath")}</h4>
               <div className="settings-input-group">
                 <input
                   type="text"
                   className="settings-input"
                   value={form.playerPath}
                   onChange={(e) => updateField("playerPath", e.target.value)}
-                  placeholder={t("networkSettings.playerPathPlaceholder")}
+                  placeholder={t("playbackSettings.playerPathPlaceholder")}
                 />
               </div>
               <label className="settings-checkbox">
@@ -431,7 +347,7 @@ export function SettingsPage() {
                   checked={form.useSystemDefaultFallback}
                   onChange={(e) => updateField("useSystemDefaultFallback", e.target.checked)}
                 />
-                <span>{t("networkSettings.useSystemDefault")}</span>
+                <span>{t("playbackSettings.useSystemDefault")}</span>
               </label>
             </section>
           </div>
@@ -450,31 +366,7 @@ export function SettingsPage() {
                 />
                 <span>{t("librarySettings.autoScanLabel")}</span>
               </label>
-            </section>
-            <section className="settings-group">
-              <h4>{t("librarySettings.defaultSort")}</h4>
-              <div className="settings-row">
-                {(["releaseDate", "title", "lastPlayedAt", "lastScanAt"] as const).map((sortBy) => (
-                  <button
-                    key={sortBy}
-                    className={`settings-chip ${form.defaultSortBy === sortBy ? "active" : ""}`}
-                    onClick={() => updateField("defaultSortBy", sortBy)}
-                  >
-                    {t(`librarySettings.sortBy_${sortBy}`)}
-                  </button>
-                ))}
-              </div>
-              <div className="settings-row" style={{ marginTop: "8px" }}>
-                {(["desc", "asc"] as const).map((order) => (
-                  <button
-                    key={order}
-                    className={`settings-chip ${form.defaultSortOrder === order ? "active" : ""}`}
-                    onClick={() => updateField("defaultSortOrder", order)}
-                  >
-                    {t(`librarySettings.sortOrder_${order}`)}
-                  </button>
-                ))}
-              </div>
+              <div className="settings-hint-text">{t("librarySettings.fixedSortHint")}</div>
             </section>
           </div>
         )}
@@ -512,6 +404,7 @@ export function SettingsPage() {
 
             <section className="settings-group">
               <h4>{t("metaTubeSettings.diagnostics")}</h4>
+              <div className="settings-hint-text">{t("metaTubeSettings.diagnosticsHint")}</div>
               <button
                 className="btn btn-secondary"
                 onClick={() => diagMutation.mutate(undefined as never)}

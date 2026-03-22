@@ -125,6 +125,7 @@ export interface VideoListItemDto {
   displayTitle: string;
   path: string;
   libraryId: string;
+  firstAddedAt: string | null;
   scrapeStatus: "none" | "full" | "failed";
   releaseDate: string | null;
   durationSeconds: number;
@@ -182,6 +183,7 @@ export interface VideoDetailDto {
   path: string;
   libraryId: string;
   libraryName: string;
+  firstAddedAt: string | null;
   scrapeStatus: "none" | "full" | "failed";
   releaseDate: string | null;
   durationSeconds: number;
@@ -343,6 +345,7 @@ export interface ActorVideoListItemDto {
   path: string;
   libraryId: string;
   libraryName: string;
+  firstAddedAt: string | null;
   releaseDate: string | null;
   durationSeconds: number;
   rating: number;
@@ -417,16 +420,9 @@ export interface GeneralSettingsDto {
   debug: boolean;
 }
 
-export interface ImageSettingsDto {
-  posterPriority: string; // "remote" | "local"
-  cacheSizeLimitMb: number;
-  autoCleanExpiredCache: boolean;
-}
-
 export interface ScanImportSettingsDto {
   scanDepth: number;
   excludePatterns: string;
-  organizeMode: string; // "none" | "byVid" | "byActor"
 }
 
 export interface MetaTubeSettingsDto {
@@ -441,13 +437,10 @@ export interface PlaybackSettingsDto {
 
 export interface LibrarySettingsDto {
   defaultAutoScan: boolean;
-  defaultSortBy: string;
-  defaultSortOrder: string;
 }
 
 export interface GetSettingsResponse {
   general: GeneralSettingsDto;
-  image: ImageSettingsDto;
   scanImport: ScanImportSettingsDto;
   playback: PlaybackSettingsDto;
   library: LibrarySettingsDto;
@@ -456,7 +449,6 @@ export interface GetSettingsResponse {
 
 export interface UpdateSettingsRequest {
   general?: GeneralSettingsDto;
-  image?: ImageSettingsDto;
   scanImport?: ScanImportSettingsDto;
   playback?: PlaybackSettingsDto;
   library?: LibrarySettingsDto;
@@ -478,22 +470,17 @@ export interface SettingsChangedEvent {
 
 export interface RunMetaTubeDiagnosticsRequest {
   serverUrl?: string;
-  timeoutSeconds?: number;
+  requestTimeoutSeconds?: number;
 }
 
 export interface RunMetaTubeDiagnosticsResponse {
   actorProviderCount: number;
   completedAtUtc: string;
-  detailTitle: string;
-  matchedMovieId: string;
-  matchedProvider: string;
   movieProviderCount: number;
-  searchResultCount: number;
   success: boolean;
   serverUrl: string;
   steps: string[];
   summary: string;
-  testVideoId: string;
   timeoutSeconds: number;
 }
 

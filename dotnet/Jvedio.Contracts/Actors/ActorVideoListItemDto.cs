@@ -16,6 +16,8 @@ public sealed class ActorVideoListItemDto
 
     public bool HasThumb { get; set; }
 
+    public string? FirstAddedAt { get; set; }
+
     public string LibraryId { get; set; } = string.Empty;
 
     public string LibraryName { get; set; } = string.Empty;

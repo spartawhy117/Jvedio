@@ -10,6 +10,8 @@ public sealed class VideoDetailDto
 
     public int DurationSeconds { get; set; }
 
+    public string? FirstAddedAt { get; set; }
+
     public bool IsFavorite { get; set; }
 
     public string LibraryId { get; set; } = string.Empty;

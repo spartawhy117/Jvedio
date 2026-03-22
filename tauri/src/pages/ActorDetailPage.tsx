@@ -66,8 +66,8 @@ export function ActorDetailPage() {
     { value: "vid_desc", label: tl("page.sortVidDesc") },
     { value: "releaseDate_asc", label: tl("page.sortDateAsc") },
     { value: "releaseDate_desc", label: tl("page.sortDateDesc") },
-    { value: "lastScanAt_asc", label: tl("page.sortImportAsc") },
-    { value: "lastScanAt_desc", label: tl("page.sortImportDesc") },
+    { value: "importTime_asc", label: tl("page.sortImportAsc") },
+    { value: "importTime_desc", label: tl("page.sortImportDesc") },
   ], [tl]);
 
   // ── Fetch associated videos ─────────────────────────
@@ -124,6 +124,7 @@ export function ActorDetailPage() {
     displayTitle: video.displayTitle,
     path: video.path,
     libraryId: video.libraryId,
+    firstAddedAt: video.firstAddedAt,
     scrapeStatus: "none",
     releaseDate: video.releaseDate,
     durationSeconds: video.durationSeconds,

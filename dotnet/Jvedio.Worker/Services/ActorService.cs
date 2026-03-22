@@ -174,6 +174,8 @@ public sealed class ActorService
         var descending = !string.Equals(sortOrder, "asc", StringComparison.OrdinalIgnoreCase);
         Func<ActorVideoListItemDto, object?> keySelector = (sortBy ?? string.Empty).ToLowerInvariant() switch
         {
+            "importtime" => video => video.FirstAddedAt,
+            "firstaddedat" => video => video.FirstAddedAt,
             "title" => video => video.DisplayTitle,
             "vid" => video => video.Vid,
             "releasedate" => video => video.ReleaseDate,
@@ -249,6 +251,7 @@ public sealed class ActorService
                    IFNULL(metadata.Title, ''),
                    IFNULL(metadata.Path, ''),
                    IFNULL(metadata.ReleaseDate, ''),
+                   IFNULL(NULLIF(metadata.FirstScanDate, ''), IFNULL(metadata.CreateDate, '')),
                    IFNULL(metadata.LastScanDate, ''),
                    IFNULL(metadata.ViewDate, ''),
                    IFNULL(metadata.ViewCount, 0),
@@ -271,13 +274,14 @@ public sealed class ActorService
             var dataId = reader.GetInt64(0);
             var libraryId = reader.GetInt64(1).ToString();
             var path = reader.GetString(3);
-            var vid = reader.GetString(9);
+            var vid = reader.GetString(10);
             var libraryName = libraries.TryGetValue(libraryId, out var library) ? library.Name : string.Empty;
             var sidecars = BuildSidecarState(path, vid, libraryName);
             result.Add(new ActorVideoListItemDto
             {
                 DisplayTitle = BuildDisplayTitle(reader.GetString(2), vid, path),
-                DurationSeconds = reader.IsDBNull(10) ? 0 : Convert.ToInt32(reader.GetValue(10)),
+                DurationSeconds = reader.IsDBNull(11) ? 0 : Convert.ToInt32(reader.GetValue(11)),
+                FirstAddedAt = NullIfWhiteSpace(reader.GetString(5)),
                 HasFanart = sidecars.Fanart.Exists,
                 HasMissingAssets = sidecars.HasMissingAssets,
                 HasNfo = sidecars.Nfo.Exists,
@@ -285,15 +289,15 @@ public sealed class ActorService
                 HasThumb = sidecars.Thumb.Exists,
                 LibraryId = libraryId,
                 LibraryName = libraryName,
-                LastPlayedAt = NullIfWhiteSpace(reader.GetString(6)),
-                LastScanAt = NullIfWhiteSpace(reader.GetString(5)),
+                LastPlayedAt = NullIfWhiteSpace(reader.GetString(7)),
+                LastScanAt = NullIfWhiteSpace(reader.GetString(6)),
                 Path = path,
-                Rating = reader.IsDBNull(8) ? 0d : Convert.ToDouble(reader.GetValue(8)),
+                Rating = reader.IsDBNull(9) ? 0d : Convert.ToDouble(reader.GetValue(9)),
                 ReleaseDate = NullIfWhiteSpace(reader.GetString(4)),
                 Title = reader.GetString(2),
                 Vid = vid,
                 VideoId = dataId.ToString(),
-                ViewCount = reader.IsDBNull(7) ? 0 : Convert.ToInt32(reader.GetValue(7)),
+                ViewCount = reader.IsDBNull(8) ? 0 : Convert.ToInt32(reader.GetValue(8)),
             });
         }
 

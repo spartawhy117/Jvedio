@@ -7,7 +7,6 @@ namespace Jvedio.Worker.Services;
 
 public sealed class SettingsService
 {
-    private const string DefaultDiagnosticsVideoId = "IPX-001";
     private const string MetaTubeConfigName = "MetaTubeConfig";
     private const int MaxTimeoutSeconds = 300;
     private const int MinTimeoutSeconds = 15;
@@ -47,15 +46,15 @@ public sealed class SettingsService
             document["Debug"] = snapshot.General.Debug;
             document["VideoPlayerPath"] = snapshot.Playback.PlayerPath;
             document["UseSystemDefaultFallback"] = snapshot.Playback.UseSystemDefaultFallback;
-            document["PosterPriority"] = snapshot.Image.PosterPriority;
-            document["CacheSizeLimitMb"] = snapshot.Image.CacheSizeLimitMb;
-            document["AutoCleanExpiredCache"] = snapshot.Image.AutoCleanExpiredCache;
             document["ScanDepth"] = snapshot.ScanImport.ScanDepth;
             document["ExcludePatterns"] = snapshot.ScanImport.ExcludePatterns;
-            document["OrganizeMode"] = snapshot.ScanImport.OrganizeMode;
             document["DefaultAutoScan"] = snapshot.Library.DefaultAutoScan;
-            document["DefaultSortBy"] = snapshot.Library.DefaultSortBy;
-            document["DefaultSortOrder"] = snapshot.Library.DefaultSortOrder;
+            document.Remove("PosterPriority");
+            document.Remove("CacheSizeLimitMb");
+            document.Remove("AutoCleanExpiredCache");
+            document.Remove("OrganizeMode");
+            document.Remove("DefaultSortBy");
+            document.Remove("DefaultSortOrder");
         });
 
         configStoreService.UpsertConfigObject(MetaTubeConfigName, document =>
@@ -107,13 +106,11 @@ public sealed class SettingsService
             request.RequestTimeoutSeconds ?? snapshot.MetaTube.RequestTimeoutSeconds,
             MinTimeoutSeconds,
             MaxTimeoutSeconds);
-        var testVideoId = NormalizeLanguage(request.TestVideoId, DefaultDiagnosticsVideoId);
         var response = new RunMetaTubeDiagnosticsResponse
         {
             CompletedAtUtc = DateTimeOffset.UtcNow,
             ServerUrl = serverUrl,
             Steps = new List<string>(),
-            TestVideoId = testVideoId,
             TimeoutSeconds = timeoutSeconds,
         };
 
@@ -145,35 +142,8 @@ public sealed class SettingsService
             response.MovieProviderCount = providers.MovieProviders.Count;
             response.Steps.Add($"providers 读取成功：movie={response.MovieProviderCount}，actor={response.ActorProviderCount}。");
 
-            response.Steps.Add($"开始搜索测试番号：{testVideoId}。");
-            var searchResults = await client.SearchMovieAsync(testVideoId, cancellationToken);
-            response.SearchResultCount = searchResults.Count;
-            response.Steps.Add($"影片搜索返回 {response.SearchResultCount} 条结果。");
-
-            var firstResult = searchResults.FirstOrDefault();
-            if (firstResult is null)
-            {
-                response.Success = false;
-                response.Summary = $"MetaTube 可访问，但测试番号 {testVideoId} 未返回结果。";
-                return response;
-            }
-
-            response.MatchedMovieId = firstResult.Id;
-            response.MatchedProvider = firstResult.Provider;
-            response.Steps.Add($"首条命中：provider={firstResult.Provider}，id={firstResult.Id}，number={firstResult.Number}。");
-
-            if (!string.IsNullOrWhiteSpace(firstResult.Provider) && !string.IsNullOrWhiteSpace(firstResult.Id))
-            {
-                response.Steps.Add("开始读取首条命中的详情。");
-                var detail = await client.GetMovieInfoAsync(firstResult.Provider, firstResult.Id, cancellationToken);
-                response.DetailTitle = detail?.Title ?? string.Empty;
-                response.Steps.Add(string.IsNullOrWhiteSpace(response.DetailTitle)
-                    ? "详情接口返回成功，但标题为空。"
-                    : $"详情读取成功：{response.DetailTitle}");
-            }
-
             response.Success = true;
-            response.Summary = "MetaTube 诊断通过，根地址、providers 和影片搜索链路均可用。";
+            response.Summary = "MetaTube 连通性测试通过，根地址和 providers 均可访问。";
             return response;
         }
         catch (Exception ex)
@@ -203,17 +173,10 @@ public sealed class SettingsService
                 CurrentLanguage = configStoreService.ReadString(settings, "CurrentLanguage", defaults.General.CurrentLanguage),
                 Debug = configStoreService.ReadBoolean(settings, "Debug", defaults.General.Debug),
             },
-            Image = new ImageSettingsDto
-            {
-                PosterPriority = configStoreService.ReadString(settings, "PosterPriority", defaults.Image.PosterPriority),
-                CacheSizeLimitMb = (int)configStoreService.ReadInt64(settings, "CacheSizeLimitMb", defaults.Image.CacheSizeLimitMb),
-                AutoCleanExpiredCache = configStoreService.ReadBoolean(settings, "AutoCleanExpiredCache", defaults.Image.AutoCleanExpiredCache),
-            },
             ScanImport = new ScanImportSettingsDto
             {
                 ScanDepth = (int)configStoreService.ReadInt64(settings, "ScanDepth", defaults.ScanImport.ScanDepth),
                 ExcludePatterns = configStoreService.ReadString(settings, "ExcludePatterns", defaults.ScanImport.ExcludePatterns),
-                OrganizeMode = configStoreService.ReadString(settings, "OrganizeMode", defaults.ScanImport.OrganizeMode),
             },
             Playback = new PlaybackSettingsDto
             {
@@ -223,8 +186,6 @@ public sealed class SettingsService
             Library = new LibrarySettingsDto
             {
                 DefaultAutoScan = configStoreService.ReadBoolean(settings, "DefaultAutoScan", defaults.Library.DefaultAutoScan),
-                DefaultSortBy = configStoreService.ReadString(settings, "DefaultSortBy", defaults.Library.DefaultSortBy),
-                DefaultSortOrder = configStoreService.ReadString(settings, "DefaultSortOrder", defaults.Library.DefaultSortOrder),
             },
             MetaTube = new MetaTubeSettingsDto
             {
@@ -246,17 +207,10 @@ public sealed class SettingsService
                 CurrentLanguage = "zh-CN",
                 Debug = false,
             },
-            Image = new ImageSettingsDto
-            {
-                PosterPriority = "remote",
-                CacheSizeLimitMb = 0,
-                AutoCleanExpiredCache = true,
-            },
             ScanImport = new ScanImportSettingsDto
             {
                 ScanDepth = 0,
                 ExcludePatterns = string.Empty,
-                OrganizeMode = "none",
             },
             Playback = new PlaybackSettingsDto
             {
@@ -266,8 +220,6 @@ public sealed class SettingsService
             Library = new LibrarySettingsDto
             {
                 DefaultAutoScan = true,
-                DefaultSortBy = "releaseDate",
-                DefaultSortOrder = "desc",
             },
             MetaTube = new MetaTubeSettingsDto
             {
@@ -281,7 +233,6 @@ public sealed class SettingsService
     {
         var defaults = CreateDefaultSettings();
         var general = request.General ?? throw CreateValidationException("settings.save.general_missing", "General settings payload is required.");
-        var image = request.Image ?? defaults.Image;
         var scanImport = request.ScanImport ?? defaults.ScanImport;
         var playback = request.Playback ?? throw CreateValidationException("settings.save.playback_missing", "Playback settings payload is required.");
         var library = request.Library ?? defaults.Library;
@@ -294,17 +245,10 @@ public sealed class SettingsService
                 CurrentLanguage = NormalizeLanguage(general.CurrentLanguage, defaults.General.CurrentLanguage),
                 Debug = general.Debug,
             },
-            Image = new ImageSettingsDto
-            {
-                PosterPriority = NormalizePosterPriority(image.PosterPriority),
-                CacheSizeLimitMb = Math.Max(0, image.CacheSizeLimitMb),
-                AutoCleanExpiredCache = image.AutoCleanExpiredCache,
-            },
             ScanImport = new ScanImportSettingsDto
             {
                 ScanDepth = Math.Max(0, scanImport.ScanDepth),
                 ExcludePatterns = NormalizeString(scanImport.ExcludePatterns),
-                OrganizeMode = NormalizeOrganizeMode(scanImport.OrganizeMode),
             },
             Playback = new PlaybackSettingsDto
             {
@@ -314,8 +258,6 @@ public sealed class SettingsService
             Library = new LibrarySettingsDto
             {
                 DefaultAutoScan = library.DefaultAutoScan,
-                DefaultSortBy = NormalizeSortBy(library.DefaultSortBy),
-                DefaultSortOrder = NormalizeSortOrder(library.DefaultSortOrder),
             },
             MetaTube = new MetaTubeSettingsDto
             {
@@ -334,30 +276,6 @@ public sealed class SettingsService
     private static string NormalizeString(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
-    }
-
-    private static string NormalizePosterPriority(string? value)
-    {
-        var normalized = NormalizeString(value);
-        return normalized is "remote" or "local" ? normalized : "remote";
-    }
-
-    private static string NormalizeOrganizeMode(string? value)
-    {
-        var normalized = NormalizeString(value);
-        return normalized is "none" or "byVid" or "byActor" ? normalized : "none";
-    }
-
-    private static string NormalizeSortBy(string? value)
-    {
-        var normalized = NormalizeString(value);
-        return normalized is "releaseDate" or "title" or "lastPlayedAt" or "lastScanAt" ? normalized : "releaseDate";
-    }
-
-    private static string NormalizeSortOrder(string? value)
-    {
-        var normalized = NormalizeString(value);
-        return normalized is "asc" or "desc" ? normalized : "desc";
     }
 
     private static WorkerApiException CreateValidationException(string code, string message)

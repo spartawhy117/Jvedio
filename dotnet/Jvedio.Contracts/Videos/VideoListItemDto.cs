@@ -18,6 +18,8 @@ public sealed class VideoListItemDto
 
     public bool IsFavorite { get; set; }
 
+    public string? FirstAddedAt { get; set; }
+
     public string LibraryId { get; set; } = string.Empty;
 
     public string? LastPlayedAt { get; set; }

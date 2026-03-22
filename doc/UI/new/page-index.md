@@ -19,7 +19,7 @@
 | `actors-page` | `pages/actors-page.png` | `pages/actors-page.md` | 演员聚合列表页，负责演员搜索、排序、分页和进入演员详情。 |
 | `actor-detail-page` | `pages/actor-detail-page.png` | `pages/actor-detail-page.md` | 独立演员详情页，负责演员头部信息、关联影片和返回链路。 |
 | `video-detail-page` | `pages/video-detail-page.png` | `pages/video-detail-page.md` | 影片详情页，负责详情信息展示、播放入口和返回来源恢复。 |
-| `settings-page` | `pages/settings-page.png` | `pages/settings-page.md` | 设置页，负责分组设置、保存、恢复默认和 MetaTube diagnostics。 |
+| `settings-page` | `pages/settings-page.png` | `pages/settings-page.md` | 设置页，负责分组设置、保存、恢复默认和 MetaTube 连通性测试。 |
 
 ## 弹层与共享组件索引
 

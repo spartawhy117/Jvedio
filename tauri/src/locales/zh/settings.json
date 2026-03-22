@@ -1,11 +1,10 @@
 {
   "title": "设置",
-  "groups": "基本 · 图片 · 扫描与导入 · 网络 · 库 · MetaTube",
+  "groups": "基本 · 扫描与导入 · 播放器设置 · 库 · MetaTube",
   "groups_list": {
     "general": "基本",
-    "image": "图片",
     "scanImport": "扫描与导入",
-    "network": "网络",
+    "playback": "播放器设置",
     "library": "库",
     "metaTube": "MetaTube"
   },
@@ -21,26 +20,14 @@
     "en": "English"
   },
   "debugMode": "启用调试模式",
-  "imageSettings": {
-    "posterDisplay": "海报显示",
-    "posterPriority_remote": "远程优先",
-    "posterPriority_local": "本地优先",
-    "cachePolicy": "缓存策略",
-    "cacheSizeHint": "0 表示不限制",
-    "autoClean": "自动清理过期缓存"
-  },
   "scanImportSettings": {
     "scanBehavior": "扫描行为",
     "scanDepthLabel": "递归深度",
     "scanDepthHint": "0 表示无限递归",
     "excludeLabel": "排除规则",
-    "excludePlaceholder": "*.tmp, Thumbs.db（逗号分隔）",
-    "organizeRules": "整理规则",
-    "organizeMode_none": "不整理",
-    "organizeMode_byVid": "按番号整理",
-    "organizeMode_byActor": "按演员整理"
+    "excludePlaceholder": "*.tmp, Thumbs.db（逗号分隔）"
   },
-  "networkSettings": {
+  "playbackSettings": {
     "playerPath": "播放器路径",
     "playerPathPlaceholder": "留空使用系统默认播放器",
     "useSystemDefault": "无指定播放器时回退到系统默认"
@@ -48,19 +35,14 @@
   "librarySettings": {
     "defaultBehavior": "默认行为",
     "autoScanLabel": "新建库时默认启用自动扫描",
-    "defaultSort": "默认排序",
-    "sortBy_releaseDate": "发行日期",
-    "sortBy_title": "标题",
-    "sortBy_lastPlayedAt": "最近播放",
-    "sortBy_lastScanAt": "最近扫描",
-    "sortOrder_asc": "升序",
-    "sortOrder_desc": "降序"
+    "fixedSortHint": "影片列表默认按首次入库时间倒序展示，不再提供单独默认排序设置。"
   },
   "metaTubeSettings": {
     "serverUrl": "MetaTube 服务地址",
     "timeout": "请求超时",
     "diagnostics": "连接诊断",
-    "runDiagnostics": "运行诊断",
+    "diagnosticsHint": "这里只做 MetaTube 服务连通性测试，会校验根地址和 providers 是否可访问，不执行默认番号抓取。",
+    "runDiagnostics": "测试连通性",
     "diagSuccess": "连接成功",
     "diagFailed": "连接失败"
   },
