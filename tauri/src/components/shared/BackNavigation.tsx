@@ -8,46 +8,22 @@ export interface BackNavigationProps {
 
 export function BackNavigation({ fallbackLabel }: BackNavigationProps) {
   const { t } = useTranslation("common");
-  const { t: tn } = useTranslation("navigation");
-  const { t: tl } = useTranslation("library");
-  const { canGoBack, goBack, history } = useRouter();
+  const { canGoBack, goBack } = useRouter();
 
   if (!canGoBack) {
     return null;
   }
-
-  const target = history[history.length - 1];
-  const explicitLabel = target?.label?.trim();
-  const routeLabel = (() => {
-    switch (target?.page) {
-      case "library-management":
-        return tl("management.title");
-      case "library":
-        return tl("page.title");
-      case "favorites":
-        return tn("favorites");
-      case "actors":
-      case "actor-detail":
-        return tn("actors");
-      case "video-detail":
-        return t("videoDetail");
-      case "settings":
-        return tn("settings");
-      default:
-        return undefined;
-    }
-  })();
-  const targetLabel = explicitLabel || routeLabel || fallbackLabel || t("back");
+  const title = fallbackLabel ? `${t("back")} ${fallbackLabel}` : t("back");
 
   return (
     <button
       className="back-navigation"
       onClick={goBack}
-      title={`${t("back")} ${targetLabel}`}
+      title={title}
       type="button"
+      aria-label={title}
     >
       <span className="back-navigation-arrow" aria-hidden="true">←</span>
-      <span className="back-navigation-label">{targetLabel}</span>
     </button>
   );
 }
