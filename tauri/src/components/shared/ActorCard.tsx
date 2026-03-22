@@ -9,23 +9,42 @@
  * - Secondary info (video count)
  */
 
-import type { ActorListItemDto } from "../../api/types";
 import "./ActorCard.css";
 
-export interface ActorCardProps {
-  actor: ActorListItemDto;
-  onClick?: (actorId: string) => void;
-  baseUrl?: string;
+export interface ActorCardData {
+  actorId: string;
+  avatarPath?: string | null;
+  name: string;
+  videoCount?: number | null;
 }
 
-export function ActorCard({ actor, onClick, baseUrl }: ActorCardProps) {
+export interface ActorCardProps {
+  actor: ActorCardData;
+  onClick?: (actorId: string) => void;
+  baseUrl?: string;
+  compact?: boolean;
+  subtitle?: string | null;
+}
+
+export function ActorCard({
+  actor,
+  onClick,
+  baseUrl,
+  compact = false,
+  subtitle,
+}: ActorCardProps) {
   const avatarUrl = actor.avatarPath && baseUrl
     ? `${baseUrl}/api/actors/${encodeURIComponent(actor.actorId)}/avatar`
     : null;
+  const infoText = subtitle !== undefined
+    ? subtitle
+    : typeof actor.videoCount === "number"
+      ? `${actor.videoCount} videos`
+      : null;
 
   return (
     <div
-      className="actor-card"
+      className={`actor-card ${compact ? "actor-card-compact" : ""}`}
       onClick={() => onClick?.(actor.actorId)}
     >
       <div className="actor-card-avatar">
@@ -36,7 +55,7 @@ export function ActorCard({ actor, onClick, baseUrl }: ActorCardProps) {
         )}
       </div>
       <div className="actor-card-name">{actor.name}</div>
-      <div className="actor-card-info">{actor.videoCount} videos</div>
+      {infoText ? <div className="actor-card-info">{infoText}</div> : null}
     </div>
   );
 }

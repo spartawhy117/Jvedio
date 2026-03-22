@@ -445,17 +445,19 @@
 }
 
 .video-detail-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 32px;
+  align-items: start;
   margin-bottom: 24px;
 }
 
 .video-detail-left {
-  flex-shrink: 0;
-  width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  position: sticky;
+  top: 0;
 }
 
 .video-detail-poster {
@@ -477,74 +479,66 @@
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   font-size: 48px;
 }
 
 .video-detail-vid {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-align: center;
 }
 
 .sidecar-status-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-
-.sidecar-badge {
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.sidecar-badge.present {
-  background: #e8f5e9;
-  color: #388e3c;
-}
-
-.sidecar-badge.missing {
-  background: var(--badge-danger-bg, #fde8e8);
-  color: var(--color-danger, #e05050);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .video-detail-right {
-  flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  min-width: 0;
 }
 
 .video-detail-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
 }
 
 .metadata-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 16px;
 }
 
 .metadata-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  align-items: baseline;
   font-size: 13px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
 }
 
 .metadata-label {
   color: var(--color-text-secondary);
-  min-width: 80px;
+  min-width: 78px;
   flex-shrink: 0;
 }
 
 .metadata-value {
   color: var(--color-text-primary);
+  word-break: break-word;
 }
 
 .detail-label {
@@ -560,42 +554,43 @@
   flex-direction: column;
 }
 
-.actor-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.actor-tag {
-  padding: 4px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: transparent;
-  color: var(--color-accent);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.actor-tag:hover {
-  background: var(--color-nav-hover);
-  border-color: var(--color-accent);
+.video-detail-actor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 12px;
 }
 
 .video-detail-synopsis {
   display: flex;
   flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
 }
 
 .synopsis-text {
   font-size: 13px;
   line-height: 1.6;
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .video-detail-path {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.video-detail-path-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.video-detail-path-header .detail-label {
+  margin-bottom: 0;
 }
 
 .path-text {
@@ -612,16 +607,40 @@
 .video-detail-weburl {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .weburl-link {
   font-size: 13px;
   color: var(--color-accent);
   text-decoration: none;
+  word-break: break-all;
 }
 
 .weburl-link:hover {
   text-decoration: underline;
+}
+
+.video-detail-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 0 4px;
+}
+
+.video-detail-play-button {
+  min-width: 240px;
+  min-height: 52px;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.video-detail-cta-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .poster-placeholder {
@@ -822,4 +841,31 @@
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .video-detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .video-detail-left {
+    position: static;
+    width: 100%;
+    align-items: center;
+  }
+
+  .video-detail-right {
+    gap: 16px;
+  }
+
+  .video-detail-play-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .video-detail-path-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

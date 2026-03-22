@@ -15,6 +15,7 @@ public sealed class VideoService
     private const int MaxPageSize = 200;
 
     private readonly ConfigStoreService configStoreService;
+    private readonly ActorService actorService;
     private readonly LibraryService libraryService;
     private readonly ILogger<VideoService> logger;
     private readonly SqliteConnectionFactory sqliteConnectionFactory;
@@ -22,12 +23,14 @@ public sealed class VideoService
 
     public VideoService(
         ConfigStoreService configStoreService,
+        ActorService actorService,
         LibraryService libraryService,
         ILogger<VideoService> logger,
         SqliteConnectionFactory sqliteConnectionFactory,
         WorkerPathResolver workerPathResolver)
     {
         this.configStoreService = configStoreService;
+        this.actorService = actorService;
         this.libraryService = libraryService;
         this.logger = logger;
         this.sqliteConnectionFactory = sqliteConnectionFactory;
@@ -187,6 +190,25 @@ public sealed class VideoService
         }
 
         return sidecars.Poster.Path;
+    }
+
+    public string GetThumbPath(string videoId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = LoadVideoDetailRecord(connection, videoId);
+        if (record is null)
+        {
+            throw CreateNotFoundException("video.thumb.not_found", $"Video {videoId} was not found.");
+        }
+
+        var library = libraryService.GetLibrary(record.Value.LibraryId.ToString());
+        var sidecars = BuildSidecarState(record.Value.Path, record.Value.Vid, library?.Name);
+        if (!sidecars.Thumb.Exists || string.IsNullOrWhiteSpace(sidecars.Thumb.Path))
+        {
+            throw CreateNotFoundException("video.thumb.not_found", $"Thumb for video {videoId} was not found.");
+        }
+
+        return sidecars.Thumb.Path;
     }
 
     public ToggleFavoriteResponse ToggleFavorite(string videoId)
@@ -923,10 +945,11 @@ public sealed class VideoService
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
+            var actorId = reader.GetInt64(0).ToString();
             result.Add(new VideoActorDto
             {
-                ActorId = reader.GetInt64(0).ToString(),
-                AvatarPath = null,
+                ActorId = actorId,
+                AvatarPath = actorService.TryGetActorAvatarPath(actorId),
                 Name = reader.GetString(1),
             });
         }

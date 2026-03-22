@@ -2,6 +2,7 @@
 
 export { VideoCard, type VideoCardProps } from "./VideoCard";
 export { ActorCard, type ActorCardProps } from "./ActorCard";
+export { BackNavigation, type BackNavigationProps } from "./BackNavigation";
 export { QueryToolbar, type QueryToolbarProps } from "./QueryToolbar";
 export { Pagination, type PaginationProps } from "./Pagination";
 export { ConfirmDialog, type ConfirmDialogProps } from "./ConfirmDialog";

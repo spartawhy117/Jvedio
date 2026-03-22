@@ -18,6 +18,7 @@ import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
 import { useApiQuery, invalidateQueries } from "../hooks/useApiQuery";
 import { VideoCard } from "../components/shared/VideoCard";
+import { BackNavigation } from "../components/shared/BackNavigation";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
@@ -36,7 +37,7 @@ const PAGE_SIZE = 30;
 export function ActorDetailPage() {
   const { t: tc } = useTranslation("common");
   const { t: tl } = useTranslation("library");
-  const { params, query, canGoBack, goBack, navigate, setQuery } = useRouter();
+  const { params, query, navigate, setQuery } = useRouter();
   const { bootstrap, refreshLibraries } = useBootstrap();
 
   const actorId = params.actorId ?? "";
@@ -154,8 +155,8 @@ export function ActorDetailPage() {
       });
       return;
     }
-    navigate("video-detail", { videoId }, { label: actor?.name ?? "Actor" });
-  }, [navigate, actor?.name, selectedIds]);
+    navigate("video-detail", { videoId }, { label: tc("actors") });
+  }, [navigate, tc, selectedIds]);
 
   const handleSelect = useCallback((videoId: string) => {
     setSelectedIds((prev) => {
@@ -380,9 +381,7 @@ export function ActorDetailPage() {
     return (
       <div className="page-content-section">
         <div className="page-header">
-          {canGoBack && (
-            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-          )}
+          <BackNavigation fallbackLabel={tc("back")} />
           <h2 className="page-title">{tc("actorId")}</h2>
         </div>
         <ResultState type="error" message={detailQuery.error?.message} />
@@ -394,9 +393,7 @@ export function ActorDetailPage() {
     return (
       <div className="page-content-section">
         <div className="page-header">
-          {canGoBack && (
-            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-          )}
+          <BackNavigation fallbackLabel={tc("back")} />
           <h2 className="page-title">{tc("actorId")}</h2>
         </div>
         <ResultState type="empty" icon="👤" message={tc("noData")} />
@@ -408,9 +405,7 @@ export function ActorDetailPage() {
     <div className="page-content-section page-content-wide">
       {/* Header with back button */}
       <div className="page-header">
-        {canGoBack && (
-          <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-        )}
+        <BackNavigation fallbackLabel={tc("back")} />
         <h2 className="page-title">{actor.name}</h2>
       </div>
 

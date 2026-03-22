@@ -97,6 +97,18 @@ public sealed class ActorService
         return avatarPath;
     }
 
+    public string? TryGetActorAvatarPath(string actorId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var actor = LoadActorRecord(connection, actorId);
+        if (actor is null)
+        {
+            return null;
+        }
+
+        return ResolveActorAvatarPath(actor.Value.ActorId, actor.Value.Name, actor.Value.ImageUrl, actor.Value.WebUrl);
+    }
+
     public GetActorVideosResponse GetActorVideos(string actorId, GetActorVideosRequest request)
     {
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();

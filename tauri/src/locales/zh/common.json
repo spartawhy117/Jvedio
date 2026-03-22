@@ -15,6 +15,9 @@
   "connected": "已连接",
   "disconnected": "已断开",
   "back": "返回",
+  "videoDetail": "影片详情",
+  "actorDetail": "演员详情",
+  "actors": "演员",
   "refresh": "刷新",
   "sortBy": "排序",
   "play": "播放",
@@ -41,6 +44,7 @@
     "failed": "失败"
   },
   "releaseDate": "发布日期",
+  "firstAddedAt": "首次入库时间",
   "importTime": "导入时间",
   "vid": "VID",
   "asc": "正序",

@@ -12,6 +12,10 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+.actor-card-compact {
+  padding: 12px 10px;
+}
+
 .actor-card:hover {
   border-color: var(--color-accent);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -25,6 +29,12 @@
   background: var(--color-bg-surface-2, #ebebeb);
   margin-bottom: 10px;
   flex-shrink: 0;
+}
+
+.actor-card-compact .actor-card-avatar {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
 }
 
 .actor-card-avatar img {
@@ -53,8 +63,13 @@
   max-width: 100%;
 }
 
+.actor-card-compact .actor-card-name {
+  font-size: 12px;
+}
+
 .actor-card-info {
   font-size: 11px;
   color: var(--color-text-secondary);
   margin-top: 2px;
+  text-align: center;
 }

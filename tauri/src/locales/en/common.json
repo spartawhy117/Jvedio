@@ -15,6 +15,9 @@
   "connected": "Connected",
   "disconnected": "Disconnected",
   "back": "Back",
+  "videoDetail": "Video Detail",
+  "actorDetail": "Actor Detail",
+  "actors": "Actors",
   "refresh": "Refresh",
   "sortBy": "Sort",
   "play": "Play",
@@ -41,6 +44,7 @@
     "failed": "Failed"
   },
   "releaseDate": "Release Date",
+  "firstAddedAt": "First Added",
   "importTime": "Import Time",
   "vid": "VID",
   "asc": "Asc",

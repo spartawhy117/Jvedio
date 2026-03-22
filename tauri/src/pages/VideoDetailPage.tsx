@@ -2,8 +2,8 @@
  * Video Detail Page — Phase 3 full implementation.
  *
  * Spec: doc/UI/new/pages/video-detail-page.md
- * - Left: poster, VID, sidecar status, play button
- * - Right: title, metadata, actors, synopsis, file path
+ * - Left: poster, VID, sidecar status
+ * - Right: title, metadata, primary action, actors, synopsis, file path
  * - Back navigation via backTo
  */
 
@@ -16,14 +16,15 @@ import { getApiClient } from "../api/client";
 import { useApiQuery, useApiMutation } from "../hooks/useApiQuery";
 import { showToast } from "../components/GlobalToast";
 import { ResultState } from "../components/shared/ResultState";
-import { ActionStrip } from "../components/shared/ActionStrip";
+import { ActorCard } from "../components/shared/ActorCard";
+import { BackNavigation } from "../components/shared/BackNavigation";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import type { GetVideoDetailResponse, PlayVideoResponse } from "../api/types";
 import "./pages.css";
 
 export function VideoDetailPage() {
   const { t: tc } = useTranslation("common");
-  const { params, canGoBack, goBack, navigate } = useRouter();
+  const { params, navigate } = useRouter();
   const { bootstrap } = useBootstrap();
 
   const videoId = params.videoId ?? "";
@@ -57,9 +58,13 @@ export function VideoDetailPage() {
 
   // ── Derived state ──────────────────────────────
   const video = detailQuery.data?.video;
+  const thumbUrl = video?.sidecars.thumb.exists && baseUrl
+    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/thumb`
+    : null;
   const posterUrl = video?.sidecars.poster.exists && baseUrl
     ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
     : null;
+  const previewUrl = thumbUrl ?? posterUrl;
 
   // ── Handlers ──────────────────────────────────────
   const handlePlay = useCallback(() => {
@@ -76,8 +81,9 @@ export function VideoDetailPage() {
   }, [video?.path, tc]);
 
   const handleActorClick = useCallback((actorId: string) => {
-    navigate("actor-detail", { actorId }, { label: video?.vid ?? "Video Detail" });
-  }, [navigate]);
+    if (!actorId) return;
+    navigate("actor-detail", { actorId }, { label: tc("videoDetail") });
+  }, [navigate, tc]);
 
   // ── Render ────────────────────────────────────────
 
@@ -93,10 +99,8 @@ export function VideoDetailPage() {
     return (
       <div className="page-content-section">
         <div className="page-header">
-          {canGoBack && (
-            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-          )}
-          <h2 className="page-title">Video Detail</h2>
+          <BackNavigation fallbackLabel={tc("back")} />
+          <h2 className="page-title">{tc("videoDetail")}</h2>
         </div>
         <ResultState type="error" message={detailQuery.error?.message} />
       </div>
@@ -107,10 +111,8 @@ export function VideoDetailPage() {
     return (
       <div className="page-content-section">
         <div className="page-header">
-          {canGoBack && (
-            <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-          )}
-          <h2 className="page-title">Video Detail</h2>
+          <BackNavigation fallbackLabel={tc("back")} />
+          <h2 className="page-title">{tc("videoDetail")}</h2>
         </div>
         <ResultState type="empty" message={tc("noData")} />
       </div>
@@ -124,13 +126,21 @@ export function VideoDetailPage() {
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
+  const formatDateTime = (value: string | null | undefined) => {
+    if (!value) return "—";
+    return value.replace("T", " ").slice(0, 16);
+  };
+
+  const formatReleaseDate = (value: string | null | undefined) => {
+    if (!value) return "—";
+    return value.length >= 10 ? value.slice(0, 10) : value;
+  };
+
   return (
     <div className="page-content-section">
       {/* Header */}
       <div className="page-header">
-        {canGoBack && (
-          <button className="btn btn-icon" onClick={goBack} title={tc("back")}>←</button>
-        )}
+        <BackNavigation fallbackLabel={tc("back")} />
         <h2 className="page-title">{video.displayTitle || video.vid}</h2>
       </div>
 
@@ -139,8 +149,8 @@ export function VideoDetailPage() {
         {/* Left column */}
         <div className="video-detail-left">
           <div className="video-detail-poster">
-            {posterUrl ? (
-              <img src={posterUrl} alt={video.vid} loading="lazy" />
+            {previewUrl ? (
+              <img src={previewUrl} alt={video.vid} loading="lazy" />
             ) : (
               <div className="video-card-no-image poster-fallback">
                 <svg className="no-poster-placeholder" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 64, height: 64 }}>
@@ -176,25 +186,6 @@ export function VideoDetailPage() {
             />
           </div>
 
-          {/* Play button */}
-          <ActionStrip
-            actions={[
-              {
-                key: "play",
-                label: `▶ ${tc("play")}`,
-                variant: "execute",
-                onClick: handlePlay,
-                disabled: playMutation.isLoading || !video.playback.canPlay,
-              },
-              {
-                key: "openFolder",
-                label: `📂 ${tc("openFolder")}`,
-                variant: "browse",
-                onClick: handleOpenFolder,
-                title: tc("openFolder"),
-              },
-            ]}
-          />
         </div>
 
         {/* Right column: metadata */}
@@ -212,8 +203,11 @@ export function VideoDetailPage() {
             {video.releaseDate && (
               <MetadataRow
                 label={tc("releaseDate")}
-                value={new Date(video.releaseDate).toLocaleDateString()}
+                value={formatReleaseDate(video.releaseDate)}
               />
+            )}
+            {video.firstAddedAt && (
+              <MetadataRow label={tc("firstAddedAt")} value={formatDateTime(video.firstAddedAt)} />
             )}
             {video.durationSeconds > 0 && (
               <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
@@ -235,23 +229,19 @@ export function VideoDetailPage() {
             )}
           </div>
 
-          {/* Actors */}
-          {video.actors && video.actors.length > 0 && (
-            <div className="video-detail-actors">
-              <span className="detail-label">{tc("associatedVideos").replace("影片", "演员")}</span>
-              <div className="actor-tags">
-                {video.actors.map((actor) => (
-                  <button
-                    key={actor.actorId}
-                    className="actor-tag"
-                    onClick={() => handleActorClick(actor.actorId)}
-                  >
-                    {actor.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="video-detail-cta">
+            <button
+              className="btn btn-primary video-detail-play-button"
+              onClick={handlePlay}
+              disabled={playMutation.isLoading || !video.playback.canPlay}
+              type="button"
+            >
+              {playMutation.isLoading ? tc("loading") : `▶ ${tc("play")}`}
+            </button>
+            {!video.playback.canPlay && video.playback.reason ? (
+              <span className="video-detail-cta-hint">{video.playback.reason}</span>
+            ) : null}
+          </div>
 
           {/* Synopsis */}
           {(video.plot || video.outline) && (
@@ -261,9 +251,44 @@ export function VideoDetailPage() {
             </div>
           )}
 
+          {/* Actors */}
+          {video.actors && video.actors.length > 0 && (
+            <div className="video-detail-actors">
+              <span className="detail-label">{tc("actors")}</span>
+              <div className="video-detail-actor-grid">
+                {video.actors
+                  .filter((actor) => !!actor.actorId)
+                  .map((actor) => (
+                    <ActorCard
+                      key={actor.actorId}
+                      actor={{
+                        actorId: actor.actorId ?? "",
+                        avatarPath: actor.avatarPath,
+                        name: actor.name,
+                      }}
+                      baseUrl={baseUrl}
+                      compact
+                      subtitle={null}
+                      onClick={handleActorClick}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
+
           {/* File path */}
           <div className="video-detail-path">
-            <span className="detail-label">{tc("filePath")}</span>
+            <div className="video-detail-path-header">
+              <span className="detail-label">{tc("filePath")}</span>
+              <button
+                className="btn btn-sm btn-secondary"
+                onClick={handleOpenFolder}
+                title={tc("openFolder")}
+                type="button"
+              >
+                {tc("openFolder")}
+              </button>
+            </div>
             <code className="path-text">{video.path}</code>
           </div>
 
