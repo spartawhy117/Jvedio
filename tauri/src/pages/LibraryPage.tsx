@@ -86,7 +86,6 @@ export function LibraryPage() {
 
   // ── Derived state ──────────────────────────────
   const data = videosQuery.data;
-  const totalCount = data?.totalCount ?? 0;
 
   // ── Handlers ──────────────────────────────────────
   const handleSearch = useCallback((kw: string) => {
@@ -391,11 +390,11 @@ export function LibraryPage() {
       ) : null}
 
       {/* Pagination */}
-      {data && totalCount > PAGE_SIZE && (
+      {data && data.items.length > 0 && (
         <Pagination
           pageIndex={pageIndex}
           pageSize={PAGE_SIZE}
-          totalCount={totalCount}
+          totalCount={data.totalCount}
           onPageChange={handlePageChange}
         />
       )}

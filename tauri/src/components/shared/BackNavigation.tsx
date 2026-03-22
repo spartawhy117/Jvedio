@@ -8,13 +8,36 @@ export interface BackNavigationProps {
 
 export function BackNavigation({ fallbackLabel }: BackNavigationProps) {
   const { t } = useTranslation("common");
+  const { t: tn } = useTranslation("navigation");
+  const { t: tl } = useTranslation("library");
   const { canGoBack, goBack, history } = useRouter();
 
   if (!canGoBack) {
     return null;
   }
 
-  const targetLabel = history[history.length - 1]?.label ?? fallbackLabel ?? t("back");
+  const target = history[history.length - 1];
+  const explicitLabel = target?.label?.trim();
+  const routeLabel = (() => {
+    switch (target?.page) {
+      case "library-management":
+        return tl("management.title");
+      case "library":
+        return tl("page.title");
+      case "favorites":
+        return tn("favorites");
+      case "actors":
+      case "actor-detail":
+        return tn("actors");
+      case "video-detail":
+        return t("videoDetail");
+      case "settings":
+        return tn("settings");
+      default:
+        return undefined;
+    }
+  })();
+  const targetLabel = explicitLabel || routeLabel || fallbackLabel || t("back");
 
   return (
     <button

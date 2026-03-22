@@ -117,7 +117,6 @@ export function ActorDetailPage() {
 
   const actor = detailQuery.data?.actor;
   const videosData = videosQuery.data;
-  const totalCount = videosData?.totalCount ?? 0;
   const videoItems: VideoListItemDto[] = (videosData?.items ?? []).map((video) => ({
     videoId: video.videoId,
     vid: video.vid,
@@ -491,11 +490,11 @@ export function ActorDetailPage() {
         </div>
       )}
 
-      {videosData && totalCount > PAGE_SIZE && (
+      {videosData && videoItems.length > 0 && (
         <Pagination
           pageIndex={pageIndex}
           pageSize={PAGE_SIZE}
-          totalCount={totalCount}
+          totalCount={videosData.totalCount}
           onPageChange={handlePageChange}
         />
       )}

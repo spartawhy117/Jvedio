@@ -14,6 +14,7 @@ namespace Jvedio.Worker.Services;
 public sealed class LibraryScrapeService
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly HttpClient DownloadHttpClient = CreateDownloadHttpClient();
 
     private readonly ConfigStoreService configStoreService;
     private readonly LibraryService libraryService;
@@ -77,6 +78,8 @@ public sealed class LibraryScrapeService
         var succeededCount = 0;
         var failedCount = 0;
         var sidecarCount = 0;
+        var actorCache = new Dictionary<string, MetaTubeActorSearchResult?>(StringComparer.OrdinalIgnoreCase);
+        var actorCacheLock = new object();
         for (var index = 0; index < candidates.Count; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -108,36 +111,7 @@ public sealed class LibraryScrapeService
                     continue;
                 }
 
-                var actorResults = new List<MetaTubeActorSearchResult>();
-                foreach (var actorName in movieInfo.Actors.Where(actorName => !string.IsNullOrWhiteSpace(actorName)).Distinct(StringComparer.OrdinalIgnoreCase))
-                {
-                    try
-                    {
-                        var searchResults = await client.SearchActorAsync(actorName, cancellationToken);
-                        var actor = searchResults
-                            .FirstOrDefault(item => string.Equals(item.Name, actorName, StringComparison.OrdinalIgnoreCase))
-                            ?? searchResults.FirstOrDefault();
-                        if (actor is null)
-                        {
-                            continue;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(actor.Provider) && !string.IsNullOrWhiteSpace(actor.Id))
-                        {
-                            var actorInfo = await client.GetActorInfoAsync(actor.Provider, actor.Id, cancellationToken);
-                            if (actorInfo?.Images is { Length: > 0 })
-                            {
-                                actor.Images = actorInfo.Images;
-                            }
-                        }
-
-                        actorResults.Add(actor);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogWarning(ex, "[Worker-HomeMvp] Actor search failed for {ActorName}", actorName);
-                    }
-                }
+                var actorResults = await ResolveActorsAsync(movieInfo, client, actorCache, actorCacheLock, cancellationToken);
 
                 var scrapeResult = MapScrapeResult(movieInfo, actorResults);
                 PersistScrapeResult(connection, candidate, scrapeResult);
@@ -169,6 +143,86 @@ public sealed class LibraryScrapeService
 
         libraryService.RefreshLibraryState(library.LibraryId, "scrape.completed", lastScrapeAtUtc: DateTimeOffset.UtcNow);
         return $"抓取完成：成功 {succeededCount}，失败 {failedCount}，写入 sidecar {sidecarCount}。";
+    }
+
+    private async Task<List<MetaTubeActorSearchResult>> ResolveActorsAsync(
+        MetaTubeMovieInfo movieInfo,
+        MetaTubeWorkerClient client,
+        Dictionary<string, MetaTubeActorSearchResult?> actorCache,
+        object actorCacheLock,
+        CancellationToken cancellationToken)
+    {
+        var actorNames = movieInfo.Actors
+            .Where(actorName => !string.IsNullOrWhiteSpace(actorName))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (actorNames.Length == 0)
+        {
+            return new List<MetaTubeActorSearchResult>();
+        }
+
+        var results = await Task.WhenAll(actorNames.Select(actorName => ResolveActorAsync(actorName, client, actorCache, actorCacheLock, cancellationToken)));
+        return results
+            .Where(actor => actor is not null)
+            .Select(actor => actor!)
+            .ToList();
+    }
+
+    private async Task<MetaTubeActorSearchResult?> ResolveActorAsync(
+        string actorName,
+        MetaTubeWorkerClient client,
+        Dictionary<string, MetaTubeActorSearchResult?> actorCache,
+        object actorCacheLock,
+        CancellationToken cancellationToken)
+    {
+        bool hasCachedActor;
+        MetaTubeActorSearchResult? cachedActor;
+        lock (actorCacheLock)
+        {
+            hasCachedActor = actorCache.TryGetValue(actorName, out cachedActor);
+        }
+
+        if (hasCachedActor)
+        {
+            return CloneActor(cachedActor);
+        }
+
+        try
+        {
+            var searchResults = await client.SearchActorAsync(actorName, cancellationToken);
+            var actor = searchResults
+                .FirstOrDefault(item => string.Equals(item.Name, actorName, StringComparison.OrdinalIgnoreCase))
+                ?? searchResults.FirstOrDefault();
+            if (actor is null)
+            {
+                lock (actorCacheLock)
+                {
+                    actorCache[actorName] = null;
+                }
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(actor.Provider) && !string.IsNullOrWhiteSpace(actor.Id))
+            {
+                var actorInfo = await client.GetActorInfoAsync(actor.Provider, actor.Id, cancellationToken);
+                if (actorInfo?.Images is { Length: > 0 })
+                {
+                    actor.Images = actorInfo.Images;
+                }
+            }
+
+            lock (actorCacheLock)
+            {
+                actorCache[actorName] = CloneActor(actor);
+            }
+            return actor;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[Worker-HomeMvp] Actor search failed for {ActorName}", actorName);
+            return null;
+        }
     }
 
     private List<ScrapeCandidate> LoadCandidates(SqliteConnection connection, string libraryId, StartLibraryScrapeRequest request, string libraryName)
@@ -446,9 +500,10 @@ public sealed class LibraryScrapeService
 
         var sanitizedVid = SanitizeFileName(vid);
         await File.WriteAllTextAsync(Path.Combine(sidecarDir, $"{sanitizedVid}.nfo"), BuildNfoDocument(scrapeResult).ToString(), Encoding.UTF8, cancellationToken);
-        await DownloadFileAsync(scrapeResult.PosterUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-poster.jpg"), scrapeResult.Homepage, cancellationToken);
-        await DownloadFileAsync(scrapeResult.ThumbUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-thumb.jpg"), scrapeResult.Homepage, cancellationToken);
-        await DownloadFileAsync(scrapeResult.FanartUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-fanart.jpg"), scrapeResult.Homepage, cancellationToken);
+        await Task.WhenAll(
+            DownloadFileAsync(scrapeResult.PosterUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-poster.jpg"), scrapeResult.Homepage, cancellationToken),
+            DownloadFileAsync(scrapeResult.ThumbUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-thumb.jpg"), scrapeResult.Homepage, cancellationToken),
+            DownloadFileAsync(scrapeResult.FanartUrl, Path.Combine(sidecarDir, $"{sanitizedVid}-fanart.jpg"), scrapeResult.Homepage, cancellationToken));
 
         if (!downloadActorAvatars)
         {
@@ -457,22 +512,45 @@ public sealed class LibraryScrapeService
 
         var actorAvatarCacheDir = Path.Combine(workerPathResolver.CurrentUserFolder, "cache", "actor-avatar");
         Directory.CreateDirectory(actorAvatarCacheDir);
-        foreach (var actor in scrapeResult.Actors.Where(actor => !string.IsNullOrWhiteSpace(actor.AvatarUrl)))
+        await Task.WhenAll(scrapeResult.Actors
+            .Where(actor => !string.IsNullOrWhiteSpace(actor.AvatarUrl))
+            .Select(actor => DownloadActorAvatarAsync(actorAvatarCacheDir, scrapeResult.Homepage, actor, cancellationToken)));
+    }
+
+    private async Task DownloadActorAvatarAsync(string actorAvatarCacheDir, string refererUrl, ScrapedActorData actor, CancellationToken cancellationToken)
+    {
+        var extension = GetExtensionFromUrl(actor.AvatarUrl);
+        var avatarPath = Path.Combine(
+            actorAvatarCacheDir,
+            BuildActorAvatarCacheKey(actor.AvatarUrl, actor.ActorId, actor.Name) + extension);
+
+        try
         {
-            var extension = GetExtensionFromUrl(actor.AvatarUrl);
-            var avatarPath = Path.Combine(
-                actorAvatarCacheDir,
-                BuildActorAvatarCacheKey(actor.AvatarUrl, actor.ActorId, actor.Name) + extension);
-            try
-            {
-                await DownloadFileAsync(actor.AvatarUrl, avatarPath, scrapeResult.Homepage, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "[Worker-HomeMvp] Failed to cache actor avatar for {ActorName}", actor.Name);
-            }
+            await DownloadFileAsync(actor.AvatarUrl, avatarPath, refererUrl, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[Worker-HomeMvp] Failed to cache actor avatar for {ActorName}", actor.Name);
         }
     }
+
+    private static MetaTubeActorSearchResult? CloneActor(MetaTubeActorSearchResult? actor)
+    {
+        if (actor is null)
+        {
+            return null;
+        }
+
+        return new MetaTubeActorSearchResult
+        {
+            Homepage = actor.Homepage,
+            Id = actor.Id,
+            Images = actor.Images.ToArray(),
+            Name = actor.Name,
+            Provider = actor.Provider,
+        };
+    }
+
 
     private static XDocument BuildNfoDocument(ScrapeResultData scrapeResult)
     {
@@ -660,6 +738,18 @@ public sealed class LibraryScrapeService
             actors);
     }
 
+    private static HttpClient CreateDownloadHttpClient()
+    {
+        return new HttpClient(new HttpClientHandler
+        {
+            AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+            UseCookies = false,
+        })
+        {
+            Timeout = TimeSpan.FromSeconds(100),
+        };
+    }
+
     private static async Task DownloadFileAsync(string url, string targetPath, string? refererUrl, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(targetPath))
@@ -668,7 +758,6 @@ public sealed class LibraryScrapeService
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(targetPath) ?? string.Empty);
-        using var httpClient = new HttpClient();
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36");
         request.Headers.TryAddWithoutValidation("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
@@ -678,7 +767,7 @@ public sealed class LibraryScrapeService
             request.Headers.Referrer = referer;
         }
 
-        using var response = await httpClient.SendAsync(request, cancellationToken);
+        using var response = await DownloadHttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         response.EnsureSuccessStatusCode();
         await using var sourceStream = await response.Content.ReadAsStreamAsync(cancellationToken);
         await using var fileStream = File.Create(targetPath);

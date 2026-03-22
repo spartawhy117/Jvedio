@@ -36,11 +36,12 @@
 | 启动链路 / 真包运行 | Worker 前台窗口、日志与启动链路复核 | `F-001` `M-001` `M-002` |
 | 侧栏 / 底栏 / 全局图标 | 影视库位置、连接状态语义、图标风格统一 | `F-002` `F-003` `F-024` |
 | 库管理 / 扫描状态 | 扫描进度、已扫描数量、重复整理、重抓后回刷不一致 | `F-004` `F-005` `F-014` `F-021` |
-| 列表页工具条 / 分页 | 排序回显、刷新与排序分组、统一底部分页控件 | `F-006` `F-022` `F-023` |
+| 列表页工具条 / 分页 | 排序回显、刷新与排序分组、统一底部分页控件、单页也显示翻页组件 | `F-006` `F-022` `F-023` `F-026` |
 | 主题与浮层 | 深浅主题下的弹层 / 菜单适配 | `F-007` |
 | 设置页结构收敛 | 图片设置、整理规则、播放器设置、默认排序、MetaTube 诊断 | `F-008` `F-009` `F-010` `F-011` `F-012` |
 | 演员页 | 演员头像缺失 | `F-013` |
-| 详情页信息与动作区 | 图片策略、播放 / 打开文件夹布局、演员卡、回退文案、首次入库时间 | `F-015` `F-016` `F-017` `F-018` `F-019` `F-020` |
+| 详情页信息与动作区 | 图片策略、播放 / 打开文件夹布局、演员卡、回退文案、首次入库时间、返回目标标题语义 | `F-015` `F-016` `F-017` `F-018` `F-019` `F-020` `F-025` |
+| 扫描 / 抓取性能 | 扫描链路感知过慢、MetaTube 抓取瀑布过重 | `F-027` |
 
 ## 问题簇优先级
 
@@ -52,8 +53,9 @@
 |--------|--------|----------|----------|
 | P0 | 启动 / 数据一致性 | `F-001` `F-014` `F-021` `M-001` `M-002` | 直接影响真包可用性、目录正确性和“重抓后界面是否可信”，不先收敛会污染后续人工复核样本 |
 | P1 | 设置页结构收敛 | `F-008` `F-009` `F-010` `F-011` `F-012` | 涉及配置项删改、默认行为固化和设置入口语义统一，适合在数据链路稳定后成组处理 |
-| P1 | 详情页信息架构 / 主动作区 | `F-015` `F-016` `F-017` `F-018` `F-019` `F-020` | 同页布局、字段和交互集中，适合一次性按详情页规范重排，避免重复改 CSS 和组件结构 |
-| P2 | 列表页工具条 / 分页 / 状态表达 | `F-004` `F-005` `F-006` `F-022` `F-023` | 同属列表框架和查询工具条层，需在库状态定义清晰后统一调整 |
+| P1 | 详情页信息架构 / 主动作区 | `F-015` `F-016` `F-017` `F-018` `F-019` `F-020` `F-025` | 同页布局、字段和交互集中，适合一次性按详情页规范重排，避免重复改 CSS 和组件结构 |
+| P1 | 扫描 / 抓取性能 | `F-027` | 直接影响核心主流程体感，且与库完成度按钮、真包人工复核节奏强相关，需要尽快压缩串行抓取耗时 |
+| P2 | 列表页工具条 / 分页 / 状态表达 | `F-004` `F-005` `F-006` `F-022` `F-023` `F-026` | 同属列表框架和查询工具条层，需在库状态定义清晰后统一调整 |
 | P2 | 侧栏 / 底栏 / 图标视觉统一 | `F-002` `F-003` `F-024` | 主要是 IA 与视觉整合，风险低于数据链路问题，但会影响最终验收观感 |
 | P2 | 主题与浮层适配 | `F-007` | 范围相对独立，可在视觉统一阶段一起回归 |
 | P2 | 演员链路 | `F-013` | 依赖抓取、缓存、DTO、前端卡片四层核对，但不阻塞当前真包主流程 |
@@ -263,11 +265,13 @@
 - `F-018` 关联演员未复用通用演员卡
 - `F-019` 回退标签语义错误
 - `F-020` 缺少首次入库时间
+- `F-025` 返回按钮应优先显示“将返回到的页面标题 / 库标题”，而不是过长的当前内容文本
 
 当前结论：
 - 这一簇高度集中在 [VideoDetailPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/VideoDetailPage.tsx) 和路由元数据设计上，适合一次性做结构调整。
 - 当前页面更多是“先能显示数据”，还没有真正按主操作优先级、信息邻接关系和共享组件复用来实现。
 - 本轮已完成第三簇代码收口：详情页主图改为 `thumb -> poster -> 占位`，播放按钮提升到右栏主 CTA，打开文件夹贴近文件路径，关联演员改复用紧凑演员卡，回退链路切到统一 `BackNavigation`，详情 DTO 已补 `firstAddedAt`。
+- 第二轮已继续收口回退标签：`BackNavigation` 现已补按目标 page 的标题兜底，并收紧详情页头部的返回文案宽度。
 - 仍需真包复核的重点只剩布局观感、跨页面回退标签语义和真实样本图片显示。
 
 ### F-015 列表卡 / 详情页共用 poster 通道
@@ -354,6 +358,31 @@
 - 明确 `label` 只表示“返回目标页面 / 分组”。
 - 新增统一回退组件时优先消费上一层 label，并对长文案做截断。
 
+### F-025 返回按钮仍会显示过长文本，且没有稳定收敛到“目标页标题”
+
+已核对证据：
+- [BackNavigation.tsx](D:/study/Proj/Jvedio/tauri/src/components/shared/BackNavigation.tsx) 当前直接读取 `history[history.length - 1]?.label ?? fallbackLabel`，没有对 `history` 项的 `page` 做标题回退，也没有对异常长 label 做语义修正。
+- 路由历史项 [RouterProvider.tsx](D:/study/Proj/Jvedio/tauri/src/router/RouterProvider.tsx) 只保存了 `label` 字段，没有“目标页标题”和“实体展示标题”的区分；一旦调用方传错，回退组件就只能原样显示。
+- [VideoDetailPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/VideoDetailPage.tsx) 与 [ActorDetailPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/ActorDetailPage.tsx) 都把 `fallbackLabel` 固定传成 `back`，因此当历史项缺 label 或 label 不可信时，组件不会自动回退到“影视库 / 演员 / 喜欢 / 库管理”这类目标标题。
+- 现有样式 [BackNavigation.css](D:/study/Proj/Jvedio/tauri/src/components/shared/BackNavigation.css) 虽然有 `text-overflow: ellipsis`，但 `max-width: min(360px, 100%)` 仍偏宽，详情页头部会被长文案明显侵占。
+
+初步根因判断：
+- 第一层问题不是“有没有回退标签”，而是回退标签数据模型过于单薄，只要某个入口把当前实体名误当作 label 传进来，组件就会把它当成返回目标。
+- 第二层问题是组件没有“按历史 page 推导默认标题”的兜底机制，导致 label 缺失或异常时只能退回通用 `返回`，而不是更符合语义的页面 / 库标题。
+- 第三层问题是 UI 长度控制偏宽，即使语义正确，详情页头部也容易被过长返回文本压缩。
+
+受影响区域：
+- `tauri/src/components/shared/BackNavigation.tsx`
+- `tauri/src/components/shared/BackNavigation.css`
+- `tauri/src/router/RouterProvider.tsx`
+- `tauri/src/pages/VideoDetailPage.tsx`
+- `tauri/src/pages/ActorDetailPage.tsx`
+
+后续修复方向：
+- 让回退组件优先显示历史项显式 label，但在缺失时自动按目标 page 回退到稳定标题。
+- 收紧返回按钮文案宽度，并保留 tooltip 承载完整标题。
+- 继续核对全部 `navigate(..., { label })` 调用点，确保 label 只表达“返回目标名称”。
+
 ### F-020 首次入库时间缺失
 
 已核对证据：
@@ -382,12 +411,14 @@
 - `F-006` 排序组件未回显当前规则
 - `F-022` 刷新与排序被工具栏拉散
 - `F-023` 顶部总数应去掉，底部分页承担状态表达
+- `F-026` 只有 1 页时右下角也必须显示通用分页控件
 
 当前结论：
 - 这一簇已完成第一轮代码收口：库 DTO 已补 `syncedVideoCount / completionPercent / isFullySynced`，扫描按钮已切到“扫描即整理+补抓取”的完整同步链路。
 - 库管理页现已改为展示“已扫描数量 + 完成度 + 进行中摘要”，并在全部完成时切换为红色“无需扫描”按钮态。
 - `QueryToolbar` 已回显当前排序规则名称，刷新与排序已收拢到同一操作组。
 - `ActorsPage / FavoritesPage / LibraryPage / ActorDetailPage` 顶部 `ResultSummary` 已移除，底部分页控件已补“跳转”表达。
+- 第二轮人工反馈说明，分页组件虽然已经统一到底部，但页面仍把“是否显示分页”错误绑定到了 `totalCount > PAGE_SIZE`，单页结果没有真正复用统一控件。
 
 ### F-004 / F-005 库管理页缺少完成度模型
 
@@ -453,6 +484,28 @@
 后续修复方向：
 - 将分页信息和跳转操作正式收拢到底部统一分页控件。
 - 顶部总数从演员页、喜欢页、库页等列表主页面移除，只在确有必要的局部区块保留。
+
+### F-026 单页结果没有显示统一分页控件
+
+已核对证据：
+- 通用分页组件 [Pagination.tsx](D:/study/Proj/Jvedio/tauri/src/components/shared/Pagination.tsx) 内部已经把 `totalPages` 至少钳制为 `1`，说明组件本身允许展示 `1 / 1`。
+- 但 [LibraryPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/LibraryPage.tsx)、[FavoritesPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/FavoritesPage.tsx)、[ActorsPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/ActorsPage.tsx)、[ActorDetailPage.tsx](D:/study/Proj/Jvedio/tauri/src/pages/ActorDetailPage.tsx) 仍然用 `totalCount > PAGE_SIZE` 作为是否渲染分页组件的条件。
+- [pages.css](D:/study/Proj/Jvedio/tauri/src/pages/pages.css) 已经把 `.pagination-bar` 放在右下对齐，因此当前“单页不显示”不是样式缺陷，而是页面层的条件渲染拦掉了组件。
+
+初步根因判断：
+- 当前列表页把分页组件当成“多页时才需要的功能控件”，而不是“列表状态统一出口”。
+- 因此虽然组件本身已经支持 `1 / 1`，但页面层继续用老条件判断把它裁掉，导致设计上要求的统一分页出口没有真正落地。
+
+受影响区域：
+- `tauri/src/components/shared/Pagination.tsx`
+- `tauri/src/pages/LibraryPage.tsx`
+- `tauri/src/pages/FavoritesPage.tsx`
+- `tauri/src/pages/ActorsPage.tsx`
+- `tauri/src/pages/ActorDetailPage.tsx`
+
+后续修复方向：
+- 将分页渲染条件收敛为“列表存在结果就显示分页组件”，不再依赖 `totalCount > PAGE_SIZE`。
+- 保持空结果页仍走 `ResultState`，避免在 `0` 条时额外渲染无意义的分页条。
 
 ## 第五簇详细根因分析：侧栏 / 底栏 / 图标视觉统一
 
@@ -592,6 +645,43 @@
 - 对已存在演员补更新逻辑，保证头像 URL / WebUrl / provider 信息能回写。
 - 详情页与演员页共用同一套头像解析策略。
 
+## 第八簇详细根因分析：扫描 / 抓取性能
+
+覆盖问题：
+- `F-027` 相比 Jellyfin + MetaTube 体验，当前“扫描后自动拉取元数据”链路体感明显偏慢
+
+当前结论：
+- 当前仓库里没有单独的本地 `jellyfin-metatube` 插件源码可直接逐行对比，现阶段判断主要基于 Jvedio 自身 Worker 链路的代码证据。
+- 已能确认当前慢感并不是单点 I/O，而是“扫描任务串联抓取 + 单影片串行瀑布请求 + 图片下载连接复用不足”叠加出来的总耗时。
+- 本轮已完成低风险性能收口：图片下载已改为复用长生命周期 `HttpClient`，单影片内演员补全与演员头像下载已并发化，并增加了同轮抓取的演员查询缓存。
+- 后续仍需通过真实样本库观察总时长变化，再决定是否继续调整任务阶段表达或跨影片并发度。
+
+### F-027 扫描后自动抓取的链路存在明显串行瀑布
+
+已核对证据：
+- [LibraryTaskOrchestratorService.cs](D:/study/Proj/Jvedio/dotnet/Jvedio.Worker/Services/LibraryTaskOrchestratorService.cs) 的 `StartScanTaskCore(...)` 会在 `ScanLibraryAsync(...)` 完成后，同一任务内立即继续执行 `ScrapeLibraryAsync(...)`，所以用户感知到的“扫描”其实包含了后续整段抓取。
+- [LibraryScrapeService.cs](D:/study/Proj/Jvedio/dotnet/Jvedio.Worker/Services/LibraryScrapeService.cs) 当前按 `candidates` 逐条顺序抓取；每部影片至少会经历“影片搜索 -> 影片详情 -> 多个演员搜索 -> 多个演员详情 -> poster/thumb/fanart 下载 -> 演员头像下载”的顺序链路。
+- 同文件中演员补全使用 `foreach` 串行执行 `SearchActorAsync(...)` 和 `GetActorInfoAsync(...)`，同一影片演员越多，等待时间越线性增长。
+- 同文件 `DownloadFileAsync(...)` 每次下载图片都会 `new HttpClient()`，poster / thumb / fanart 和演员头像都会重复创建连接，无法复用连接池。
+- [MetaTubeWorkerClient.cs](D:/study/Proj/Jvedio/dotnet/Jvedio.Worker/Services/MetaTubeWorkerClient.cs) 虽然为 API 请求维护了一个 `HttpClient`，但下载侧完全绕开了这个复用能力。
+- 本地仅找到 `D:/study/Proj/jellyfin-web`，未发现独立 `jellyfin-metatube` 插件源码，因此“Jellyfin 更快”的对照结论当前只能作为体验参照，不能写成逐实现差异比对。
+
+初步根因判断：
+- 第一层慢感来自任务编排：用户点击一次“扫描”，实际上要等待“发现文件 + 入库 + 元数据抓取 + 图片下载”整条链路跑完。
+- 第二层慢感来自抓取实现：单影片内部存在明显的串行网络瀑布，尤其演员搜索 / 详情补全是典型 N 次顺序请求。
+- 第三层慢感来自资源下载：图片下载没有复用 `HttpClient`，在大量 sidecar 与演员头像场景下会引入额外连接建立成本。
+- 第四层隐性成本是重复 actor 查询：跨多部影片出现同名演员时，当前链路没有做 run-level 缓存，会重复命中同一批 MetaTube 接口。
+
+受影响区域：
+- `dotnet/Jvedio.Worker/Services/LibraryTaskOrchestratorService.cs`
+- `dotnet/Jvedio.Worker/Services/LibraryScrapeService.cs`
+- `dotnet/Jvedio.Worker/Services/MetaTubeWorkerClient.cs`
+
+后续修复方向：
+- 优先把图片下载改为复用长生命周期 `HttpClient`，去掉每张图都新建连接的做法。
+- 将单影片内部的演员补全改为受控并发，并为同一次抓取任务增加演员查询缓存。
+- 在不破坏当前任务模型和 MetaTube 压力边界的前提下，先压缩单影片耗时，再评估是否需要进一步调整任务阶段表达。
+
 ## 问题反馈池（待逐项深挖）
 
 状态规则：
@@ -628,6 +718,9 @@
 | F-022 | 人工验收 | 顶部搜索栏后的刷新按钮应紧邻排序按钮，而不是像现在这样与排序分散在两端，工具栏显得割裂 | 当前顶部工具栏很可能按左右两端分布或用了过大的拉伸间距，把“搜索/刷新”和“排序”拆成两个视觉组；但这几个控件本质上都属于同一查询工具条，分开太远会削弱关联性 | 已将刷新与排序收拢为右侧同一操作组，下一步结合真包检查不同宽度下的换行和触达体验 | 已修复待复验 |
 | F-023 | 人工验收 | 演员页、喜欢页、库页顶部显示的总数量应去掉，改为在右下角使用设计图里的通用分页控件（`<`、`1 / 24`、`>`、`跳转`）承载分页信息与操作 | 当前列表页把“总数”单独放在顶部工具栏，分页信息和翻页交互没有统一沉到底部，导致同一类列表页面的信息架构不一致；总数占据顶部空间，也会和搜索/排序工具条互相竞争视觉层级 | 已移除相关页面顶部 `ResultSummary`，并把“跳转”收拢到底部分页控件；下一步做真包观感复核 | 已修复待复验 |
 | F-024 | 人工验收 | 全软件图标应尽量统一为 `D:\\study\\Proj\\clash-verge` 那套扁平化图标风格；必要时可将需要的图标拷贝到本项目根目录新建的 `icon/` 目录中管理，同时清理本项目里现有散乱的图标资源和引用位置 | 当前项目图标风格混杂，存在 emoji、拟物和彩色程度不一致的问题，且图标资源与引用位置可能已经分散；而 `clash-verge` 已有一套较成熟的扁平化 SVG 资源（如 `src\\assets\\image\\itemicon\\*.svg`），可以作为统一视觉参考或局部资源来源 | 已新增统一 `AppIcon` 入口并替换主导航、上下文菜单、批量操作、Toast、异常浮层、空态等高频图标；下一步再评估是否需要额外迁入外部 SVG 资产 | 已修复待复验 |
+| F-025 | 人工验收 | 详情页顶部返回按钮的文本仍然过长，希望固定表达“将返回到的页面标题或库标题”，不要出现当前内容文本 | 当前 `BackNavigation` 只消费历史项 `label`，没有按目标页兜底标题，也没有把“页面标题”和“实体展示名”分层；只要某个入口 label 不稳定，就会把错误或过长文本直接显示到返回按钮上 | 已补“显式 label 优先、目标页标题兜底”的解析逻辑，并收紧返回按钮宽度；下一步结合不同入口做真包语义复核 | 已修复待复验 |
+| F-026 | 人工验收 | 右下角通用分页组件仍未完全落地，只有 1 页时也必须显示 `1 / 1` 和分页外观 | 通用 `Pagination` 组件本身支持单页显示，但各页面仍用 `totalCount > PAGE_SIZE` 条件判断把它拦掉，导致单页结果没有统一分页出口 | 已将相关页面分页条件改为“有结果就显示”；下一步做真包观感复核，确认 `1 / 1` 与空态边界都正常 | 已修复待复验 |
+| F-027 | 人工验收 | 相比 Jellyfin + MetaTube 的库扫描体验，当前扫描后自动拉取元数据明显偏慢，希望查清原因并压缩主流程耗时 | 当前“扫描”任务实际串联了后续抓取；抓取内部又按影片、演员、图片下载多层串行执行，且下载没有复用 `HttpClient`，会叠加出明显慢感 | 已完成首轮性能收口：下载复用共享 `HttpClient`，演员补全与演员头像下载并发化，并增加同轮 actor 查询缓存；下一步用真实样本库复测整体耗时 | 已修复待复验 |
 
 ## 已修复待真包复核
 

@@ -89,7 +89,6 @@ export function ActorsPage() {
 
   // ── Render ────────────────────────────────────────
   const data = actorsQuery.data;
-  const totalCount = data?.totalCount ?? 0;
 
   return (
     <div className="page-content-section page-content-wide">
@@ -125,11 +124,11 @@ export function ActorsPage() {
         </div>
       ) : null}
 
-      {data && totalCount > PAGE_SIZE && (
+      {data && data.items.length > 0 && (
         <Pagination
           pageIndex={pageIndex}
           pageSize={PAGE_SIZE}
-          totalCount={totalCount}
+          totalCount={data.totalCount}
           onPageChange={handlePageChange}
         />
       )}

@@ -75,7 +75,6 @@ export function FavoritesPage() {
 
   // ── Derived state ──────────────────────────────
   const data = favQuery.data;
-  const totalCount = data?.totalCount ?? 0;
 
   // ── Handlers ──────────────────────────────────────
   const handleSearch = useCallback((kw: string) => {
@@ -375,11 +374,11 @@ export function FavoritesPage() {
         </div>
       ) : null}
 
-      {data && totalCount > PAGE_SIZE && (
+      {data && data.items.length > 0 && (
         <Pagination
           pageIndex={pageIndex}
           pageSize={PAGE_SIZE}
-          totalCount={totalCount}
+          totalCount={data.totalCount}
           onPageChange={handlePageChange}
         />
       )}
