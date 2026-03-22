@@ -17,6 +17,7 @@ public class DtoSerializationTests
         var json = """
         {
             "general": { "currentLanguage": "zh", "debug": false },
+            "display": { "videoCardSize": "medium" },
             "playback": { "playerPath": "", "useSystemDefaultFallback": true },
             "metaTube": { "serverUrl": "https://example.com", "requestTimeoutSeconds": 60 },
             "scanImport": { "scanDepth": 3, "excludePatterns": "" },
@@ -28,6 +29,8 @@ public class DtoSerializationTests
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.General);
         Assert.AreEqual("zh", result.General.CurrentLanguage);
+        Assert.IsNotNull(result.Display);
+        Assert.AreEqual("medium", result.Display.VideoCardSize);
         Assert.IsNotNull(result.ScanImport);
         Assert.AreEqual(3, result.ScanImport.ScanDepth);
         Assert.IsNotNull(result.Library);
@@ -40,6 +43,7 @@ public class DtoSerializationTests
         var request = new UpdateSettingsRequest
         {
             General = new GeneralSettingsDto { Debug = true },
+            Display = new DisplaySettingsDto { VideoCardSize = "large" },
         };
 
         // Use camelCase policy consistent with ASP.NET Core default JSON output
@@ -56,5 +60,8 @@ public class DtoSerializationTests
         Assert.IsTrue(doc.RootElement.TryGetProperty("general", out var general),
             $"Expected 'general' property in JSON: {json}");
         Assert.IsTrue(general.GetProperty("debug").GetBoolean());
+        Assert.IsTrue(doc.RootElement.TryGetProperty("display", out var display),
+            $"Expected 'display' property in JSON: {json}");
+        Assert.AreEqual("large", display.GetProperty("videoCardSize").GetString());
     }
 }

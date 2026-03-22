@@ -59,7 +59,7 @@ export function LibraryManagementPage() {
   const [deleteTarget, setDeleteTarget] = useState<LibraryListItemDto | null>(null);
 
   useOnLibraryChanged(() => {
-    // Libraries auto-refresh in context — no additional action needed.
+    void tasksQuery.refetch();
   });
 
   const tasksQuery = useApiQuery<GetTasksResponse>({
@@ -173,136 +173,142 @@ export function LibraryManagementPage() {
   }, [scanMutation]);
 
   return (
-    <div className="page-content-section">
-      <div className="page-header">
-        <h2 className="page-title">{t("management.title")}</h2>
-        <button className="btn btn-primary" onClick={() => setCreateDialogOpen(true)}>
-          {t("management.createNew")}
-        </button>
-      </div>
-
-      {libraries.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-icon"><AppIcon name="library-management" size={44} /></span>
-          <p>{t("management.noLibrary")}</p>
-          <p className="placeholder-hint">{t("management.createFirst")}</p>
-        </div>
-      ) : (
-        <div className="library-table">
-          <div className="library-table-header">
-            <span className="col-name">{tc("name")}</span>
-            <span className="col-count">{tc("videos")}</span>
-            <span className="col-scan">已扫描数量</span>
-            <span className="col-status">完成度</span>
-            <span className="col-actions">{tc("actions")}</span>
+    <div className="page-content-section page-content-wide">
+      <div className="page-activity-shell">
+        <div className="page-title-row">
+          <h2 className="page-title">{t("management.title")}</h2>
+          <div className="page-title-actions">
+            <button className="btn btn-primary" onClick={() => setCreateDialogOpen(true)}>
+              {t("management.createNew")}
+            </button>
           </div>
+        </div>
 
-          {libraries.map((lib) => {
-            const activeTask = activeTasksByLibrary.get(lib.libraryId);
-            const buttonLabel = activeTask
-              ? `同步中 ${Math.max(activeTask.percent, 0)}%`
-              : lib.isFullySynced && lib.videoCount > 0
-                ? "无需扫描"
-                : t("management.scan");
-            const buttonVariant: ActionVariant = activeTask
-              ? "execute"
-              : lib.isFullySynced && lib.videoCount > 0
-                ? "danger"
-                : "execute";
-            const badgeVariant = activeTask
-              ? "running"
-              : lib.isFullySynced && lib.videoCount > 0
-                ? "synced"
-                : lib.syncedVideoCount > 0
-                  ? "pending"
-                  : "failed";
-            const badgeLabel = activeTask
-              ? "同步中"
-              : lib.isFullySynced && lib.videoCount > 0
-                ? "已完成"
-                : lib.syncedVideoCount > 0
-                  ? "待继续"
-                  : "未开始";
-            const progressText = activeTask
-              ? activeTask.summary
-              : lib.isFullySynced && lib.videoCount > 0
-                ? "全部影片已完成目录与元数据同步。"
-                : lib.syncedVideoCount > 0
-                  ? "仍有影片未完成目录整理或元数据拉取。"
-                  : "尚未执行首次完整同步。";
+        <div className="page-activity-body">
+          {libraries.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon"><AppIcon name="library-management" size={44} /></span>
+              <p>{t("management.noLibrary")}</p>
+              <p className="placeholder-hint">{t("management.createFirst")}</p>
+            </div>
+          ) : (
+            <div className="library-table">
+              <div className="library-table-header">
+                <span className="col-name">{tc("name")}</span>
+                <span className="col-count">{tc("videos")}</span>
+                <span className="col-scan">已扫描数量</span>
+                <span className="col-status">完成度</span>
+                <span className="col-actions">{tc("actions")}</span>
+              </div>
 
-            return (
-              <div key={lib.libraryId} className="library-table-row">
-                <span
-                  className="col-name clickable"
-                  onClick={() => handleOpenLibrary(lib.libraryId)}
-                  title={lib.path}
-                >
-                  <span className="lib-name">{lib.name}</span>
-                  <span className="lib-path">{lib.path}</span>
-                  <span className="library-inline-note">{activeTask?.summary ?? progressText}</span>
-                </span>
-                <span className="col-count">{lib.videoCount}</span>
-                <span className="col-scan">
-                  <strong>{lib.syncedVideoCount}</strong>
-                  <span className="library-inline-note">完整同步成功</span>
-                </span>
-                <span className="col-status">
-                  <div className="library-progress-stack">
-                    <div className="library-progress-header">
-                      <span>{lib.completionPercent}%</span>
-                      <StatusBadge variant={badgeVariant} label={badgeLabel} />
-                    </div>
-                    <div className="library-progress-track">
-                      <span
-                        className={`library-progress-value ${lib.isFullySynced ? "complete" : ""}`}
-                        style={{ width: `${Math.max(0, Math.min(100, lib.completionPercent))}%` }}
+              {libraries.map((lib) => {
+                const isComplete = lib.isFullySynced || lib.completionPercent >= 100;
+                const runningTask = isComplete ? undefined : activeTasksByLibrary.get(lib.libraryId);
+                const progressPercent = isComplete
+                  ? Math.max(100, lib.completionPercent)
+                  : runningTask
+                    ? Math.max(runningTask.percent, lib.completionPercent)
+                    : lib.completionPercent;
+                const buttonLabel = runningTask
+                  ? `同步中 ${Math.max(runningTask.percent, 0)}%`
+                  : isComplete && lib.videoCount > 0
+                    ? "无需扫描"
+                    : t("management.scan");
+                const buttonVariant: ActionVariant = isComplete && lib.videoCount > 0 ? "danger" : "execute";
+                const badgeVariant = runningTask
+                  ? "running"
+                  : isComplete && lib.videoCount > 0
+                    ? "synced"
+                    : lib.syncedVideoCount > 0
+                      ? "pending"
+                      : "failed";
+                const badgeLabel = runningTask
+                  ? "同步中"
+                  : isComplete && lib.videoCount > 0
+                    ? "已完成"
+                    : lib.syncedVideoCount > 0
+                      ? "待继续"
+                      : "未开始";
+                const progressText = isComplete && lib.videoCount > 0
+                  ? "全部影片已完成目录与元数据同步。"
+                  : runningTask
+                    ? runningTask.summary
+                    : lib.syncedVideoCount > 0
+                      ? "仍有影片未完成目录整理或元数据拉取。"
+                      : "尚未执行首次完整同步。";
+
+                return (
+                  <div key={lib.libraryId} className="library-table-row">
+                    <span
+                      className="col-name clickable"
+                      onClick={() => handleOpenLibrary(lib.libraryId)}
+                      title={lib.path}
+                    >
+                      <span className="lib-name">{lib.name}</span>
+                    </span>
+                    <span className="col-count">{lib.videoCount}</span>
+                    <span className="col-scan">
+                      <strong>{lib.syncedVideoCount}</strong>
+                      <span className="library-inline-note">完整同步成功</span>
+                    </span>
+                    <span className="col-status">
+                      <div className="library-progress-stack">
+                        <div className="library-progress-header">
+                          <span>{progressPercent}%</span>
+                          <StatusBadge variant={badgeVariant} label={badgeLabel} />
+                        </div>
+                        <div className="library-progress-track">
+                          <span
+                            className={`library-progress-value ${isComplete ? "complete" : ""}`}
+                            style={{ width: `${Math.max(0, Math.min(100, progressPercent))}%` }}
+                          />
+                        </div>
+                        <span className="library-inline-note">
+                          {runningTask
+                            ? `${runningTask.percent}% · ${runningTask.progressCurrent}/${runningTask.progressTotal || 0}`
+                            : progressText}
+                        </span>
+                      </div>
+                    </span>
+                    <span className="col-actions">
+                      <ActionStrip
+                        actions={[
+                          {
+                            key: "open",
+                            label: t("management.open"),
+                            variant: "browse",
+                            onClick: () => handleOpenLibrary(lib.libraryId),
+                          },
+                          {
+                            key: "scan",
+                            label: buttonLabel,
+                            variant: buttonVariant,
+                            onClick: () => handleScan(lib.libraryId),
+                            disabled: !!runningTask,
+                            title: isComplete ? "当前媒体库已经完成同步，再次点击会重新执行全量检查。" : undefined,
+                          },
+                          {
+                            key: "edit",
+                            label: tc("edit"),
+                            variant: "edit",
+                            onClick: () => setEditingLibrary(lib),
+                          },
+                          {
+                            key: "delete",
+                            label: tc("delete"),
+                            variant: "danger",
+                            onClick: () => setDeleteTarget(lib),
+                          },
+                        ]}
                       />
-                    </div>
-                    <span className="library-inline-note">
-                      {activeTask
-                        ? `${activeTask.percent}% · ${activeTask.progressCurrent}/${activeTask.progressTotal || 0}`
-                        : progressText}
                     </span>
                   </div>
-                </span>
-                <span className="col-actions">
-                  <ActionStrip
-                    actions={[
-                      {
-                        key: "open",
-                        label: t("management.open"),
-                        variant: "browse",
-                        onClick: () => handleOpenLibrary(lib.libraryId),
-                      },
-                      {
-                        key: "scan",
-                        label: buttonLabel,
-                        variant: buttonVariant,
-                        onClick: () => handleScan(lib.libraryId),
-                        disabled: !!activeTask,
-                        title: lib.isFullySynced ? "当前媒体库已经完成同步，再次点击会重新执行全量检查。" : undefined,
-                      },
-                      {
-                        key: "edit",
-                        label: tc("edit"),
-                        variant: "edit",
-                        onClick: () => setEditingLibrary(lib),
-                      },
-                      {
-                        key: "delete",
-                        label: tc("delete"),
-                        variant: "danger",
-                        onClick: () => setDeleteTarget(lib),
-                      },
-                    ]}
-                  />
-                </span>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       <CreateEditLibraryDialog
         open={createDialogOpen}

@@ -1,6 +1,6 @@
 {
   "management": {
-    "title": "库管理",
+    "title": "媒体库",
     "noLibrary": "还没有媒体库",
     "createFirst": "点击「新建」创建第一个媒体库",
     "createNew": "新建媒体库",

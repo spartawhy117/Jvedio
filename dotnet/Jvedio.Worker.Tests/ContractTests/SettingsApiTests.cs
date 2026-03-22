@@ -23,6 +23,7 @@ public class SettingsApiTests
 
         // Verify current supported settings groups exist
         Assert.IsTrue(data.TryGetProperty("general", out _), "Should have general settings");
+        Assert.IsTrue(data.TryGetProperty("display", out _), "Should have display settings");
         Assert.IsTrue(data.TryGetProperty("playback", out _), "Should have playback settings");
         Assert.IsTrue(data.TryGetProperty("metaTube", out _), "Should have metaTube settings");
         Assert.IsTrue(data.TryGetProperty("scanImport", out _), "Should have scanImport settings");
@@ -38,6 +39,7 @@ public class SettingsApiTests
         var updatePayload = new
         {
             general = new { currentLanguage = "zh-CN", debug = true },
+            display = new { videoCardSize = "large" },
             playback = new { playerPath = "", useSystemDefaultFallback = true },
             metaTube = new { serverUrl = "", requestTimeoutSeconds = 60 },
         };
@@ -57,7 +59,9 @@ public class SettingsApiTests
         var json = await getResponse.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
         var debug = doc.RootElement.GetProperty("data").GetProperty("general").GetProperty("debug").GetBoolean();
+        var videoCardSize = doc.RootElement.GetProperty("data").GetProperty("display").GetProperty("videoCardSize").GetString();
         Assert.IsTrue(debug, "Debug setting should be true after update");
+        Assert.AreEqual("large", videoCardSize, "Video card size should persist after update");
     }
 
     [TestMethod]
@@ -67,6 +71,7 @@ public class SettingsApiTests
         var updatePayload = new
         {
             general = new { currentLanguage = "zh-CN", debug = true },
+            display = new { videoCardSize = "medium" },
             playback = new { playerPath = "", useSystemDefaultFallback = true },
             metaTube = new { serverUrl = "", requestTimeoutSeconds = 60 },
         };
@@ -90,7 +95,35 @@ public class SettingsApiTests
         var json = await getResponse.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
         var debug = doc.RootElement.GetProperty("data").GetProperty("general").GetProperty("debug").GetBoolean();
+        var videoCardSize = doc.RootElement.GetProperty("data").GetProperty("display").GetProperty("videoCardSize").GetString();
         Assert.IsFalse(debug, "Debug setting should be false after reset to defaults");
+        Assert.AreEqual("small", videoCardSize, "Video card size should reset to default");
+    }
+
+    [TestMethod]
+    public async Task UpdateSettings_InvalidDisplaySize_FallsBackToSmall()
+    {
+        var updatePayload = new
+        {
+            general = new { currentLanguage = "zh-CN", debug = false },
+            display = new { videoCardSize = "gigantic" },
+            playback = new { playerPath = "", useSystemDefaultFallback = true },
+            metaTube = new { serverUrl = "", requestTimeoutSeconds = 60 },
+        };
+
+        var updateBody = new StringContent(
+            JsonSerializer.Serialize(updatePayload),
+            System.Text.Encoding.UTF8,
+            "application/json");
+
+        var updateResponse = await TestBootstrap.Client.PutAsync("/api/settings", updateBody);
+        var updateResponseBody = await updateResponse.Content.ReadAsStringAsync();
+        Assert.AreEqual(HttpStatusCode.OK, updateResponse.StatusCode,
+            $"Update failed with: {updateResponseBody}");
+
+        using var doc = JsonDocument.Parse(updateResponseBody);
+        var videoCardSize = doc.RootElement.GetProperty("data").GetProperty("settings").GetProperty("display").GetProperty("videoCardSize").GetString();
+        Assert.AreEqual("small", videoCardSize, "Invalid display size should be normalized to the default value");
     }
 
     [TestMethod]

@@ -4,6 +4,8 @@ public sealed class UpdateSettingsRequest
 {
     public GeneralSettingsDto? General { get; set; }
 
+    public DisplaySettingsDto? Display { get; set; }
+
     public ScanImportSettingsDto? ScanImport { get; set; }
 
     public PlaybackSettingsDto? Playback { get; set; }

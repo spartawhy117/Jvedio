@@ -3,7 +3,7 @@
 ## 1. 当前状态
 
 当前 `Jvedio.Worker.Tests` 测试统计：
-- 总测试数：65
+- 总测试数：72
 - 全部通过：✅
 
 执行方式：
@@ -29,7 +29,7 @@ dotnet test --configuration Release
 数据来源：测试方法内硬编码 JSON 字符串和 DTO 对象，纯内存操作。
 
 ### `GetSettingsResponse_CanDeserializeFromJson`
-- 目标：验证 `GetSettingsResponse` 能从 JSON 正确反序列化所有 6 组设置
+- 目标：验证 `GetSettingsResponse` 能从 JSON 正确反序列化所有 6 组设置（含 `display`）
 
 ### `UpdateSettingsRequest_CanSerializePartialUpdate`
 - 目标：验证 `UpdateSettingsRequest` 部分更新时序列化为 camelCase JSON
@@ -50,14 +50,17 @@ dotnet test --configuration Release
 文件：`ContractTests/SettingsApiTests.cs`
 数据来源：空数据库（Worker 启动时写入默认设置），通过 API 读写验证。
 
-### `GetSettings_ReturnsAllGroups`
-- 目标：验证 `GET /api/settings` 返回所有 6 组设置（general/playback/metaTube/image/scanImport/library）
+### `GetSettings_ReturnsSupportedGroups`
+- 目标：验证 `GET /api/settings` 返回所有当前支持设置组（general/display/playback/metaTube/scanImport/library），且旧 `image` 分组已移除
 
 ### `UpdateSettings_PersistsAndReturns`
-- 目标：验证 `PUT /api/settings` 能正确持久化设置并读回验证
+- 目标：验证 `PUT /api/settings` 能正确持久化设置并读回验证（含 `display.videoCardSize`）
 
 ### `ResetSettings_RestoresDefaults`
-- 目标：验证 `PUT /api/settings` 带 `resetToDefaults: true` 能恢复默认值
+- 目标：验证 `PUT /api/settings` 带 `resetToDefaults: true` 能恢复默认值（含 `display.videoCardSize=small`）
+
+### `UpdateSettings_InvalidDisplaySize_FallsBackToSmall`
+- 目标：验证非法 `display.videoCardSize` 会被后端规范化回默认值 `small`
 
 ## 6. Videos API 契约测试
 
@@ -236,7 +239,21 @@ dotnet test --configuration Release
 ### `VideoDetailDto_ScrapeStatus_DefaultsToNone`
 - 目标：验证 `VideoDetailDto.ScrapeStatus` 默认值为 `"none"`
 
-## 15. 当前维护规则
+## 15. 删除目录清理与显示设置扩展测试
+
+文件：`BusinessLogicTests/SidecarPathTests.cs`（追加 3 个测试）
+数据来源：硬编码路径字符串与内存 DTO，纯业务逻辑反射测试。
+
+### `VideoService_DeleteCleanupHelpers_Exist`
+- 目标：验证删除后目录清理安全辅助方法存在，避免保护逻辑被无意移除
+
+### `VideoService_IsSafeToDeleteDirectory_RejectsLibraryRoot`
+- 目标：验证删除清理绝不会删除媒体库根目录
+
+### `VideoService_IsSafeToDeleteDirectory_AllowsNestedVideoFolder`
+- 目标：验证删除清理允许移除已空的影片子目录
+
+## 16. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：

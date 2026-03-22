@@ -12,7 +12,6 @@ import "./QueryToolbar.css";
 export interface QueryToolbarProps {
   keyword?: string;
   onSearch?: (keyword: string) => void;
-  onRefresh?: () => void;
   sortOptions?: { value: string; label: string }[];
   currentSort?: string;
   onSortChange?: (value: string) => void;
@@ -22,7 +21,6 @@ export interface QueryToolbarProps {
 export function QueryToolbar({
   keyword = "",
   onSearch,
-  onRefresh,
   sortOptions = [],
   currentSort,
   onSortChange,
@@ -104,15 +102,6 @@ export function QueryToolbar({
             )}
           </div>
         )}
-        <button
-          className="btn btn-secondary btn-sm query-toolbar-button"
-          onClick={onRefresh}
-          disabled={disabled}
-          title={t("refresh")}
-        >
-          <AppIcon name="refresh" size={14} />
-          <span>{t("refresh")}</span>
-        </button>
       </div>
     </div>
   );

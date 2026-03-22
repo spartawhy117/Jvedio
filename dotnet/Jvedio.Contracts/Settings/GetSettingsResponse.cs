@@ -4,6 +4,8 @@ public sealed class GetSettingsResponse
 {
     public GeneralSettingsDto General { get; set; } = new();
 
+    public DisplaySettingsDto Display { get; set; } = new();
+
     public ScanImportSettingsDto ScanImport { get; set; } = new();
 
     public PlaybackSettingsDto Playback { get; set; } = new();

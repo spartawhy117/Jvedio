@@ -1,8 +1,9 @@
 {
   "title": "设置",
-  "groups": "基本 · 扫描与导入 · 播放器设置 · 库 · MetaTube",
+  "groups": "基本 · 显示 · 扫描与导入 · 播放器设置 · 库 · MetaTube",
   "groups_list": {
     "general": "基本",
+    "display": "显示",
     "scanImport": "扫描与导入",
     "playback": "播放器设置",
     "library": "库",
@@ -18,6 +19,24 @@
     "label": "语言",
     "zh": "中文",
     "en": "English"
+  },
+  "displaySettings": {
+    "videoCardSize": "影片卡大小",
+    "videoCardSizeHint": "库页面、喜欢页面和演员关联影片页面会统一使用这里的海报显示密度，文字区高度保持一致。",
+    "cardSizeOptions": {
+      "small": {
+        "title": "小",
+        "detail": "当前默认大小，适合一屏展示更多影片。"
+      },
+      "medium": {
+        "title": "中",
+        "detail": "海报宽度约为当前的 2 倍，适合更强调封面浏览。"
+      },
+      "large": {
+        "title": "大",
+        "detail": "海报宽度约为当前的 3 倍，优先突出单卡展示。"
+      }
+    }
   },
   "debugMode": "启用调试模式",
   "scanImportSettings": {

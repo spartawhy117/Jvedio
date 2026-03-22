@@ -431,6 +431,12 @@ export interface GeneralSettingsDto {
   debug: boolean;
 }
 
+export type VideoCardSize = "small" | "medium" | "large";
+
+export interface DisplaySettingsDto {
+  videoCardSize: VideoCardSize;
+}
+
 export interface ScanImportSettingsDto {
   scanDepth: number;
   excludePatterns: string;
@@ -452,6 +458,7 @@ export interface LibrarySettingsDto {
 
 export interface GetSettingsResponse {
   general: GeneralSettingsDto;
+  display: DisplaySettingsDto;
   scanImport: ScanImportSettingsDto;
   playback: PlaybackSettingsDto;
   library: LibrarySettingsDto;
@@ -460,6 +467,7 @@ export interface GetSettingsResponse {
 
 export interface UpdateSettingsRequest {
   general?: GeneralSettingsDto;
+  display?: DisplaySettingsDto;
   scanImport?: ScanImportSettingsDto;
   playback?: PlaybackSettingsDto;
   library?: LibrarySettingsDto;

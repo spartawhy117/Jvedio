@@ -11,6 +11,7 @@ public sealed class SettingsService
     private const int MaxTimeoutSeconds = 300;
     private const int MinTimeoutSeconds = 15;
     private const string SettingsConfigName = "WindowConfig.Settings";
+    private static readonly string[] AllowedVideoCardSizes = ["small", "medium", "large"];
 
     private readonly ConfigStoreService configStoreService;
     private readonly ILoggerFactory loggerFactory;
@@ -44,6 +45,7 @@ public sealed class SettingsService
         {
             document["CurrentLanguage"] = snapshot.General.CurrentLanguage;
             document["Debug"] = snapshot.General.Debug;
+            document["VideoCardSize"] = snapshot.Display.VideoCardSize;
             document["VideoPlayerPath"] = snapshot.Playback.PlayerPath;
             document["UseSystemDefaultFallback"] = snapshot.Playback.UseSystemDefaultFallback;
             document["ScanDepth"] = snapshot.ScanImport.ScanDepth;
@@ -173,6 +175,12 @@ public sealed class SettingsService
                 CurrentLanguage = configStoreService.ReadString(settings, "CurrentLanguage", defaults.General.CurrentLanguage),
                 Debug = configStoreService.ReadBoolean(settings, "Debug", defaults.General.Debug),
             },
+            Display = new DisplaySettingsDto
+            {
+                VideoCardSize = NormalizeVideoCardSize(
+                    configStoreService.ReadString(settings, "VideoCardSize", defaults.Display.VideoCardSize),
+                    defaults.Display.VideoCardSize),
+            },
             ScanImport = new ScanImportSettingsDto
             {
                 ScanDepth = (int)configStoreService.ReadInt64(settings, "ScanDepth", defaults.ScanImport.ScanDepth),
@@ -207,6 +215,10 @@ public sealed class SettingsService
                 CurrentLanguage = "zh-CN",
                 Debug = false,
             },
+            Display = new DisplaySettingsDto
+            {
+                VideoCardSize = "small",
+            },
             ScanImport = new ScanImportSettingsDto
             {
                 ScanDepth = 0,
@@ -233,6 +245,7 @@ public sealed class SettingsService
     {
         var defaults = CreateDefaultSettings();
         var general = request.General ?? throw CreateValidationException("settings.save.general_missing", "General settings payload is required.");
+        var display = request.Display ?? defaults.Display;
         var scanImport = request.ScanImport ?? defaults.ScanImport;
         var playback = request.Playback ?? throw CreateValidationException("settings.save.playback_missing", "Playback settings payload is required.");
         var library = request.Library ?? defaults.Library;
@@ -244,6 +257,10 @@ public sealed class SettingsService
             {
                 CurrentLanguage = NormalizeLanguage(general.CurrentLanguage, defaults.General.CurrentLanguage),
                 Debug = general.Debug,
+            },
+            Display = new DisplaySettingsDto
+            {
+                VideoCardSize = NormalizeVideoCardSize(display.VideoCardSize, defaults.Display.VideoCardSize),
             },
             ScanImport = new ScanImportSettingsDto
             {
@@ -276,6 +293,14 @@ public sealed class SettingsService
     private static string NormalizeString(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static string NormalizeVideoCardSize(string? value, string fallback)
+    {
+        var normalized = NormalizeString(value);
+        return AllowedVideoCardSizes.Contains(normalized, StringComparer.OrdinalIgnoreCase)
+            ? normalized.ToLowerInvariant()
+            : fallback;
     }
 
     private static WorkerApiException CreateValidationException(string code, string message)

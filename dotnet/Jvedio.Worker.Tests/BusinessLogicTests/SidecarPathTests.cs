@@ -31,6 +31,12 @@ public class SidecarPathTests
     private static readonly MethodInfo NormalizeSidecarPrefixMethod =
         typeof(VideoService).GetMethod("NormalizeSidecarPrefix", BindingFlags.NonPublic | BindingFlags.Static)!;
 
+    private static readonly MethodInfo IsSafeToDeleteDirectoryMethod =
+        typeof(VideoService).GetMethod("IsSafeToDeleteDirectory", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    private static readonly MethodInfo NormalizeDirectoryPathMethod =
+        typeof(VideoService).GetMethod("NormalizeDirectoryPath", BindingFlags.NonPublic | BindingFlags.Static)!;
+
     // VideoService.ResolveSidecarDirectory (instance, for E2E path tests)
     private static readonly MethodInfo VideoServiceResolveSidecarDirMethod =
         typeof(VideoService).GetMethod("ResolveSidecarDirectory", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -163,6 +169,43 @@ public class SidecarPathTests
             "LibraryScrapeService.ResolveSidecarDirectory should accept 3 parameters");
         Assert.AreEqual(3, VideoServiceResolveSidecarDirMethod.GetParameters().Length,
             "VideoService.ResolveSidecarDirectory should accept 3 parameters");
+    }
+
+    [TestMethod]
+    public void VideoService_DeleteCleanupHelpers_Exist()
+    {
+        Assert.IsNotNull(IsSafeToDeleteDirectoryMethod,
+            "VideoService should expose IsSafeToDeleteDirectory helper for delete cleanup safety");
+        Assert.IsNotNull(NormalizeDirectoryPathMethod,
+            "VideoService should expose NormalizeDirectoryPath helper for delete cleanup safety");
+    }
+
+    [TestMethod]
+    public void VideoService_IsSafeToDeleteDirectory_RejectsLibraryRoot()
+    {
+        var library = new Jvedio.Contracts.Libraries.LibraryListItemDto
+        {
+            Path = Path.Combine("D:", "movies", "watched"),
+            ScanPaths = [Path.Combine("D:", "movies", "watched")],
+        };
+
+        var result = (bool)IsSafeToDeleteDirectoryMethod.Invoke(null, [library.Path, library])!;
+        Assert.IsFalse(result, "Delete cleanup should never remove a configured library root directory");
+    }
+
+    [TestMethod]
+    public void VideoService_IsSafeToDeleteDirectory_AllowsNestedVideoFolder()
+    {
+        var libraryRoot = Path.Combine("D:", "movies", "watched");
+        var videoFolder = Path.Combine(libraryRoot, "SNIS-001");
+        var library = new Jvedio.Contracts.Libraries.LibraryListItemDto
+        {
+            Path = libraryRoot,
+            ScanPaths = [libraryRoot],
+        };
+
+        var result = (bool)IsSafeToDeleteDirectoryMethod.Invoke(null, [videoFolder, library])!;
+        Assert.IsTrue(result, "Delete cleanup should allow removing an empty nested video directory");
     }
 
     // ── Phase 6.1: Stub sidecar / ScrapeStatus tests ────────────

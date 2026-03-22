@@ -275,6 +275,8 @@ public sealed class VideoService
                 }
 
                 File.Delete(record.Value.Path);
+                TryDeleteEmptySidecarDirectory(sidecarDir, library);
+                TryDeleteEmptyVideoDirectory(Path.GetDirectoryName(record.Value.Path), library);
                 fileDeleted = true;
             }
             catch (Exception ex)
@@ -1050,6 +1052,96 @@ public sealed class VideoService
         }
 
         return Path.GetDirectoryName(videoPath) ?? string.Empty;
+    }
+
+    private void TryDeleteEmptySidecarDirectory(string? directoryPath, LibraryListItemDto? library)
+    {
+        if (string.IsNullOrWhiteSpace(directoryPath))
+        {
+            return;
+        }
+
+        if (!workerPathResolver.IsTestEnvironment)
+        {
+            return;
+        }
+
+        TryDeleteDirectoryIfEmpty(directoryPath, library);
+    }
+
+    private void TryDeleteEmptyVideoDirectory(string? directoryPath, LibraryListItemDto? library)
+    {
+        if (string.IsNullOrWhiteSpace(directoryPath))
+        {
+            return;
+        }
+
+        TryDeleteDirectoryIfEmpty(directoryPath, library);
+    }
+
+    private void TryDeleteDirectoryIfEmpty(string directoryPath, LibraryListItemDto? library)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            return;
+        }
+
+        try
+        {
+            if (!IsSafeToDeleteDirectory(directoryPath, library))
+            {
+                return;
+            }
+
+            if (Directory.EnumerateFileSystemEntries(directoryPath).Any())
+            {
+                return;
+            }
+
+            Directory.Delete(directoryPath, false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "[Worker-Video] Skip empty directory cleanup for {DirectoryPath}", directoryPath);
+        }
+    }
+
+    private static bool IsSafeToDeleteDirectory(string directoryPath, LibraryListItemDto? library)
+    {
+        var normalizedDirectoryPath = NormalizeDirectoryPath(directoryPath);
+        if (string.IsNullOrWhiteSpace(normalizedDirectoryPath))
+        {
+            return false;
+        }
+
+        var rootPath = NormalizeDirectoryPath(Path.GetPathRoot(normalizedDirectoryPath));
+        if (string.Equals(normalizedDirectoryPath, rootPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (library is null)
+        {
+            return true;
+        }
+
+        var protectedPaths = library.ScanPaths
+            .Append(library.Path)
+            .Select(NormalizeDirectoryPath)
+            .Where(path => !string.IsNullOrWhiteSpace(path));
+
+        return protectedPaths.All(path => !string.Equals(path, normalizedDirectoryPath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string NormalizeDirectoryPath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        return Path.GetFullPath(path)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
     private static string SanitizeLibraryName(string value)

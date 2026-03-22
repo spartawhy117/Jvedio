@@ -70,10 +70,6 @@ export function ActorsPage() {
     setQuery({ keyword: kw, pageIndex: 0 });
   }, [setQuery]);
 
-  const handleRefresh = useCallback(() => {
-    actorsQuery.refetch();
-  }, [actorsQuery]);
-
   const handleSortChange = useCallback((value: string) => {
     const [sb, so] = value.split("_");
     setQuery({ sortBy: sb, sortOrder: so, pageIndex: 0 });
@@ -92,46 +88,53 @@ export function ActorsPage() {
 
   return (
     <div className="page-content-section page-content-wide">
-      <div className="page-header">
-        <h2 className="page-title">{t("actors")}</h2>
-      </div>
+      <div className="page-activity-shell">
+        <div className="page-header-stack">
+          <div className="page-title-row">
+            <h2 className="page-title">{t("actors")}</h2>
+          </div>
 
-      <QueryToolbar
-        keyword={keyword}
-        onSearch={handleSearch}
-        onRefresh={handleRefresh}
-        sortOptions={sortOptions}
-        currentSort={currentSort}
-        onSortChange={handleSortChange}
-      />
-
-      {actorsQuery.isLoading && !data ? (
-        <ResultState type="loading" />
-      ) : actorsQuery.isError ? (
-        <ResultState type="error" message={actorsQuery.error?.message} />
-      ) : data && data.items.length === 0 ? (
-        <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noResults")} />
-      ) : data ? (
-        <div className="actor-grid">
-          {data.items.map((actor) => (
-            <ActorCard
-              key={actor.actorId}
-              actor={actor}
-              onClick={handleActorClick}
-              baseUrl={baseUrl}
-            />
-          ))}
+          <QueryToolbar
+            keyword={keyword}
+            onSearch={handleSearch}
+            sortOptions={sortOptions}
+            currentSort={currentSort}
+            onSortChange={handleSortChange}
+          />
         </div>
-      ) : null}
 
-      {data && data.items.length > 0 && (
-        <Pagination
-          pageIndex={pageIndex}
-          pageSize={PAGE_SIZE}
-          totalCount={data.totalCount}
-          onPageChange={handlePageChange}
-        />
-      )}
+        <div className="page-activity-body">
+          {actorsQuery.isLoading && !data ? (
+            <ResultState type="loading" />
+          ) : actorsQuery.isError ? (
+            <ResultState type="error" message={actorsQuery.error?.message} />
+          ) : data && data.items.length === 0 ? (
+            <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noResults")} />
+          ) : data ? (
+            <div className="actor-grid">
+              {data.items.map((actor) => (
+                <ActorCard
+                  key={actor.actorId}
+                  actor={actor}
+                  onClick={handleActorClick}
+                  baseUrl={baseUrl}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="page-activity-footer">
+          {data && data.totalCount > 0 && (
+            <Pagination
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
+              totalCount={data.totalCount}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

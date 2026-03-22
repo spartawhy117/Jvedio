@@ -174,6 +174,7 @@ body,
   height: 100%;
   overflow-y: auto;
   background: var(--color-bg);
+  min-width: 0;
 }
 
 /* Page placeholder */
@@ -482,7 +483,9 @@ body,
 /* ===== Page content section ===== */
 .page-content-section {
   padding: 32px 40px;
-  max-width: 900px;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
 }
 
 /* ===== Empty state ===== */

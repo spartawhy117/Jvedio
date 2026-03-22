@@ -24,6 +24,7 @@ import type {
   UpdateSettingsRequest,
   UpdateSettingsResponse,
   RunMetaTubeDiagnosticsResponse,
+  VideoCardSize,
 } from "../api/types";
 import "./pages.css";
 
@@ -31,6 +32,7 @@ import "./pages.css";
 
 const SETTING_GROUPS = [
   "general",
+  "display",
   "scanImport",
   "playback",
   "library",
@@ -45,6 +47,8 @@ interface SettingsFormState {
   // General
   currentLanguage: string;
   debug: boolean;
+  // Display
+  videoCardSize: VideoCardSize;
   // ScanImport
   scanDepth: number;
   excludePatterns: string;
@@ -62,6 +66,7 @@ function toFormState(settings: GetSettingsResponse): SettingsFormState {
   return {
     currentLanguage: settings.general.currentLanguage,
     debug: settings.general.debug,
+    videoCardSize: settings.display.videoCardSize,
     scanDepth: settings.scanImport.scanDepth,
     excludePatterns: settings.scanImport.excludePatterns,
     playerPath: settings.playback.playerPath,
@@ -77,6 +82,9 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
     general: {
       currentLanguage: form.currentLanguage,
       debug: form.debug,
+    },
+    display: {
+      videoCardSize: form.videoCardSize,
     },
     scanImport: {
       scanDepth: form.scanDepth,
@@ -99,6 +107,7 @@ function toUpdateRequest(form: SettingsFormState): UpdateSettingsRequest {
 const DEFAULT_FORM: SettingsFormState = {
   currentLanguage: "zh",
   debug: false,
+  videoCardSize: "small",
   scanDepth: 0,
   excludePatterns: "",
   playerPath: "",
@@ -221,243 +230,277 @@ export function SettingsPage() {
   };
 
   const isSaving = saveMutation.isLoading || resetMutation.isLoading;
+  const displayPreviewOptions: Array<{ value: VideoCardSize; title: string; detail: string }> = [
+    {
+      value: "small",
+      title: t("displaySettings.cardSizeOptions.small.title"),
+      detail: t("displaySettings.cardSizeOptions.small.detail"),
+    },
+    {
+      value: "medium",
+      title: t("displaySettings.cardSizeOptions.medium.title"),
+      detail: t("displaySettings.cardSizeOptions.medium.detail"),
+    },
+    {
+      value: "large",
+      title: t("displaySettings.cardSizeOptions.large.title"),
+      detail: t("displaySettings.cardSizeOptions.large.detail"),
+    },
+  ];
 
   // ── Render ────────────────────────────────────────
   return (
-    <div className="settings-layout">
-      {/* Left: group navigation */}
-      <aside className="settings-nav">
-        <h2 className="settings-nav-title">{t("title")}</h2>
-        {SETTING_GROUPS.map((group) => (
-          <button
-            key={group}
-            className={`settings-nav-item ${activeGroup === group ? "active" : ""}`}
-            onClick={() => setActiveGroup(group)}
-          >
-            {t(`groups_list.${group}`)}
-          </button>
-        ))}
-      </aside>
+    <div className="page-content-section page-content-wide">
+      <div className="settings-layout">
+        <aside className="settings-nav">
+          <h2 className="settings-nav-title">{t("title")}</h2>
+          {SETTING_GROUPS.map((group) => (
+            <button
+              key={group}
+              className={`settings-nav-item ${activeGroup === group ? "active" : ""}`}
+              onClick={() => setActiveGroup(group)}
+            >
+              {t(`groups_list.${group}`)}
+            </button>
+          ))}
+        </aside>
 
-      {/* Right: form area */}
-      <div className="settings-form-area">
-        <div className="settings-form-header">
-          <h3>{t(`groups_list.${activeGroup}`)}</h3>
-        </div>
+        <div className="settings-form-area">
+          <div className="settings-form-inner">
+            <div className="settings-form-header">
+              <h3>{t(`groups_list.${activeGroup}`)}</h3>
+            </div>
 
-        {/* ─── General Group ─────────────────────────── */}
-        {activeGroup === "general" && (
-          <div className="settings-form-content">
-            {/* Theme */}
-            <section className="settings-group">
-              <h4>{t("theme.label")}</h4>
-              <div className="settings-row">
-                {(["light", "dark", "system"] as ThemeMode[]).map((mode) => (
+            {activeGroup === "general" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("theme.label")}</h4>
+                  <div className="settings-row">
+                    {(["light", "dark", "system"] as ThemeMode[]).map((mode) => (
+                      <button
+                        key={mode}
+                        className={`settings-chip ${themeMode === mode ? "active" : ""}`}
+                        onClick={() => setThemeMode(mode)}
+                      >
+                        {t(`theme.${mode}`)}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="settings-group">
+                  <h4>{t("language.label")}</h4>
+                  <div className="settings-row">
+                    {(["zh", "en"] as const).map((lang) => (
+                      <button
+                        key={lang}
+                        className={`settings-chip ${i18n.language === lang ? "active" : ""}`}
+                        onClick={() => {
+                          changeLanguage(lang);
+                          updateField("currentLanguage", lang);
+                        }}
+                      >
+                        {t(`language.${lang}`)}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="settings-group">
+                  <h4>{tc("debug")}</h4>
+                  <label className="settings-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={form.debug}
+                      onChange={(e) => updateField("debug", e.target.checked)}
+                    />
+                    <span>{t("debugMode")}</span>
+                  </label>
+                </section>
+              </div>
+            )}
+
+            {activeGroup === "display" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("displaySettings.videoCardSize")}</h4>
+                  <div className="settings-hint-text">{t("displaySettings.videoCardSizeHint")}</div>
+                </section>
+                <section className="settings-preview-grid">
+                  {displayPreviewOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      className={`settings-preview-card settings-preview-card-${option.value} ${form.videoCardSize === option.value ? "active" : ""}`}
+                      onClick={() => updateField("videoCardSize", option.value)}
+                      type="button"
+                    >
+                      <div className="settings-preview-surface">
+                        <div className="settings-preview-poster" />
+                      </div>
+                      <div className="settings-preview-title">{option.title}</div>
+                      <div className="settings-preview-detail">{option.detail}</div>
+                    </button>
+                  ))}
+                </section>
+              </div>
+            )}
+
+            {activeGroup === "scanImport" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("scanImportSettings.scanBehavior")}</h4>
+                  <div className="settings-input-group">
+                    <label className="settings-label">{t("scanImportSettings.scanDepthLabel")}</label>
+                    <input
+                      type="number"
+                      className="settings-input settings-input-sm"
+                      value={form.scanDepth}
+                      onChange={(e) => updateField("scanDepth", parseInt(e.target.value) || 0)}
+                      min={0}
+                    />
+                    <span className="settings-input-hint">{t("scanImportSettings.scanDepthHint")}</span>
+                  </div>
+                  <div className="settings-input-group">
+                    <label className="settings-label">{t("scanImportSettings.excludeLabel")}</label>
+                    <input
+                      type="text"
+                      className="settings-input"
+                      value={form.excludePatterns}
+                      onChange={(e) => updateField("excludePatterns", e.target.value)}
+                      placeholder={t("scanImportSettings.excludePlaceholder")}
+                    />
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {activeGroup === "playback" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("playbackSettings.playerPath")}</h4>
+                  <div className="settings-input-group">
+                    <input
+                      type="text"
+                      className="settings-input"
+                      value={form.playerPath}
+                      onChange={(e) => updateField("playerPath", e.target.value)}
+                      placeholder={t("playbackSettings.playerPathPlaceholder")}
+                    />
+                  </div>
+                  <label className="settings-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={form.useSystemDefaultFallback}
+                      onChange={(e) => updateField("useSystemDefaultFallback", e.target.checked)}
+                    />
+                    <span>{t("playbackSettings.useSystemDefault")}</span>
+                  </label>
+                </section>
+              </div>
+            )}
+
+            {activeGroup === "library" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("librarySettings.defaultBehavior")}</h4>
+                  <label className="settings-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={form.defaultAutoScan}
+                      onChange={(e) => updateField("defaultAutoScan", e.target.checked)}
+                    />
+                    <span>{t("librarySettings.autoScanLabel")}</span>
+                  </label>
+                  <div className="settings-hint-text">{t("librarySettings.fixedSortHint")}</div>
+                </section>
+              </div>
+            )}
+
+            {activeGroup === "metaTube" && (
+              <div className="settings-form-content">
+                <section className="settings-group">
+                  <h4>{t("metaTubeSettings.serverUrl")}</h4>
+                  <div className="settings-input-group">
+                    <input
+                      type="text"
+                      className="settings-input"
+                      value={form.metaTubeServerUrl}
+                      onChange={(e) => updateField("metaTubeServerUrl", e.target.value)}
+                      placeholder="http://127.0.0.1:8080"
+                    />
+                  </div>
+                </section>
+
+                <section className="settings-group">
+                  <h4>{t("metaTubeSettings.timeout")}</h4>
+                  <div className="settings-input-group">
+                    <input
+                      type="number"
+                      className="settings-input settings-input-sm"
+                      value={form.metaTubeTimeoutSeconds}
+                      onChange={(e) => updateField("metaTubeTimeoutSeconds", parseInt(e.target.value) || 0)}
+                      min={5}
+                      max={120}
+                    />
+                    <span className="settings-input-suffix">s</span>
+                  </div>
+                </section>
+
+                <section className="settings-group">
+                  <h4>{t("metaTubeSettings.diagnostics")}</h4>
+                  <div className="settings-hint-text">{t("metaTubeSettings.diagnosticsHint")}</div>
                   <button
-                    key={mode}
-                    className={`settings-chip ${themeMode === mode ? "active" : ""}`}
-                    onClick={() => setThemeMode(mode)}
+                    className="btn btn-secondary"
+                    onClick={() => diagMutation.mutate(undefined as never)}
+                    disabled={diagMutation.isLoading}
                   >
-                    {t(`theme.${mode}`)}
+                    {diagMutation.isLoading ? tc("loading") : t("metaTubeSettings.runDiagnostics")}
                   </button>
-                ))}
+                  {diagResult && (
+                    <div className={`diag-result ${diagResult.success ? "success" : "failure"}`}>
+                      <span><AppIcon name={diagResult.success ? "completed" : "failed"} size={14} /></span>
+                      <span>
+                        {diagResult.success
+                          ? `${t("metaTubeSettings.diagSuccess")}: ${diagResult.summary}`
+                          : `${t("metaTubeSettings.diagFailed")}: ${diagResult.summary}`}
+                      </span>
+                    </div>
+                  )}
+                </section>
               </div>
-            </section>
+            )}
 
-            {/* Language */}
-            <section className="settings-group">
-              <h4>{t("language.label")}</h4>
-              <div className="settings-row">
-                {(["zh", "en"] as const).map((lang) => (
-                  <button
-                    key={lang}
-                    className={`settings-chip ${i18n.language === lang ? "active" : ""}`}
-                    onClick={() => {
-                      changeLanguage(lang);
-                      updateField("currentLanguage", lang);
-                    }}
-                  >
-                    {t(`language.${lang}`)}
-                  </button>
-                ))}
+            {settingsQuery.isLoading && !settingsQuery.data && (
+              <div className="settings-loading">
+                <span>{tc("loading")}</span>
               </div>
-            </section>
-
-            {/* Debug */}
-            <section className="settings-group">
-              <h4>{tc("debug")}</h4>
-              <label className="settings-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.debug}
-                  onChange={(e) => updateField("debug", e.target.checked)}
-                />
-                <span>{t("debugMode")}</span>
-              </label>
-            </section>
-          </div>
-        )}
-
-        {/* ─── Scan & Import Group ───────────────────── */}
-        {activeGroup === "scanImport" && (
-          <div className="settings-form-content">
-            <section className="settings-group">
-              <h4>{t("scanImportSettings.scanBehavior")}</h4>
-              <div className="settings-input-group">
-                <label className="settings-label">{t("scanImportSettings.scanDepthLabel")}</label>
-                <input
-                  type="number"
-                  className="settings-input settings-input-sm"
-                  value={form.scanDepth}
-                  onChange={(e) => updateField("scanDepth", parseInt(e.target.value) || 0)}
-                  min={0}
-                />
-                <span className="settings-input-hint">{t("scanImportSettings.scanDepthHint")}</span>
+            )}
+            {settingsQuery.isError && (
+              <div className="settings-error">
+                <span><AppIcon name="failed" size={14} /> {settingsQuery.error?.message}</span>
+                <button className="btn btn-sm btn-secondary" onClick={() => settingsQuery.refetch()}>
+                  {tc("refresh")}
+                </button>
               </div>
-              <div className="settings-input-group">
-                <label className="settings-label">{t("scanImportSettings.excludeLabel")}</label>
-                <input
-                  type="text"
-                  className="settings-input"
-                  value={form.excludePatterns}
-                  onChange={(e) => updateField("excludePatterns", e.target.value)}
-                  placeholder={t("scanImportSettings.excludePlaceholder")}
-                />
-              </div>
-            </section>
-          </div>
-        )}
+            )}
 
-        {/* ─── Playback Group ────────────────────────── */}
-        {activeGroup === "playback" && (
-          <div className="settings-form-content">
-            <section className="settings-group">
-              <h4>{t("playbackSettings.playerPath")}</h4>
-              <div className="settings-input-group">
-                <input
-                  type="text"
-                  className="settings-input"
-                  value={form.playerPath}
-                  onChange={(e) => updateField("playerPath", e.target.value)}
-                  placeholder={t("playbackSettings.playerPathPlaceholder")}
-                />
-              </div>
-              <label className="settings-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.useSystemDefaultFallback}
-                  onChange={(e) => updateField("useSystemDefaultFallback", e.target.checked)}
-                />
-                <span>{t("playbackSettings.useSystemDefault")}</span>
-              </label>
-            </section>
-          </div>
-        )}
-
-        {/* ─── Library Group ─────────────────────────── */}
-        {activeGroup === "library" && (
-          <div className="settings-form-content">
-            <section className="settings-group">
-              <h4>{t("librarySettings.defaultBehavior")}</h4>
-              <label className="settings-checkbox">
-                <input
-                  type="checkbox"
-                  checked={form.defaultAutoScan}
-                  onChange={(e) => updateField("defaultAutoScan", e.target.checked)}
-                />
-                <span>{t("librarySettings.autoScanLabel")}</span>
-              </label>
-              <div className="settings-hint-text">{t("librarySettings.fixedSortHint")}</div>
-            </section>
-          </div>
-        )}
-
-        {/* ─── MetaTube Group ────────────────────────── */}
-        {activeGroup === "metaTube" && (
-          <div className="settings-form-content">
-            <section className="settings-group">
-              <h4>{t("metaTubeSettings.serverUrl")}</h4>
-              <div className="settings-input-group">
-                <input
-                  type="text"
-                  className="settings-input"
-                  value={form.metaTubeServerUrl}
-                  onChange={(e) => updateField("metaTubeServerUrl", e.target.value)}
-                  placeholder="http://127.0.0.1:8080"
-                />
-              </div>
-            </section>
-
-            <section className="settings-group">
-              <h4>{t("metaTubeSettings.timeout")}</h4>
-              <div className="settings-input-group">
-                <input
-                  type="number"
-                  className="settings-input settings-input-sm"
-                  value={form.metaTubeTimeoutSeconds}
-                  onChange={(e) => updateField("metaTubeTimeoutSeconds", parseInt(e.target.value) || 0)}
-                  min={5}
-                  max={120}
-                />
-                <span className="settings-input-suffix">s</span>
-              </div>
-            </section>
-
-            <section className="settings-group">
-              <h4>{t("metaTubeSettings.diagnostics")}</h4>
-              <div className="settings-hint-text">{t("metaTubeSettings.diagnosticsHint")}</div>
+            <div className="settings-actions">
               <button
                 className="btn btn-secondary"
-                onClick={() => diagMutation.mutate(undefined as never)}
-                disabled={diagMutation.isLoading}
+                onClick={handleReset}
+                disabled={isSaving}
               >
-                {diagMutation.isLoading ? tc("loading") : t("metaTubeSettings.runDiagnostics")}
+                {t("resetDefaults")}
               </button>
-              {diagResult && (
-                <div className={`diag-result ${diagResult.success ? "success" : "failure"}`}>
-                  <span><AppIcon name={diagResult.success ? "completed" : "failed"} size={14} /></span>
-                  <span>
-                    {diagResult.success
-                      ? `${t("metaTubeSettings.diagSuccess")}: ${diagResult.summary}`
-                      : `${t("metaTubeSettings.diagFailed")}: ${diagResult.summary}`}
-                  </span>
-                </div>
-              )}
-            </section>
+              <button
+                className="btn btn-primary"
+                onClick={handleSave}
+                disabled={isSaving || !dirty}
+              >
+                {isSaving ? tc("loading") : t("save")}
+              </button>
+            </div>
           </div>
-        )}
-
-        {/* Loading / Error states */}
-        {settingsQuery.isLoading && !settingsQuery.data && (
-          <div className="settings-loading">
-            <span>{tc("loading")}</span>
-          </div>
-        )}
-        {settingsQuery.isError && (
-          <div className="settings-error">
-            <span><AppIcon name="failed" size={14} /> {settingsQuery.error?.message}</span>
-            <button className="btn btn-sm btn-secondary" onClick={() => settingsQuery.refetch()}>
-              {tc("refresh")}
-            </button>
-          </div>
-        )}
-
-        {/* Bottom actions */}
-        <div className="settings-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={handleReset}
-            disabled={isSaving}
-          >
-            {t("resetDefaults")}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleSave}
-            disabled={isSaving || !dirty}
-          >
-            {isSaving ? tc("loading") : t("save")}
-          </button>
         </div>
       </div>
     </div>

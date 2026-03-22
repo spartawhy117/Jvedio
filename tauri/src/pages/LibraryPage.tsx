@@ -19,7 +19,10 @@ import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
 import { useApiQuery, invalidateQueries } from "../hooks/useApiQuery";
 import { useOnLibraryChanged } from "../hooks/useSSESubscription";
+import { useVideoCardDisplaySettings } from "../hooks/useVideoCardDisplaySettings";
+import { BackNavigation } from "../components/shared/BackNavigation";
 import { VideoCard } from "../components/shared/VideoCard";
+import { ConfirmDialog } from "../components/shared/ConfirmDialog";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
@@ -34,8 +37,9 @@ const PAGE_SIZE = 30;
 export function LibraryPage() {
   const { t } = useTranslation("library");
   const { t: tc } = useTranslation("common");
-  const { params, query, canGoBack, goBack, navigate, setQuery } = useRouter();
+  const { params, query, canGoBack, navigate, setQuery } = useRouter();
   const { libraries, bootstrap, refreshLibraries } = useBootstrap();
+  const { videoGridClassName } = useVideoCardDisplaySettings();
 
   const libraryId = params.libraryId ?? "";
   const library = libraries.find((l) => l.libraryId === libraryId);
@@ -92,10 +96,6 @@ export function LibraryPage() {
     setQuery({ keyword: kw, pageIndex: 0 });
   }, [setQuery]);
 
-  const handleRefresh = useCallback(() => {
-    videosQuery.refetch();
-  }, [videosQuery]);
-
   const handleSortChange = useCallback((value: string) => {
     const [sb, so] = value.split("_");
     setQuery({ sortBy: sb, sortOrder: so, pageIndex: 0 });
@@ -107,6 +107,8 @@ export function LibraryPage() {
 
   // ── Multi-select state ────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<VideoListItemDto | null>(null);
+  const [batchDeleteOpen, setBatchDeleteOpen] = useState(false);
 
   const handleVideoClick = useCallback((videoId: string) => {
     // In select mode, clicking toggles selection instead of navigation
@@ -157,18 +159,23 @@ export function LibraryPage() {
   }, [tc, libraryId]);
 
   const handleDeleteVideo = useCallback(async (video: VideoListItemDto) => {
-    if (!confirm(tc("deleteVideoConfirm"))) return;
+    setDeleteTarget(video);
+  }, [tc]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
     const client = getApiClient();
     if (!client) return;
     try {
-      await client.deleteVideo(video.videoId);
+      await client.deleteVideo(deleteTarget.videoId, true);
       showToast({ message: tc("deleteSuccess"), type: "success" });
       invalidateQueries(`libraries:${libraryId}`);
       void refreshLibraries();
+      setDeleteTarget(null);
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [tc, libraryId, refreshLibraries]);
+  }, [deleteTarget, tc, libraryId, refreshLibraries]);
 
   // ── Batch operations ───────────────────────────────
   const handleBatchFavorite = useCallback(async (favorite: boolean) => {
@@ -189,21 +196,26 @@ export function LibraryPage() {
   }, [selectedIds, tc, libraryId, refreshLibraries]);
 
   const handleBatchDelete = useCallback(async () => {
-    if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;
+    setBatchDeleteOpen(true);
+  }, [selectedIds.size]);
+
+  const handleBatchDeleteConfirm = useCallback(async () => {
     const client = getApiClient();
     if (!client || selectedIds.size === 0) return;
     try {
-      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) });
+      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) }, true);
       showToast({
         message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
         type: res.failedCount > 0 ? "warning" : "success",
       });
       setSelectedIds(new Set());
       invalidateQueries(`libraries:${libraryId}`);
+      void refreshLibraries();
+      setBatchDeleteOpen(false);
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [selectedIds, tc, libraryId]);
+  }, [selectedIds, tc, libraryId, refreshLibraries]);
 
   const handleBatchRescrape = useCallback(async () => {
     const client = getApiClient();
@@ -324,90 +336,126 @@ export function LibraryPage() {
 
   return (
     <div className="page-content-section page-content-wide">
-      {/* Header with back button */}
-      <div className="page-header">
-        {canGoBack && (
-          <button className="btn btn-icon" onClick={goBack} title={tc("back")}>
-            ‹
-          </button>
-        )}
-        <h2 className="page-title">{library?.name || t("page.title")}</h2>
-      </div>
-
-      {/* Query toolbar */}
-      <QueryToolbar
-        keyword={keyword}
-        onSearch={handleSearch}
-        onRefresh={handleRefresh}
-        sortOptions={sortOptions}
-        currentSort={currentSort}
-        onSortChange={handleSortChange}
-        disabled={!libraryId}
-      />
-
-      {/* Batch action bar */}
-      {selectedIds.size > 0 && (
-        <div className="batch-action-bar">
-          <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
-          <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}><AppIcon name="favorite-off" size={14} /> {tc("batchUnfavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
-          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
-          <div className="toolbar-spacer" />
-          <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
+      <div className="page-activity-shell">
+        <div className="page-header-stack">
+          {canGoBack && (
+            <div className="page-back-row">
+              <BackNavigation />
+            </div>
+          )}
+          <div className="page-title-row">
+            <h2 className="page-title">{library?.name || t("page.title")}</h2>
+          </div>
+          <QueryToolbar
+            keyword={keyword}
+            onSearch={handleSearch}
+            sortOptions={sortOptions}
+            currentSort={currentSort}
+            onSortChange={handleSortChange}
+            disabled={!libraryId}
+          />
         </div>
-      )}
 
-      {/* Content */}
-      {!libraryId ? (
-        <ResultState type="empty" icon={<AppIcon name="library" size={40} />} message={t("page.noLibrarySelected")} />
-      ) : videosQuery.isLoading && !data ? (
-        <ResultState type="loading" />
-      ) : videosQuery.isError ? (
-        <ResultState type="error" message={videosQuery.error?.message} />
-      ) : data && data.items.length === 0 ? (
-        <ResultState
-          type="empty"
-          icon={<AppIcon name="brand" size={40} />}
-          message={tc("noResults")}
-          hint={t("page.emptyScanHint")}
-        />
-      ) : data ? (
-        <div className="video-grid">
-          {data.items.map((video) => (
-            <VideoCard
-              key={video.videoId}
-              video={video}
-              selected={selectedIds.has(video.videoId)}
-              onSelect={handleSelect}
-              onClick={handleVideoClick}
-              onContextMenu={handleContextMenu}
-              baseUrl={baseUrl}
+        <div className="page-activity-body">
+          {selectedIds.size > 0 && (
+            <div className="batch-action-bar">
+              <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
+              <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
+              <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
+              <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}><AppIcon name="favorite-off" size={14} /> {tc("batchUnfavorite")}</button>
+              <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
+              <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
+              <div className="toolbar-spacer" />
+              <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
+            </div>
+          )}
+
+          {!libraryId ? (
+            <ResultState type="empty" icon={<AppIcon name="library" size={40} />} message={t("page.noLibrarySelected")} />
+          ) : videosQuery.isLoading && !data ? (
+            <ResultState type="loading" />
+          ) : videosQuery.isError ? (
+            <ResultState type="error" message={videosQuery.error?.message} />
+          ) : data && data.items.length === 0 ? (
+            <ResultState
+              type="empty"
+              icon={<AppIcon name="brand" size={40} />}
+              message={tc("noResults")}
+              hint={t("page.emptyScanHint")}
             />
-          ))}
+          ) : data ? (
+            <div className={`video-grid ${videoGridClassName}`}>
+              {data.items.map((video) => (
+                <VideoCard
+                  key={video.videoId}
+                  video={video}
+                  selected={selectedIds.has(video.videoId)}
+                  onSelect={handleSelect}
+                  onClick={handleVideoClick}
+                  onContextMenu={handleContextMenu}
+                  baseUrl={baseUrl}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
-      ) : null}
 
-      {/* Pagination */}
-      {data && data.items.length > 0 && (
-        <Pagination
-          pageIndex={pageIndex}
-          pageSize={PAGE_SIZE}
-          totalCount={data.totalCount}
-          onPageChange={handlePageChange}
-        />
-      )}
+        <div className="page-activity-footer">
+          {data && data.totalCount > 0 && (
+            <Pagination
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
+              totalCount={data.totalCount}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
 
-      {/* Context menu */}
-      {contextMenu && (
-        <VideoContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          actions={getContextMenuActions(contextMenu.video)}
-          onClose={closeContextMenu}
+        {contextMenu && (
+          <VideoContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            actions={getContextMenuActions(contextMenu.video)}
+            onClose={closeContextMenu}
+          />
+        )}
+
+        <ConfirmDialog
+          open={!!deleteTarget}
+          title={tc("deleteVideoConfirmTitle")}
+          message={tc("deleteVideoConfirm")}
+          details={deleteTarget ? (
+            <>
+              <div className="dialog-detail-row">
+                <span className="dialog-detail-label">{tc("vid")}</span>
+                <span className="dialog-detail-value">{deleteTarget.vid}</span>
+              </div>
+              <div className="dialog-detail-row">
+                <span className="dialog-detail-label">{tc("filePath")}</span>
+                <span className="dialog-detail-value">{deleteTarget.path}</span>
+              </div>
+            </>
+          ) : null}
+          danger
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteTarget(null)}
         />
-      )}
+
+        <ConfirmDialog
+          open={batchDeleteOpen}
+          title={tc("deleteVideoConfirmTitle")}
+          message={tc("batchDeleteConfirm", { count: selectedIds.size })}
+          details={
+            <div className="dialog-detail-row">
+              <span className="dialog-detail-label">{tc("selectedCount", { count: selectedIds.size })}</span>
+              <span className="dialog-detail-value">{tc("deleteOriginalAndMetadata")}</span>
+            </div>
+          }
+          danger
+          onConfirm={handleBatchDeleteConfirm}
+          onCancel={() => setBatchDeleteOpen(false)}
+        />
+      </div>
     </div>
   );
 }

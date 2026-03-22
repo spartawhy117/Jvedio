@@ -16,7 +16,7 @@
 | 当前结果 | 41 通过，2 未覆盖 |
 | 当前基线日期 | `2026-03-22` |
 | 当前基线环境 | Playwright MCP + 浏览器模式 |
-| 后续动作 | 自动复验已完成，等待真包交叉项复核 |
+| 后续动作 | 浏览器基线已完成，Worker 自动化补充测试已回跑；等待真包交叉项复核 |
 
 ## 自动验收项目与结果
 
@@ -76,6 +76,14 @@
 - 后端基线：`verify-backend-apis.ps1` 恢复到 `36 PASS / 2 SKIP / 0 FAIL`。
 - 浏览器复验：主壳导航、库管理弹层、单库搜索与返回恢复、Favorites 详情返回、Actors 搜索与返回恢复、MetaTube 连通性诊断、失败样本详情页均复验通过。
 - 控制台与前端日志：未发现新的阻断性前端错误；唯一浏览器错误为 `favicon.ico` 404，不影响验收结果。
+
+## Worker 自动化补充记录（日期：2026-03-22）
+
+- 本轮针对人工问题修复补充了 4 个 `Jvedio.Worker.Tests` 自动化用例，覆盖显示设置持久化 / 默认回退和删除目录清理安全规则。
+- 当前 `Jvedio.Worker.Tests` 已回跑通过：`72 / 72 PASS`。
+- 本轮执行命令：
+  - `dotnet test dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj --configuration Release`
+  - `npm run build`
 
 ## 自动化问题与基线修复
 

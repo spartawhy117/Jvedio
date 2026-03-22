@@ -17,8 +17,10 @@ import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
 import { useApiQuery, invalidateQueries } from "../hooks/useApiQuery";
+import { useVideoCardDisplaySettings } from "../hooks/useVideoCardDisplaySettings";
 import { VideoCard } from "../components/shared/VideoCard";
 import { BackNavigation } from "../components/shared/BackNavigation";
+import { ConfirmDialog } from "../components/shared/ConfirmDialog";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
@@ -39,6 +41,7 @@ export function ActorDetailPage() {
   const { t: tl } = useTranslation("library");
   const { params, query, navigate, setQuery } = useRouter();
   const { bootstrap, refreshLibraries } = useBootstrap();
+  const { videoGridClassName } = useVideoCardDisplaySettings();
 
   const actorId = params.actorId ?? "";
   const baseUrl = bootstrap?.worker.baseUrl ?? "";
@@ -95,10 +98,6 @@ export function ActorDetailPage() {
     setQuery({ keyword: kw, pageIndex: 0 });
   }, [setQuery]);
 
-  const handleRefresh = useCallback(() => {
-    videosQuery.refetch();
-  }, [videosQuery]);
-
   const handleSortChange = useCallback((value: string) => {
     const [sb, so] = value.split("_");
     setQuery({ sortBy: sb, sortOrder: so, pageIndex: 0 });
@@ -109,6 +108,8 @@ export function ActorDetailPage() {
   }, [setQuery]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<VideoListItemDto | null>(null);
+  const [batchDeleteOpen, setBatchDeleteOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -196,19 +197,24 @@ export function ActorDetailPage() {
   }, [tc, refreshActorVideos]);
 
   const handleDeleteVideo = useCallback(async (video: VideoListItemDto) => {
-    if (!confirm(tc("deleteVideoConfirm"))) return;
+    setDeleteTarget(video);
+  }, [tc]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
     const client = getApiClient();
     if (!client) return;
     try {
-      await client.deleteVideo(video.videoId);
+      await client.deleteVideo(deleteTarget.videoId, true);
       showToast({ message: tc("deleteSuccess"), type: "success" });
       refreshActorVideos();
       invalidateQueries("favorites");
       void refreshLibraries();
+      setDeleteTarget(null);
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [tc, refreshActorVideos, refreshLibraries]);
+  }, [deleteTarget, tc, refreshActorVideos, refreshLibraries]);
 
   const handleBatchFavorite = useCallback(async () => {
     const client = getApiClient();
@@ -262,11 +268,14 @@ export function ActorDetailPage() {
   }, [selectedIds, videoItems, tc, refreshActorVideos]);
 
   const handleBatchDelete = useCallback(async () => {
-    if (!confirm(tc("batchDeleteConfirm", { count: selectedIds.size }))) return;
+    setBatchDeleteOpen(true);
+  }, [selectedIds.size]);
+
+  const handleBatchDeleteConfirm = useCallback(async () => {
     const client = getApiClient();
     if (!client || selectedIds.size === 0) return;
     try {
-      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) });
+      const res = await client.batchDelete({ videoIds: Array.from(selectedIds) }, true);
       showToast({
         message: tc("batchSuccess", { success: res.successCount, failed: res.failedCount }),
         type: res.failedCount > 0 ? "warning" : "success",
@@ -274,10 +283,12 @@ export function ActorDetailPage() {
       setSelectedIds(new Set());
       refreshActorVideos();
       invalidateQueries("favorites");
+      void refreshLibraries();
+      setBatchDeleteOpen(false);
     } catch (err) {
       showToast({ message: `${tc("operationFailed")}: ${err instanceof Error ? err.message : String(err)}`, type: "error" });
     }
-  }, [selectedIds, tc, refreshActorVideos]);
+  }, [selectedIds, tc, refreshActorVideos, refreshLibraries]);
 
   const handleContextMenu = useCallback((videoId: string, event: React.MouseEvent) => {
     const video = videoItems.find((item) => item.videoId === videoId);
@@ -371,7 +382,9 @@ export function ActorDetailPage() {
   if (detailQuery.isLoading && !actor) {
     return (
       <div className="page-content-section">
-        <ResultState type="loading" />
+        <div className="page-readable-content">
+          <ResultState type="loading" />
+        </div>
       </div>
     );
   }
@@ -379,11 +392,12 @@ export function ActorDetailPage() {
   if (detailQuery.isError) {
     return (
       <div className="page-content-section">
-        <div className="page-header">
-          <BackNavigation fallbackLabel={tc("back")} />
-          <h2 className="page-title">{tc("actorId")}</h2>
+        <div className="page-readable-content page-activity-shell">
+          <div className="page-back-row">
+            <BackNavigation />
+          </div>
+          <ResultState type="error" message={detailQuery.error?.message} />
         </div>
-        <ResultState type="error" message={detailQuery.error?.message} />
       </div>
     );
   }
@@ -391,122 +405,146 @@ export function ActorDetailPage() {
   if (!actor) {
     return (
       <div className="page-content-section">
-        <div className="page-header">
-          <BackNavigation fallbackLabel={tc("back")} />
-          <h2 className="page-title">{tc("actorId")}</h2>
+        <div className="page-readable-content page-activity-shell">
+          <div className="page-back-row">
+            <BackNavigation />
+          </div>
+          <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noData")} />
         </div>
-        <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noData")} />
       </div>
     );
   }
 
   return (
     <div className="page-content-section page-content-wide">
-      {/* Header with back button */}
-      <div className="page-header">
-        <BackNavigation fallbackLabel={tc("back")} />
-        <h2 className="page-title">{actor.name}</h2>
-      </div>
+      <div className="page-activity-shell">
+        <div className="page-back-row">
+          <BackNavigation />
+        </div>
 
-      {/* Actor profile header */}
-      <div className="actor-detail-header">
-        <div className="actor-detail-avatar">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={actor.name} loading="lazy" />
+        <div className="page-activity-body">
+          <div className="actor-detail-header">
+            <div className="actor-detail-avatar">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={actor.name} loading="lazy" />
+              ) : (
+                <div className="actor-detail-no-avatar"><AppIcon name="actors" size={40} /></div>
+              )}
+            </div>
+            <div className="actor-detail-info">
+              <h3 className="actor-detail-name">{actor.name}</h3>
+              <div className="metadata-grid">
+                <MetadataRow label={tc("videoCount")} value={String(actor.videoCount)} />
+                {actor.libraryNames.length > 0 && (
+                  <MetadataRow label={tc("libraryName")} value={actor.libraryNames.join(", ")} />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <h3 className="section-heading">
+            {tc("associatedVideos")}
+          </h3>
+
+          <QueryToolbar
+            keyword={keyword}
+            onSearch={handleSearch}
+            sortOptions={sortOptions}
+            currentSort={currentSort}
+            onSortChange={handleSortChange}
+          />
+
+          {selectedIds.size > 0 && (
+            <div className="batch-action-bar">
+              <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
+              <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
+              <button className="btn btn-sm btn-secondary" onClick={handleBatchFavorite}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
+              <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
+              <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
+              <div className="toolbar-spacer" />
+              <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
+            </div>
+          )}
+
+          {videosQuery.isLoading && !videosData ? (
+            <ResultState type="loading" />
+          ) : videosQuery.isError ? (
+            <ResultState type="error" message={videosQuery.error?.message} />
+          ) : videoItems.length === 0 ? (
+            <ResultState type="empty" icon={<AppIcon name="brand" size={40} />} message={tc("noResults")} />
           ) : (
-            <div className="actor-detail-no-avatar"><AppIcon name="actors" size={40} /></div>
+            <div className={`video-grid ${videoGridClassName}`}>
+              {videoItems.map((video) => (
+                <VideoCard
+                  key={video.videoId}
+                  video={video}
+                  selected={selectedIds.has(video.videoId)}
+                  onSelect={handleSelect}
+                  onClick={handleVideoClick}
+                  onContextMenu={handleContextMenu}
+                  baseUrl={baseUrl}
+                />
+              ))}
+            </div>
           )}
         </div>
-        <div className="actor-detail-info">
-          <h3 className="actor-detail-name">{actor.name}</h3>
-          <div className="metadata-grid">
-            <MetadataRow label={tc("actorId")} value={actor.actorId} />
-            <MetadataRow label={tc("videoCount")} value={String(actor.videoCount)} />
-            {actor.libraryNames.length > 0 && (
-              <MetadataRow label={tc("libraryName")} value={actor.libraryNames.join(", ")} />
-            )}
-            {actor.webUrl && (
-              <div className="metadata-row">
-                <span className="metadata-label">{tc("webUrl")}</span>
-                <a
-                  className="weburl-link metadata-value"
-                  href={actor.webUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {actor.webUrl}
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {/* Associated videos section */}
-      <h3 className="section-heading">
-        {tc("associatedVideos")}
-      </h3>
-
-      <QueryToolbar
-        keyword={keyword}
-        onSearch={handleSearch}
-        onRefresh={handleRefresh}
-        sortOptions={sortOptions}
-        currentSort={currentSort}
-        onSortChange={handleSortChange}
-      />
-
-      {selectedIds.size > 0 && (
-        <div className="batch-action-bar">
-          <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
-          <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchFavorite}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
-          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
-          <div className="toolbar-spacer" />
-          <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
-        </div>
-      )}
-
-      {videosQuery.isLoading && !videosData ? (
-        <ResultState type="loading" />
-      ) : videosQuery.isError ? (
-        <ResultState type="error" message={videosQuery.error?.message} />
-      ) : videoItems.length === 0 ? (
-        <ResultState type="empty" icon={<AppIcon name="brand" size={40} />} message={tc("noResults")} />
-      ) : (
-        <div className="video-grid">
-          {videoItems.map((video) => (
-            <VideoCard
-              key={video.videoId}
-              video={video}
-              selected={selectedIds.has(video.videoId)}
-              onSelect={handleSelect}
-              onClick={handleVideoClick}
-              onContextMenu={handleContextMenu}
-              baseUrl={baseUrl}
+        <div className="page-activity-footer">
+          {videosData && videosData.totalCount > 0 && (
+            <Pagination
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
+              totalCount={videosData.totalCount}
+              onPageChange={handlePageChange}
             />
-          ))}
+          )}
         </div>
-      )}
 
-      {videosData && videoItems.length > 0 && (
-        <Pagination
-          pageIndex={pageIndex}
-          pageSize={PAGE_SIZE}
-          totalCount={videosData.totalCount}
-          onPageChange={handlePageChange}
-        />
-      )}
+        {contextMenu && (
+          <VideoContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            actions={getContextMenuActions(contextMenu.video)}
+            onClose={closeContextMenu}
+          />
+        )}
 
-      {contextMenu && (
-        <VideoContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          actions={getContextMenuActions(contextMenu.video)}
-          onClose={closeContextMenu}
+        <ConfirmDialog
+          open={!!deleteTarget}
+          title={tc("deleteVideoConfirmTitle")}
+          message={tc("deleteVideoConfirm")}
+          details={deleteTarget ? (
+            <>
+              <div className="dialog-detail-row">
+                <span className="dialog-detail-label">{tc("vid")}</span>
+                <span className="dialog-detail-value">{deleteTarget.vid}</span>
+              </div>
+              <div className="dialog-detail-row">
+                <span className="dialog-detail-label">{tc("filePath")}</span>
+                <span className="dialog-detail-value">{deleteTarget.path}</span>
+              </div>
+            </>
+          ) : null}
+          danger
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteTarget(null)}
         />
-      )}
+
+        <ConfirmDialog
+          open={batchDeleteOpen}
+          title={tc("deleteVideoConfirmTitle")}
+          message={tc("batchDeleteConfirm", { count: selectedIds.size })}
+          details={
+            <div className="dialog-detail-row">
+              <span className="dialog-detail-label">{tc("selectedCount", { count: selectedIds.size })}</span>
+              <span className="dialog-detail-value">{tc("deleteOriginalAndMetadata")}</span>
+            </div>
+          }
+          danger
+          onConfirm={handleBatchDeleteConfirm}
+          onCancel={() => setBatchDeleteOpen(false)}
+        />
+      </div>
     </div>
   );
 }

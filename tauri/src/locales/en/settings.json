@@ -1,8 +1,9 @@
 {
   "title": "Settings",
-  "groups": "General · Scan & Import · Player Settings · Library · MetaTube",
+  "groups": "General · Display · Scan & Import · Player Settings · Library · MetaTube",
   "groups_list": {
     "general": "General",
+    "display": "Display",
     "scanImport": "Scan & Import",
     "playback": "Player Settings",
     "library": "Library",
@@ -18,6 +19,24 @@
     "label": "Language",
     "zh": "中文",
     "en": "English"
+  },
+  "displaySettings": {
+    "videoCardSize": "Video Card Size",
+    "videoCardSizeHint": "Library, favorites, and actor-related video pages share this poster density setting. The text block height stays fixed.",
+    "cardSizeOptions": {
+      "small": {
+        "title": "Small",
+        "detail": "Current default size, optimized for showing more items at once."
+      },
+      "medium": {
+        "title": "Medium",
+        "detail": "Poster width is about 2x the current size for stronger cover browsing."
+      },
+      "large": {
+        "title": "Large",
+        "detail": "Poster width is about 3x the current size and emphasizes single-card focus."
+      }
+    }
   },
   "debugMode": "Enable debug mode",
   "scanImportSettings": {
