@@ -5,6 +5,20 @@
 
 ## [未发布]
 
+## [0.2.4] - 2026-03-22
+
+### 修复
+- 修复播放接口契约漂移问题，`/api/videos/{id}/play` 现已统一返回 `played` / `playerUsed`，并补充播放失败时的详细 Worker 诊断日志。
+- 修复详情页宽屏布局，顶部主视觉改为 fanart 背景层，sidecar 状态 badge 已移动到标题区下方横向展示。
+- 修复设置页底部动作区在高分辨率下无法锚定右下角的问题，动作按钮现已接入全宽 footer。
+- 修复运行状态 CPU / 内存统计口径，现按逻辑 CPU 数归一化并聚合前端进程树与 Worker 进程树的总用量。
+- 修复演员头像缓存命名与复用策略，缓存现优先使用规范化演员名命名，并兼容迁移旧缓存路径。
+
+### 变更
+- 更新 `plan/active/manual-acceptance-v010/` 下人工验收与自动验收文档，将 `F-038` 至 `F-042` 收口并记录本轮复验结论。
+- 更新 `doc/testing/backend/test-current-suite.md`，同步 `Jvedio.Worker.Tests` 扩充到 `75` 项并补充播放契约与演员头像缓存测试说明。
+- 自动化复验结果更新为：`verify-backend-apis.ps1` `36 PASS / 2 SKIP / 0 FAIL`、`Jvedio.Worker.Tests` `75 / 75 PASS`、`npm run build` 通过、`cargo check` 通过。
+
 ## [0.2.0] - 2026-03-22
 
 ### 新增

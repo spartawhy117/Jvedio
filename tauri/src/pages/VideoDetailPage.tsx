@@ -1,12 +1,3 @@
-/**
- * Video Detail Page — Phase 3 full implementation.
- *
- * Spec: doc/UI/new/pages/video-detail-page.md
- * - Left: poster, VID, sidecar status
- * - Right: title, metadata, primary action, actors, synopsis, file path
- * - Back navigation via backTo
- */
-
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
@@ -59,13 +50,9 @@ export function VideoDetailPage() {
 
   // ── Derived state ──────────────────────────────
   const video = detailQuery.data?.video;
-  const thumbUrl = video?.sidecars.thumb.exists && baseUrl
-    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/thumb`
+  const fanartUrl = video?.sidecars.fanart.exists && baseUrl
+    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/fanart`
     : null;
-  const posterUrl = video?.sidecars.poster.exists && baseUrl
-    ? `${baseUrl}/api/videos/${encodeURIComponent(videoId)}/poster`
-    : null;
-  const previewUrl = thumbUrl ?? posterUrl;
 
   // ── Handlers ──────────────────────────────────────
   const handlePlay = useCallback(() => {
@@ -141,163 +128,137 @@ export function VideoDetailPage() {
     return value.length >= 10 ? value.slice(0, 10) : value;
   };
 
+  const headline = video.title?.trim() || video.displayTitle?.trim() || video.vid;
+
   return (
-    <div className="page-content-section">
-      <div className="page-readable-content page-activity-shell">
+    <div className="page-content-section page-content-wide">
+      <div className="page-readable-content page-activity-shell video-detail-shell">
         <div className="page-back-row">
           <BackNavigation />
         </div>
 
-        <div className="video-detail-layout">
-          <div className="video-detail-left">
-            <div className="video-detail-poster">
-              {previewUrl ? (
-                <img src={previewUrl} alt={video.vid} loading="lazy" />
-              ) : (
-                <div className="video-card-no-image poster-fallback">
-                  <svg className="no-poster-placeholder" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 64, height: 64 }}>
-                    <rect x="8" y="6" width="32" height="36" rx="3" stroke="currentColor" strokeWidth="2" />
-                    <circle cx="24" cy="20" r="6" stroke="currentColor" strokeWidth="2" />
-                    <path d="M14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                  <span className="no-poster-text">No Poster</span>
+        <div className="video-detail-stage">
+          <section className="video-detail-hero">
+            <div className="video-detail-hero-backdrop" aria-hidden="true">
+              {fanartUrl ? <img src={fanartUrl} alt="" loading="lazy" /> : null}
+            </div>
+            <div className="video-detail-hero-scrim" aria-hidden="true" />
+
+            <div className="video-detail-hero-content">
+              <div className="video-detail-heading">
+                <div className="video-detail-overline">
+                  {video.libraryName && <span>{video.libraryName}</span>}
+                  {video.vid && <span>{video.vid}</span>}
+                  {video.releaseDate && <span>{formatReleaseDate(video.releaseDate)}</span>}
+                  {video.durationSeconds > 0 && <span>{formatDuration(video.durationSeconds)}</span>}
                 </div>
-              )}
-            </div>
 
-            <div className="video-detail-vid">{video.vid}</div>
+                <h1 className="video-detail-title">{headline}</h1>
 
-            <div className="sidecar-status-grid">
-              <StatusBadge
-                variant={video.sidecars.nfo.exists ? "synced" : "failed"}
-                label={tc("nfo")}
-              />
-              <StatusBadge
-                variant={video.sidecars.poster.exists ? "synced" : "failed"}
-                label={tc("poster")}
-              />
-              <StatusBadge
-                variant={video.sidecars.thumb.exists ? "synced" : "failed"}
-                label={tc("thumb")}
-              />
-              <StatusBadge
-                variant={video.sidecars.fanart.exists ? "synced" : "failed"}
-                label={tc("fanart")}
-              />
-            </div>
-          </div>
-
-          <div className="video-detail-right">
-            {video.title && video.title !== video.vid && (
-              <h3 className="video-detail-title">{video.title}</h3>
-            )}
-
-            <div className="metadata-grid">
-              {video.libraryName && (
-                <MetadataRow label={tc("libraryName")} value={video.libraryName} />
-              )}
-              {video.releaseDate && (
-                <MetadataRow
-                  label={tc("releaseDate")}
-                  value={formatReleaseDate(video.releaseDate)}
-                />
-              )}
-              {video.firstAddedAt && (
-                <MetadataRow label={tc("firstAddedAt")} value={formatDateTime(video.firstAddedAt)} />
-              )}
-              {video.durationSeconds > 0 && (
-                <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
-              )}
-              {video.director && (
-                <MetadataRow label={tc("director")} value={video.director} />
-              )}
-              {video.studio && (
-                <MetadataRow label={tc("studio")} value={video.studio} />
-              )}
-              {video.series && (
-                <MetadataRow label={tc("series")} value={video.series} />
-              )}
-              {video.rating > 0 && (
-                <MetadataRow label={tc("rating")} value={`${video.rating} / 10`} />
-              )}
-              {video.viewCount > 0 && (
-                <MetadataRow label={tc("viewCount")} value={String(video.viewCount)} />
-              )}
-            </div>
-
-            <div className="video-detail-cta">
-              <button
-                className="btn btn-primary video-detail-play-button"
-                onClick={handlePlay}
-                disabled={playMutation.isLoading || !video.playback.canPlay}
-                type="button"
-              >
-                {playMutation.isLoading ? tc("loading") : <><AppIcon name="play" size={16} /> {tc("play")}</>}
-              </button>
-              {!video.playback.canPlay && video.playback.reason ? (
-                <span className="video-detail-cta-hint">{video.playback.reason}</span>
-              ) : null}
-            </div>
-
-            {(video.plot || video.outline) && (
-              <div className="video-detail-synopsis">
-                <span className="detail-label">{tc("outline")}</span>
-                <p className="synopsis-text">{video.plot || video.outline}</p>
-              </div>
-            )}
-
-            {video.actors && video.actors.length > 0 && (
-              <div className="video-detail-actors">
-                <span className="detail-label">{tc("actors")}</span>
-                <div className="video-detail-actor-grid">
-                  {video.actors
-                    .filter((actor) => !!actor.actorId)
-                    .map((actor) => (
-                      <ActorCard
-                        key={actor.actorId}
-                        actor={{
-                          actorId: actor.actorId ?? "",
-                          avatarPath: actor.avatarPath,
-                          name: actor.name,
-                        }}
-                        baseUrl={baseUrl}
-                        compact
-                        subtitle={null}
-                        onClick={handleActorClick}
-                      />
-                    ))}
+                <div className="video-detail-sidecars">
+                  <StatusBadge variant={video.sidecars.nfo.exists ? "synced" : "failed"} label={tc("nfo")} />
+                  <StatusBadge variant={video.sidecars.poster.exists ? "synced" : "failed"} label={tc("poster")} />
+                  <StatusBadge variant={video.sidecars.thumb.exists ? "synced" : "failed"} label={tc("thumb")} />
+                  <StatusBadge variant={video.sidecars.fanart.exists ? "synced" : "failed"} label={tc("fanart")} />
                 </div>
               </div>
-            )}
 
-            <div className="video-detail-path">
-              <div className="video-detail-path-header">
-                <span className="detail-label">{tc("filePath")}</span>
+              <div className="video-detail-cta video-detail-cta-panel">
                 <button
-                  className="btn btn-sm btn-secondary"
-                  onClick={handleOpenFolder}
-                  title={tc("openFolder")}
+                  className="btn btn-primary video-detail-play-button"
+                  onClick={handlePlay}
+                  disabled={playMutation.isLoading || !video.playback.canPlay}
                   type="button"
                 >
-                  {tc("openFolder")}
+                  {playMutation.isLoading ? tc("loading") : <><AppIcon name="play" size={18} /> {tc("play")}</>}
                 </button>
+                {!video.playback.canPlay && video.playback.reason ? (
+                  <span className="video-detail-cta-hint">{video.playback.reason}</span>
+                ) : null}
               </div>
-              <code className="path-text">{video.path}</code>
             </div>
+          </section>
 
-            {video.webUrl && (
-              <div className="video-detail-weburl">
-                <span className="detail-label">{tc("webUrl")}</span>
-                <a
-                  className="weburl-link"
-                  href={video.webUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {video.webUrl}
-                </a>
+          <div className="video-detail-body">
+            <section className="video-detail-main">
+              <div className="metadata-grid">
+                <MetadataRow label="VID" value={video.vid} />
+                {video.libraryName && <MetadataRow label={tc("libraryName")} value={video.libraryName} />}
+                {video.studio && <MetadataRow label={tc("studio")} value={video.studio} />}
+                {video.series && <MetadataRow label={tc("series")} value={video.series} />}
+                {video.releaseDate && (
+                  <MetadataRow label={tc("releaseDate")} value={formatReleaseDate(video.releaseDate)} />
+                )}
+                {video.firstAddedAt && (
+                  <MetadataRow label={tc("firstAddedAt")} value={formatDateTime(video.firstAddedAt)} />
+                )}
+                {video.durationSeconds > 0 && (
+                  <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
+                )}
+                {video.director && <MetadataRow label={tc("director")} value={video.director} />}
+                {video.viewCount > 0 && <MetadataRow label={tc("viewCount")} value={String(video.viewCount)} />}
+                {video.lastPlayedAt && (
+                  <MetadataRow label={tc("lastPlayedAt")} value={formatDateTime(video.lastPlayedAt)} />
+                )}
+                {video.lastScanAt && (
+                  <MetadataRow label={tc("lastScanAt")} value={formatDateTime(video.lastScanAt)} />
+                )}
               </div>
-            )}
+
+              <div className="video-detail-path">
+                <div className="video-detail-path-header">
+                  <span className="detail-label">{tc("filePath")}</span>
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={handleOpenFolder}
+                    title={tc("openFolder")}
+                    type="button"
+                  >
+                    {tc("openFolder")}
+                  </button>
+                </div>
+                <code className="path-text">{video.path}</code>
+              </div>
+
+              {video.webUrl && (
+                <div className="video-detail-weburl">
+                  <span className="detail-label">{tc("webUrl")}</span>
+                  <a
+                    className="weburl-link"
+                    href={video.webUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {video.webUrl}
+                  </a>
+                </div>
+              )}
+            </section>
+
+            <aside className="video-detail-aside">
+              {video.actors && video.actors.length > 0 && (
+                <div className="video-detail-actors">
+                  <span className="detail-label">{tc("actors")}</span>
+                  <div className="video-detail-actor-grid">
+                    {video.actors
+                      .filter((actor) => !!actor.actorId)
+                      .map((actor) => (
+                        <ActorCard
+                          key={actor.actorId}
+                          actor={{
+                            actorId: actor.actorId ?? "",
+                            avatarPath: actor.avatarPath,
+                            name: actor.name,
+                          }}
+                          baseUrl={baseUrl}
+                          subtitle={null}
+                          onClick={handleActorClick}
+                        />
+                      ))}
+                  </div>
+                </div>
+              )}
+            </aside>
           </div>
         </div>
       </div>

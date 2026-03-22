@@ -16,7 +16,7 @@
 | 当前结果 | 41 通过，2 未覆盖 |
 | 当前基线日期 | `2026-03-22` |
 | 当前基线环境 | Playwright MCP + 浏览器模式 |
-| 后续动作 | 浏览器基线已完成，Worker 自动化补充测试已回跑；等待真包交叉项复核 |
+| 后续动作 | 自动化复验已完成；下一步转入 `0.2.4` 真包交叉项复核 |
 
 ## 自动验收项目与结果
 
@@ -73,17 +73,18 @@
 
 - 执行顺序：`scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` → `scripts/verify-backend-apis.ps1 -NoPause` → `scripts/start-e2e-env.ps1 -NoPause` → Playwright MCP 浏览器模式复验。
 - 数据准备：播种脚本已对齐“扫描即含抓取”的现实现状，成功写出 `test-data/e2e/e2e-env.json`、`cache/video/*` sidecar 和 `cache/actor-avatar/*`。
-- 后端基线：`verify-backend-apis.ps1` 恢复到 `36 PASS / 2 SKIP / 0 FAIL`。
+- 后端基线：`verify-backend-apis.ps1` 恢复到 `36 PASS / 2 SKIP / 0 FAIL`，其中 `/api/videos/{id}/play` 已改为显式测试播放器路径，避免 E2E 假样本视频干扰接口契约校验。
 - 浏览器复验：主壳导航、库管理弹层、单库搜索与返回恢复、Favorites 详情返回、Actors 搜索与返回恢复、MetaTube 连通性诊断、失败样本详情页均复验通过。
 - 控制台与前端日志：未发现新的阻断性前端错误；唯一浏览器错误为 `favicon.ico` 404，不影响验收结果。
 
 ## Worker 自动化补充记录（日期：2026-03-22）
 
-- 本轮针对人工问题修复补充了 4 个 `Jvedio.Worker.Tests` 自动化用例，覆盖显示设置持久化 / 默认回退和删除目录清理安全规则。
-- 当前 `Jvedio.Worker.Tests` 已回跑通过：`72 / 72 PASS`。
+- 本轮针对人工问题修复补充了 7 个 `Jvedio.Worker.Tests` 自动化用例，覆盖显示设置持久化 / 默认回退、播放接口契约成功路径，以及演员头像缓存命名 / 迁移规则。
+- 当前 `Jvedio.Worker.Tests` 已回跑通过：`75 / 75 PASS`。
 - 本轮执行命令：
   - `dotnet test dotnet/Jvedio.Worker.Tests/Jvedio.Worker.Tests.csproj --configuration Release`
   - `npm run build`
+  - `cargo check --manifest-path tauri/src-tauri/Cargo.toml`
 
 ## 自动化问题与基线修复
 
@@ -94,6 +95,7 @@
 | A-003 | Phase 10 | P2-一般 | 自动化 | 删除影片后主列表已回刷，但左侧库徽标计数未同步，列表与导航状态不一致。 | 在单库页通过右键菜单删除影片，观察右侧总数与左侧库计数 | 已修复（`34f956a`） |
 | A-004 | 基线脚本 | P1-严重 | 自动化 | 扫描任务现已内含抓取，但播种脚本仍在扫描后才配置 MetaTube，导致首次扫描直接以 `MetaTube server url is empty` 失败。 | 运行 `scripts/seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` | 已修复（本轮） |
 | A-005 | 基线脚本 | P1-严重 | 自动化 | `verify-backend-apis.ps1` 仍按旧 Settings 契约读取 `image` 分组并向 diagnostics 发送旧字段，导致设置校验阶段中断。 | 运行 `scripts/verify-backend-apis.ps1 -NoPause` | 已修复（本轮） |
+| A-006 | Phase 7 | P1-严重 | 自动化 | E2E 假视频样本为空文件，直接走系统默认播放器会把“媒体能力失败”误判成播放接口回归。 | 运行 `scripts/verify-backend-apis.ps1 -NoPause` 调用 `/api/videos/{id}/play` | 已修复（本轮，改为显式测试播放器路径并保留 Worker 播放日志） |
 
 ## 与人工验收的交叉项
 

@@ -387,12 +387,26 @@ if ($script:videoItems.Count -ge 1) {
         if (Test-HasProperty $data "isFavorite") { "favorite=$($data.isFavorite)" } else { "reverted" }
     }
 
+    $playRequest = @{}
+    if ($IsWindows) {
+        $testPlayerPath = Join-Path $env:SystemRoot "System32\cmd.exe"
+        if (Test-Path $testPlayerPath) {
+            $playRequest.playerPath = $testPlayerPath
+        }
+    }
+
     Test-Api -Name "/api/videos/{id}/play" -Method "POST" -Uri "$base/api/videos/$videoId/play" `
-        -Body (@{ playerProfile = "default"; resume = $false } | ConvertTo-Json -Compress) `
-        -ExpectedStatus @(200, 404, 500) -Validate {
+        -Body ($playRequest | ConvertTo-Json -Compress) `
+        -ExpectedStatus @(200, 404, 422) -Validate {
         param($r)
         $data = Get-ApiData $r "POST /api/videos/$videoId/play"
-        if (Test-HasProperty $data "launched") { "launched=$($data.launched)" } else { "play handled" }
+        if (Test-HasProperty $data "played") {
+            $playerUsed = if (Test-HasProperty $data "playerUsed") { $data.playerUsed } else { "unknown" }
+            "played=$($data.played) playerUsed=$playerUsed"
+        }
+        else {
+            "play handled"
+        }
     }
 
     Test-Api -Name "/api/videos/batch/favorite" -Method "POST" -Uri "$base/api/videos/batch/favorite?favorite=true" `

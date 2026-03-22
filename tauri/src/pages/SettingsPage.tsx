@@ -265,11 +265,12 @@ export function SettingsPage() {
           ))}
         </aside>
 
-        <div className="settings-form-area">
-          <div className="settings-form-inner">
-            <div className="settings-form-header">
-              <h3>{t(`groups_list.${activeGroup}`)}</h3>
-            </div>
+        <div className="settings-form-area page-activity-shell">
+          <div className="page-activity-body">
+            <div className="settings-form-inner">
+              <div className="settings-form-header">
+                <h3>{t(`groups_list.${activeGroup}`)}</h3>
+              </div>
 
             {activeGroup === "general" && (
               <div className="settings-form-content">
@@ -484,6 +485,9 @@ export function SettingsPage() {
               </div>
             )}
 
+            </div>
+          </div>
+          <div className="page-activity-footer settings-footer-shell">
             <div className="settings-actions">
               <button
                 className="btn btn-secondary"

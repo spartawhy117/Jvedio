@@ -211,6 +211,25 @@ public sealed class VideoService
         return sidecars.Thumb.Path;
     }
 
+    public string GetFanartPath(string videoId)
+    {
+        using var connection = sqliteConnectionFactory.OpenAppDataConnection();
+        var record = LoadVideoDetailRecord(connection, videoId);
+        if (record is null)
+        {
+            throw CreateNotFoundException("video.fanart.not_found", $"Video {videoId} was not found.");
+        }
+
+        var library = libraryService.GetLibrary(record.Value.LibraryId.ToString());
+        var sidecars = BuildSidecarState(record.Value.Path, record.Value.Vid, library?.Name);
+        if (!sidecars.Fanart.Exists || string.IsNullOrWhiteSpace(sidecars.Fanart.Path))
+        {
+            throw CreateNotFoundException("video.fanart.not_found", $"Fanart for video {videoId} was not found.");
+        }
+
+        return sidecars.Fanart.Path;
+    }
+
     public ToggleFavoriteResponse ToggleFavorite(string videoId)
     {
         using var connection = sqliteConnectionFactory.OpenAppDataConnection();
@@ -420,20 +439,43 @@ public sealed class VideoService
                 new { videoId, path = record.Value.Path });
         }
 
+        var videoFileInfo = new FileInfo(record.Value.Path);
+        var videoFileSizeBytes = videoFileInfo.Exists ? videoFileInfo.Length : 0;
         var configuredPlayerPath = ResolvePlayerPath();
+        var requestedPlayerPath = request.PlayerPath?.Trim();
+        var resolvedPlayerPath = !string.IsNullOrWhiteSpace(requestedPlayerPath)
+            ? requestedPlayerPath
+            : configuredPlayerPath;
         var useSystemDefaultFallback = ResolveUseSystemDefaultFallback();
-        var launchedAtUtc = DateTimeOffset.UtcNow;
         var lastPlayedAt = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss");
         var usedSystemDefault = true;
         string? usedPlayerPath = null;
 
+        logger.LogInformation(
+            "[Worker-Video] Play requested for video {VideoId}. file={VideoPath}, sizeBytes={FileSizeBytes}, requestedPlayer={RequestedPlayerPath}, configuredPlayer={ConfiguredPlayerPath}, resolvedPlayer={ResolvedPlayerPath}, useSystemDefaultFallback={UseSystemDefaultFallback}",
+            videoId,
+            record.Value.Path,
+            videoFileSizeBytes,
+            requestedPlayerPath ?? "<empty>",
+            configuredPlayerPath ?? "<empty>",
+            resolvedPlayerPath ?? "<empty>",
+            useSystemDefaultFallback);
+
+        if (videoFileSizeBytes == 0)
+        {
+            logger.LogWarning(
+                "[Worker-Video] Play target file is empty for video {VideoId}. file={VideoPath}",
+                videoId,
+                record.Value.Path);
+        }
+
         try
         {
-            if (!string.IsNullOrWhiteSpace(configuredPlayerPath) && File.Exists(configuredPlayerPath))
+            if (!string.IsNullOrWhiteSpace(resolvedPlayerPath) && File.Exists(resolvedPlayerPath))
             {
-                StartProcess(configuredPlayerPath, $"\"{record.Value.Path}\"", Path.GetDirectoryName(configuredPlayerPath));
+                StartProcess(resolvedPlayerPath, $"\"{record.Value.Path}\"", Path.GetDirectoryName(resolvedPlayerPath));
                 usedSystemDefault = false;
-                usedPlayerPath = configuredPlayerPath;
+                usedPlayerPath = resolvedPlayerPath;
             }
             else if (!useSystemDefaultFallback)
             {
@@ -442,7 +484,12 @@ public sealed class VideoService
                     "video.play.player_missing",
                     $"Video player path is empty and system fallback is disabled for video {videoId}.",
                     "未配置自定义播放器，且已关闭系统默认播放器回退。",
-                    new { videoId });
+                    new
+                    {
+                        requestedPlayerPath,
+                        configuredPlayerPath,
+                        videoId,
+                    });
             }
             else
             {
@@ -455,7 +502,16 @@ public sealed class VideoService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "[Worker-Video] Failed to launch player for video {VideoId}", videoId);
+            logger.LogError(
+                ex,
+                "[Worker-Video] Failed to launch player for video {VideoId}. file={VideoPath}, sizeBytes={FileSizeBytes}, requestedPlayer={RequestedPlayerPath}, configuredPlayer={ConfiguredPlayerPath}, resolvedPlayer={ResolvedPlayerPath}, useSystemDefaultFallback={UseSystemDefaultFallback}",
+                videoId,
+                record.Value.Path,
+                videoFileSizeBytes,
+                requestedPlayerPath ?? "<empty>",
+                configuredPlayerPath ?? "<empty>",
+                resolvedPlayerPath ?? "<empty>",
+                useSystemDefaultFallback);
             throw CreateException(
                 StatusCodes.Status500InternalServerError,
                 "video.play.launch_failed",
@@ -463,7 +519,12 @@ public sealed class VideoService
                 "调用播放器失败，请检查播放器路径或系统默认播放器。",
                 new
                 {
-                    playerPath = configuredPlayerPath,
+                    configuredPlayerPath,
+                    fileSizeBytes = videoFileSizeBytes,
+                    path = record.Value.Path,
+                    playerPath = resolvedPlayerPath,
+                    requestedPlayerPath,
+                    useSystemDefaultFallback,
                     videoId,
                 },
                 ex);
@@ -482,20 +543,15 @@ public sealed class VideoService
         command.ExecuteNonQuery();
 
         logger.LogInformation(
-            "[Worker-Video] Launched player for video {VideoId} with player={PlayerPath}, systemDefault={SystemDefault}, profile={Profile}, resume={Resume}",
+            "[Worker-Video] Launched player for video {VideoId} with player={PlayerPath}, systemDefault={SystemDefault}",
             videoId,
             usedPlayerPath ?? "<system-default>",
-            usedSystemDefault,
-            request.PlayerProfile,
-            request.Resume);
+            usedSystemDefault);
 
         return new PlayVideoResponse
         {
-            LaunchedAtUtc = launchedAtUtc,
-            LastPlayedAt = lastPlayedAt,
-            UsedPlayerPath = usedPlayerPath,
-            UsedSystemDefault = usedSystemDefault,
-            VideoId = videoId,
+            Played = true,
+            PlayerUsed = usedSystemDefault ? "system-default" : usedPlayerPath ?? string.Empty,
         };
     }
 
@@ -1205,7 +1261,8 @@ public sealed class VideoService
             WorkingDirectory = string.IsNullOrWhiteSpace(workingDirectory) ? Environment.CurrentDirectory : workingDirectory,
         };
 
-        _ = Process.Start(startInfo) ?? throw new InvalidOperationException($"Process start returned null: {fileName}");
+        _ = Process.Start(startInfo) ?? throw new InvalidOperationException(
+            $"Process start returned null. FileName={fileName}; Arguments={startInfo.Arguments}; WorkingDirectory={startInfo.WorkingDirectory}; UseShellExecute={startInfo.UseShellExecute}");
     }
 
     private static WorkerApiException CreateNotFoundException(string code, string message)

@@ -82,6 +82,15 @@ public sealed class VideosController : ControllerBase
         return PhysicalFile(thumbPath, GetImageContentType(thumbPath));
     }
 
+    [HttpGet("{videoId}/fanart")]
+    public IActionResult GetFanart(
+        string videoId,
+        [FromServices] VideoService videoService)
+    {
+        var fanartPath = videoService.GetFanartPath(videoId);
+        return PhysicalFile(fanartPath, GetImageContentType(fanartPath));
+    }
+
     [HttpPost("{videoId}/play")]
     public ActionResult<ApiResponse<PlayVideoResponse>> PlayVideo(
         string videoId,

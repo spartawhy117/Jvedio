@@ -1,8 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
+using System.Text;
 
 using Jvedio.Contracts.Common;
 using Jvedio.Contracts.Libraries;
@@ -519,10 +518,19 @@ public sealed class LibraryScrapeService
 
     private async Task DownloadActorAvatarAsync(string actorAvatarCacheDir, string refererUrl, ScrapedActorData actor, CancellationToken cancellationToken)
     {
-        var extension = GetExtensionFromUrl(actor.AvatarUrl);
-        var avatarPath = Path.Combine(
+        var existingAvatarPath = ActorAvatarCacheNaming.TryResolveExistingPath(
             actorAvatarCacheDir,
-            BuildActorAvatarCacheKey(actor.AvatarUrl, actor.ActorId, actor.Name) + extension);
+            actor.Name,
+            actor.ActorId,
+            actor.AvatarUrl,
+            actor.Homepage);
+        if (!string.IsNullOrWhiteSpace(existingAvatarPath))
+        {
+            ActorAvatarCacheNaming.TryPromoteToPrimaryPath(actorAvatarCacheDir, actor.Name, existingAvatarPath);
+            return;
+        }
+
+        var avatarPath = ActorAvatarCacheNaming.BuildCacheFilePath(actorAvatarCacheDir, actor.Name, actor.AvatarUrl);
 
         try
         {
@@ -649,54 +657,6 @@ public sealed class LibraryScrapeService
         }
 
         return result;
-    }
-
-    private static string BuildActorAvatarCacheKey(string? avatarUrl, string? actorId, string actorName)
-    {
-        var imageKey = TryExtractAvatarCacheKey(avatarUrl);
-        if (!string.IsNullOrWhiteSpace(imageKey))
-        {
-            return SanitizeFileName(imageKey);
-        }
-
-        if (!string.IsNullOrWhiteSpace(actorId))
-        {
-            return SanitizeFileName(actorId);
-        }
-
-        var bytes = SHA1.HashData(Encoding.UTF8.GetBytes(actorName.Trim().ToLowerInvariant()));
-        return Convert.ToHexString(bytes).ToLowerInvariant();
-    }
-
-    private static string? TryExtractAvatarCacheKey(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return null;
-        }
-
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
-        {
-            var fromUrl = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
-            if (!string.IsNullOrWhiteSpace(fromUrl))
-            {
-                return fromUrl;
-            }
-        }
-
-        var fileName = Path.GetFileNameWithoutExtension(value.Trim());
-        return string.IsNullOrWhiteSpace(fileName) ? null : fileName;
-    }
-
-    private static string GetExtensionFromUrl(string url)
-    {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
-        {
-            return ".jpg";
-        }
-
-        var extension = Path.GetExtension(uri.AbsolutePath);
-        return string.IsNullOrWhiteSpace(extension) ? ".jpg" : extension;
     }
 
     private static ScrapeResultData MapScrapeResult(MetaTubeMovieInfo movieInfo, IReadOnlyList<MetaTubeActorSearchResult> actorResults)

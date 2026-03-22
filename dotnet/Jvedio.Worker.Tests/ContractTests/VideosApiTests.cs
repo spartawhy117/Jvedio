@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -63,6 +64,101 @@ public class VideosApiTests
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
         Assert.IsTrue(doc.RootElement.GetProperty("success").GetBoolean());
+    }
+
+    [TestMethod]
+    public async Task PlayVideo_WithConfiguredPlayer_ReturnsSuccessEnvelope()
+    {
+        var testRoot = Path.Combine(Path.GetTempPath(), $"jvedio-play-api-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(testRoot);
+        var videoPath = Path.Combine(testRoot, "ABP-001.mp4");
+        File.WriteAllBytes(videoPath, new byte[1024]);
+
+        var createBody = new StringContent(
+            JsonSerializer.Serialize(new { name = "Play Test Library", scanPaths = new[] { testRoot } }),
+            Encoding.UTF8,
+            "application/json");
+
+        var createResponse = await TestBootstrap.Client.PostAsync("/api/libraries", createBody);
+        Assert.AreEqual(HttpStatusCode.OK, createResponse.StatusCode, "Library creation should succeed");
+
+        var createJson = await createResponse.Content.ReadAsStringAsync();
+        using var createDoc = JsonDocument.Parse(createJson);
+        var libraryId = createDoc.RootElement
+            .GetProperty("data")
+            .GetProperty("library")
+            .GetProperty("libraryId")
+            .GetString();
+        Assert.IsFalse(string.IsNullOrWhiteSpace(libraryId), "Library should have an ID");
+
+        var previousPlayerPath = Environment.GetEnvironmentVariable("JVEDIO_VIDEO_PLAYER_PATH");
+        try
+        {
+            var scanBody = new StringContent(
+                JsonSerializer.Serialize(new { libraryId }),
+                Encoding.UTF8,
+                "application/json");
+
+            var scanResponse = await TestBootstrap.Client.PostAsync($"/api/libraries/{libraryId}/scan", scanBody);
+            Assert.AreEqual(HttpStatusCode.Accepted, scanResponse.StatusCode, "Scan trigger should be accepted");
+
+            string? videoId = null;
+            for (var attempt = 0; attempt < 10 && string.IsNullOrWhiteSpace(videoId); attempt++)
+            {
+                await Task.Delay(500);
+                var videosResponse = await TestBootstrap.Client.GetAsync($"/api/libraries/{libraryId}/videos?pageIndex=0&pageSize=20");
+                Assert.AreEqual(HttpStatusCode.OK, videosResponse.StatusCode);
+
+                var videosJson = await videosResponse.Content.ReadAsStringAsync();
+                using var videosDoc = JsonDocument.Parse(videosJson);
+                var items = videosDoc.RootElement.GetProperty("data").GetProperty("items");
+                if (items.GetArrayLength() > 0)
+                {
+                    videoId = items[0].GetProperty("videoId").GetString();
+                }
+            }
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(videoId), "Scan should import at least one video for play testing");
+
+            var playerPath = Path.Combine(Environment.SystemDirectory, "cmd.exe");
+            Environment.SetEnvironmentVariable("JVEDIO_VIDEO_PLAYER_PATH", playerPath);
+
+            var playBody = new StringContent(
+                JsonSerializer.Serialize(new { playerPath }),
+                Encoding.UTF8,
+                "application/json");
+            var playResponse = await TestBootstrap.Client.PostAsync($"/api/videos/{videoId}/play", playBody);
+            Assert.AreEqual(HttpStatusCode.OK, playResponse.StatusCode, await playResponse.Content.ReadAsStringAsync());
+
+            var playJson = await playResponse.Content.ReadAsStringAsync();
+            using var playDoc = JsonDocument.Parse(playJson);
+            var data = playDoc.RootElement.GetProperty("data");
+            Assert.IsTrue(playDoc.RootElement.GetProperty("success").GetBoolean());
+            Assert.IsTrue(data.GetProperty("played").GetBoolean(), "Play endpoint should return played=true after successful launch");
+            Assert.IsTrue(
+                string.Equals(playerPath, data.GetProperty("playerUsed").GetString(), StringComparison.OrdinalIgnoreCase),
+                "Play endpoint should report the actual player path used");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("JVEDIO_VIDEO_PLAYER_PATH", previousPlayerPath);
+            if (!string.IsNullOrWhiteSpace(libraryId))
+            {
+                await TestBootstrap.Client.DeleteAsync($"/api/libraries/{libraryId}");
+            }
+
+            if (Directory.Exists(testRoot))
+            {
+                try
+                {
+                    Directory.Delete(testRoot, recursive: true);
+                }
+                catch
+                {
+                    // Best effort cleanup only.
+                }
+            }
+        }
     }
 
     // ── Phase 6.3: ScrapeStatus filtering tests ─────────────────

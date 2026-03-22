@@ -9,7 +9,6 @@ namespace Jvedio.Worker.Services;
 
 public sealed class ActorService
 {
-    private static readonly string[] AvatarExtensions = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"];
     private const int DefaultPageSize = 60;
     private const int MaxPageSize = 200;
 
@@ -486,90 +485,22 @@ public sealed class ActorService
             }
         }
 
-        foreach (var cacheKey in GetActorAvatarCacheKeys(actorId, actorName, imageUrl, webUrl))
-        {
-            foreach (var extension in AvatarExtensions)
-            {
-                var cachedPath = Path.Combine(workerPathResolver.ActorAvatarCacheFolder, $"{cacheKey}{extension}");
-                if (File.Exists(cachedPath))
-                {
-                    return cachedPath;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private IEnumerable<string> GetActorAvatarCacheKeys(long actorId, string actorName, string imageUrl, string webUrl)
-    {
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var candidate in new[]
-        {
+        var cachedPath = ActorAvatarCacheNaming.TryResolveExistingPath(
+            workerPathResolver.ActorAvatarCacheFolder,
+            actorName,
             actorId.ToString(),
-            TryExtractAvatarCacheKey(imageUrl),
-            TryExtractAvatarCacheKey(webUrl),
-            ComputeActorNameFallbackKey(actorName),
-        })
-        {
-            if (!string.IsNullOrWhiteSpace(candidate) && seen.Add(candidate))
-            {
-                yield return candidate;
-            }
-        }
-    }
-
-    private static string? TryExtractAvatarCacheKey(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
+            imageUrl,
+            webUrl);
+        if (string.IsNullOrWhiteSpace(cachedPath))
         {
             return null;
         }
 
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
-        {
-            var uriFileName = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
-            if (!string.IsNullOrWhiteSpace(uriFileName))
-            {
-                return uriFileName;
-            }
-        }
-
-        var localFileName = Path.GetFileNameWithoutExtension(value.Trim());
-        return string.IsNullOrWhiteSpace(localFileName) ? null : localFileName;
+        return ActorAvatarCacheNaming.TryPromoteToPrimaryPath(workerPathResolver.ActorAvatarCacheFolder, actorName, cachedPath);
     }
 
     private static string SanitizeLibraryName(string value)
     {
-        var result = value.Trim();
-        foreach (var invalid in Path.GetInvalidFileNameChars())
-        {
-            result = result.Replace(invalid, '_');
-        }
-
-        return result;
-    }
-
-    private static string ComputeActorNameFallbackKey(string actorName)
-    {
-        var normalized = NormalizeActorAvatarKey(actorName);
-        if (string.IsNullOrWhiteSpace(normalized))
-        {
-            normalized = "unknown_actor";
-        }
-
-        var bytes = System.Text.Encoding.UTF8.GetBytes(normalized);
-        var hash = System.Security.Cryptography.SHA1.HashData(bytes);
-        return Convert.ToHexString(hash).ToLowerInvariant();
-    }
-
-    private static string NormalizeActorAvatarKey(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return string.Empty;
-        }
-
         var result = value.Trim();
         foreach (var invalid in Path.GetInvalidFileNameChars())
         {

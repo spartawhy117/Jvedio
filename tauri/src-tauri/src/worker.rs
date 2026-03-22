@@ -1,3 +1,4 @@
+use std::collections::{HashSet, VecDeque};
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
@@ -89,9 +90,19 @@ pub fn get_runtime_metrics(state: tauri::State<'_, WorkerState>) -> RuntimeMetri
     thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
     system.refresh_all();
 
-    let shell_metrics = read_process_metrics(&system, std::process::id());
-    let worker_metrics = worker_pid
-        .and_then(|pid| read_process_metrics(&system, pid));
+    let logical_cpu_count = system.cpus().len().max(1) as f32;
+    let worker_tree = worker_pid
+        .map(|pid| collect_process_tree_pids(&system, pid))
+        .unwrap_or_default();
+    let shell_metrics = read_process_tree_metrics(
+        &system,
+        std::process::id(),
+        Some(&worker_tree),
+        logical_cpu_count,
+    );
+    let worker_metrics = worker_pid.and_then(|pid| {
+        read_process_tree_metrics(&system, pid, None, logical_cpu_count)
+    });
 
     let shell_cpu_percent = shell_metrics.map(|item| item.cpu_percent).unwrap_or(0.0);
     let worker_cpu_percent = worker_metrics.map(|item| item.cpu_percent).unwrap_or(0.0);
@@ -102,7 +113,11 @@ pub fn get_runtime_metrics(state: tauri::State<'_, WorkerState>) -> RuntimeMetri
         worker_running: worker_metrics.is_some(),
         shell_cpu_percent,
         worker_cpu_percent,
-        total_cpu_percent: shell_cpu_percent + worker_cpu_percent,
+        total_cpu_percent: normalize_cpu_percent(
+            shell_metrics.map(|item| item.raw_cpu_percent).unwrap_or(0.0)
+                + worker_metrics.map(|item| item.raw_cpu_percent).unwrap_or(0.0),
+            logical_cpu_count,
+        ),
         shell_memory_mb,
         worker_memory_mb,
         total_memory_mb: shell_memory_mb + worker_memory_mb,
@@ -318,13 +333,65 @@ pub fn kill_worker(app: &AppHandle) {
 
 #[derive(Clone, Copy)]
 struct ProcessMetrics {
+    raw_cpu_percent: f32,
     cpu_percent: f32,
     memory_mb: u64,
 }
 
-fn read_process_metrics(system: &System, pid: u32) -> Option<ProcessMetrics> {
-    system.process(Pid::from_u32(pid)).map(|process| ProcessMetrics {
-        cpu_percent: process.cpu_usage(),
-        memory_mb: process.memory() / 1024 / 1024,
+fn collect_process_tree_pids(system: &System, root_pid: u32) -> HashSet<Pid> {
+    let root = Pid::from_u32(root_pid);
+    if system.process(root).is_none() {
+        return HashSet::new();
+    }
+
+    let mut visited = HashSet::from([root]);
+    let mut queue = VecDeque::from([root]);
+    while let Some(parent_pid) = queue.pop_front() {
+        for (pid, process) in system.processes() {
+            if process.parent() == Some(parent_pid) && visited.insert(*pid) {
+                queue.push_back(*pid);
+            }
+        }
+    }
+
+    visited
+}
+
+fn normalize_cpu_percent(raw_cpu_percent: f32, logical_cpu_count: f32) -> f32 {
+    if logical_cpu_count <= 0.0 {
+        return 0.0;
+    }
+
+    (raw_cpu_percent / logical_cpu_count).clamp(0.0, 100.0)
+}
+
+fn read_process_tree_metrics(
+    system: &System,
+    root_pid: u32,
+    excluded_pids: Option<&HashSet<Pid>>,
+    logical_cpu_count: f32,
+) -> Option<ProcessMetrics> {
+    let tree_pids = collect_process_tree_pids(system, root_pid);
+    if tree_pids.is_empty() {
+        return None;
+    }
+
+    let mut raw_cpu_percent = 0.0;
+    let mut memory_mb = 0;
+    for pid in tree_pids {
+        if excluded_pids.is_some_and(|set| set.contains(&pid)) {
+            continue;
+        }
+
+        if let Some(process) = system.process(pid) {
+            raw_cpu_percent += process.cpu_usage();
+            memory_mb += process.memory() / 1024 / 1024;
+        }
+    }
+
+    Some(ProcessMetrics {
+        raw_cpu_percent,
+        cpu_percent: normalize_cpu_percent(raw_cpu_percent, logical_cpu_count),
+        memory_mb,
     })
 }

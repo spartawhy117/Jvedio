@@ -3,7 +3,7 @@
 ## 1. 当前状态
 
 当前 `Jvedio.Worker.Tests` 测试统计：
-- 总测试数：72
+- 总测试数：75
 - 全部通过：✅
 
 执行方式：
@@ -78,6 +78,9 @@ dotnet test --configuration Release
 
 ### `BatchFavorite_WithEmptyList_ReturnsSuccess`
 - 目标：验证 `POST /api/videos/batch-favorite` 空列表时返回成功
+
+### `PlayVideo_WithConfiguredPlayer_ReturnsSuccessEnvelope`
+- 目标：验证 `POST /api/videos/{id}/play` 在显式播放器路径存在时返回 `200 + played=true`，并回写 `playerUsed`
 
 ## 7. VID 解析测试
 
@@ -253,7 +256,18 @@ dotnet test --configuration Release
 ### `VideoService_IsSafeToDeleteDirectory_AllowsNestedVideoFolder`
 - 目标：验证删除清理允许移除已空的影片子目录
 
-## 16. 当前维护规则
+## 16. 演员头像缓存命名测试
+
+文件：`BusinessLogicTests/ActorAvatarCacheTests.cs`
+数据来源：系统临时目录 + `JVEDIO_APP_BASE_DIR` 测试环境变量，验证缓存命名、命中与旧缓存迁移规则。
+
+### `ResolveActorAvatarPath_PrefersNormalizedActorNameFile`
+- 目标：验证演员头像读取优先命中规范化演员名路径
+
+### `ResolveActorAvatarPath_PromotesLegacyCacheFileToNormalizedActorName`
+- 目标：验证命中旧 `actorId/url` 风格缓存后，会迁移为新的规范化演员名路径
+
+## 17. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：
