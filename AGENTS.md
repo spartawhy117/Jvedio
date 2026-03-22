@@ -126,6 +126,12 @@ E2E 测试 sidecar（目标路径，后续 Worker 适配后生效）：
 ## 版本管理
 - 版本号遵循语义化版本（SemVer）：MAJOR.MINOR.PATCH
 - 当前阶段使用 0.x.y，表示 API 和功能仍在快速迭代
+- 当前仓库发布版本递增采用以下项目约定，而不是机械地每次只 `+1`：
+  - 修复了多少个问题，`PATCH` 就加多少
+  - 新增了多少个功能，`MINOR` 就加多少
+  - 若同一轮同时有“新增功能”和“问题修复”，则 `MINOR` 和 `PATCH` 分别按各自数量同时递增
+  - 当前阶段 `MAJOR` 默认保持 `0`，只有明确进入新的大阶段或用户明确要求时才调整
+- 例如：当前版本是 `0.2.4`，若本轮新增 2 个功能、修复 3 个问题，则下一版本应为 `0.4.7`
 - 4 个核心版本文件：`tauri/package.json`、`tauri/src-tauri/tauri.conf.json`、`tauri/src-tauri/Cargo.toml`、`dotnet/Jvedio/Jvedio.csproj`
 - 统一版本脚本：`pwsh scripts/bump-version.ps1 -Version x.y.z`（一次性更新 4 个文件，保留 BOM/换行符）
 - 每次发布流程：`bump-version.ps1` → `git commit` → `git tag` → `git push --tags`

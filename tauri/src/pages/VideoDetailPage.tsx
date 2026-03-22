@@ -128,7 +128,7 @@ export function VideoDetailPage() {
     return value.length >= 10 ? value.slice(0, 10) : value;
   };
 
-  const headline = video.title?.trim() || video.displayTitle?.trim() || video.vid;
+  const headline = video.displayTitle?.trim() || video.title?.trim() || video.vid;
 
   return (
     <div className="page-content-section page-content-wide">
@@ -145,15 +145,10 @@ export function VideoDetailPage() {
             <div className="video-detail-hero-scrim" aria-hidden="true" />
 
             <div className="video-detail-hero-content">
-              <div className="video-detail-heading">
-                <div className="video-detail-overline">
-                  {video.libraryName && <span>{video.libraryName}</span>}
-                  {video.vid && <span>{video.vid}</span>}
-                  {video.releaseDate && <span>{formatReleaseDate(video.releaseDate)}</span>}
-                  {video.durationSeconds > 0 && <span>{formatDuration(video.durationSeconds)}</span>}
+              <div className="video-detail-hero-header">
+                <div className="video-detail-heading">
+                  <h1 className="video-detail-title">{headline}</h1>
                 </div>
-
-                <h1 className="video-detail-title">{headline}</h1>
 
                 <div className="video-detail-sidecars">
                   <StatusBadge variant={video.sidecars.nfo.exists ? "synced" : "failed"} label={tc("nfo")} />
@@ -161,105 +156,96 @@ export function VideoDetailPage() {
                   <StatusBadge variant={video.sidecars.thumb.exists ? "synced" : "failed"} label={tc("thumb")} />
                   <StatusBadge variant={video.sidecars.fanart.exists ? "synced" : "failed"} label={tc("fanart")} />
                 </div>
+
+                <div className="video-detail-cta">
+                  <button
+                    className="btn btn-primary video-detail-play-button"
+                    onClick={handlePlay}
+                    disabled={playMutation.isLoading || !video.playback.canPlay}
+                    type="button"
+                  >
+                    {playMutation.isLoading ? tc("loading") : <><AppIcon name="play" size={18} /> {tc("play")}</>}
+                  </button>
+                  {!video.playback.canPlay && video.playback.reason ? (
+                    <span className="video-detail-cta-hint">{video.playback.reason}</span>
+                  ) : null}
+                </div>
               </div>
 
-              <div className="video-detail-cta video-detail-cta-panel">
-                <button
-                  className="btn btn-primary video-detail-play-button"
-                  onClick={handlePlay}
-                  disabled={playMutation.isLoading || !video.playback.canPlay}
-                  type="button"
-                >
-                  {playMutation.isLoading ? tc("loading") : <><AppIcon name="play" size={18} /> {tc("play")}</>}
-                </button>
-                {!video.playback.canPlay && video.playback.reason ? (
-                  <span className="video-detail-cta-hint">{video.playback.reason}</span>
-                ) : null}
+              <div className="video-detail-meta-panel">
+                <div className="metadata-grid">
+                  <MetadataRow label="VID" value={video.vid} />
+                  <MetadataRow label={tc("libraryName")} value={video.libraryName || "—"} />
+                  <MetadataRow label={tc("studio")} value={video.studio || "—"} />
+                  <MetadataRow label={tc("series")} value={video.series || "—"} />
+                  <MetadataRow label={tc("releaseDate")} value={formatReleaseDate(video.releaseDate)} />
+                  <MetadataRow label={tc("firstAddedAt")} value={formatDateTime(video.firstAddedAt)} />
+                  <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
+                  <MetadataRow label={tc("director")} value={video.director || "—"} />
+                  <MetadataRow label={tc("viewCount")} value={String(video.viewCount ?? 0)} />
+                  <MetadataRow label={tc("lastPlayedAt")} value={formatDateTime(video.lastPlayedAt)} />
+                  <MetadataRow label={tc("lastScanAt")} value={formatDateTime(video.lastScanAt)} />
+                </div>
               </div>
             </div>
           </section>
 
-          <div className="video-detail-body">
-            <section className="video-detail-main">
-              <div className="metadata-grid">
-                <MetadataRow label="VID" value={video.vid} />
-                {video.libraryName && <MetadataRow label={tc("libraryName")} value={video.libraryName} />}
-                {video.studio && <MetadataRow label={tc("studio")} value={video.studio} />}
-                {video.series && <MetadataRow label={tc("series")} value={video.series} />}
-                {video.releaseDate && (
-                  <MetadataRow label={tc("releaseDate")} value={formatReleaseDate(video.releaseDate)} />
-                )}
-                {video.firstAddedAt && (
-                  <MetadataRow label={tc("firstAddedAt")} value={formatDateTime(video.firstAddedAt)} />
-                )}
-                {video.durationSeconds > 0 && (
-                  <MetadataRow label={tc("duration")} value={formatDuration(video.durationSeconds)} />
-                )}
-                {video.director && <MetadataRow label={tc("director")} value={video.director} />}
-                {video.viewCount > 0 && <MetadataRow label={tc("viewCount")} value={String(video.viewCount)} />}
-                {video.lastPlayedAt && (
-                  <MetadataRow label={tc("lastPlayedAt")} value={formatDateTime(video.lastPlayedAt)} />
-                )}
-                {video.lastScanAt && (
-                  <MetadataRow label={tc("lastScanAt")} value={formatDateTime(video.lastScanAt)} />
-                )}
+          {video.actors && video.actors.length > 0 && (
+            <section className="video-detail-actors-section">
+              <div className="video-detail-section-heading">
+                <span className="detail-label">{tc("actors")}</span>
               </div>
-
-              <div className="video-detail-path">
-                <div className="video-detail-path-header">
-                  <span className="detail-label">{tc("filePath")}</span>
-                  <button
-                    className="btn btn-sm btn-secondary"
-                    onClick={handleOpenFolder}
-                    title={tc("openFolder")}
-                    type="button"
-                  >
-                    {tc("openFolder")}
-                  </button>
-                </div>
-                <code className="path-text">{video.path}</code>
+              <div className="video-detail-actor-strip">
+                {video.actors
+                  .filter((actor) => !!actor.actorId)
+                  .map((actor) => (
+                    <ActorCard
+                      key={actor.actorId}
+                      actor={{
+                        actorId: actor.actorId ?? "",
+                        avatarPath: actor.avatarPath,
+                        name: actor.name,
+                      }}
+                      baseUrl={baseUrl}
+                      compact
+                      subtitle={null}
+                      onClick={handleActorClick}
+                    />
+                  ))}
               </div>
-
-              {video.webUrl && (
-                <div className="video-detail-weburl">
-                  <span className="detail-label">{tc("webUrl")}</span>
-                  <a
-                    className="weburl-link"
-                    href={video.webUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {video.webUrl}
-                  </a>
-                </div>
-              )}
             </section>
+          )}
 
-            <aside className="video-detail-aside">
-              {video.actors && video.actors.length > 0 && (
-                <div className="video-detail-actors">
-                  <span className="detail-label">{tc("actors")}</span>
-                  <div className="video-detail-actor-grid">
-                    {video.actors
-                      .filter((actor) => !!actor.actorId)
-                      .map((actor) => (
-                        <ActorCard
-                          key={actor.actorId}
-                          actor={{
-                            actorId: actor.actorId ?? "",
-                            avatarPath: actor.avatarPath,
-                            name: actor.name,
-                          }}
-                          baseUrl={baseUrl}
-                          subtitle={null}
-                          onClick={handleActorClick}
-                        />
-                      ))}
-                  </div>
-                </div>
-              )}
-            </aside>
-          </div>
+          <section className="video-detail-info-stack">
+            <div className="video-detail-surface video-detail-path">
+              <div className="video-detail-path-header">
+                <span className="detail-label">{tc("filePath")}</span>
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={handleOpenFolder}
+                  title={tc("openFolder")}
+                  type="button"
+                >
+                  {tc("openFolder")}
+                </button>
+              </div>
+              <code className="path-text">{video.path}</code>
+            </div>
+
+            {video.webUrl && (
+              <div className="video-detail-surface video-detail-weburl">
+                <span className="detail-label">{tc("webUrl")}</span>
+                <a
+                  className="weburl-link"
+                  href={video.webUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {video.webUrl}
+                </a>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </div>

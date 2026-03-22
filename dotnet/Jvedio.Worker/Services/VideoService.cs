@@ -473,7 +473,15 @@ public sealed class VideoService
         {
             if (!string.IsNullOrWhiteSpace(resolvedPlayerPath) && File.Exists(resolvedPlayerPath))
             {
-                StartProcess(resolvedPlayerPath, $"\"{record.Value.Path}\"", Path.GetDirectoryName(resolvedPlayerPath));
+                var launchOutcome = StartProcess(resolvedPlayerPath, $"\"{record.Value.Path}\"", Path.GetDirectoryName(resolvedPlayerPath));
+                if (launchOutcome.TreatedAsShellHandoffSuccess)
+                {
+                    logger.LogWarning(
+                        "[Worker-Video] Player launch for video {VideoId} returned no process handle, but shell handoff was accepted. player={PlayerPath}",
+                        videoId,
+                        resolvedPlayerPath);
+                }
+
                 usedSystemDefault = false;
                 usedPlayerPath = resolvedPlayerPath;
             }
@@ -493,7 +501,14 @@ public sealed class VideoService
             }
             else
             {
-                StartProcess(record.Value.Path, null, Path.GetDirectoryName(record.Value.Path));
+                var launchOutcome = StartProcess(record.Value.Path, null, Path.GetDirectoryName(record.Value.Path));
+                if (launchOutcome.TreatedAsShellHandoffSuccess)
+                {
+                    logger.LogInformation(
+                        "[Worker-Video] System default player handoff for video {VideoId} succeeded without process handle. file={VideoPath}",
+                        videoId,
+                        record.Value.Path);
+                }
             }
         }
         catch (WorkerApiException)
@@ -1251,7 +1266,7 @@ public sealed class VideoService
             && value.Contains(keyword, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static void StartProcess(string fileName, string? arguments, string? workingDirectory)
+    private static ProcessLaunchOutcome StartProcess(string fileName, string? arguments, string? workingDirectory)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -1261,8 +1276,45 @@ public sealed class VideoService
             WorkingDirectory = string.IsNullOrWhiteSpace(workingDirectory) ? Environment.CurrentDirectory : workingDirectory,
         };
 
-        _ = Process.Start(startInfo) ?? throw new InvalidOperationException(
+        var process = Process.Start(startInfo);
+        if (process is not null)
+        {
+            return new ProcessLaunchOutcome(HasProcessHandle: true, TreatedAsShellHandoffSuccess: false);
+        }
+
+        if (CanTreatNullProcessAsShellHandoffSuccess(fileName, arguments, startInfo.UseShellExecute))
+        {
+            return new ProcessLaunchOutcome(HasProcessHandle: false, TreatedAsShellHandoffSuccess: true);
+        }
+
+        throw new InvalidOperationException(
             $"Process start returned null. FileName={fileName}; Arguments={startInfo.Arguments}; WorkingDirectory={startInfo.WorkingDirectory}; UseShellExecute={startInfo.UseShellExecute}");
+    }
+
+    private static bool CanTreatNullProcessAsShellHandoffSuccess(string fileName, string? arguments, bool useShellExecute)
+    {
+        if (!useShellExecute || !string.IsNullOrWhiteSpace(arguments) || !File.Exists(fileName))
+        {
+            return false;
+        }
+
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return false;
+        }
+
+        return !IsDirectExecutableExtension(extension);
+    }
+
+    private static bool IsDirectExecutableExtension(string extension)
+    {
+        return extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".com", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".bat", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".cmd", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".ps1", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".msi", StringComparison.OrdinalIgnoreCase);
     }
 
     private static WorkerApiException CreateNotFoundException(string code, string message)
@@ -1323,6 +1375,10 @@ public sealed class VideoService
         int PageIndex,
         int PageSize,
         int TotalCount);
+
+    private readonly record struct ProcessLaunchOutcome(
+        bool HasProcessHandle,
+        bool TreatedAsShellHandoffSuccess);
 
     private sealed class VideoGroupAccumulator
     {

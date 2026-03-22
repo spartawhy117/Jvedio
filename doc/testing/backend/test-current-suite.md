@@ -3,7 +3,7 @@
 ## 1. 当前状态
 
 当前 `Jvedio.Worker.Tests` 测试统计：
-- 总测试数：75
+- 总测试数：78
 - 全部通过：✅
 
 执行方式：
@@ -267,7 +267,21 @@ dotnet test --configuration Release
 ### `ResolveActorAvatarPath_PromotesLegacyCacheFileToNormalizedActorName`
 - 目标：验证命中旧 `actorId/url` 风格缓存后，会迁移为新的规范化演员名路径
 
-## 17. 当前维护规则
+## 17. 播放 shell handoff 判定测试
+
+文件：`BusinessLogicTests/VideoPlayLaunchTests.cs`
+数据来源：系统临时目录中的假媒体文件 / 假可执行文件，纯逻辑反射测试。
+
+### `CanTreatNullProcessAsShellHandoffSuccess_AllowsMediaFileWithShellExecute`
+- 目标：验证 `.mp4` 这类媒体文件在 `UseShellExecute=true` 且无参数时，允许把空进程句柄视为 shell 接管成功
+
+### `CanTreatNullProcessAsShellHandoffSuccess_RejectsExecutableFile`
+- 目标：验证 `.exe` 这类直接执行文件仍要求真实进程句柄，不能吞掉启动失败
+
+### `CanTreatNullProcessAsShellHandoffSuccess_RejectsWhenArgumentsArePresent`
+- 目标：验证显式播放器路径 + 参数场景仍要求真实进程句柄，避免误放过真正失败
+
+## 18. 当前维护规则
 
 - 新增或删除测试时，更新本文件
 - 如果测试目标边界变化，同时更新：
