@@ -22,7 +22,7 @@ import { BackNavigation } from "../components/shared/BackNavigation";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
-import { ResultSummary } from "../components/shared/ResultSummary";
+import { AppIcon } from "../components/shared/AppIcon";
 import { VideoContextMenu, type ContextMenuAction } from "../components/shared/VideoContextMenu";
 import { showToast } from "../components/GlobalToast";
 import type {
@@ -292,13 +292,13 @@ export function ActorDetailPage() {
     {
       key: "detail",
       label: tc("viewDetail"),
-      icon: "📋",
+      icon: "detail",
       onClick: () => handleVideoClick(video.videoId),
     },
     {
       key: "play",
       label: tc("play"),
-      icon: "▶",
+      icon: "play",
       onClick: async () => {
         const client = getApiClient();
         if (!client) return;
@@ -313,7 +313,7 @@ export function ActorDetailPage() {
     {
       key: "openFolder",
       label: tc("openFolder"),
-      icon: "📂",
+      icon: "folder",
       onClick: async () => {
         if (!video.path) return;
         try {
@@ -327,13 +327,13 @@ export function ActorDetailPage() {
     {
       key: "toggleFavorite",
       label: tc("toggleFavorite"),
-      icon: "❤",
+      icon: "favorite",
       onClick: () => handleToggleFavorite(video),
     },
     {
       key: "rescrape",
       label: tc("rescrapeMetadata"),
-      icon: "🔄",
+      icon: "rescrape",
       onClick: async () => {
         const client = getApiClient();
         if (!client || !video.libraryId) return;
@@ -353,7 +353,7 @@ export function ActorDetailPage() {
     {
       key: "copyVid",
       label: tc("copyVid"),
-      icon: "📎",
+      icon: "copy",
       onClick: () => {
         navigator.clipboard.writeText(video.vid).catch(() => {});
         showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
@@ -362,7 +362,7 @@ export function ActorDetailPage() {
     {
       key: "delete",
       label: tc("deleteVideo"),
-      icon: "🗑",
+      icon: "delete",
       danger: true,
       onClick: () => handleDeleteVideo(video),
     },
@@ -396,7 +396,7 @@ export function ActorDetailPage() {
           <BackNavigation fallbackLabel={tc("back")} />
           <h2 className="page-title">{tc("actorId")}</h2>
         </div>
-        <ResultState type="empty" icon="👤" message={tc("noData")} />
+        <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noData")} />
       </div>
     );
   }
@@ -415,7 +415,7 @@ export function ActorDetailPage() {
           {avatarUrl ? (
             <img src={avatarUrl} alt={actor.name} loading="lazy" />
           ) : (
-            <div className="actor-detail-no-avatar">👤</div>
+            <div className="actor-detail-no-avatar"><AppIcon name="actors" size={40} /></div>
           )}
         </div>
         <div className="actor-detail-info">
@@ -446,7 +446,6 @@ export function ActorDetailPage() {
       {/* Associated videos section */}
       <h3 className="section-heading">
         {tc("associatedVideos")}
-        {videosData && <ResultSummary totalCount={totalCount} />}
       </h3>
 
       <QueryToolbar
@@ -462,9 +461,9 @@ export function ActorDetailPage() {
         <div className="batch-action-bar">
           <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
           <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchFavorite}>❤ {tc("batchFavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}>🔄 {tc("rescrapeMetadata")}</button>
-          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchFavorite}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
+          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
           <div className="toolbar-spacer" />
           <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
         </div>
@@ -475,7 +474,7 @@ export function ActorDetailPage() {
       ) : videosQuery.isError ? (
         <ResultState type="error" message={videosQuery.error?.message} />
       ) : videoItems.length === 0 ? (
-        <ResultState type="empty" icon="🎬" message={tc("noResults")} />
+        <ResultState type="empty" icon={<AppIcon name="brand" size={40} />} message={tc("noResults")} />
       ) : (
         <div className="video-grid">
           {videoItems.map((video) => (

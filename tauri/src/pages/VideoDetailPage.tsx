@@ -17,6 +17,7 @@ import { useApiQuery, useApiMutation } from "../hooks/useApiQuery";
 import { showToast } from "../components/GlobalToast";
 import { ResultState } from "../components/shared/ResultState";
 import { ActorCard } from "../components/shared/ActorCard";
+import { AppIcon } from "../components/shared/AppIcon";
 import { BackNavigation } from "../components/shared/BackNavigation";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import type { GetVideoDetailResponse, PlayVideoResponse } from "../api/types";
@@ -236,7 +237,7 @@ export function VideoDetailPage() {
               disabled={playMutation.isLoading || !video.playback.canPlay}
               type="button"
             >
-              {playMutation.isLoading ? tc("loading") : `▶ ${tc("play")}`}
+              {playMutation.isLoading ? tc("loading") : <><AppIcon name="play" size={16} /> {tc("play")}</>}
             </button>
             {!video.playback.canPlay && video.playback.reason ? (
               <span className="video-detail-cta-hint">{video.playback.reason}</span>

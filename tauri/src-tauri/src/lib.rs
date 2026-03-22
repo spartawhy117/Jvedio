@@ -101,6 +101,7 @@ pub fn run() {
         .manage(StartupWindowState::new())
         .invoke_handler(tauri::generate_handler![
             worker::get_worker_base_url,
+            worker::get_runtime_metrics,
             mark_main_window_ready,
             reveal_main_window_for_error
         ])

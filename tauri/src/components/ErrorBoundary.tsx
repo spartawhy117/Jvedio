@@ -6,6 +6,7 @@
  */
 
 import { Component, type ReactNode, type ErrorInfo } from "react";
+import { AppIcon } from "./shared/AppIcon";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -46,7 +47,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="error-boundary-fallback">
-          <div className="error-boundary-icon">⚠</div>
+          <div className="error-boundary-icon"><AppIcon name="failed" size={28} /></div>
           <h2 className="error-boundary-title">Something went wrong</h2>
           <p className="error-boundary-message">
             {this.state.error?.message ?? "An unexpected error occurred."}

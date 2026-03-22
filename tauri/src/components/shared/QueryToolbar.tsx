@@ -6,6 +6,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { AppIcon } from "./AppIcon";
 import "./QueryToolbar.css";
 
 export interface QueryToolbarProps {
@@ -30,6 +31,7 @@ export function QueryToolbar({
   const { t } = useTranslation("common");
   const [localKeyword, setLocalKeyword] = useState(keyword);
   const [sortOpen, setSortOpen] = useState(false);
+  const currentSortLabel = sortOptions.find((item) => item.value === currentSort)?.label ?? t("sortBy");
 
   useEffect(() => {
     setLocalKeyword(keyword);
@@ -74,40 +76,44 @@ export function QueryToolbar({
         onKeyDown={handleKeyDown}
         disabled={disabled}
       />
-      <button
-        className="btn btn-icon"
-        onClick={onRefresh}
-        disabled={disabled}
-        title={t("refresh")}
-      >
-        ↻
-      </button>
       <div className="toolbar-spacer" />
-
-      {sortOptions.length > 0 && (
-        <div className="sort-dropdown-wrapper">
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => setSortOpen(!sortOpen)}
-            disabled={disabled}
-          >
-            {t("sortBy")} ▾
-          </button>
-          {sortOpen && (
-            <div className="sort-dropdown">
-              {sortOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`sort-option ${currentSort === opt.value ? "active" : ""}`}
-                  onClick={() => handleSortSelect(opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <div className="query-toolbar-actions">
+        {sortOptions.length > 0 && (
+          <div className="sort-dropdown-wrapper">
+            <button
+              className="btn btn-secondary btn-sm query-toolbar-button"
+              onClick={() => setSortOpen(!sortOpen)}
+              disabled={disabled}
+            >
+              <AppIcon name="sort" size={14} />
+              <span>{currentSortLabel}</span>
+              <span className="query-toolbar-caret">▾</span>
+            </button>
+            {sortOpen && (
+              <div className="sort-dropdown">
+                {sortOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={`sort-option ${currentSort === opt.value ? "active" : ""}`}
+                    onClick={() => handleSortSelect(opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <button
+          className="btn btn-secondary btn-sm query-toolbar-button"
+          onClick={onRefresh}
+          disabled={disabled}
+          title={t("refresh")}
+        >
+          <AppIcon name="refresh" size={14} />
+          <span>{t("refresh")}</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,12 @@ public sealed class LibraryListItemDto
 
     public int VideoCount { get; set; }
 
+    public int SyncedVideoCount { get; set; }
+
+    public int CompletionPercent { get; set; }
+
+    public bool IsFullySynced { get; set; }
+
     public string? LastScanAt { get; set; }
 
     public string? LastScrapeAt { get; set; }

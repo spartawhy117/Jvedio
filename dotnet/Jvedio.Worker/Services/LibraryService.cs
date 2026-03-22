@@ -68,13 +68,18 @@ public sealed class LibraryService
             var scanPaths = ParseScanPaths(reader.GetString(3));
             var extraInfo = ParseObject(reader.GetString(5));
             var libraryId = reader.GetInt64(0).ToString();
+            var videoCount = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2));
+            var syncedVideoCount = GetLibrarySyncedVideoCount(connection, long.Parse(libraryId));
             libraries.Add(new LibraryListItemDto
             {
                 LibraryId = libraryId,
                 Name = reader.GetString(1),
                 Path = scanPaths.FirstOrDefault() ?? string.Empty,
                 ScanPaths = scanPaths,
-                VideoCount = reader.IsDBNull(2) ? 0 : Convert.ToInt32(reader.GetValue(2)),
+                VideoCount = videoCount,
+                SyncedVideoCount = syncedVideoCount,
+                CompletionPercent = CalculateCompletionPercent(videoCount, syncedVideoCount),
+                IsFullySynced = videoCount > 0 && syncedVideoCount >= videoCount,
                 LastScanAt = ReadString(extraInfo, "lastScanAt"),
                 LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
                 HasRunningTask = workerTaskRegistryService.HasRunningTask(libraryId),
@@ -123,6 +128,9 @@ public sealed class LibraryService
             Path = scanPaths.FirstOrDefault() ?? string.Empty,
             ScanPaths = scanPaths,
             VideoCount = 0,
+            SyncedVideoCount = 0,
+            CompletionPercent = 0,
+            IsFullySynced = false,
             LastScanAt = null,
             LastScrapeAt = null,
             HasRunningTask = workerTaskRegistryService.HasRunningTask(insertedId.ToString()),
@@ -203,6 +211,9 @@ public sealed class LibraryService
             Path = nextScanPaths.FirstOrDefault() ?? string.Empty,
             ScanPaths = nextScanPaths,
             VideoCount = existingLibrary.Value.VideoCount,
+            SyncedVideoCount = existingLibrary.Value.SyncedVideoCount,
+            CompletionPercent = CalculateCompletionPercent(existingLibrary.Value.VideoCount, existingLibrary.Value.SyncedVideoCount),
+            IsFullySynced = existingLibrary.Value.VideoCount > 0 && existingLibrary.Value.SyncedVideoCount >= existingLibrary.Value.VideoCount,
             LastScanAt = existingLibrary.Value.LastScanAt,
             LastScrapeAt = existingLibrary.Value.LastScrapeAt,
             HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
@@ -264,6 +275,9 @@ public sealed class LibraryService
                 Path = library.Value.Path,
                 ScanPaths = library.Value.ScanPaths,
                 VideoCount = library.Value.VideoCount,
+                SyncedVideoCount = library.Value.SyncedVideoCount,
+                CompletionPercent = CalculateCompletionPercent(library.Value.VideoCount, library.Value.SyncedVideoCount),
+                IsFullySynced = library.Value.VideoCount > 0 && library.Value.SyncedVideoCount >= library.Value.VideoCount,
                 LastScanAt = library.Value.LastScanAt,
                 LastScrapeAt = library.Value.LastScrapeAt,
                 HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
@@ -309,6 +323,7 @@ public sealed class LibraryService
             extraInfo["lastScrapeAt"] = lastScrapeAtUtc.Value.ToString("O");
         }
 
+        var syncedVideoCount = GetLibrarySyncedVideoCount(connection, parsedId);
         using var command = connection.CreateCommand();
         command.CommandText =
             """
@@ -330,6 +345,9 @@ public sealed class LibraryService
             Path = library.Value.Path,
             ScanPaths = library.Value.ScanPaths,
             VideoCount = videoCount,
+            SyncedVideoCount = syncedVideoCount,
+            CompletionPercent = CalculateCompletionPercent(videoCount, syncedVideoCount),
+            IsFullySynced = videoCount > 0 && syncedVideoCount >= videoCount,
             LastScanAt = ReadString(extraInfo, "lastScanAt"),
             LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
             HasRunningTask = workerTaskRegistryService.HasRunningTask(parsedId.ToString()),
@@ -461,6 +479,7 @@ public sealed class LibraryService
             reader.GetString(1),
             reader.IsDBNull(2) ? VideoDataType : Convert.ToInt64(reader.GetValue(2)),
             reader.IsDBNull(3) ? 0 : Convert.ToInt32(reader.GetValue(3)),
+            GetLibrarySyncedVideoCount(connection, reader.GetInt64(0)),
             ParseScanPaths(reader.GetString(4)),
             reader.IsDBNull(5) ? string.Empty : reader.GetString(5));
     }
@@ -624,6 +643,33 @@ public sealed class LibraryService
         return Convert.ToInt32(command.ExecuteScalar());
     }
 
+    private int GetLibrarySyncedVideoCount(SqliteConnection connection, long libraryId)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            SELECT COUNT(1)
+            FROM metadata
+            INNER JOIN metadata_video ON metadata_video.DataID = metadata.DataID
+            WHERE metadata.DBId = $libraryId
+              AND metadata.DataType = $dataType
+              AND LOWER(IFNULL(metadata_video.ScrapeStatus, 'none')) = 'full';
+            """;
+        command.Parameters.AddWithValue("$libraryId", libraryId);
+        command.Parameters.AddWithValue("$dataType", VideoDataType);
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
+    private static int CalculateCompletionPercent(int videoCount, int syncedVideoCount)
+    {
+        if (videoCount <= 0)
+        {
+            return 0;
+        }
+
+        return Math.Clamp((int)Math.Round((double)syncedVideoCount / videoCount * 100d), 0, 100);
+    }
+
     private LibraryListItemDto ToLibraryListItem(LibraryRecord record)
     {
         var extraInfo = ParseObject(record.ExtraInfo);
@@ -634,6 +680,9 @@ public sealed class LibraryService
             Path = record.Path,
             ScanPaths = record.ScanPaths,
             VideoCount = record.VideoCount,
+            SyncedVideoCount = record.SyncedVideoCount,
+            CompletionPercent = CalculateCompletionPercent(record.VideoCount, record.SyncedVideoCount),
+            IsFullySynced = record.VideoCount > 0 && record.SyncedVideoCount >= record.VideoCount,
             LastScanAt = ReadString(extraInfo, "lastScanAt"),
             LastScrapeAt = ReadString(extraInfo, "lastScrapeAt"),
             HasRunningTask = workerTaskRegistryService.HasRunningTask(record.Id.ToString()),
@@ -661,6 +710,7 @@ public sealed class LibraryService
         string Name,
         long DataType,
         int VideoCount,
+        int SyncedVideoCount,
         IReadOnlyList<string> ScanPaths,
         string ExtraInfo)
     {

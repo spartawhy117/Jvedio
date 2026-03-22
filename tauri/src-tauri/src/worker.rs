@@ -5,6 +5,7 @@ use std::sync::Mutex;
 use std::thread;
 
 use serde::Serialize;
+use sysinfo::{Pid, System};
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::shell_log::shell_log;
@@ -43,6 +44,18 @@ pub struct WorkerLogPayload {
     pub line: String,
 }
 
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RuntimeMetricsPayload {
+    pub worker_running: bool,
+    pub shell_cpu_percent: f32,
+    pub worker_cpu_percent: f32,
+    pub total_cpu_percent: f32,
+    pub shell_memory_mb: u64,
+    pub worker_memory_mb: u64,
+    pub total_memory_mb: u64,
+}
+
 // ── State ───────────────────────────────────────────────
 
 pub struct WorkerState {
@@ -65,6 +78,35 @@ impl WorkerState {
 #[tauri::command]
 pub fn get_worker_base_url(state: tauri::State<'_, WorkerState>) -> Option<String> {
     state.base_url.lock().unwrap().clone()
+}
+
+#[tauri::command]
+pub fn get_runtime_metrics(state: tauri::State<'_, WorkerState>) -> RuntimeMetricsPayload {
+    let worker_pid = state.child.lock().unwrap().as_ref().map(|child| child.id());
+
+    let mut system = System::new_all();
+    system.refresh_all();
+    thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    system.refresh_all();
+
+    let shell_metrics = read_process_metrics(&system, std::process::id());
+    let worker_metrics = worker_pid
+        .and_then(|pid| read_process_metrics(&system, pid));
+
+    let shell_cpu_percent = shell_metrics.map(|item| item.cpu_percent).unwrap_or(0.0);
+    let worker_cpu_percent = worker_metrics.map(|item| item.cpu_percent).unwrap_or(0.0);
+    let shell_memory_mb = shell_metrics.map(|item| item.memory_mb).unwrap_or(0);
+    let worker_memory_mb = worker_metrics.map(|item| item.memory_mb).unwrap_or(0);
+
+    RuntimeMetricsPayload {
+        worker_running: worker_metrics.is_some(),
+        shell_cpu_percent,
+        worker_cpu_percent,
+        total_cpu_percent: shell_cpu_percent + worker_cpu_percent,
+        shell_memory_mb,
+        worker_memory_mb,
+        total_memory_mb: shell_memory_mb + worker_memory_mb,
+    }
 }
 
 // ── Lifecycle ───────────────────────────────────────────
@@ -272,4 +314,17 @@ pub fn kill_worker(app: &AppHandle) {
         let _ = child.wait();
     }
     drop(guard);
+}
+
+#[derive(Clone, Copy)]
+struct ProcessMetrics {
+    cpu_percent: f32,
+    memory_mb: u64,
+}
+
+fn read_process_metrics(system: &System, pid: u32) -> Option<ProcessMetrics> {
+    system.process(Pid::from_u32(pid)).map(|process| ProcessMetrics {
+        cpu_percent: process.cpu_usage(),
+        memory_mb: process.memory() / 1024 / 1024,
+    })
 }

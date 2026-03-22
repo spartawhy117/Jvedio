@@ -18,7 +18,7 @@ import { ActorCard } from "../components/shared/ActorCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
-import { ResultSummary } from "../components/shared/ResultSummary";
+import { AppIcon } from "../components/shared/AppIcon";
 import type { GetActorsResponse } from "../api/types";
 import "./pages.css";
 
@@ -95,7 +95,6 @@ export function ActorsPage() {
     <div className="page-content-section page-content-wide">
       <div className="page-header">
         <h2 className="page-title">{t("actors")}</h2>
-        {data && <ResultSummary totalCount={totalCount} />}
       </div>
 
       <QueryToolbar
@@ -112,7 +111,7 @@ export function ActorsPage() {
       ) : actorsQuery.isError ? (
         <ResultState type="error" message={actorsQuery.error?.message} />
       ) : data && data.items.length === 0 ? (
-        <ResultState type="empty" icon="👤" message={tc("noResults")} />
+        <ResultState type="empty" icon={<AppIcon name="actors" size={40} />} message={tc("noResults")} />
       ) : data ? (
         <div className="actor-grid">
           {data.items.map((actor) => (

@@ -7,6 +7,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import "./Pagination.css";
 
 export interface PaginationProps {
@@ -24,6 +25,7 @@ export function Pagination({
   onPageChange,
   disabled = false,
 }: PaginationProps) {
+  const { t } = useTranslation("common");
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const currentPage = pageIndex + 1; // Display as 1-based
   const [editing, setEditing] = useState(false);
@@ -98,7 +100,7 @@ export function Pagination({
 
       {editing && (
         <button className="btn btn-sm btn-secondary" onClick={handleGo}>
-          Go
+          {t("jump", { defaultValue: "跳转" })}
         </button>
       )}
     </div>

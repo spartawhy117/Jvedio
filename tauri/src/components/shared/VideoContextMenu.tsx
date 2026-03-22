@@ -12,13 +12,14 @@
  */
 
 import { useEffect, useRef, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
+import { AppIcon, type AppIconName } from "./AppIcon";
 import "./VideoContextMenu.css";
 
 export interface ContextMenuAction {
   key: string;
   label: string;
-  icon?: string;
+  icon?: AppIconName | ReactNode;
   danger?: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -33,7 +34,6 @@ export interface VideoContextMenuProps {
 
 export function VideoContextMenu({ x, y, actions, onClose }: VideoContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
-  const { t: _tc } = useTranslation("common");
 
   // Close on outside click or Escape
   useEffect(() => {
@@ -88,7 +88,13 @@ export function VideoContextMenu({ x, y, actions, onClose }: VideoContextMenuPro
           onClick={() => handleAction(action)}
           disabled={action.disabled}
         >
-          {action.icon && <span className="context-menu-icon">{action.icon}</span>}
+          {action.icon && (
+            <span className="context-menu-icon">
+              {typeof action.icon === "string"
+                ? <AppIcon name={action.icon as AppIconName} size={15} />
+                : action.icon}
+            </span>
+          )}
           <span className="context-menu-label">{action.label}</span>
         </button>
       ))}

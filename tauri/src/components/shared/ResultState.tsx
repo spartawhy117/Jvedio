@@ -5,13 +5,15 @@
  */
 
 import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
+import { AppIcon } from "./AppIcon";
 import "./ResultState.css";
 
 export type ResultStateType = "loading" | "empty" | "error";
 
 export interface ResultStateProps {
   type: ResultStateType;
-  icon?: string;
+  icon?: ReactNode;
   message?: string;
   hint?: string;
 }
@@ -19,10 +21,10 @@ export interface ResultStateProps {
 export function ResultState({ type, icon, message, hint }: ResultStateProps) {
   const { t } = useTranslation("common");
 
-  const defaults: Record<ResultStateType, { icon: string; message: string }> = {
-    loading: { icon: "⏳", message: t("loading") },
-    empty: { icon: "📭", message: t("noResults") },
-    error: { icon: "⚠", message: t("error") },
+  const defaults: Record<ResultStateType, { icon: ReactNode; message: string }> = {
+    loading: { icon: <AppIcon name="running" size={36} />, message: t("loading") },
+    empty: { icon: <AppIcon name="library" size={36} />, message: t("noResults") },
+    error: { icon: <AppIcon name="failed" size={36} />, message: t("error") },
   };
 
   const d = defaults[type];

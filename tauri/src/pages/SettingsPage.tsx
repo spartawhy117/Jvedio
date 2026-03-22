@@ -17,6 +17,7 @@ import { getApiClient } from "../api/client";
 import { useApiQuery, useApiMutation, invalidateQueries } from "../hooks/useApiQuery";
 import { useOnSettingsChanged } from "../hooks/useSSESubscription";
 import { showToast } from "../components/GlobalToast";
+import { AppIcon } from "../components/shared/AppIcon";
 import type { ThemeMode } from "../theme/theme-mode-store";
 import type {
   GetSettingsResponse,
@@ -414,7 +415,7 @@ export function SettingsPage() {
               </button>
               {diagResult && (
                 <div className={`diag-result ${diagResult.success ? "success" : "failure"}`}>
-                  <span>{diagResult.success ? "✓" : "✗"}</span>
+                  <span><AppIcon name={diagResult.success ? "completed" : "failed"} size={14} /></span>
                   <span>
                     {diagResult.success
                       ? `${t("metaTubeSettings.diagSuccess")}: ${diagResult.summary}`
@@ -434,7 +435,7 @@ export function SettingsPage() {
         )}
         {settingsQuery.isError && (
           <div className="settings-error">
-            <span>⚠ {settingsQuery.error?.message}</span>
+            <span><AppIcon name="failed" size={14} /> {settingsQuery.error?.message}</span>
             <button className="btn btn-sm btn-secondary" onClick={() => settingsQuery.refetch()}>
               {tc("refresh")}
             </button>

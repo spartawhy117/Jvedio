@@ -21,7 +21,7 @@ import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
-import { ResultSummary } from "../components/shared/ResultSummary";
+import { AppIcon } from "../components/shared/AppIcon";
 import { VideoContextMenu, type ContextMenuAction } from "../components/shared/VideoContextMenu";
 import { showToast } from "../components/GlobalToast";
 import type { GetFavoriteVideosResponse, VideoListItemDto } from "../api/types";
@@ -247,13 +247,13 @@ export function FavoritesPage() {
     {
       key: "detail",
       label: tc("viewDetail") || "查看详情",
-      icon: "📋",
+      icon: "detail",
       onClick: () => navigate("video-detail", { videoId: video.videoId }, { label: t("favorites") }),
     },
     {
       key: "play",
       label: tc("play"),
-      icon: "▶",
+      icon: "play",
       onClick: async () => {
         const client = getApiClient();
         if (!client) return;
@@ -268,7 +268,7 @@ export function FavoritesPage() {
     {
       key: "openFolder",
       label: tc("openFolder"),
-      icon: "📂",
+      icon: "folder",
       onClick: async () => {
         if (!video.path) return;
         try {
@@ -282,13 +282,13 @@ export function FavoritesPage() {
     {
       key: "unfavorite",
       label: tc("unfavorite"),
-      icon: "💔",
+      icon: "favorite-off",
       onClick: () => handleToggleFavorite(video),
     },
     {
       key: "rescrape",
       label: tc("rescrapeMetadata"),
-      icon: "🔄",
+      icon: "rescrape",
       onClick: async () => {
         const client = getApiClient();
         if (!client || !video.libraryId) return;
@@ -308,7 +308,7 @@ export function FavoritesPage() {
     {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
-      icon: "📎",
+      icon: "copy",
       onClick: () => {
         navigator.clipboard.writeText(video.vid).catch(() => {});
         showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
@@ -317,7 +317,7 @@ export function FavoritesPage() {
     {
       key: "delete",
       label: tc("deleteVideo"),
-      icon: "🗑",
+      icon: "delete",
       danger: true,
       onClick: () => handleDeleteVideo(video),
     },
@@ -329,7 +329,6 @@ export function FavoritesPage() {
     <div className="page-content-section page-content-wide">
       <div className="page-header">
         <h2 className="page-title">{t("favorites")}</h2>
-        {data && <ResultSummary totalCount={totalCount} />}
       </div>
 
       <QueryToolbar
@@ -346,9 +345,9 @@ export function FavoritesPage() {
         <div className="batch-action-bar">
           <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
           <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchUnfavorite}>💔 {tc("batchUnfavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}>🔄 {tc("rescrapeMetadata")}</button>
-          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchUnfavorite}><AppIcon name="favorite-off" size={14} /> {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
+          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
           <div className="toolbar-spacer" />
           <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
         </div>
@@ -359,7 +358,7 @@ export function FavoritesPage() {
       ) : favQuery.isError ? (
         <ResultState type="error" message={favQuery.error?.message} />
       ) : data && data.items.length === 0 ? (
-        <ResultState type="empty" icon="❤" message={tc("noResults")} />
+        <ResultState type="empty" icon={<AppIcon name="favorites" size={40} />} message={tc("noResults")} />
       ) : data ? (
         <div className="video-grid">
           {data.items.map((video) => (

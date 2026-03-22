@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useWorker } from "../contexts/WorkerContext";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { STARTUP_TIMEOUT_EVENT } from "./StartupReadyBridge";
+import { AppIcon } from "./shared/AppIcon";
 import "./WorkerStatusOverlay.css";
 
 /**
@@ -54,7 +55,7 @@ export function WorkerStatusOverlay() {
       <div className="worker-overlay-card">
         {showWorkerError && (
           <>
-            <div className="worker-error-icon">⚠</div>
+            <div className="worker-error-icon"><AppIcon name="failed" size={28} /></div>
             <h2>{t("worker.startFailed")}</h2>
             <p className="worker-error-msg">{workerError}</p>
             <p className="worker-hint">{t("worker.startFailedHint")}</p>
@@ -63,7 +64,7 @@ export function WorkerStatusOverlay() {
 
         {showBootstrapError && (
           <>
-            <div className="worker-error-icon">⚠</div>
+            <div className="worker-error-icon"><AppIcon name="failed" size={28} /></div>
             <h2>{t("worker.loadFailed")}</h2>
             <p className="worker-error-msg">{bsError}</p>
             <button className="retry-button" onClick={retry}>
@@ -74,7 +75,7 @@ export function WorkerStatusOverlay() {
 
         {showTimeoutFallback && (
           <>
-            <div className="worker-error-icon">⚠</div>
+            <div className="worker-error-icon"><AppIcon name="failed" size={28} /></div>
             <h2>{t("worker.startTimeout")}</h2>
             <p className="worker-hint">{t("worker.startTimeoutHint")}</p>
           </>

@@ -8,17 +8,18 @@
  * - Status badge (synced / scanning / pending)
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "../router";
 import { useBootstrap } from "../contexts/BootstrapContext";
 import { getApiClient } from "../api/client";
-import { useApiMutation } from "../hooks/useApiQuery";
+import { useApiMutation, useApiQuery } from "../hooks/useApiQuery";
 import { useOnLibraryChanged } from "../hooks/useSSESubscription";
 import { showToast } from "../components/GlobalToast";
 import { ConfirmDialog } from "../components/shared/ConfirmDialog";
-import { ActionStrip } from "../components/shared/ActionStrip";
+import { ActionStrip, type ActionVariant } from "../components/shared/ActionStrip";
 import { StatusBadge } from "../components/shared/StatusBadge";
+import { AppIcon } from "../components/shared/AppIcon";
 import { CreateEditLibraryDialog } from "../components/dialogs/CreateEditLibraryDialog";
 import type {
   CreateLibraryRequest,
@@ -28,8 +29,24 @@ import type {
   DeleteLibraryResponse,
   StartLibraryScanResponse,
   LibraryListItemDto,
+  GetTasksResponse,
+  TaskItemDto,
 } from "../api/types";
 import "./pages.css";
+
+function isTaskActive(task: TaskItemDto) {
+  return task.status === "running" || task.status === "queued";
+}
+
+function selectLatestTask(current: TaskItemDto | undefined, next: TaskItemDto) {
+  if (!current) {
+    return next;
+  }
+
+  return new Date(next.updatedAtUtc).getTime() >= new Date(current.updatedAtUtc).getTime()
+    ? next
+    : current;
+}
 
 export function LibraryManagementPage() {
   const { t } = useTranslation("library");
@@ -37,17 +54,40 @@ export function LibraryManagementPage() {
   const { navigate } = useRouter();
   const { libraries } = useBootstrap();
 
-  // ── Dialog state ──────────────────────────────────
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingLibrary, setEditingLibrary] = useState<LibraryListItemDto | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<LibraryListItemDto | null>(null);
 
-  // SSE auto-refresh is handled by BootstrapContext; we just listen for toast feedback
   useOnLibraryChanged(() => {
-    // Libraries auto-refresh in context — no additional action needed
+    // Libraries auto-refresh in context — no additional action needed.
   });
 
-  // ── API mutations ─────────────────────────────────
+  const tasksQuery = useApiQuery<GetTasksResponse>({
+    queryKey: "tasks:list",
+    queryFn: () => {
+      const client = getApiClient();
+      if (!client) {
+        throw new Error("API not connected");
+      }
+
+      return client.getTasks();
+    },
+    keepPreviousData: true,
+  });
+
+  const activeTasksByLibrary = useMemo(() => {
+    const result = new Map<string, TaskItemDto>();
+    for (const task of tasksQuery.data?.tasks ?? []) {
+      if (!task.libraryId || !isTaskActive(task)) {
+        continue;
+      }
+
+      result.set(task.libraryId, selectLatestTask(result.get(task.libraryId), task));
+    }
+
+    return result;
+  }, [tasksQuery.data]);
+
   const createMutation = useApiMutation<CreateLibraryResponse, CreateLibraryRequest>({
     mutationFn: (req) => {
       const client = getApiClient();
@@ -100,14 +140,13 @@ export function LibraryManagementPage() {
       return client.startLibraryScan(libraryId);
     },
     onSuccess: () => {
-      showToast({ message: t("toast.scanStarted"), type: "info" });
+      showToast({ message: "同步任务已启动。", type: "info" });
     },
     onError: (err) => {
       showToast({ message: err.message, type: "error" });
     },
   });
 
-  // ── Handlers ──────────────────────────────────────
   const handleOpenLibrary = useCallback((libraryId: string) => {
     navigate("library", { libraryId }, { label: t("management.title") });
   }, [navigate, t]);
@@ -135,7 +174,6 @@ export function LibraryManagementPage() {
 
   return (
     <div className="page-content-section">
-      {/* Header */}
       <div className="page-header">
         <h2 className="page-title">{t("management.title")}</h2>
         <button className="btn btn-primary" onClick={() => setCreateDialogOpen(true)}>
@@ -145,85 +183,127 @@ export function LibraryManagementPage() {
 
       {libraries.length === 0 ? (
         <div className="empty-state">
-          <span className="empty-icon">📁</span>
+          <span className="empty-icon"><AppIcon name="library-management" size={44} /></span>
           <p>{t("management.noLibrary")}</p>
           <p className="placeholder-hint">{t("management.createFirst")}</p>
         </div>
       ) : (
         <div className="library-table">
-          {/* Table header */}
           <div className="library-table-header">
             <span className="col-name">{tc("name")}</span>
             <span className="col-count">{tc("videos")}</span>
-            <span className="col-scan">{t("management.lastScan")}</span>
-            <span className="col-status">{tc("status.label")}</span>
+            <span className="col-scan">已扫描数量</span>
+            <span className="col-status">完成度</span>
             <span className="col-actions">{tc("actions")}</span>
           </div>
 
-          {/* Table rows */}
-          {libraries.map((lib) => (
-            <div key={lib.libraryId} className="library-table-row">
-              <span
-                className="col-name clickable"
-                onClick={() => handleOpenLibrary(lib.libraryId)}
-                title={lib.path}
-              >
-                <span className="lib-name">{lib.name}</span>
-                <span className="lib-path">{lib.path}</span>
-              </span>
-              <span className="col-count">{lib.videoCount}</span>
-              <span className="col-scan">
-                {lib.lastScanAt
-                  ? new Date(lib.lastScanAt).toLocaleDateString()
-                  : tc("notRecorded")}
-              </span>
-              <span className="col-status">
-                <StatusBadge
-                  variant={lib.hasRunningTask ? "running" : "synced"}
-                  label={
-                    lib.hasRunningTask
-                      ? t("management.scanning")
-                      : t("management.synced")
-                  }
-                />
-              </span>
-              <span className="col-actions">
-                <ActionStrip
-                  actions={[
-                    {
-                      key: "open",
-                      label: t("management.open"),
-                      variant: "browse",
-                      onClick: () => handleOpenLibrary(lib.libraryId),
-                    },
-                    {
-                      key: "scan",
-                      label: t("management.scan"),
-                      variant: "execute",
-                      onClick: () => handleScan(lib.libraryId),
-                      disabled: lib.hasRunningTask,
-                    },
-                    {
-                      key: "edit",
-                      label: tc("edit"),
-                      variant: "edit",
-                      onClick: () => setEditingLibrary(lib),
-                    },
-                    {
-                      key: "delete",
-                      label: tc("delete"),
-                      variant: "danger",
-                      onClick: () => setDeleteTarget(lib),
-                    },
-                  ]}
-                />
-              </span>
-            </div>
-          ))}
+          {libraries.map((lib) => {
+            const activeTask = activeTasksByLibrary.get(lib.libraryId);
+            const buttonLabel = activeTask
+              ? `同步中 ${Math.max(activeTask.percent, 0)}%`
+              : lib.isFullySynced && lib.videoCount > 0
+                ? "无需扫描"
+                : t("management.scan");
+            const buttonVariant: ActionVariant = activeTask
+              ? "execute"
+              : lib.isFullySynced && lib.videoCount > 0
+                ? "danger"
+                : "execute";
+            const badgeVariant = activeTask
+              ? "running"
+              : lib.isFullySynced && lib.videoCount > 0
+                ? "synced"
+                : lib.syncedVideoCount > 0
+                  ? "pending"
+                  : "failed";
+            const badgeLabel = activeTask
+              ? "同步中"
+              : lib.isFullySynced && lib.videoCount > 0
+                ? "已完成"
+                : lib.syncedVideoCount > 0
+                  ? "待继续"
+                  : "未开始";
+            const progressText = activeTask
+              ? activeTask.summary
+              : lib.isFullySynced && lib.videoCount > 0
+                ? "全部影片已完成目录与元数据同步。"
+                : lib.syncedVideoCount > 0
+                  ? "仍有影片未完成目录整理或元数据拉取。"
+                  : "尚未执行首次完整同步。";
+
+            return (
+              <div key={lib.libraryId} className="library-table-row">
+                <span
+                  className="col-name clickable"
+                  onClick={() => handleOpenLibrary(lib.libraryId)}
+                  title={lib.path}
+                >
+                  <span className="lib-name">{lib.name}</span>
+                  <span className="lib-path">{lib.path}</span>
+                  <span className="library-inline-note">{activeTask?.summary ?? progressText}</span>
+                </span>
+                <span className="col-count">{lib.videoCount}</span>
+                <span className="col-scan">
+                  <strong>{lib.syncedVideoCount}</strong>
+                  <span className="library-inline-note">完整同步成功</span>
+                </span>
+                <span className="col-status">
+                  <div className="library-progress-stack">
+                    <div className="library-progress-header">
+                      <span>{lib.completionPercent}%</span>
+                      <StatusBadge variant={badgeVariant} label={badgeLabel} />
+                    </div>
+                    <div className="library-progress-track">
+                      <span
+                        className={`library-progress-value ${lib.isFullySynced ? "complete" : ""}`}
+                        style={{ width: `${Math.max(0, Math.min(100, lib.completionPercent))}%` }}
+                      />
+                    </div>
+                    <span className="library-inline-note">
+                      {activeTask
+                        ? `${activeTask.percent}% · ${activeTask.progressCurrent}/${activeTask.progressTotal || 0}`
+                        : progressText}
+                    </span>
+                  </div>
+                </span>
+                <span className="col-actions">
+                  <ActionStrip
+                    actions={[
+                      {
+                        key: "open",
+                        label: t("management.open"),
+                        variant: "browse",
+                        onClick: () => handleOpenLibrary(lib.libraryId),
+                      },
+                      {
+                        key: "scan",
+                        label: buttonLabel,
+                        variant: buttonVariant,
+                        onClick: () => handleScan(lib.libraryId),
+                        disabled: !!activeTask,
+                        title: lib.isFullySynced ? "当前媒体库已经完成同步，再次点击会重新执行全量检查。" : undefined,
+                      },
+                      {
+                        key: "edit",
+                        label: tc("edit"),
+                        variant: "edit",
+                        onClick: () => setEditingLibrary(lib),
+                      },
+                      {
+                        key: "delete",
+                        label: tc("delete"),
+                        variant: "danger",
+                        onClick: () => setDeleteTarget(lib),
+                      },
+                    ]}
+                  />
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Create Library Dialog */}
       <CreateEditLibraryDialog
         open={createDialogOpen}
         mode="create"
@@ -232,7 +312,6 @@ export function LibraryManagementPage() {
         onCancel={() => setCreateDialogOpen(false)}
       />
 
-      {/* Edit Library Dialog */}
       <CreateEditLibraryDialog
         open={!!editingLibrary}
         mode="edit"
@@ -243,7 +322,6 @@ export function LibraryManagementPage() {
         onCancel={() => setEditingLibrary(null)}
       />
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={!!deleteTarget}
         title={t("dialog.deleteTitle")}

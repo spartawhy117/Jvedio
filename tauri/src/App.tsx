@@ -8,6 +8,7 @@
  * - Right content: PageRouter
  */
 
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "./router";
 import { useWorker } from "./contexts/WorkerContext";
@@ -16,8 +17,35 @@ import { useOnLibraryChanged } from "./hooks/useSSESubscription";
 import { StartupReadyBridge } from "./components/StartupReadyBridge";
 import { WorkerStatusOverlay } from "./components/WorkerStatusOverlay";
 import { PageRouter } from "./pages/PageRouter";
+import { AppIcon, type AppIconName } from "./components/shared/AppIcon";
 import type { PageKey } from "./router";
 import "./App.css";
+
+interface RuntimeMetrics {
+  workerRunning: boolean;
+  shellCpuPercent: number;
+  workerCpuPercent: number;
+  totalCpuPercent: number;
+  shellMemoryMb: number;
+  workerMemoryMb: number;
+  totalMemoryMb: number;
+}
+
+function formatCpu(value?: number) {
+  if (value === undefined || Number.isNaN(value)) {
+    return "--";
+  }
+
+  return `${value.toFixed(value >= 10 ? 0 : 1)}%`;
+}
+
+function formatMemory(value?: number) {
+  if (value === undefined || Number.isNaN(value)) {
+    return "--";
+  }
+
+  return `${Math.round(value)} MB`;
+}
 
 function App() {
   const { t } = useTranslation("navigation");
@@ -25,14 +53,48 @@ function App() {
   const { currentPage, params, navigate } = useRouter();
   const { status: workerStatus } = useWorker();
   const { libraries, taskSummary, sseConnected } = useBootstrap();
+  const [metrics, setMetrics] = useState<RuntimeMetrics | null>(null);
 
-  // Auto-refresh libraries on SSE library.changed
   useOnLibraryChanged(() => {
-    // Libraries are already refreshed in BootstrapContext; this is a placeholder
-    // for any additional main-shell reactions to library changes.
+    // Libraries are already refreshed in BootstrapContext.
   });
 
-  // ── Navigation handlers ────────────────────────────
+  useEffect(() => {
+    if (typeof window === "undefined" || !(window as unknown as Record<string, unknown>).__TAURI_INTERNALS__) {
+      setMetrics(null);
+      return;
+    }
+
+    let cancelled = false;
+    let intervalId: number | null = null;
+
+    const loadMetrics = async () => {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        const nextMetrics = await invoke<RuntimeMetrics>("get_runtime_metrics");
+        if (!cancelled) {
+          setMetrics(nextMetrics);
+        }
+      } catch {
+        if (!cancelled) {
+          setMetrics(null);
+        }
+      }
+    };
+
+    void loadMetrics();
+    intervalId = window.setInterval(() => {
+      void loadMetrics();
+    }, 5000);
+
+    return () => {
+      cancelled = true;
+      if (intervalId !== null) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [workerStatus]);
+
   const handleNavClick = (page: PageKey) => {
     navigate(page, {}, { replace: true });
   };
@@ -41,9 +103,7 @@ function App() {
     navigate("library", { libraryId }, { replace: true });
   };
 
-  // ── Active state helpers ───────────────────────────
   const isPrimaryActive = (page: PageKey) => {
-    // For library-management, also highlight when viewing a specific library
     if (page === "library-management") {
       return currentPage === "library-management";
     }
@@ -51,10 +111,31 @@ function App() {
   };
 
   const isLibraryActive = (libraryId: string) => {
-    return (
-      currentPage === "library" && params.libraryId === libraryId
-    );
+    return currentPage === "library" && params.libraryId === libraryId;
   };
+
+  const workerTone =
+    workerStatus === "ready"
+      ? sseConnected
+        ? "ready"
+        : "warning"
+      : workerStatus === "error"
+        ? "error"
+        : "starting";
+
+  const workerHeadline =
+    workerStatus === "ready"
+      ? "工作服务运行中"
+      : workerStatus === "error"
+        ? tc("status.error")
+        : tc("status.starting");
+
+  const workerSubline =
+    workerStatus === "ready"
+      ? sseConnected
+        ? "事件同步正常"
+        : "事件同步断开"
+      : "等待 Worker 初始化";
 
   return (
     <>
@@ -62,43 +143,39 @@ function App() {
       <WorkerStatusOverlay />
 
       <div className="main-shell">
-        {/* ──── Left sidebar (main-shell) ──── */}
         <aside className="nav-sidebar">
-          {/* Brand area */}
           <div className="brand-area">
-            <span className="brand-icon">🎬</span>
+            <span className="brand-icon"><AppIcon name="brand" size={18} /></span>
             <span className="brand-name">{tc("appName")}</span>
           </div>
 
-          {/* Primary navigation */}
           <nav className="primary-nav">
             <NavButton
-              icon="⚙"
+              icon="settings"
               label={t("settings")}
               active={isPrimaryActive("settings")}
               onClick={() => handleNavClick("settings")}
             />
             <NavButton
-              icon="📁"
+              icon="library-management"
               label={t("libraryManagement")}
               active={isPrimaryActive("library-management")}
               onClick={() => handleNavClick("library-management")}
             />
             <NavButton
-              icon="❤"
+              icon="favorites"
               label={t("favorites")}
               active={isPrimaryActive("favorites")}
               onClick={() => handleNavClick("favorites")}
             />
             <NavButton
-              icon="👤"
+              icon="actors"
               label={t("actors")}
               active={isPrimaryActive("actors")}
               onClick={() => handleNavClick("actors")}
             />
           </nav>
 
-          {/* Library navigation section */}
           <div className="library-nav-section">
             <div className="section-title">{t("libraries")}</div>
             {libraries.length === 0 ? (
@@ -108,13 +185,11 @@ function App() {
                 {libraries.map((lib) => (
                   <button
                     key={lib.libraryId}
-                    className={`nav-item library-item ${
-                      isLibraryActive(lib.libraryId) ? "active" : ""
-                    }`}
+                    className={`nav-item library-item ${isLibraryActive(lib.libraryId) ? "active" : ""}`}
                     onClick={() => handleLibraryClick(lib.libraryId)}
                     title={lib.path}
                   >
-                    <span className="nav-icon">📀</span>
+                    <span className="nav-icon"><AppIcon name="library" size={15} /></span>
                     <span className="nav-label">{lib.name}</span>
                     <span className="library-count">{lib.videoCount}</span>
                   </button>
@@ -123,52 +198,44 @@ function App() {
             )}
           </div>
 
-          {/* Task summary bar */}
-          {taskSummary && (
-            <div className="task-summary-bar">
-              <span className="task-badge" title={tc("tasks.running")}>
-                ▶ {taskSummary.runningCount}
-              </span>
-              <span className="task-badge" title={tc("tasks.queued")}>
-                ⏳ {taskSummary.queuedCount}
-              </span>
-              <span className="task-badge" title={tc("tasks.completedToday")}>
-                ✅ {taskSummary.completedTodayCount}
-              </span>
-              {taskSummary.failedCount > 0 && (
-                <span className="task-badge failed" title={tc("tasks.failed")}>
-                  ❌ {taskSummary.failedCount}
-                </span>
-              )}
-            </div>
-          )}
+          <div className="sidebar-footer">
+            {taskSummary && (
+              <div className="task-summary-panel">
+                <div className="sidebar-footer-title">任务概况</div>
+                <div className="task-summary-grid">
+                  <TaskMetric icon="running" label={tc("tasks.running")} value={taskSummary.runningCount} tone="running" />
+                  <TaskMetric icon="queued" label={tc("tasks.queued")} value={taskSummary.queuedCount} tone="neutral" />
+                  <TaskMetric icon="completed" label={tc("tasks.completedToday")} value={taskSummary.completedTodayCount} tone="success" />
+                  <TaskMetric icon="failed" label={tc("tasks.failed")} value={taskSummary.failedCount} tone={taskSummary.failedCount > 0 ? "failed" : "neutral"} />
+                </div>
+              </div>
+            )}
 
-          {/* Worker status indicator */}
-          <div className="worker-indicator">
-            <span
-              className={`worker-dot ${
-                workerStatus === "ready"
-                  ? sseConnected
-                    ? "ready"
-                    : "warning"
-                  : workerStatus === "error"
-                    ? "error"
-                    : "starting"
-              }`}
-            />
-            <span className="worker-status-text">
-              {workerStatus === "ready"
-                ? sseConnected
-                  ? tc("connected")
-                  : "SSE ✗"
-                : workerStatus === "error"
-                  ? tc("status.error")
-                  : tc("status.starting")}
-            </span>
+            <div className="sidebar-status-panel">
+              <div className="worker-status-block">
+                <div className="sidebar-footer-title">运行状态</div>
+                <div className="worker-indicator">
+                  <span className={`worker-dot ${workerTone}`} />
+                  <div className="worker-status-copy">
+                    <span className="worker-status-text">{workerHeadline}</span>
+                    <span className="worker-status-subtext">{workerSubline}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="resource-metrics">
+                <div className="resource-metric">
+                  <span className="resource-metric-label"><AppIcon name="cpu" size={14} /> CPU</span>
+                  <strong>{formatCpu(metrics?.totalCpuPercent)}</strong>
+                </div>
+                <div className="resource-metric">
+                  <span className="resource-metric-label"><AppIcon name="memory" size={14} /> Memory</span>
+                  <strong>{formatMemory(metrics?.totalMemoryMb)}</strong>
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
 
-        {/* ──── Right content area ──── */}
         <main className="content-area">
           <PageRouter />
         </main>
@@ -177,15 +244,13 @@ function App() {
   );
 }
 
-// ── NavButton ───────────────────────────────────────────
-
 function NavButton({
   icon,
   label,
   active,
   onClick,
 }: {
-  icon: string;
+  icon: AppIconName;
   label: string;
   active: boolean;
   onClick: () => void;
@@ -195,9 +260,31 @@ function NavButton({
       className={`nav-item ${active ? "active" : ""}`}
       onClick={onClick}
     >
-      <span className="nav-icon">{icon}</span>
+      <span className="nav-icon"><AppIcon name={icon} size={15} /></span>
       <span className="nav-label">{label}</span>
     </button>
+  );
+}
+
+function TaskMetric({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: AppIconName;
+  label: string;
+  value: number;
+  tone: "running" | "success" | "failed" | "neutral";
+}) {
+  return (
+    <div className={`task-metric-card task-metric-card-${tone}`} title={label}>
+      <span className="task-metric-label">
+        <AppIcon name={icon} size={13} />
+        {label}
+      </span>
+      <strong className="task-metric-value">{value}</strong>
+    </div>
   );
 }
 

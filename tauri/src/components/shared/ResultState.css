@@ -10,9 +10,11 @@
 }
 
 .result-state-icon {
-  font-size: 40px;
   opacity: 0.5;
   margin-bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .result-state-spinner {

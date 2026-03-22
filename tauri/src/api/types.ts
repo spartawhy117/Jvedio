@@ -58,6 +58,9 @@ export interface LibraryListItemDto {
   path: string;
   scanPaths: string[];
   videoCount: number;
+  syncedVideoCount: number;
+  completionPercent: number;
+  isFullySynced: boolean;
   lastScanAt: string | null;
   lastScrapeAt: string | null;
   hasRunningTask: boolean;
@@ -391,21 +394,29 @@ export interface TaskSummaryChangedEvent {
 }
 
 export interface TaskItemDto {
-  taskId: string;
-  taskType: string;
+  id: string;
+  type: string;
   status: string;
-  libraryId: string;
-  libraryName: string;
-  progress: number;
-  message: string;
+  stage: string;
+  summary: string;
+  libraryId: string | null;
+  libraryName: string | null;
+  percent: number;
+  progressCurrent: number;
+  progressTotal: number;
+  canRetry: boolean;
+  retriedFromTaskId: string | null;
   createdAtUtc: string;
   startedAtUtc: string | null;
   completedAtUtc: string | null;
-  failedAtUtc: string | null;
+  updatedAtUtc: string;
   errorMessage: string | null;
 }
 
-export type GetTasksResponse = TaskItemDto[];
+export interface GetTasksResponse {
+  summary: TaskSummaryDto;
+  tasks: TaskItemDto[];
+}
 
 export interface RetryTaskResponse {
   taskId: string;

@@ -371,26 +371,59 @@ public sealed class LibraryScrapeService
         using var existingCommand = connection.CreateCommand();
         existingCommand.CommandText =
             """
-            SELECT ActorID
+            SELECT ActorID,
+                   IFNULL(ImageUrl, ''),
+                   IFNULL(WebType, ''),
+                   IFNULL(WebUrl, '')
             FROM actor_info
             WHERE LOWER(ActorName) = LOWER($actorName)
             LIMIT 1;
             """;
         existingCommand.Parameters.AddWithValue("$actorName", actor.Name);
-        var existingValue = existingCommand.ExecuteScalar();
-        if (existingValue is not null && existingValue != DBNull.Value)
+        using var existingReader = existingCommand.ExecuteReader();
+        if (existingReader.Read())
         {
-            return Convert.ToInt64(existingValue);
+            var actorId = existingReader.GetInt64(0);
+            var currentImageUrl = existingReader.GetString(1);
+            var currentWebType = existingReader.GetString(2);
+            var currentWebUrl = existingReader.GetString(3);
+
+            var nextImageUrl = string.IsNullOrWhiteSpace(actor.AvatarUrl) ? currentImageUrl : actor.AvatarUrl;
+            var nextWebType = string.IsNullOrWhiteSpace(actor.Provider) ? currentWebType : actor.Provider;
+            var nextWebUrl = string.IsNullOrWhiteSpace(actor.Homepage) ? currentWebUrl : actor.Homepage;
+
+            if (!string.Equals(currentImageUrl, nextImageUrl, StringComparison.Ordinal)
+                || !string.Equals(currentWebType, nextWebType, StringComparison.Ordinal)
+                || !string.Equals(currentWebUrl, nextWebUrl, StringComparison.Ordinal))
+            {
+                using var updateCommand = connection.CreateCommand();
+                updateCommand.CommandText =
+                    """
+                    UPDATE actor_info
+                    SET ImageUrl = $imageUrl,
+                        WebType = $webType,
+                        WebUrl = $webUrl
+                    WHERE ActorID = $actorId;
+                    """;
+                updateCommand.Parameters.AddWithValue("$actorId", actorId);
+                updateCommand.Parameters.AddWithValue("$imageUrl", nextImageUrl);
+                updateCommand.Parameters.AddWithValue("$webType", nextWebType);
+                updateCommand.Parameters.AddWithValue("$webUrl", nextWebUrl);
+                updateCommand.ExecuteNonQuery();
+            }
+
+            return actorId;
         }
 
         using var insertCommand = connection.CreateCommand();
         insertCommand.CommandText =
             """
-            INSERT INTO actor_info (ActorName, WebType, WebUrl, ExtraInfo)
-            VALUES ($actorName, $webType, $webUrl, '');
+            INSERT INTO actor_info (ActorName, ImageUrl, WebType, WebUrl, ExtraInfo)
+            VALUES ($actorName, $imageUrl, $webType, $webUrl, '');
             SELECT last_insert_rowid();
             """;
         insertCommand.Parameters.AddWithValue("$actorName", actor.Name);
+        insertCommand.Parameters.AddWithValue("$imageUrl", actor.AvatarUrl);
         insertCommand.Parameters.AddWithValue("$webType", actor.Provider);
         insertCommand.Parameters.AddWithValue("$webUrl", actor.Homepage);
         return Convert.ToInt64(insertCommand.ExecuteScalar());
@@ -427,7 +460,9 @@ public sealed class LibraryScrapeService
         foreach (var actor in scrapeResult.Actors.Where(actor => !string.IsNullOrWhiteSpace(actor.AvatarUrl)))
         {
             var extension = GetExtensionFromUrl(actor.AvatarUrl);
-            var avatarPath = Path.Combine(actorAvatarCacheDir, BuildActorAvatarKey(actor.ActorId, actor.Name) + extension);
+            var avatarPath = Path.Combine(
+                actorAvatarCacheDir,
+                BuildActorAvatarCacheKey(actor.AvatarUrl, actor.ActorId, actor.Name) + extension);
             try
             {
                 await DownloadFileAsync(actor.AvatarUrl, avatarPath, scrapeResult.Homepage, cancellationToken);
@@ -538,8 +573,14 @@ public sealed class LibraryScrapeService
         return result;
     }
 
-    private static string BuildActorAvatarKey(string? actorId, string actorName)
+    private static string BuildActorAvatarCacheKey(string? avatarUrl, string? actorId, string actorName)
     {
+        var imageKey = TryExtractAvatarCacheKey(avatarUrl);
+        if (!string.IsNullOrWhiteSpace(imageKey))
+        {
+            return SanitizeFileName(imageKey);
+        }
+
         if (!string.IsNullOrWhiteSpace(actorId))
         {
             return SanitizeFileName(actorId);
@@ -547,6 +588,26 @@ public sealed class LibraryScrapeService
 
         var bytes = SHA1.HashData(Encoding.UTF8.GetBytes(actorName.Trim().ToLowerInvariant()));
         return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
+    private static string? TryExtractAvatarCacheKey(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            var fromUrl = Path.GetFileNameWithoutExtension(uri.AbsolutePath);
+            if (!string.IsNullOrWhiteSpace(fromUrl))
+            {
+                return fromUrl;
+            }
+        }
+
+        var fileName = Path.GetFileNameWithoutExtension(value.Trim());
+        return string.IsNullOrWhiteSpace(fileName) ? null : fileName;
     }
 
     private static string GetExtensionFromUrl(string url)

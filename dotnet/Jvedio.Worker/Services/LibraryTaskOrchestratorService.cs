@@ -104,7 +104,7 @@ public sealed class LibraryTaskOrchestratorService
 
     private WorkerTaskDto StartScanTaskCore(LibraryListItemDto library, StartLibraryScanRequest request, string? retriedFromTaskId)
     {
-        if (workerTaskRegistryService.HasRunningTask(library.LibraryId, "library.scan"))
+        if (workerTaskRegistryService.HasRunningTask(library.LibraryId, "library.scan", "library.scrape"))
         {
             throw CreateConflictException("library.scan.conflict", "当前媒体库已有扫描任务在执行。", library.LibraryId);
         }
@@ -122,8 +122,20 @@ public sealed class LibraryTaskOrchestratorService
             try
             {
                 workerTaskRegistryService.MarkRunning(task.Id, "preparing", $"正在准备扫描媒体库“{library.Name}”");
-                var summary = await libraryScanService.ScanLibraryAsync(task.Id, library, request, CancellationToken.None);
-                workerTaskRegistryService.CompleteTask(task.Id, summary);
+                var scanSummary = await libraryScanService.ScanLibraryAsync(task.Id, library, request, CancellationToken.None);
+                workerTaskRegistryService.MarkRunning(task.Id, "preparing-scrape", $"正在准备抓取媒体库“{library.Name}”");
+                var scrapeSummary = await libraryScrapeService.ScrapeLibraryAsync(
+                    task.Id,
+                    library,
+                    new StartLibraryScrapeRequest
+                    {
+                        DownloadActorAvatars = true,
+                        ForceRefreshMetadata = false,
+                        Mode = "missing-only",
+                        WriteSidecars = true,
+                    },
+                    CancellationToken.None);
+                workerTaskRegistryService.CompleteTask(task.Id, $"{scanSummary} {scrapeSummary}");
             }
             catch (Exception ex)
             {

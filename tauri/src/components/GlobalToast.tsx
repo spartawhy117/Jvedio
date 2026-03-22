@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { AppIcon } from "./shared/AppIcon";
 import "./GlobalToast.css";
 
 // ── Types ───────────────────────────────────────────────
@@ -108,10 +109,10 @@ export function GlobalToast() {
           role="alert"
         >
           <span className="toast-icon">
-            {toast.type === "success" && "✓"}
-            {toast.type === "error" && "✗"}
-            {toast.type === "warning" && "⚠"}
-            {toast.type === "info" && "ℹ"}
+            {toast.type === "success" && <AppIcon name="completed" size={14} />}
+            {toast.type === "error" && <AppIcon name="failed" size={14} />}
+            {toast.type === "warning" && <AppIcon name="failed" size={14} />}
+            {toast.type === "info" && <AppIcon name="status" size={14} />}
           </span>
           <span className="toast-message">{toast.message}</span>
           <button className="toast-close" onClick={() => dismissToast(toast.id)}>×</button>

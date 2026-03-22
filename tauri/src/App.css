@@ -83,11 +83,18 @@ body,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 16px 16px 12px;
+  padding: 18px 16px 14px;
 }
 
 .brand-icon {
-  font-size: 22px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-nav-active);
+  color: var(--color-accent);
 }
 
 .brand-name {
@@ -131,9 +138,11 @@ body,
 }
 
 .nav-icon {
-  font-size: 16px;
   width: 20px;
   text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-label {
@@ -142,9 +151,7 @@ body,
 
 /* Library nav section */
 .library-nav-section {
-  margin-top: auto;
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--color-border);
+  padding: 14px 16px 8px;
 }
 
 .section-title {
@@ -198,14 +205,6 @@ body,
 }
 
 /* ===== Worker indicator (sidebar bottom) ===== */
-.worker-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--color-border);
-}
-
 .worker-dot {
   width: 8px;
   height: 8px;
@@ -231,11 +230,6 @@ body,
   50% { opacity: 0.4; }
 }
 
-.worker-status-text {
-  font-size: 11px;
-  color: var(--color-text-secondary);
-}
-
 /* ===== Library list in sidebar ===== */
 .library-list {
   display: flex;
@@ -258,22 +252,121 @@ body,
 }
 
 /* ===== Task summary bar (sidebar) ===== */
-.task-summary-bar {
-  display: flex;
-  gap: 6px;
-  padding: 8px 16px;
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 16px 18px;
   border-top: 1px solid var(--color-border);
-  flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.task-badge {
+.sidebar-footer-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+}
+
+.task-summary-panel,
+.sidebar-status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.task-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-surface-1, var(--color-surface));
+}
+
+.task-metric-card-running {
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border));
+}
+
+.task-metric-card-success {
+  border-color: color-mix(in srgb, #4caf50 36%, var(--color-border));
+}
+
+.task-metric-card-failed {
+  border-color: color-mix(in srgb, #e05050 36%, var(--color-border));
+}
+
+.task-metric-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   color: var(--color-text-secondary);
-  white-space: nowrap;
 }
 
-.task-badge.failed {
-  color: #e05050;
+.task-metric-value {
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.worker-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.worker-status-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.worker-status-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.worker-status-text {
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+
+.worker-status-subtext {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.resource-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.resource-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--color-bg-surface-1, var(--color-surface));
+  border: 1px solid var(--color-border);
+}
+
+.resource-metric-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
 }
 
 /* ===== Debug page content (Phase 1.3) ===== */

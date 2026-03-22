@@ -23,7 +23,7 @@ import { VideoCard } from "../components/shared/VideoCard";
 import { QueryToolbar } from "../components/shared/QueryToolbar";
 import { Pagination } from "../components/shared/Pagination";
 import { ResultState } from "../components/shared/ResultState";
-import { ResultSummary } from "../components/shared/ResultSummary";
+import { AppIcon } from "../components/shared/AppIcon";
 import { VideoContextMenu, type ContextMenuAction } from "../components/shared/VideoContextMenu";
 import { showToast } from "../components/GlobalToast";
 import type { GetLibraryVideosResponse, VideoListItemDto } from "../api/types";
@@ -244,13 +244,13 @@ export function LibraryPage() {
     {
       key: "detail",
       label: tc("viewDetail") || "查看详情",
-      icon: "📋",
+      icon: "detail",
       onClick: () => navigate("video-detail", { videoId: video.videoId }, { label: library?.name ?? t("page.title") }),
     },
     {
       key: "play",
       label: tc("play"),
-      icon: "▶",
+      icon: "play",
       onClick: async () => {
         const client = getApiClient();
         if (!client) return;
@@ -265,7 +265,7 @@ export function LibraryPage() {
     {
       key: "openFolder",
       label: tc("openFolder"),
-      icon: "📂",
+      icon: "folder",
       onClick: async () => {
         if (!video.path) return;
         try {
@@ -279,13 +279,13 @@ export function LibraryPage() {
     {
       key: "toggleFavorite",
       label: video.isFavorite ? tc("unfavorite") : tc("toggleFavorite"),
-      icon: video.isFavorite ? "💔" : "❤",
+      icon: video.isFavorite ? "favorite-off" : "favorite",
       onClick: () => handleToggleFavorite(video),
     },
     {
       key: "rescrape",
       label: tc("rescrapeMetadata"),
-      icon: "🔄",
+      icon: "rescrape",
       onClick: async () => {
         const client = getApiClient();
         if (!client || !libraryId) return;
@@ -306,7 +306,7 @@ export function LibraryPage() {
     {
       key: "copyVid",
       label: tc("copyVid") || "复制 VID",
-      icon: "📎",
+      icon: "copy",
       onClick: () => {
         navigator.clipboard.writeText(video.vid).catch(() => {});
         showToast({ message: `VID ${video.vid} 已复制`, type: "success" });
@@ -315,7 +315,7 @@ export function LibraryPage() {
     {
       key: "delete",
       label: tc("deleteVideo"),
-      icon: "🗑",
+      icon: "delete",
       danger: true,
       onClick: () => handleDeleteVideo(video),
     },
@@ -329,11 +329,10 @@ export function LibraryPage() {
       <div className="page-header">
         {canGoBack && (
           <button className="btn btn-icon" onClick={goBack} title={tc("back")}>
-            ←
+            ‹
           </button>
         )}
         <h2 className="page-title">{library?.name || t("page.title")}</h2>
-        {data && <ResultSummary totalCount={totalCount} />}
       </div>
 
       {/* Query toolbar */}
@@ -352,10 +351,10 @@ export function LibraryPage() {
         <div className="batch-action-bar">
           <span className="batch-action-count">{tc("selectedCount", { count: selectedIds.size })}</span>
           <button className="btn btn-sm btn-secondary" onClick={handleSelectAll}>{tc("selectAll")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}>❤ {tc("batchFavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}>💔 {tc("batchUnfavorite")}</button>
-          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}>🔄 {tc("rescrapeMetadata")}</button>
-          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}>🗑 {tc("batchDelete")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(true)}><AppIcon name="favorite" size={14} /> {tc("batchFavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={() => handleBatchFavorite(false)}><AppIcon name="favorite-off" size={14} /> {tc("batchUnfavorite")}</button>
+          <button className="btn btn-sm btn-secondary" onClick={handleBatchRescrape}><AppIcon name="rescrape" size={14} /> {tc("rescrapeMetadata")}</button>
+          <button className="btn btn-sm btn-danger" onClick={handleBatchDelete}><AppIcon name="delete" size={14} /> {tc("batchDelete")}</button>
           <div className="toolbar-spacer" />
           <button className="btn btn-sm btn-secondary" onClick={handleCancelSelect}>{tc("cancelSelect")}</button>
         </div>
@@ -363,7 +362,7 @@ export function LibraryPage() {
 
       {/* Content */}
       {!libraryId ? (
-        <ResultState type="empty" icon="❓" message={t("page.noLibrarySelected")} />
+        <ResultState type="empty" icon={<AppIcon name="library" size={40} />} message={t("page.noLibrarySelected")} />
       ) : videosQuery.isLoading && !data ? (
         <ResultState type="loading" />
       ) : videosQuery.isError ? (
@@ -371,7 +370,7 @@ export function LibraryPage() {
       ) : data && data.items.length === 0 ? (
         <ResultState
           type="empty"
-          icon="🎬"
+          icon={<AppIcon name="brand" size={40} />}
           message={tc("noResults")}
           hint={t("page.emptyScanHint")}
         />
