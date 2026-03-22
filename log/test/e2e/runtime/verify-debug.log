@@ -1,0 +1,67 @@
+[verify-api] Loaded e2e-env.json — Worker at http://localhost:5026
+
+── 1. Health ──
+  [PASS] [GET] /health/live — status=live
+  [PASS] [GET] /health/ready — status=ready healthy=true
+
+── 2. App ──
+  [PASS] [GET] /api/app/bootstrap — libraries=2
+
+── 3. Libraries ──
+  [PASS] [GET] /api/libraries — libraries=2
+  [PASS] [GET] /api/libraries/{id}/videos — videos=2
+  [PASS] [POST] /api/libraries (create temp) — created libraryId=4
+  [PASS] [PUT] /api/libraries/{id} (update temp) — renamed
+  [PASS] [DELETE] /api/libraries/{id} (delete temp) — deleted
+  [PASS] [POST] /api/libraries/{id}/scan — taskId=task_c428505aa26b41c39feccad8972afeb3
+  [PASS] [POST] /api/libraries/{id}/scrape — taskId=task_0a7c6e3a413a4e77b850392f3739a9ff
+  [PASS] [POST] /api/libraries/{id}/scrape (videoIds) — Expected status 409
+
+── 4. Videos ──
+  [PASS] [GET] /api/videos/favorites — favorites=0
+  [PASS] [GET] /api/videos/categories — categories=3
+  [PASS] [GET] /api/videos/series — series=2
+  [PASS] VideoListItemDto.scrapeStatus — value=full
+  [PASS] [GET] /api/libraries/{id}/videos?scrapeStatus=none — items=0
+  [PASS] [GET] /api/libraries/{id}/videos?scrapeStatus=failed — items=0
+  [PASS] [GET] /api/videos/{id} — vid=SDDE-759
+  [PASS] VideoDetailDto.scrapeStatus — value=full
+  [PASS] [POST] /api/videos/{id}/toggle-favorite — favorite=True
+  [PASS] [POST] /api/videos/{id}/toggle-favorite (revert) — favorite=False
+  [PASS] [POST] /api/videos/{id}/play — Expected status 500
+  [PASS] [POST] /api/videos/batch/favorite — success=1
+  [PASS] [POST] /api/videos/batch/favorite (unfav) — success=1
+  [PASS] [GET] /api/videos/categories/{name}/videos — items=0
+  [PASS] [GET] /api/videos/series/{name}/videos — items=1
+  [SKIP] DELETE /api/videos/{id} — Skipped to preserve seed data
+  [SKIP] POST /api/videos/batch/delete — Skipped to preserve seed data
+
+── 5. Actors ──
+  [PASS] [GET] /api/actors — actors=6
+  [PASS] [GET] /api/actors/{id} — actor=凛音とうか
+  [PASS] [GET] /api/actors/{id}/videos — items=1
+
+── 6. Tasks ──
+  [PASS] [GET] /api/tasks — tasks=6
+  [PASS] [GET] /api/tasks/{id} — status=running
+  [PASS] [POST] /api/tasks/{id}/retry — Expected status 409
+
+── 7. Settings ──
+  [PASS] [GET] /api/settings — settings loaded
+  [PASS] [PUT] /api/settings (update) — settings updated
+  [PASS] [POST] /api/settings/meta-tube/diagnostics — success=True
+
+── 8. Events (SSE) ──
+  [PASS] GET /api/events (SSE) — content-type=text/event-stream; charset=utf-8
+
+===============================================
+  Backend API Verification Results
+===============================================
+
+  Passed:  36
+  Failed:  0
+  Skipped: 2
+  Total:   38
+
+  All verified endpoints passed.
+

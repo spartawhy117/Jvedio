@@ -1,6 +1,6 @@
 [package]
 name = "jvedio-shell"
-version = "0.1.0"
+version = "0.1.5"
 description = "Jvedio desktop shell powered by Tauri 2"
 authors = ["spartawhy117"]
 edition = "2021"

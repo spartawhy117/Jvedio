@@ -530,7 +530,6 @@ Test-Api -Name "/api/settings" -Uri "$base/api/settings" -Validate {
 if ($settingsSnapshot) {
     $updateSettingsBody = @{
         general = $settingsSnapshot.general
-        image = $settingsSnapshot.image
         scanImport = $settingsSnapshot.scanImport
         playback = $settingsSnapshot.playback
         library = $settingsSnapshot.library
@@ -556,11 +555,20 @@ else {
 }
 
 $diagBody = @{
-    testVideoId = if ($envData -and $envData.expectedVids -and $envData.expectedVids.scrapeSuccess -and $envData.expectedVids.scrapeSuccess[0]) {
-        $envData.expectedVids.scrapeSuccess[0]
+    serverUrl = if ($settingsSnapshot -and $settingsSnapshot.metaTube -and (Test-HasProperty $settingsSnapshot.metaTube "serverUrl")) {
+        $settingsSnapshot.metaTube.serverUrl
+    }
+    elseif ($envData -and (Test-HasProperty $envData "metaTubeUrl")) {
+        $envData.metaTubeUrl
     }
     else {
-        "SNOS-037"
+        ""
+    }
+    requestTimeoutSeconds = if ($settingsSnapshot -and $settingsSnapshot.metaTube -and (Test-HasProperty $settingsSnapshot.metaTube "requestTimeoutSeconds")) {
+        [int]$settingsSnapshot.metaTube.requestTimeoutSeconds
+    }
+    else {
+        60
     }
 } | ConvertTo-Json -Compress
 

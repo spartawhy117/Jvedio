@@ -104,16 +104,15 @@
 ### `settings-flow`
 
 - **主入口**：进入设置页，请求 `GET /api/settings`。
-- **分组结构**：左侧固定 6 个分组：
+- **分组结构**：左侧固定 5 个分组：
   - `基本`
-  - `外观`
-  - `网络`
+  - `扫描与导入`
+  - `播放器设置`
   - `库`
-  - `扫描`
   - `MetaTube`
 - **表单状态**：右侧表单维护保存前的 `Dirty` 状态。
 - **保存动作**：保存设置时调用 `PUT /api/settings`。
-- **恢复默认**：恢复默认时调用 `POST /api/settings/reset`。
+- **恢复默认**：恢复默认时调用 `PUT /api/settings` 并带 `resetToDefaults: true`。
 - **诊断能力**：在 `MetaTube` 分组中支持 `POST /api/settings/meta-tube/diagnostics`。
 - **事件回流**：设置更新后消费 `settings.changed`，刷新持久化值并保护草稿。
 

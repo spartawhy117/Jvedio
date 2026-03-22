@@ -5,10 +5,18 @@
 
 ## [未发布]
 
+## [0.1.5] - 2026-03-22
+
 ### 新增
 - 统一版本管理脚本 `scripts/bump-version.ps1`：一条命令更新 4 个核心版本文件（`package.json`、`tauri.conf.json`、`Cargo.toml`、`Jvedio.csproj`），保留 BOM/换行符，支持参数校验和幂等操作。
 
+### 修复
+- 修复 `test-data/scripts/seed-e2e-data.ps1` 与当前 Worker 链路不一致的问题：现在会在扫描前写入 MetaTube 测试地址，并按“扫描即含抓取”的现实现状完成播种。
+- 修复 `test-data/scripts/verify-backend-apis.ps1` 仍依赖旧版 Settings 契约的问题，去掉已删除的 `image` 分组假设，并将 MetaTube diagnostics 校验对齐为当前连通性测试接口。
+
 ### 变更
+- 完成 `manual-acceptance-v010` 自动复验：后端基线恢复为 `36 PASS / 2 SKIP / 0 FAIL`，前端自动验收维持 `41 通过 / 2 未覆盖`。
+- 同步更新自动验收、Phase 10 验证记录和前端 E2E 用例文档，修正当前设置页为 5 个分组的正式口径，并补充 2026-03-22 的复验结果与产物记录。
 - Release 发布格式切换为 ZIP 便携版（`build/release/JvedioNext_*_x64-portable.zip`），移除 NSIS 安装包产物和 `copy-release.ps1` 流程。
 - `scripts/build-release.ps1` 与 `tauri/scripts/build-release.ps1` 现在会在 rustup 已安装时自动补齐 `cargo` 路径，避免 Tauri 构建因环境变量缺失失败。
 

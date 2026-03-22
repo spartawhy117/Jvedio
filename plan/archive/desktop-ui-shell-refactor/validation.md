@@ -3,7 +3,7 @@
 ## 当前阶段
 
 - **Phase 6：端到端可运行验证** — ✅ 完成
-- **Phase 10：E2E 自动化测试** — ⏳ 当前进行阶段
+- **Phase 10：E2E 自动化测试** — ✅ 自动复验完成
 - Phase 1–9.6 已完成；当前目标是补齐前端 UI 自动化验收和测试产物记录
 
 ## Phase 1–5 完成状态（历史记录）
@@ -172,18 +172,18 @@
 
 ### 10.1 数据准备基线
 
-- [ ] `test-data/config/test-env.json` 仍为默认样本配置
-- [ ] `seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 跑通
-- [ ] `verify-backend-apis.ps1 -NoPause` 维持 `36 PASS / 2 SKIP / 0 FAIL`
-- [ ] `test-data/e2e/e2e-env.json` 已写出 `effectiveUserName`、`videoCacheRoot`、`actorAvatarCacheRoot`
-- [ ] `test-data/e2e/data/test-user/cache/video/E2E-Lib-A/` 与 `E2E-Lib-B/` 真实产物路径存在
+- [x] `test-data/config/test-env.json` 仍为默认样本配置
+- [x] `seed-e2e-data.ps1 -SkipWorkerShutdown -NoPause` 跑通
+- [x] `verify-backend-apis.ps1 -NoPause` 维持 `36 PASS / 2 SKIP / 0 FAIL`
+- [x] `test-data/e2e/e2e-env.json` 已写出 `effectiveUserName`、`videoCacheRoot`、`actorAvatarCacheRoot`
+- [x] `test-data/e2e/data/test-user/cache/video/E2E-Lib-A/` 与 `E2E-Lib-B/` 真实产物路径存在
 
 ### 10.2 前端环境基线
 
-- [ ] `tauri/scripts/start-e2e-env.ps1` 可用
-- [ ] 浏览器模式可通过 `?workerPort=` 或 `?workerUrl=` 连上 Worker
-- [ ] Vite 页面正常渲染，`WorkerStatusOverlay` 消失
-- [ ] `log/test/e2e/` 目录可接收本轮执行产物
+- [x] `tauri/scripts/start-e2e-env.ps1` 可用
+- [x] 浏览器模式可通过 `?workerPort=` 或 `?workerUrl=` 连上 Worker
+- [x] Vite 页面正常渲染，`WorkerStatusOverlay` 消失
+- [x] `log/test/e2e/` 目录可接收本轮执行产物
 
 ### 10.3 Flow 验收记录
 
@@ -240,10 +240,18 @@
 
 #### Settings
 
-- 通过：设置页 6 个分组 `基本 / 图片 / 扫描与导入 / 网络 / 库 / MetaTube` 均能切换，右侧表单区随分组正常变化。
+- 通过：设置页当前为 5 个分组 `基本 / 扫描与导入 / 播放器设置 / 库 / MetaTube`，右侧表单区随分组正常变化。
 - 通过：在 MetaTube 分组将请求超时从 `60` 改为 `61` 后保存，页面收到 `设置已保存` toast，并观察到 `settings.changed` SSE 回流后的重新取值。
 - 通过：点击 `恢复默认` 后，MetaTube 服务地址与超时值回到默认态，并收到 `已恢复默认设置` toast。
 - 通过：MetaTube diagnostics 已真实返回成功结果，前端现在展示摘要文本，不再出现 `连接成功 (undefinedms)` 的错误文案。
+
+### 10.3.2 自动复验记录（2026-03-22）
+
+- 数据准备复验通过：`seed-e2e-data.ps1` 已对齐当前“扫描即含抓取”的链路，`verify-backend-apis.ps1` 回到 `36 PASS / 2 SKIP / 0 FAIL`。
+- 主壳与库管理复验通过：首页成功加载 `E2E-Lib-A / E2E-Lib-B`，新建弹层与编辑弹层结构正确，库管理列表显示 `已扫描数量` 与完成度状态。
+- 单库 / 收藏 / 演员复验通过：`E2E-Lib-B` 搜索 `SDDE` 后进入详情并返回时仍保留查询条件；Favorites 与 Actors 页面均保持返回链路与搜索状态恢复。
+- 失败样本复验通过：`FC2-PPV-1788676` 列表卡片继续显示 `No Poster`，详情页可正常打开且保持 stub-only 降级状态。
+- 设置页复验通过：MetaTube 分组显示测试地址 `https://metatube-server.hf.space`，点击 `测试连通性` 后返回成功摘要；浏览器控制台仅剩 `favicon.ico` 404 噪音。
 
 ### 10.4 抓取失败优雅降级记录
 
@@ -282,3 +290,12 @@
 - 日志：`log/test/e2e/runtime/phase10-subtask3.log`
 - 截图：`log/test/e2e/runtime/phase10-subtask3-actor-detail.png`
 - 截图：`log/test/e2e/runtime/phase10-subtask4-settings.png`
+- 日志：`log/test/e2e/runtime/seed-debug.log`
+- 日志：`log/test/e2e/runtime/verify-debug.log`
+- 日志：`log/test/e2e/runtime/start-e2e-debug.log`
+- 日志：`log/test/e2e/runtime/playwright-console-errors-20260322.log`
+- 截图：`log/test/e2e/runtime/library-management-20260322.png`
+- 截图：`log/test/e2e/runtime/library-dialog-20260322.png`
+- 截图：`log/test/e2e/runtime/library-workbench-e2e-lib-b-20260322.png`
+- 截图：`log/test/e2e/runtime/actor-detail-20260322.png`
+- 截图：`log/test/e2e/runtime/settings-metatube-20260322.png`

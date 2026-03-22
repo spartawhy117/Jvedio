@@ -319,9 +319,11 @@ $env:JVEDIO_APP_BASE_DIR = $e2eRoot
 $logDir = Join-Path $repoRoot "log\test\e2e"
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 $env:JVEDIO_LOG_DIR = $logDir
+$env:JVEDIO_METATUBE_SERVER_URL = $metaTubeUrl
 
 Write-Host "  JVEDIO_APP_BASE_DIR = $env:JVEDIO_APP_BASE_DIR"
 Write-Host "  JVEDIO_LOG_DIR      = $env:JVEDIO_LOG_DIR"
+Write-Host "  JVEDIO_METATUBE_SERVER_URL = $env:JVEDIO_METATUBE_SERVER_URL"
 
 # --- Step 4: 启动 Worker ---
 Write-Host "`n[seed-e2e] Step 4: Starting Worker..." -ForegroundColor Yellow
@@ -373,6 +375,33 @@ if (-not $baseUrl) {
 }
 
 Write-Host "  Worker ready at: $baseUrl" -ForegroundColor Green
+
+# --- Step 4.5: 配置 MetaTube（当前扫描任务已内含抓取） ---
+if (-not $SkipScrape -and $scrapeableVids.Count -gt 0) {
+    Write-Host "`n[seed-e2e] Step 4.5: Configuring MetaTube..." -ForegroundColor Yellow
+
+    try {
+        $settingsResp = Invoke-RestMethod "$baseUrl/api/settings"
+        $settingsData = Get-ApiData $settingsResp "GET /api/settings"
+        $settingsBody = @{
+            general = $settingsData.general
+            scanImport = $settingsData.scanImport
+            playback = $settingsData.playback
+            library = $settingsData.library
+            metaTube = @{
+                serverUrl = $metaTubeUrl
+                requestTimeoutSeconds = [int]$testEnv.metaTube.requestTimeoutSeconds
+            }
+        } | ConvertTo-Json -Depth 10 -Compress
+
+        Invoke-RestMethod -Method PUT -Uri "$baseUrl/api/settings" -Headers @{ "Content-Type" = "application/json" } -Body $settingsBody | Out-Null
+        Write-Host "  MetaTube configured: $metaTubeUrl"
+    }
+    catch {
+        Write-Host "  Failed to configure MetaTube: $_" -ForegroundColor Red
+        throw
+    }
+}
 
 # --- Step 5: API 播种 ---
 Write-Host "`n[seed-e2e] Step 5: Seeding data via API..." -ForegroundColor Yellow
@@ -429,52 +458,7 @@ $validationResults = @()
 $actorsFound = 0
 
 if (-not $SkipScrape -and $scrapeableVids.Count -gt 0) {
-    Write-Host "`n[seed-e2e] Step 5.5: Configuring MetaTube..." -ForegroundColor Yellow
-
-    try {
-        $settingsResp = Invoke-RestMethod "$baseUrl/api/settings"
-        $settingsData = Get-ApiData $settingsResp "GET /api/settings"
-        $settingsBody = @{
-            general = $settingsData.general
-            image = $settingsData.image
-            scanImport = $settingsData.scanImport
-            playback = $settingsData.playback
-            library = $settingsData.library
-            metaTube = @{
-                serverUrl = $metaTubeUrl
-                requestTimeoutSeconds = [int]$testEnv.metaTube.requestTimeoutSeconds
-            }
-        } | ConvertTo-Json -Depth 10 -Compress
-
-        Invoke-RestMethod -Method PUT -Uri "$baseUrl/api/settings" -Headers $headers -Body $settingsBody | Out-Null
-        Write-Host "  MetaTube configured: $metaTubeUrl"
-    }
-    catch {
-        Write-Host "  Failed to configure MetaTube: $_" -ForegroundColor Red
-        throw
-    }
-
-    $scrapeBody = @{
-        mode = "missing-only"
-        writeSidecars = $true
-        downloadActorAvatars = $true
-    } | ConvertTo-Json -Compress
-
-    foreach ($library in $libraries) {
-        Write-Host "`n[seed-e2e] Step 5.7: Triggering MetaTube scrape for $($library.Name)..." -ForegroundColor Yellow
-        $scrapeResp = Invoke-RestMethod -Method POST -Uri "$baseUrl/api/libraries/$($library.Id)/scrape" -Headers $headers -Body $scrapeBody
-        $scrapeData = Get-ApiData $scrapeResp "POST /api/libraries/$($library.Id)/scrape"
-        $scrapeTask = Get-RequiredProperty $scrapeData "task" "scrape data for $($library.Name)"
-        $scrapeTaskId = Get-RequiredProperty $scrapeTask "id" "scrape task for $($library.Name)"
-        $scrapeResult = Wait-WorkerTask -BaseUrl $baseUrl -TaskId $scrapeTaskId -Label "$($library.Name) scrape" -TimeoutSeconds 240
-        $scrapeStatus = $scrapeResult.status.ToLowerInvariant()
-        if ($scrapeStatus -ne "succeeded") {
-            $errorMessage = if (Test-HasProperty $scrapeResult "errorMessage") { $scrapeResult.errorMessage } else { "" }
-            throw "$($library.Name) scrape failed with status '$scrapeStatus'. $errorMessage"
-        }
-    }
-
-    Write-Host "`n[seed-e2e] Step 5.9: Verifying scrape results..." -ForegroundColor Yellow
+    Write-Host "`n[seed-e2e] Step 5.5: Verifying scrape results..." -ForegroundColor Yellow
 
     $videosAItems = Get-LibraryVideoItems -BaseUrl $baseUrl -LibraryId $libAId
     $videosBItems = Get-LibraryVideoItems -BaseUrl $baseUrl -LibraryId $libBId
